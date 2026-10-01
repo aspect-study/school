@@ -62,6 +62,8 @@ const driver = `
     window.FileReader.prototype.readAsText = function () { this.result = exported; this.onload(); };
     var asked = null;
     window.confirm = function (msg) { asked = msg; return answer; };
+    var shown = null;
+    window.alert = function (msg) { shown = msg; };
     var realTimeout = window.setTimeout, reloads = 0;
     window.setTimeout = function () { reloads++; };
     var dt = new DataTransfer();
@@ -69,7 +71,7 @@ const driver = `
     $('import-file').files = dt.files;
     $('import-file').dispatchEvent(new Event('change'));
     window.setTimeout = realTimeout;
-    return { asked: asked, msg: $('backup-msg').textContent, reloads: reloads };
+    return { asked: asked, msg: $('backup-msg').textContent, shown: shown, reloads: reloads };
   }
 
   unlock();
@@ -122,6 +124,9 @@ try {
 
   assert.equal(r.again.asked, null, 'no question when the tablet already matches');
   assert.match(r.again.msg, /Points and coins already match this backup\.$/);
+  for (const k of ['declined', 'restored', 'again']) assert.equal(r[k].shown, r[k].msg, k + ' result pops up');
+  assert.match(r.declined.shown, /^Study history: added 1 entry, skipped 0 duplicates\. /);
+  assert.match(r.restored.shown, /^Study history: added 0 entries, skipped 1 duplicate\. /);
   console.log('Backup passed');
 } catch (e) {
   console.error('FAIL backup:', e.message);

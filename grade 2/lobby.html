@@ -482,7 +482,7 @@
             <button class="p-btn" type="button" id="export-csv">Export spreadsheet (.csv)</button>
             <button class="p-btn" type="button" id="import-btn">Import backup</button>
             <button class="p-btn" type="button" id="export-shop">Download shop history (.csv)</button>
-            <input type="file" id="import-file" accept=".json,application/json" hidden>
+            <input type="file" id="import-file" hidden>
           </div>
           <p class="p-note" id="backup-age"></p>
           <p class="p-note">The full backup holds the study history, points and coins. Keep a copy off the tablet (for example, email it to yourself).</p>
@@ -1157,6 +1157,10 @@ window.SHOP_TEXT = {
   $('export-shop').addEventListener('click', function(){
     download('shop-history-' + SH.grade + '-' + today() + '.csv', SH.exportPurchasesCsv(), 'text/csv;charset=utf-8');
   });
+  function importResult(msg){
+    $('backup-msg').textContent = msg;
+    alert(msg);
+  }
   $('import-btn').addEventListener('click', function(){ picking = true; $('import-file').click(); });
   $('import-file').addEventListener('change', function(){
     picking = false;
@@ -1168,15 +1172,16 @@ window.SHOP_TEXT = {
         var text = String(reader.result);
         var r = SH.importJson(text);
         var b = SH.backupState(text);
-        $('backup-msg').textContent = 'Added ' + entriesWord(r.added) + ', skipped ' + plural(r.skipped, 'duplicate') + '.' + (b ? ' ' + restoreState(b) : '');
+        var history = 'Study history: added ' + entriesWord(r.added) + ', skipped ' + plural(r.skipped, 'duplicate') + '.';
         renderHistory();
+        importResult(history + ' ' + (b ? restoreState(b) : 'This backup has no points or coins in it (it was made with the old Export button), so only the history was added.'));
       } catch (err) {
-        $('backup-msg').textContent = err.message;
+        importResult(err.message);
       }
       input.value = '';
     };
     reader.onerror = function(){
-      $('backup-msg').textContent = 'Could not read that file.';
+      importResult('Could not read that file.');
       input.value = '';
     };
     reader.readAsText(file);
