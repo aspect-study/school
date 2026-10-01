@@ -250,6 +250,7 @@
   .h-summary .missed{ flex-basis:100%; font-weight:700; color:var(--ink-soft); }
   .weak-list{ margin:6px 0 0; padding-left:22px; }
   .weak-list li{ margin:4px 0; overflow-wrap:anywhere; }
+  #paste-text{ width:100%; box-sizing:border-box; font:13px/1.4 monospace; }
   .h-day{ margin:16px 0 6px; font-family:'Baloo 2', system-ui, sans-serif; font-weight:700; font-size:1.05rem; }
   .h-day:first-child{ margin-top:0; }
   .h-item{ display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--border); }
@@ -480,11 +481,19 @@
           <div class="p-row">
             <button class="p-btn" type="button" id="export-json">Export full backup (.json)</button>
             <button class="p-btn" type="button" id="export-csv">Export spreadsheet (.csv)</button>
+            <button class="p-btn" type="button" id="copy-backup">Copy full backup</button>
             <button class="p-btn" type="button" id="import-btn">Import backup</button>
+            <button class="p-btn" type="button" id="paste-btn">Paste backup</button>
             <button class="p-btn" type="button" id="export-shop">Download shop history (.csv)</button>
             <input type="file" id="import-file" hidden>
           </div>
+          <div id="paste-box" hidden>
+            <p class="p-note" id="paste-hint"></p>
+            <textarea id="paste-text" rows="5" spellcheck="false"></textarea>
+            <div class="p-row"><button class="p-btn" type="button" id="paste-import">Import pasted backup</button></div>
+          </div>
           <p class="p-note" id="backup-age"></p>
+          <p class="p-note">If Export only shows text (for example inside Messenger), use Copy full backup, keep the copied text, then open the new link and use Paste backup.</p>
           <p class="p-note">The full backup holds the study history, points and coins. Keep a copy off the tablet (for example, email it to yourself).</p>
           <p class="p-note">Shop purchases older than 7 days are deleted automatically. Download the shop history every week to keep a record.</p>
           <p class="p-note" id="backup-msg"></p>
@@ -1161,6 +1170,57 @@ window.SHOP_TEXT = {
     $('backup-msg').textContent = msg;
     alert(msg);
   }
+  function importText(text){
+    try {
+      var r = SH.importJson(text);
+      var b = SH.backupState(text);
+      var history = 'Study history: added ' + entriesWord(r.added) + ', skipped ' + plural(r.skipped, 'duplicate') + '.';
+      renderHistory();
+      importResult(history + ' ' + (b ? restoreState(b) : 'This backup has no points or coins in it (it was made with the old Export button), so only the history was added.'));
+    } catch (err) {
+      importResult(err.message);
+    }
+  }
+  function showPasteBox(hint, text){
+    $('paste-box').hidden = false;
+    $('paste-hint').textContent = hint;
+    $('paste-text').value = text;
+    $('paste-text').focus();
+    if (text) $('paste-text').select();
+  }
+  function copyText(text){
+    var ta = el('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+  $('copy-backup').addEventListener('click', function(){
+    var text = SH.exportJson(savedState());
+    if (copyText(text)) {
+      SH.markBackedUp();
+      renderBackupAge();
+      importResult('Full backup copied. Paste it somewhere safe (a note, or a message to yourself). To restore, open the lobby, then Parent, Paste backup.');
+      return;
+    }
+    showPasteBox('Copying did not work here. Select all of the text below and copy it yourself.', text);
+    SH.markBackedUp();
+    renderBackupAge();
+  });
+  $('paste-btn').addEventListener('click', function(){
+    showPasteBox('Paste the full backup text here, then tap Import pasted backup.', '');
+  });
+  $('paste-import').addEventListener('click', function(){
+    var text = $('paste-text').value.trim();
+    if (!text){ importResult('Paste the backup text first.'); return; }
+    importText(text);
+  });
   $('import-btn').addEventListener('click', function(){ picking = true; $('import-file').click(); });
   $('import-file').addEventListener('change', function(){
     picking = false;
@@ -1168,16 +1228,7 @@ window.SHOP_TEXT = {
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function(){
-      try {
-        var text = String(reader.result);
-        var r = SH.importJson(text);
-        var b = SH.backupState(text);
-        var history = 'Study history: added ' + entriesWord(r.added) + ', skipped ' + plural(r.skipped, 'duplicate') + '.';
-        renderHistory();
-        importResult(history + ' ' + (b ? restoreState(b) : 'This backup has no points or coins in it (it was made with the old Export button), so only the history was added.'));
-      } catch (err) {
-        importResult(err.message);
-      }
+      importText(String(reader.result));
       input.value = '';
     };
     reader.onerror = function(){

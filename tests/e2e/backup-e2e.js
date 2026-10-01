@@ -85,6 +85,36 @@ const driver = `
   r.again = importFile(true);
   r.keys = keys.slice(0, 2);
 
+  var copied = null, lastAlert = null;
+  window.alert = function (msg) { lastAlert = msg; };
+  document.execCommand = function () {
+    var t = document.querySelector('body > textarea[readonly]');
+    copied = t ? t.value : null;
+    return true;
+  };
+  $('copy-backup').click();
+  r.copiedKeys = Object.keys(JSON.parse(copied).state).sort();
+  r.copyAlert = lastAlert;
+  localStorage.clear();
+  $('paste-btn').click();
+  r.pasteBoxShown = !$('paste-box').hidden;
+  $('paste-text').value = '  ' + copied + '  ';
+  window.confirm = function () { return true; };
+  var realTimeout = window.setTimeout;
+  window.setTimeout = function () {};
+  $('paste-import').click();
+  window.setTimeout = realTimeout;
+  r.pasteAlert = lastAlert;
+  r.pastedPoints = localStorage.getItem(keys[0]);
+  r.pastedCoins = Wallet.balanceStored();
+  $('paste-text').value = '';
+  $('paste-import').click();
+  r.emptyPasteAlert = lastAlert;
+  document.execCommand = function () { return false; };
+  $('copy-backup').click();
+  r.manualCopyText = $('paste-text').value;
+  r.manualCopyHint = $('paste-hint').textContent;
+
   r.errors = window.__e2eErrors || [];
   var pre = document.createElement('pre');
   pre.id = 'e2e-out';
@@ -127,6 +157,15 @@ try {
   for (const k of ['declined', 'restored', 'again']) assert.equal(r[k].shown, r[k].msg, k + ' result pops up');
   assert.match(r.declined.shown, /^Study history: added 1 entry, skipped 0 duplicates\. /);
   assert.match(r.restored.shown, /^Study history: added 0 entries, skipped 1 duplicate\. /);
+  assert.deepEqual(r.copiedKeys, r.exportedKeys, 'copy holds the same keys as the file export');
+  assert.match(r.copyAlert, /^Full backup copied\./);
+  assert.equal(r.pasteBoxShown, true);
+  assert.match(r.pasteAlert, /Restored points and coins/);
+  assert.equal(r.pastedPoints, '500');
+  assert.equal(r.pastedCoins, coins);
+  assert.equal(r.emptyPasteAlert, 'Paste the backup text first.');
+  assert.equal(JSON.parse(r.manualCopyText).grade, 'grade' + grade, 'when copying fails the text is shown to copy by hand');
+  assert.match(r.manualCopyHint, /^Copying did not work here/);
   console.log('Backup passed');
 } catch (e) {
   console.error('FAIL backup:', e.message);
