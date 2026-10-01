@@ -11,7 +11,18 @@ Everything is plain HTML and JavaScript: no build step, no server, no install. O
 | Grade 5 | <https://aspect-study.github.io/school/lobby-grade5.html> |
 | Grade 2 | <https://aspect-study.github.io/school/grade%202/lobby.html> |
 
-Tip: open the lobby on a tablet and use **Add to Home Screen** so it opens like an app.
+### Install as an app (works offline)
+
+Each lobby is an installable app (PWA) with its own name and icon: **Grade 5** (teal) and **Grade 2** (pink). Open the lobby link once while online, then:
+
+- **Android (Chrome):** menu ⋮ → **Install app** (or **Add to Home screen**).
+- **iPad / iPhone (Safari):** Share → **Add to Home Screen**.
+
+After that first visit, every game in that grade plays offline. When the tablet is online, it always loads the newest version, so content updates show up without reinstalling.
+
+**Before replacing an existing iPad home-screen icon**, make a backup (🔒 Parent → Full backup, or copy the backup text) and import it in the new app. On iOS each home-screen app has its own storage, so a new icon starts with no points or coins. Android shares storage with Chrome, so nothing needs to be moved there. An existing icon keeps working and also gets offline play, so there is no need to replace it.
+
+The offline cache list is in `sw.js`. `tests/pwa.test.js` fails if a game page or shared script is left out of it.
 
 ## Subjects
 

@@ -8,8 +8,8 @@
 **/extracted/
 **/drive-download-*/
 
-# Saved Google Forms pages (the .html score pages themselves are kept)
-grade5-score-released/*_files/
+# Saved Google Forms score pages
+grade5-score-released/
 
 # Tool output
 .gstack/
@@ -17,3 +17,6 @@ grade5-score-released/*_files/
 *.jsonl
 node_modules/
 .claude/settings.local.json
+
+# App icons for the installable lobbies are generated art, not scans
+!icons/*.png

@@ -1,0 +1,17 @@
+{
+  "id": "./lobby.html",
+  "name": "Study Games - Grade 2",
+  "short_name": "Grade 2",
+  "description": "Flashcards, quizzes and mock exams for every Grade 2 subject.",
+  "start_url": "./lobby.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F4F1E9",
+  "theme_color": "#D9667B",
+  "icons": [
+    { "src": "../icons/grade2-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "../icons/grade2-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "../icons/grade2-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
