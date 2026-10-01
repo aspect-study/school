@@ -1,0 +1,1019 @@
+<html lang="en">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Rally Ready: Net &amp; Wall Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF7EC;
+  --card:#FFFFFF;
+  --ink:#2B2320;
+  --accent:#1F7A5C;
+  --accent-dark:#0D4A36;
+  --accent-soft:#DFF1E8;
+  --gold:#FFB627;
+  --coral:#FF6F59;
+  --muted:#8A7F73;
+  --border:#F0E4D2;
+  --good:#2E9E5B;
+  --bad:#E15555;
+  --shadow: 0 10px 28px rgba(43,35,32,0.10);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15201F;
+    --card:#1E2C2A;
+    --ink:#F5EFE3;
+    --accent:#48C39A;
+    --accent-dark:#A6ECD5;
+    --accent-soft:#1D3328;
+    --gold:#FFC65C;
+    --coral:#FF8A73;
+    --muted:#B9AE9E;
+    --border:#2C3B39;
+    --good:#4FCB82;
+    --bad:#FF7A7A;
+    --shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15201F;
+  --card:#1E2C2A;
+  --ink:#F5EFE3;
+  --accent:#48C39A;
+  --accent-dark:#A6ECD5;
+  --accent-soft:#1D3328;
+  --gold:#FFC65C;
+  --coral:#FF8A73;
+  --muted:#B9AE9E;
+  --border:#2C3B39;
+  --good:#4FCB82;
+  --bad:#FF7A7A;
+  --shadow: 0 10px 28px rgba(0,0,0,0.35);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
+#app{max-width:720px;margin:0 auto;padding:20px 16px 60px;}
+.screen{display:none;}
+.screen.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.hero{
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  color:#fff;
+  border-radius:22px;
+  padding:26px 22px;
+  box-shadow:var(--shadow);
+  margin-bottom:20px;
+}
+/* In dark mode --accent-dark is deliberately LIGHT (it is used as text colour on
+   dark cards). That makes the hero gradient pale, and the hero's white text drops
+   to ~1.4:1 contrast. Darken both stops here so the white text stays readable. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .hero{
+    background:linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 55%, #0C1414),
+      color-mix(in srgb, var(--accent-dark) 35%, #0C1414));
+  }
+}
+:root[data-theme="dark"] .hero{
+  background:linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 55%, #0C1414),
+    color-mix(in srgb, var(--accent-dark) 35%, #0C1414));
+}
+.hero h1{margin:0 0 6px;font-size:1.7rem;}
+.hero p{margin:0;opacity:.92;line-height:1.5;font-size:.95rem;}
+.hero .badge{
+  display:inline-block;background:rgba(255,255,255,.18);
+  padding:4px 12px;border-radius:999px;font-size:.75rem;font-weight:800;
+  letter-spacing:.04em;margin-bottom:10px;
+}
+
+.card-list{display:flex;flex-direction:column;gap:12px;}
+.item-card{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  display:flex;align-items:center;gap:14px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:transform .15s ease, border-color .15s ease;
+}
+.item-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+/* Cards and the flashcard are divs (they contain headings, so they cannot be
+   <button>). They carry role=button + tabindex, so give them a visible focus
+   ring for anyone driving the app from the keyboard. */
+.item-card:focus-visible,
+.flashcard:focus-visible,
+.btn:focus-visible,
+.option:focus-visible,
+.btn-icon:focus-visible{
+  outline:3px solid var(--gold);
+  outline-offset:3px;
+}
+.item-card .icon{
+  width:52px;height:52px;border-radius:14px;
+  background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;
+}
+.item-card .info{flex:1;min-width:0;}
+.item-card .info h3{margin:0 0 3px;font-size:1.05rem;}
+.item-card .info p{margin:0;color:var(--muted);font-size:.82rem;}
+.stars{font-size:.95rem;letter-spacing:1px;color:var(--gold);white-space:nowrap;}
+.stars .off{color:var(--border);}
+
+.final-card{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--accent-soft),var(--card));
+}
+.final-badge{
+  display:inline-block;background:var(--gold);color:#3A2900;
+  font-size:.68rem;font-weight:800;padding:2px 10px;border-radius:999px;
+  margin-bottom:4px;letter-spacing:.03em;
+}
+.strategy-card{border-color:var(--coral);}
+.strategy-card .icon{background:#FFEAE6;}
+
+.topbar{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.btn-icon{
+  background:var(--card);border:2px solid var(--border);border-radius:12px;
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1.1rem;color:var(--ink);flex-shrink:0;
+}
+.topbar h2{margin:0;font-size:1.15rem;flex:1;}
+
+.flash-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;}
+.flashcard{
+  width:100%;min-height:220px;
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:26px 22px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;cursor:pointer;
+  position:relative;
+}
+.flashcard .tag{
+  position:absolute;top:14px;left:16px;font-size:.7rem;font-weight:800;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.05em;
+}
+.flashcard h3{margin:6px 0 10px;font-size:1.3rem;color:var(--accent-dark);}
+.flashcard p{margin:0;font-size:1rem;line-height:1.55;}
+.flashcard .hint{margin-top:14px;font-size:.78rem;color:var(--muted);}
+.flash-nav{display:flex;align-items:center;gap:16px;width:100%;justify-content:space-between;}
+.flash-dots{font-size:.85rem;color:var(--muted);font-weight:700;}
+
+.btn{
+  font-family:'Baloo 2',cursive;
+  border:none;border-radius:14px;
+  padding:13px 22px;font-size:1rem;font-weight:700;
+  cursor:pointer;color:#fff;
+  background:var(--accent);
+  box-shadow:0 6px 0 var(--accent-dark);
+  transition:transform .1s ease;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--accent-dark);}
+.btn.gold{background:var(--gold);box-shadow:0 6px 0 #C98600;color:#3A2900;}
+.btn.gold:active{box-shadow:0 2px 0 #C98600;}
+.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--border);box-shadow:none;}
+.btn.full{width:100%;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.progress-bar{
+  height:10px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:18px;
+}
+.progress-bar .fill{height:100%;background:var(--gold);transition:width .3s ease;}
+
+.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.85rem;color:var(--muted);font-weight:700;}
+.scene-box{
+  background:var(--card);border:2px solid var(--border);border-radius:18px;
+  padding:10px;margin-bottom:16px;box-shadow:var(--shadow);
+}
+.scene-box svg{width:100%;max-width:150px;display:block;margin:0 auto;}
+
+.passage{
+  background:var(--accent-soft);border:2px solid var(--accent);border-radius:16px;
+  padding:16px;margin-bottom:16px;font-size:.95rem;line-height:1.6;
+}
+.passage strong{color:var(--accent-dark);}
+
+.q-card{
+  background:var(--card);border:2px solid var(--border);border-radius:18px;
+  padding:20px;box-shadow:var(--shadow);margin-bottom:16px;
+}
+.q-card h3{margin:0 0 16px;font-size:1.1rem;line-height:1.5;}
+.option{
+  display:block;width:100%;text-align:left;
+  background:var(--bg);border:2px solid var(--border);border-radius:14px;
+  padding:13px 16px;margin-bottom:10px;font-size:.95rem;font-family:'Nunito',sans-serif;
+  cursor:pointer;color:var(--ink);font-weight:700;
+}
+.option:hover{border-color:var(--accent);}
+.option.correct{background:#E5F6EB;border-color:var(--good);color:#1B6B3C;}
+.option.wrong{background:#FCE9E9;border-color:var(--bad);color:#A82F2F;}
+.option:disabled{cursor:default;}
+.option.explorable{border-style:dashed;}
+.option.explored{box-shadow:0 0 0 3px var(--accent-soft);}
+.explore{margin-top:4px;}
+.explore-hint{font-size:.85rem;color:var(--muted);font-weight:700;}
+.explore-card{margin-top:8px;background:var(--card);border:2px solid var(--border);border-left:5px solid var(--bad);border-radius:10px;padding:9px 12px;line-height:1.5;font-size:.88rem;}
+.explore-card.explore-right{border-left-color:var(--good);}
+.explore-card b.learn-label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.explore-card .learn-choice{font-weight:800;}
+.explore-card .learn-why{display:block;margin-top:3px;}
+.explain{
+  margin-top:12px;padding:12px 14px;background:var(--accent-soft);
+  border-radius:12px;font-size:.88rem;line-height:1.5;color:var(--ink);
+}
+
+.results-hero{text-align:center;padding:20px 0;}
+.results-hero .big-stars{font-size:2.2rem;color:var(--gold);letter-spacing:4px;}
+.results-hero h2{margin:8px 0 4px;}
+.results-hero p{color:var(--muted);margin:0 0 16px;}
+.result-actions{display:flex;flex-direction:column;gap:10px;}
+
+.strategy-list{display:flex;flex-direction:column;gap:12px;}
+.tip{
+  background:var(--card);border:2px solid var(--border);border-left:6px solid var(--coral);
+  border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);
+}
+.tip h4{margin:0 0 5px;font-size:.98rem;color:var(--accent-dark);}
+.tip p{margin:0;font-size:.9rem;line-height:1.55;}
+.tip .kicker{font-size:.7rem;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.05em;}
+
+/* 3-up lesson map on wide screens, so every lesson shows at once.
+   Only the lesson list widens -- flashcards, quiz and results stay narrow. */
+@media (min-width:900px){
+  #app{max-width:1120px;}
+  #app .screen:not(#home){max-width:720px; margin-left:auto; margin-right:auto;}
+  #home > *:not(.card-list){max-width:720px; margin-left:auto; margin-right:auto;}
+  #home .card-list{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; align-items:stretch;}
+  #home .item-card{flex-direction:column; align-items:stretch; height:100%;}
+  #home .item-card .icon{align-self:flex-start;}
+  #home .item-card .info{flex:1;}
+}
+
+/* ---- POINTS ---- */
+.points-total{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.18);color:#fff;
+  padding:6px 14px;border-radius:999px;
+  font-size:.82rem;font-weight:800;margin-top:12px;
+}
+.points-live{color:var(--gold);font-weight:800;white-space:nowrap;}
+.points-live .streak{color:var(--coral);margin-left:4px;}
+.points-earned{font-size:1rem;font-weight:800;color:var(--ink);margin:8px 0 0;}
+/* ---- Learn from a wrong answer ---- */
+.learn{display:flex;flex-direction:column;gap:8px;}
+.learn-title{font-weight:800;}
+.learn-row{background:var(--card);border-radius:10px;padding:9px 12px;border-left:5px solid var(--bad);line-height:1.5;}
+.learn-row b.learn-label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.learn-row .learn-choice{font-weight:800;}
+.learn-row .learn-why{display:block;margin-top:3px;}
+.learn-right{border-left-color:var(--good);}
+.learn-tip{border-left-color:var(--gold);}
+.missed-review{text-align:left;margin:0 0 18px;padding-top:14px;border-top:1px solid var(--border);}
+.missed-review h3{text-align:center;margin:0 0 10px;font-size:1rem;}
+.missed-list{max-height:420px;overflow-y:auto;}
+.missed-item{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:.88rem;}
+.missed-item .missed-q{white-space:pre-line;font-weight:700;margin:0 0 8px;}
+</style>
+
+<div id="app">
+
+  <div id="home" class="screen active">
+    <div class="hero">
+      <span class="badge">P.E. &amp; Health · Grade 5 · First Term</span>
+      <h1>Rally Ready 🏓</h1>
+      <p>Build your pickleball court one correct answer at a time! Study Net &amp; Wall Games, the ABC Skills, Game Tactics, the famous Kitchen rule, and how to manage stress in healthy ways — then take the Mock Exam and read the Exam Strategy guide so you're ready for your teacher's test.</p>
+      <div class="points-total" id="points-total-badge"></div>
+      <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
+    </div>
+    <div class="card-list" id="homeList"></div>
+  </div>
+
+  <div id="flashScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2 id="flashTitle"></h2>
+    </div>
+    <div class="flash-wrap">
+      <div class="flashcard" id="flashCard" onclick="flipCard()"
+           role="button" tabindex="0" aria-label="Flashcard. Activate to flip between the term and its meaning."
+           onkeydown="cardKey(event)">
+        <span class="tag" id="flashTag">Term</span>
+        <h3 id="flashFront"></h3>
+        <p id="flashBack" style="display:none;"></p>
+        <div class="hint" id="flashHint">Tap the card to flip</div>
+      </div>
+      <div class="flash-nav">
+        <button class="btn ghost" onclick="prevCard()">◀ Prev</button>
+        <span class="flash-dots" id="flashDots"></span>
+        <button class="btn ghost" onclick="nextCard()">Next ▶</button>
+      </div>
+      <button class="btn gold full" onclick="startQuiz()">Start Quiz 🏓</button>
+    </div>
+  </div>
+
+  <div id="quizScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2 id="quizTitle"></h2>
+    </div>
+    <div class="scene-box"><div id="sceneSvg"></div></div>
+    <div class="progress-bar"><div class="fill" id="quizFill" style="width:0%"></div></div>
+    <div class="quiz-head">
+      <span id="quizCounter"></span>
+      <span id="quizScoreLabel"></span>
+      <span class="points-live" id="points-live"></span>
+    </div>
+    <div id="passageBox"></div>
+    <div class="q-card">
+      <h3 id="qText"></h3>
+      <div id="optionsBox"></div>
+      <div class="explore" id="exploreBox" style="display:none;"></div>
+      <div class="explain" id="explainBox" style="display:none;"></div>
+    </div>
+    <button class="btn full" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next ▶</button>
+  </div>
+
+  <div id="resultsScreen" class="screen">
+    <div class="results-hero">
+      <div class="scene-box" style="max-width:180px;margin:0 auto 14px;"><div id="resultScene"></div></div>
+      <div class="big-stars" id="resultStars"></div>
+      <h2 id="resultTitle"></h2>
+      <p id="resultScore"></p>
+      <div class="points-earned" id="points-earned"></div>
+      <div class="coins-have" data-coins="haveNow"></div>
+    </div>
+    <div class="missed-review" id="missedReview" style="display:none;"></div>
+    <div class="result-actions">
+      <button class="btn full" onclick="retryQuiz()">Try Again 🔁</button>
+      <button class="btn ghost full" onclick="goHome()">Back to Home</button>
+    </div>
+  </div>
+
+  <div id="strategyScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2>Exam Strategy 🎯</h2>
+    </div>
+    <div class="hero" style="background:linear-gradient(135deg,var(--coral),#C94B3A);">
+      <span class="badge">Before you take the real test</span>
+      <h1 style="font-size:1.35rem;">How to Ace a P.E. &amp; Health Test</h1>
+      <p>These are the exact moves to use on your teacher's P.E. exam — not just for this app.</p>
+    </div>
+    <div class="strategy-list" id="strategyList"></div>
+  </div>
+
+</div>
+
+<script src="study-history.js" data-grade="grade5"></script>
+<script src="wallet.js" data-grade="grade5"></script>
+<script src="fx.js" data-grade="grade5"></script>
+<script src="powerups.js" data-grade="grade5"></script>
+<script src="recall.js" data-grade="grade5"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src'), name = GLOBALS[file.replace(/(-grade\d+)?\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Copy it into the same folder as this page.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+const LESSONS = [
+  {
+    id:'netwall',
+    icon:'🏓',
+    title:'Net & Wall Games',
+    subtitle:'Pickleball, wall ball & equipment',
+    cards:[
+      {front:'What Are Net and Wall Games?', back:'Activities where players send an object (like a ball) back and forth OVER a net or AGAINST a wall.'},
+      {front:'Pickleball', back:'Using paddles to hit a ball over a LOW net.'},
+      {front:'Wall Ball', back:'Bouncing or throwing a ball against a wall so another player can catch or return it.'},
+      {front:'Why Play Them?', back:'They promote active living and overall health, and they develop important movement skills.'},
+      {front:'Pickleball Equipment', back:'Lightweight kid-friendly paddles, perforated plastic pickleballs, a low or portable net, court markers (cones, floor tape, chalk), and boundary lines.'},
+      {front:'Wall Ball Equipment', back:'Rubber or foam balls (safe indoors and outdoors), a smooth wall surface, floor markers for distance lines, and chalk or tape to mark target zones on the wall.'},
+      {front:'Remember', back:'Net and wall games are not just fun — they build the movement skills you use in every sport.'}
+    ],
+    quiz:[
+      {q:'True or False: In net and wall games, players send an object back and forth over a net or against a wall.', options:['True','False'], correct:0, explain:'Correct — that is exactly the definition of net and wall games.', why:['', 'False is not right because the statement matches the definition exactly: an object goes back and forth OVER a net or AGAINST a wall.'], tip:'Check each part of the statement against the flashcard. Net games go OVER a net, wall games go AGAINST a wall. If every part matches, it is True.'},
+      {q:'Which equipment belongs to PICKLEBALL and not to wall ball?', options:['A smooth wall surface','A perforated plastic ball and a paddle','Chalk for wall targets','A rubber or foam ball'], correct:1, explain:'Pickleball uses lightweight paddles and a perforated plastic ball. The wall, chalk targets, and foam balls belong to wall ball.', why:['A smooth wall surface is wall ball equipment, because you bounce the ball against it. Pickleball needs a net, not a wall.', '', 'Chalk for wall targets is wall ball equipment. It marks target zones on the wall.', 'A rubber or foam ball is the wall ball ball. Pickleball uses a perforated plastic ball.'], tip:'Ask yourself, “Does this thing need a wall?” If yes, it belongs to wall ball. Pickleball’s must-haves are a paddle, a ball with holes, and a low net.'},
+      {q:'True or False: Pickleball is played by hitting a ball over a very HIGH net.', options:['True','False'], correct:1, explain:'False — pickleball uses a LOW net. That is one of the things that makes it easy for beginners to learn.', why:['True is not right because of the word HIGH. Pickleball uses a LOW net, so the statement has the height swapped.', ''], tip:'Watch for size words like HIGH or LOW in a True/False. Memory hook: pickleball = paddle + LOW net.'},
+      {q:'Ramon throws a ball against the gym wall so his partner can catch it and return it. Which game is he playing?', options:['Pickleball','Wall ball','Basketball','Volleyball'], correct:1, explain:'Bouncing or throwing a ball against a wall for another player to catch or return is wall ball.', why:['Pickleball uses paddles to hit a ball over a low net. Ramon has no paddle and no net. He uses a wall.', '', 'Basketball is not one of the net and wall games in this lesson. Throwing a ball against a wall for a partner to catch or return is wall ball.', 'Volleyball is not taught in this lesson. The clue is the WALL: throwing against a wall so a partner can catch or return it is wall ball.'], tip:'Look for the clue object in the story. A wall means wall ball; a paddle and a low net mean pickleball.'},
+      {q:'True or False: Net and wall games help promote active living and overall health.', options:['True','False'], correct:0, explain:'Correct — the lesson lists promoting active living and overall health as a key reason for playing them.', why:['', 'False is not right because the lesson lists promoting active living and overall health as a reason to play net and wall games.'], tip:'Remember the “Why Play Them?” card: active living, overall health, and movement skills. If a statement names one of these, it is True.'},
+      {q:'Your class is setting up a pickleball court in the covered court. Which items do you need for the boundaries?', options:['Cones, floor tape, or chalk','A basketball ring','Foam mats','A whistle only'], correct:0, explain:'Court markers such as cones, floor tape, or chalk are used to mark the court and boundary lines.', why:['', 'A basketball ring is not on the pickleball equipment list, and it cannot mark boundary lines on the floor.', 'Foam mats are not on the pickleball equipment list, and they do not mark lines.', 'A whistle cannot draw any lines. Boundaries need court markers like cones, floor tape, or chalk.'], tip:'Boundaries are lines on the floor, so ask, “Which items can MARK the floor?” Cones, tape, and chalk can.'},
+      {q:'True or False: Wall ball needs a rough, bumpy wall so the ball bounces in surprising directions.', options:['True','False'], correct:1, explain:'False — wall ball needs a SMOOTH wall surface, such as a gym wall or an outdoor wall.', why:['True is not right because of the words ROUGH and BUMPY. Wall ball needs a SMOOTH wall surface.', ''], tip:'Spot describing words like rough, smooth, high, or low, and check them against the equipment list. Wall ball says SMOOTH wall.'},
+      {q:'Why are foam or rubber balls used for wall ball in school?', options:['They are the most expensive','They are safe for indoor and outdoor use','They are the heaviest','They never bounce'], correct:1, explain:'The lesson lists rubber or foam balls because they are safe for both indoor and outdoor play.', why:['The lesson never chooses balls for being expensive. Rubber or foam balls are chosen because they are safe.', '', 'Being heavy is not the reason. The lesson says rubber or foam balls are chosen because they are safe indoors and outdoors.', 'Wall ball needs the ball to bounce off the wall, so a ball that never bounces would not work.'], tip:'When a question asks WHY equipment is used in school, think about safety first. The card says rubber or foam balls are “safe indoors and outdoors.”'},
+      {q:'True or False: A pickleball paddle for children should be lightweight and kid-friendly.', options:['True','False'], correct:0, explain:'Correct — the equipment list specifies lightweight, kid-friendly paddles.', why:['', 'False is not right because the equipment list says the paddles are lightweight and kid-friendly.'], tip:'Link “children” with “lightweight”. Pickleball paddles in this lesson are light and kid-friendly.'},
+      {q:'Your teacher says, "Today we will play a net game." Which activity fits BEST?', options:['Running laps around the field','Pickleball over a low net','Sit-ups in pairs','Rope climbing'], correct:1, explain:'Pickleball sends a ball over a net, so it is a net game. The others do not involve sending an object over a net.', why:['Running laps does not send any object over a net, so it is not a net game.', '', 'Sit-ups in pairs are an exercise. No ball goes over a net, so it is not a net game.', 'Rope climbing has no ball and no net, so it is not a net game.'], tip:'For a “net game”, ask, “Is something being sent OVER a net?” Only one choice has a net in it.'}
+    ]
+  },
+  {
+    id:'abc',
+    icon:'🤸',
+    title:'ABC Skills',
+    subtitle:'Agility, Balance, Coordination & Speed',
+    cards:[
+      {front:'Agility', back:'The ability to move quickly and change direction smoothly — like moving left or right fast to reach a ball, or switching from defense to attack.'},
+      {front:'Balance', back:'The ability to stay steady whether standing still or moving — keeping your body stable while reaching for a ball, and staying centered during swings and catches.'},
+      {front:'Coordination', back:'The ability to use your hands, eyes, and feet together smoothly — hitting a pickleball accurately, or timing a throw or catch in wall ball.'},
+      {front:'Speed', back:'How fast you can move your body or react — running toward a ball before it bounces twice, and reacting quickly to fast hits.'},
+      {front:'How Pickleball Builds ABC', back:'Running toward the ball improves agility. Swinging the paddle with control improves hand–eye coordination. Staying low and ready improves balance. Quick rallies develop speed and reaction time.'},
+      {front:'How Wall Ball Builds ABC', back:'Predicting the bounce sharpens coordination. Quick movements to reach the ball improve agility. Staying balanced while catching or throwing develops core strength. Fast-paced play boosts speed.'},
+      {front:'Fitness Fun Activities', back:'Agility Ladder Runs (side steps, in-and-out, zigzag), Balance Challenges (stand on one foot, slow walking on a line), Reaction Ball Games (chase unpredictable bounces), and Target Wall Hits (hit numbered targets).'},
+      {front:'Why ABC Skills Matter', back:'They help you move confidently, play games more safely, improve sports performance, enjoy physical activities more, and develop teamwork and game sense.'}
+    ],
+    quiz:[
+      {q:'True or False: Agility means the ability to move quickly and change direction smoothly.', options:['True','False'], correct:0, explain:'Correct — that is the lesson’s definition of agility.', why:['', 'False is not right because “move quickly and change direction smoothly” is exactly the lesson’s definition of agility.'], tip:'Memory hook: Agility = quick changes of direction, like zigzag runs. If the statement says change direction, think Agility.'},
+      {q:'Mia reaches far to the side for a ball but keeps her body steady and does not fall over. Which ABC skill is she showing?', options:['Speed','Balance','Coordination','Agility'], correct:1, explain:'Staying steady and keeping your body stable while reaching for a ball is balance.', why:['Speed is how fast you move or react. Mia is not rushing; she is staying steady.', '', 'Coordination is using your hands, eyes, and feet together, like hitting a ball accurately. This story is about not falling over.', 'Agility is moving quickly and changing direction. Mia is reaching and staying steady, not changing direction.'], tip:'Find the key words in the story: “steady” and “does not fall over” point to Balance.'},
+      {q:'True or False: Coordination means how fast you can react to a ball.', options:['True','False'], correct:1, explain:'False — that is SPEED. Coordination is using your hands, eyes, and feet together smoothly, like hitting a pickleball accurately.', why:['True is not right because reacting fast is SPEED. Coordination means using your hands, eyes, and feet together smoothly.', ''], tip:'Ask, “Is this about HOW FAST, or about body parts WORKING TOGETHER?” How fast = Speed; hands + eyes + feet together = Coordination.'},
+      {q:'Noel runs hard to reach the ball before it bounces a second time. Which ABC skill is he using MOST?', options:['Speed','Balance','Flexibility','Strength'], correct:0, explain:'Running toward a ball before it bounces twice is an example of speed in the lesson.', why:['', 'Balance is staying steady. Noel is running hard to get there in time, which is about how fast he moves.', 'Flexibility is not one of the ABC skills in this lesson. Running to reach the ball before the second bounce is the lesson’s example of speed.', 'Strength is not one of the ABC skills in this lesson. Running to reach the ball before the second bounce is the lesson’s example of speed.'], tip:'The ABC skills are Agility, Balance, Coordination, and Speed. Cross out any choice that is not one of them, then match “runs hard” to Speed.'},
+      {q:'True or False: In pickleball, swinging the paddle with control mainly improves hand–eye coordination.', options:['True','False'], correct:0, explain:'Correct — the lesson says swinging the paddle with control improves hand–eye coordination.', why:['', 'False is not right because the lesson says swinging the paddle with control improves hand–eye coordination.'], tip:'Hitting with a paddle needs your hand and your eyes to work together, and working together is coordination.'},
+      {q:'In wall ball, which ABC skill is sharpened most by PREDICTING where the ball will bounce?', options:['Balance','Coordination','Strength','Flexibility'], correct:1, explain:'The lesson says predicting the bounce sharpens coordination.', why:['Balance is staying steady. In wall ball, the lesson links staying balanced to catching and throwing, not to predicting the bounce.', '', 'Strength is not one of the ABC skills. Predicting the bounce is about your eyes and hands working together.', 'Flexibility is not one of the ABC skills in this lesson. The lesson says predicting the bounce sharpens coordination.'], tip:'To predict a bounce, your eyes watch while your hands and feet get ready. Eyes + hands + feet working together = Coordination.'},
+      {q:'True or False: In wall ball, staying balanced while catching or throwing mainly develops your flexibility.', options:['True','False'], correct:1, explain:'False — the lesson says staying balanced while catching or throwing develops CORE STRENGTH, not flexibility.', why:['True is not right because of the word FLEXIBILITY. The lesson says staying balanced while catching or throwing develops CORE STRENGTH.', ''], tip:'In a True/False, check the LAST part too. “Staying balanced while catching or throwing” is fine, but what it develops was swapped.'},
+      {q:'Your teacher sets up a ladder on the floor for side steps, in-and-out, and zigzag runs. Which skill is this drill built for?', options:['Agility','Reading','Balance only','Coordination only'], correct:0, explain:'Agility Ladder Runs are listed in the lesson as an activity for improving agility.', why:['', 'Reading is not a movement skill, so it cannot be what a floor ladder drill is built for.', 'The balance activities in the lesson are standing on one foot and slow walking on a line, not ladder runs.', 'Coordination is using your hands, eyes, and feet together. Side steps and zigzags are about moving quickly and changing direction, which is agility.'], tip:'Zigzags and side steps mean changing direction quickly, and changing direction is the clue for Agility. Also be careful with the word “only”.'},
+      {q:'True or False: Agility Ladder Runs are used mainly to improve your balance.', options:['True','False'], correct:1, explain:'False — Agility Ladder Runs (side steps, in-and-out, zigzag) build AGILITY. The balance activities are standing on one foot and walking slowly along a line.', why:['True is not right because of the word BALANCE. Agility Ladder Runs build AGILITY; the balance activities are standing on one foot and slow walking on a line.', ''], tip:'Match each drill to its skill: Ladder runs = Agility; one foot or walking a line = Balance. If the pair is mixed up, the answer is False.'},
+      {q:'According to the lesson, why are ABC skills important for students?', options:['So they can win every game','So they move confidently, play safely, and enjoy activities more','So they can skip warm-ups','So they only play indoor games'], correct:1, explain:'The lesson says ABC skills help students move confidently, play games more safely, improve sports performance, enjoy physical activities more, and develop teamwork and game sense.', why:['The lesson never promises winning every game. It says ABC skills help you move confidently, play safely, and enjoy activities more.', '', 'The lesson says nothing about skipping warm-ups. ABC skills help you play MORE safely.', 'The lesson never says ABC skills are only for indoor games. They help you in all physical activities.'], tip:'Be careful with extreme words like “every”, “only”, and “skip”. The lesson’s reasons are about moving confidently, safely, and happily.'}
+    ]
+  },
+  {
+    id:'gameon',
+    icon:'🥅',
+    title:'Game On!',
+    subtitle:'Positioning, attacking & defending',
+    cards:[
+      {front:'Positioning', back:'Being in the right place at the right time.'},
+      {front:'The Ready Position', back:'Knees bent and paddle or hand up — so you can react to the ball in any direction.'},
+      {front:'Move Back to the Centre', back:'After you hit, move to the centre so you can cover more space. Stay alert to where the ball might go next.'},
+      {front:'Attacking', back:'Trying to score or win the rally. Hit the ball into open spaces, use fast and strong shots (but controlled!), and aim low in pickleball to make the ball harder to return.'},
+      {front:'Defending', back:'Stopping your opponent from scoring. Stay balanced and ready to react, move quickly to block or return shots, and use high, safe returns to give yourself time to recover.'},
+      {front:'Attack vs Defend', back:'Attacking = hit to open space, low and fast. Defending = high and safe, so you have time to get back into position.'},
+      {front:'Remember', back:'Good players are not just fast — they are in the right place, ready before the ball arrives.'}
+    ],
+    quiz:[
+      {q:'True or False: Positioning means being in the right place at the right time.', options:['True','False'], correct:0, explain:'Correct — that is exactly how the lesson defines positioning.', why:['', 'False is not right because “being in the right place at the right time” is exactly how the lesson defines positioning.'], tip:'Memory hook: POSITIONing is about your position, or PLACE. Right place + right time = positioning.'},
+      {q:'What does the READY POSITION look like?', options:['Standing straight with arms down','Knees bent with paddle or hand up','Sitting on the floor','Leaning on the net'], correct:1, explain:'The ready position is knees bent and paddle or hand up, so you can move in any direction.', why:['Standing straight with arms down is not ready: your knees are not bent and your paddle or hand is not up.', '', 'Sitting on the floor means you cannot move toward the ball at all.', 'Leaning on the net is not the ready position. You need knees bent and paddle or hand up.'], tip:'Ask yourself, “Could I move quickly in any direction from here?” Bent knees and a raised paddle or hand let you.'},
+      {q:'True or False: After hitting the ball, you should stay exactly where you are and wait.', options:['True','False'], correct:1, explain:'False — the lesson says move to the centre after hitting so you can cover more space.', why:['True is not right because the lesson says to MOVE back to the centre after you hit, so you can cover more space.', ''], tip:'Remember “Hit, then back to the centre.” A statement that says stay where you are and wait is False.'},
+      {q:'You want to WIN the rally. Where should you aim the ball?', options:['Straight at your opponent','Into the open space','Into the net','Out of bounds'], correct:1, explain:'Attacking means hitting the ball to open spaces, where your opponent is not standing.', why:['Hitting straight at your opponent sends the ball to where they already are, so it is easy for them to return.', '', 'A ball hit into the net does not reach your opponent’s side, so it cannot win the rally.', 'Out of bounds is outside the boundary lines. To attack, you aim for the open space where your opponent is not standing.'], tip:'Attack = aim where your opponent is NOT. Look for the open space.'},
+      {q:'True or False: When attacking in pickleball, you should aim HIGH to make the ball harder to return.', options:['True','False'], correct:1, explain:'False — aim LOW in pickleball. A low ball is much harder for your opponent to return.', why:['True is not right because of the word HIGH. When attacking in pickleball you aim LOW, because a low ball is harder to return.', ''], tip:'Memory hook: Attack LOW and fast, Defend HIGH and safe. First check which one the statement is about.'},
+      {q:'Your opponent hit a hard shot and you are off balance at the side of the court. What is the BEST defending choice?', options:['A high, safe return to give yourself time to recover','A hard smash straight down','Ignore the ball','Run to the net and stand still'], correct:0, explain:'Defending means using high, safe returns that give you time to recover and get back into position.', why:['', 'A hard smash is an attacking shot. When you are off balance you need time to recover, so you defend with a high, safe return.', 'If you ignore the ball, you are not defending at all, and your opponent can score.', 'Running to the net and standing still does not return the ball. Defending means staying ready to react and move.'], tip:'First decide: am I attacking or defending? If you are off balance or in trouble, you are defending, so choose high and safe.'},
+      {q:'True or False: Attacking shots should be fast and strong, but still controlled.', options:['True','False'], correct:0, explain:'Correct — the lesson says to use fast and strong shots, but controlled.', why:['', 'False is not right because the lesson says attacking shots are fast and strong, but controlled.'], tip:'Look for the word “but”. Attacking shots are strong AND controlled at the same time, just like the Attacking card says.'},
+      {q:'Which of these BEST describes defending?', options:['Trying to score as fast as possible','Stopping the opponent from scoring','Standing in the kitchen','Serving the ball'], correct:1, explain:'Defending is stopping the opponent from scoring — staying balanced, moving quickly, and returning safely.', why:['Trying to score is ATTACKING, not defending.', '', 'Standing in the kitchen is about the Non-Volley Zone, not what defending means.', 'Serving the ball is not what defending means. Defending is stopping your opponent from scoring.'], tip:'Attacking and defending are opposites: attacking tries to score, defending stops the other side from scoring.'},
+      {q:'True or False: Defending means using low, fast smashes to win the point quickly.', options:['True','False'], correct:1, explain:'False — that describes ATTACKING. Defending means staying balanced and using high, safe returns that give you time to recover.', why:['True is not right because low, fast smashes to win the point describe ATTACKING. Defending uses high, safe returns.', ''], tip:'If a statement puts an attacking shot under the word “defending” (or the other way around), it is False. Attack = low and fast; Defend = high and safe.'},
+      {q:'Lara keeps getting beaten by shots to the far corner because she stands on one side after every hit. What should she change?', options:['Hit harder every time','Move back to the centre after hitting','Stand closer to the net and stay there','Stop moving completely'], correct:1, explain:'Moving to the centre after hitting lets her cover more space, so corner shots are easier to reach.', why:['Hitting harder does not change where she stands. Her problem is that she stays on one side.', '', 'Standing close to the net and staying there still leaves her stuck in one spot, so the far corner stays hard to reach.', 'If she stops moving completely, she cannot reach any shot at all.'], tip:'Find the cause of the problem in the story: she stands on one side after every hit. Then use the Positioning rule to fix it.'}
+    ]
+  },
+  {
+    id:'kitchen',
+    icon:'🍳',
+    title:'Pickleball Facts & The Kitchen',
+    subtitle:'History, the ball & the Non-Volley Zone',
+    cards:[
+      {front:'Where and When It Began', back:'Pickleball started in 1965 on Bainbridge Island, Washington, USA.'},
+      {front:'Who Invented It', back:'Joel Pritchard, Bill Bell, and Barney McCallum — as a backyard game for their families.'},
+      {front:'How It Started', back:'They improvised with ping-pong paddles, a perforated plastic ball, and a badminton court, and eventually developed the rules of the sport we know today.'},
+      {front:'The Pickleball', back:'A perforated plastic ball — a lightweight ball with holes in it.'},
+      {front:'What Is "The Kitchen"?', back:'The informal name for the Non-Volley Zone (NVZ).'},
+      {front:'How Big Is the Kitchen?', back:'It is the 7-foot area on BOTH sides of the net.'},
+      {front:'The Kitchen Rule', back:'Players cannot hit a volley (hitting the ball before it bounces) while standing inside the kitchen.'},
+      {front:'You CAN Enter the Kitchen', back:'Players may enter the kitchen to hit a ball AFTER it bounces. The rule only stops volleys.'},
+      {front:'Why the Kitchen Exists', back:'It prevents players from standing too close to the net and constantly smashing the ball.'}
+    ],
+    quiz:[
+      {q:'True or False: Pickleball started in 1965 on Bainbridge Island, Washington, USA.', options:['True','False'], correct:0, explain:'Correct — 1965, Bainbridge Island, Washington, USA.', why:['', 'False is not right because the year (1965) and the place (Bainbridge Island, Washington, USA) both match the lesson.'], tip:'For history True/False items, check each detail one by one: the year, then the place. If every detail matches the card, it is True.'},
+      {q:'Who invented pickleball?', options:['Joel Pritchard, Bill Bell, and Barney McCallum','James Naismith','William G. Morgan','Walter Camp'], correct:0, explain:'Joel Pritchard, Bill Bell, and Barney McCallum invented it as a backyard game for their families.', why:['', 'James Naismith is not one of the people this lesson names as pickleball’s inventors.', 'William G. Morgan is not one of the people this lesson names as pickleball’s inventors.', 'Walter Camp is not one of the people this lesson names as pickleball’s inventors.'], tip:'Pickleball had THREE inventors. Look for the choice with three names: Pritchard, Bell, and McCallum.'},
+      {q:'True or False: A pickleball is a heavy rubber ball with a smooth surface.', options:['True','False'], correct:1, explain:'False — a pickleball is a perforated plastic ball: lightweight, with holes in it.', why:['True is not right because a pickleball is a LIGHTWEIGHT PLASTIC ball WITH HOLES. It is not heavy, not rubber, and not smooth.', ''], tip:'Remember “perforated plastic” = light plastic with holes. A statement that says heavy, rubber, or smooth is False.'},
+      {q:'What is the real name of "the kitchen" in pickleball?', options:['The service box','The Non-Volley Zone (NVZ)','The baseline','The centre line'], correct:1, explain:'"The kitchen" is the informal name for the Non-Volley Zone, or NVZ.', why:['The service box is not the kitchen. The kitchen’s real name is the Non-Volley Zone.', '', 'The baseline is not the kitchen. The kitchen is the Non-Volley Zone, the 7-foot area on both sides of the net.', 'The centre line is not the kitchen. The kitchen is the Non-Volley Zone.'], tip:'Link “kitchen” to its rule: no volleys there. That is why its real name is the NON-VOLLEY Zone.'},
+      {q:'True or False: The kitchen is a 7-foot area on both sides of the net.', options:['True','False'], correct:0, explain:'Correct — the kitchen is the 7-foot Non-Volley Zone on both sides of the net.', why:['', 'False is not right because the lesson says the kitchen is the 7-foot area on BOTH sides of the net.'], tip:'Memory hook: 7 feet, both sides of the net. Check the number and the word “both”.'},
+      {q:'You are standing inside the kitchen and the ball comes toward you in the air, before bouncing. What are you NOT allowed to do?', options:['Step backward out of the kitchen','Hit it as a volley while standing in the kitchen','Let it bounce first','Call for your partner'], correct:1, explain:'You cannot hit a volley — hitting the ball before it bounces — while standing inside the kitchen.', why:['Stepping backward out of the kitchen is allowed. The rule only stops volleys inside the kitchen.', '', 'Letting the ball bounce first is allowed. After it bounces, you may even hit it inside the kitchen.', 'Calling for your partner is allowed. The kitchen rule is only about volleys.'], tip:'The question asks what is NOT allowed. The only thing banned in the kitchen is a volley: hitting the ball before it bounces.'},
+      {q:'True or False: Players are never allowed to step into the kitchen for any reason.', options:['True','False'], correct:1, explain:'False — players CAN enter the kitchen to hit a ball after it bounces. Only volleys are banned there.', why:['True is not right because of the word NEVER. Players CAN enter the kitchen to hit a ball after it bounces.', ''], tip:'Words like “never” and “always” are warning signs. The kitchen rule stops volleys only, not stepping in.'},
+      {q:'The ball bounces inside the kitchen. What may you do?', options:['Nothing — it is an automatic loss','Step in and hit it after the bounce','Volley it from inside the kitchen','Catch it with your hand'], correct:1, explain:'Once the ball has bounced, you may enter the kitchen and hit it. The rule only stops volleys.', why:['It is not an automatic loss. Once the ball bounces, you are allowed to step in and hit it.', '', 'A volley means hitting the ball before it bounces, and volleying from inside the kitchen is exactly what the rule does not allow.', 'Pickleball uses paddles to hit the ball, so catching it with your hand is not a pickleball shot.'], tip:'Ask, “Has the ball bounced yet?” Bounced = you may hit it in the kitchen. Not bounced yet = no volley from the kitchen.'},
+      {q:'Why does the kitchen rule exist?', options:['To make the court look nicer','To stop players standing too close to the net and constantly smashing','To give the referee somewhere to stand','To slow down the serve'], correct:1, explain:'The kitchen prevents players from standing right at the net and smashing every ball downward.', why:['The kitchen is a rule about how you play, not decoration for the court.', '', 'The kitchen is not a place for the referee. It is the Non-Volley Zone for players.', 'The kitchen rule is about volleys near the net, not about the serve.'], tip:'Think about what the rule stops: no volleys close to the net. So it keeps players from standing at the net and smashing every ball.'},
+      {q:'True or False: The inventors of pickleball first used ping-pong paddles and a badminton court.', options:['True','False'], correct:0, explain:'Correct — they improvised with ping-pong paddles, a perforated plastic ball, and a badminton court.', why:['', 'False is not right because the lesson says they improvised with ping-pong paddles, a perforated plastic ball, and a badminton court.'], tip:'Memory hook: pickleball borrowed from other games — PING-PONG paddles on a BADMINTON court.'}
+    ]
+  },
+  {
+    id:'stress',
+    icon:'🧠',
+    title:'Stress & Healthy Coping',
+    subtitle:'Signs of stress, healthy vs unhealthy choices',
+    cards:[
+      {front:'What Is Stress?', back:'The feeling of being worried, overwhelmed or under pressure &mdash; often from <b>responsibilities</b> like many assignments or an upcoming quiz.'},
+      {front:'Signs of Stress', back:'Feeling <b>worried</b>, <b>overwhelmed</b>, <b>nervous</b>, <b>anxious</b>, <b>tense</b>, <b>frustrated</b> or <b>mentally tired</b>, and having <b>difficulty concentrating</b>.'},
+      {front:'Healthy Coping', back:'Deals with the problem <b>calmly</b>: make a plan, take a short break, organize your tasks, ask for help, practise ahead, breathe deeply, move your body.'},
+      {front:'Unhealthy Coping', back:'Runs away from the problem or makes it worse: avoiding people or school, <b>blaming others</b>, pretending to be sick, staying up late on games, scrolling for hours, <b>comparing yourself</b> with classmates, ignoring your work.'},
+      {front:'Positive Thinking', back:'Reminding yourself that <b>mistakes are part of learning</b> and that you <b>can improve with more practice</b>.'},
+      {front:'Low Score? Make a Plan', back:'Sofia felt disappointed after a low score. The healthy choice: <b>create a plan to improve her study habits</b> &mdash; not blame others or stay away from school.'},
+      {front:'Overwhelmed? Break, Organize, Ask', back:'Marco still had unfinished homework. First: <b>take a short break, organize his tasks, and ask for help if needed</b>.'},
+      {front:'Nervous? Prepare and Breathe', back:'Paolo before presenting: <b>deep breathing and reviewing calmly</b>. Alyssa after forgetting her lines: <b>practise ahead of time and use deep breathing</b>.'}
+    ],
+    quiz:[
+      {q:'Miguel has several assignments and an upcoming quiz. He starts feeling worried and overwhelmed. What is the feeling Miguel is experiencing?', options:['stress caused by pressure from responsibilities','happiness from having free time','confidence from being well-prepared','excitement about learning new lessons'], correct:0, explain:'Worried and overwhelmed by assignments and a quiz &mdash; that is <b>stress</b> from the pressure of responsibilities.', why:['', 'Happiness from free time does not fit. Miguel has lots of work and feels worried, not free.', 'Confidence from being well-prepared does not fit. He feels overwhelmed, not ready and sure.', 'Excitement about learning does not fit. Worried and overwhelmed are signs of stress, not excitement.'], tip:'Look for the feeling words in the story: worried and overwhelmed. Those are signs of stress, so pick the choice that names stress.'},
+      {q:'After getting a low score on a test, Sofia feels disappointed. Which action demonstrates a healthy way of coping with stress?', options:['creating a plan to improve her study habits','avoiding her classmates','blaming others for the result instead of reflecting on her mistakes','staying away from school until she feels better about the test result'], correct:0, explain:'A plan faces the problem and fixes it. Avoiding, blaming and staying away only make it worse.', why:['', 'Avoiding her classmates runs away from the problem. That is unhealthy coping.', 'Blaming others is unhealthy coping. It stops her from reflecting on her own mistakes, so nothing improves.', 'Staying away from school avoids the problem, and the test result is still there. That is unhealthy coping.'], tip:'Ask, “Does this choice FACE the problem and fix it, or RUN AWAY from it?” Healthy coping faces it, like making a plan.'},
+      {q:'Paolo feels nervous before presenting in front of the class. Which action is most likely to help him manage his stress in a healthy way?', options:['practicing deep breathing and reviewing his presentation calmly','pretending to be sick so he can skip the presentation','playing online games until late at night to forget about it','comparing himself with classmates who speak better than he does'], correct:0, explain:'Deep breathing calms him, and reviewing prepares him. The other choices avoid the problem or make him feel worse.', why:['', 'Pretending to be sick avoids the presentation, but it is still waiting for him. That is unhealthy coping.', 'Staying up late on games is on the unhealthy list. It helps him forget instead of prepare.', 'Comparing himself with classmates is unhealthy coping, and it makes him feel worse.'], tip:'For “nervous before an event” questions, look for the choice that calms you AND prepares you. Deep breathing calms; reviewing prepares.'},
+      {q:'After studying for several hours, Marco feels overwhelmed because he still has unfinished homework. What should Marco do <b>first</b> to cope with his stress in a healthy way?', options:['Take a short break, organize his tasks, and ask for help if needed.','Stay awake until midnight to finish everything at once.','Compare his work with his classmates and worry about finishing first.','Ignore all his homework and play online games for the rest of the day.'], correct:0, explain:'Rest a little, then make the work manageable. Staying up until midnight, comparing and ignoring the work all add stress.', why:['', 'Staying up until midnight adds more stress, and staying up late is on the unhealthy list.', 'Comparing his work with classmates is unhealthy coping, and it makes him worry more.', 'Ignoring his homework and playing games runs away from the problem. The homework is still there.'], tip:'Notice the word FIRST. When you feel overwhelmed, first rest a little and make the work manageable: break, organize, ask.'},
+      {q:'Alyssa becomes upset after forgetting her lines during a class presentation. She still has another presentation next week. What is the <b>BEST</b> way for Alyssa to cope with her stress?', options:['Practice her presentation ahead of time and use deep breathing to stay calm.','Avoid volunteering for presentations again.','Blame her classmates for making her nervous.','Tell everyone she does not care about her grades.'], correct:0, explain:'Practising ahead fixes the cause (forgetting lines) and deep breathing handles the nerves.', why:['', 'Avoiding presentations runs away from the problem, and she still has one next week.', 'Blaming her classmates is unhealthy coping. It does not help her remember her lines.', 'Saying she does not care does not fix anything. It ignores the problem instead of preparing for next week.'], tip:'Find the CAUSE in the story (she forgot her lines), then pick the choice that fixes that cause. Practising ahead fixes forgetting.'},
+      {q:'True or False: Blaming others for a low score is a healthy way of coping with stress.', options:['True','False'], correct:1, explain:'False — blaming others stops you from <b>reflecting on your own mistakes</b>, so nothing improves.', why:['True is not right because blaming others is on the UNHEALTHY list. It stops you from reflecting on your own mistakes.', ''], tip:'Sort the action into a box: faces the problem calmly = healthy; blames, avoids, or pretends = unhealthy.'},
+      {q:'True or False: Taking a short break and organizing your tasks can help when you feel overwhelmed.', options:['True','False'], correct:0, explain:'Correct — that is exactly what Marco should do first.', why:['', 'False is not right because taking a short break and organizing your tasks is exactly what Marco should do first when he feels overwhelmed.'], tip:'Remember Marco’s three steps: Break, Organize, Ask. If a statement names them for feeling overwhelmed, it is True.'},
+      {q:'True or False: Pretending to be sick to skip a presentation is a healthy way to manage stress.', options:['True','False'], correct:1, explain:'False — it avoids the problem, and the presentation is still waiting. Practising and deep breathing are the healthy choices.', why:['True is not right because pretending to be sick is on the UNHEALTHY list. It only avoids the presentation.', ''], tip:'Ask, “After I do this, is the problem still waiting?” If yes, the choice is avoiding it, and avoiding is unhealthy.'},
+      {q:'True or False: Feeling tense and having difficulty concentrating can be signs of stress.', options:['True','False'], correct:0, explain:'Correct — Joshua on your test felt exactly this after a long day of schoolwork.', why:['', 'False is not right because feeling tense and having difficulty concentrating are both on the Signs of Stress card.'], tip:'Learn the Signs of Stress card: worried, overwhelmed, nervous, anxious, tense, frustrated, mentally tired, and difficulty concentrating.'},
+      {q:'Which of these is an example of <b>positive thinking</b>?', options:['&ldquo;Mistakes are part of learning. I can improve with practice.&rdquo;','&ldquo;I always fail at this, so there is no point in trying.&rdquo;','&ldquo;It is all my classmates&rsquo; fault that our team lost the game.&rdquo;','&ldquo;I will never play this game again after losing it today.&rdquo;'], correct:0, explain:'Positive thinking reminds you that mistakes help you learn and that you can get better.', why:['', '“There is no point in trying” gives up. Positive thinking says you can improve with practice.', 'Blaming classmates is unhealthy coping, not positive thinking.', 'Quitting forever after one loss gives up. Positive thinking says mistakes are part of learning.'], tip:'Positive thinking has two parts: mistakes help you learn, and you can get better. Watch out for giving-up words like “always fail”, “never”, and “no point”.'},
+      {q:'Which of these is an <b>unhealthy</b> way to cope with stress?', options:['Comparing yourself with classmates who do better','Asking your teacher for help with the hard lesson','Making a plan to improve all your study habits','Taking a few slow, deep breaths before you begin'], correct:0, explain:'Comparing yourself with others only makes you feel worse. The other three are healthy ways to cope.', why:['', 'Asking your teacher for help IS a healthy way to cope, so it is not the answer — we need the unhealthy one.', 'Making a plan to improve IS a healthy way to cope, so it is not the answer — we need the unhealthy one.', 'Taking slow, deep breaths IS a healthy way to cope, so it is not the answer — we need the unhealthy one.'], tip:'This question wants the UNHEALTHY one. Three choices face the problem calmly; find the one from the unhealthy list, like comparing yourself.'}
+    ]
+  },
+  {
+    id:'movestress',
+    icon:'🚴',
+    title:'Moving to Beat Stress',
+    subtitle:'Physical activities that calm you down',
+    cards:[
+      {front:'Why Move?', back:'<b>Physical activity</b> is a healthy way to reduce stress &mdash; it helps you feel calmer and clears your mind.'},
+      {front:'Mentally Tired? Take a Brisk Walk', back:'Ella felt mentally tired and stressed after hours of studying. Recommended: <b>a brisk walk around the neighborhood</b>.'},
+      {front:'Frustrated? Play With Others', back:'Nathan was frustrated after mistakes in practice. Healthy: <b>a friendly game of badminton with classmates</b>.'},
+      {front:'Anxious or Nervous? Stretch and Breathe', back:'Lara before a school event: <b>simple stretching and breathing exercises</b>. Samantha before dodgeball: <b>light stretching and deep breathing</b>, then join the game confidently.'},
+      {front:'Tense? Move, Then Go Back', back:'Joshua felt tense and could not concentrate. Healthiest: <b>ride his bicycle or play outside for a while, then return to his homework</b>.'},
+      {front:'These Are NOT the Answer', back:'Sleeping the whole afternoon without moving &middot; staying in bed &middot; hours of TV and junk food &middot; scrolling social media &middot; skipping P.E. &middot; studying with no breaks &middot; sitting alone and refusing to join.'},
+      {front:'The BEST-Answer Test', back:'The best choice <b>moves your body</b> and still <b>faces the situation</b> &mdash; you still join the game, still do the homework.'}
+    ],
+    quiz:[
+      {q:'After spending hours studying, Ella feels mentally tired and stressed. Which physical activity is commonly recommended to help reduce stress?', options:['taking a brisk walk around the neighborhood','sleeping the entire afternoon without moving','reading another textbook chapter immediately','watching videos on her phone for several hours'], correct:0, explain:'A brisk walk is <b>physical activity</b>. Sleeping all afternoon, more reading and hours of videos keep her sitting still.', why:['', 'Sleeping the whole afternoon without moving is not physical activity. It is on the “NOT the answer” list.', 'Reading another chapter right away keeps her sitting and studying with no break, so her body is not moving.', 'Watching videos for hours keeps her sitting still, so it is not physical activity.'], tip:'The question says PHYSICAL ACTIVITY. For each choice, ask, “Is her body moving?” Only one choice moves her body.'},
+      {q:'Nathan becomes frustrated after making mistakes during practice. Which physical activity can help him cope with stress in a healthy way?', options:['playing a friendly game of badminton with classmates','sitting alone and refusing to join any activity','staying indoors and worrying about his mistakes','avoiding physical activity for the rest of the week'], correct:0, explain:'A friendly game gets him moving and back with his classmates. The rest avoid activity or keep him worrying.', why:['', 'Sitting alone and refusing to join is on the “NOT the answer” list. There is no movement and no classmates.', 'Staying indoors and worrying keeps him still and keeps the stress going.', 'Avoiding physical activity is the opposite of what the question asks for.'], tip:'Look for the choice that moves your body AND brings you back into the activity. A friendly game does both.'},
+      {q:'Lara feels anxious before an important school event. Which activity is most likely to help her calm down <b>through movement</b>?', options:['doing simple stretching and breathing exercises','skipping Physical Education class to rest','finishing all her homework without taking breaks','spending the whole day scrolling through social media'], correct:0, explain:'Stretching gets her body moving and breathing exercises calm her down. The question says <i>through movement</i>, so pick the only choice where she actually moves.', why:['', 'Skipping P.E. to rest means LESS movement, so it cannot calm her through movement.', 'Doing homework with no breaks is on the “NOT the answer” list. It keeps her sitting still.', 'Scrolling social media all day keeps her sitting still. It is not movement.'], tip:'Underline the words “through movement”. Cross out every choice where she sits still.'},
+      {q:'Samantha feels nervous before participating in the school dodgeball game. Which action <b>BEST</b> demonstrates using physical activity to manage her stress?', options:['do light stretching and deep breathing before joining the game confidently','remain seated on the bench and avoid taking part in the activity','spend the entire break scrolling through social media to distract herself','tell her teammates she will not participate because she may make mistakes'], correct:0, explain:'She moves, calms down, <b>and still joins the game</b> &mdash; that is what makes it the best answer.', why:['', 'Staying on the bench avoids the game and does not use physical activity.', 'Scrolling social media is sitting still, not physical activity, and she still avoids the game.', 'Refusing to play because she may make mistakes avoids the situation instead of facing it.'], tip:'Use the BEST-Answer Test: the best choice moves your body AND still faces the situation, so she still joins the game.'},
+      {q:'After a long day of schoolwork, Joshua notices that he is feeling tense and has difficulty concentrating. Which activity is the healthiest way to reduce his stress?', options:['He should ride his bicycle or play outside for a while before returning to his homework.','He should stay in bed all afternoon and skip all physical activities.','He should watch television for several hours while eating junk food.','He should continue studying without taking any breaks until bedtime.'], correct:0, explain:'Moving outside for a while relaxes him, and then he <b>goes back</b> to his homework.', why:['', 'Staying in bed and skipping physical activities is on the “NOT the answer” list. There is no movement.', 'Hours of TV and junk food is on the “NOT the answer” list. He stays still the whole time.', 'Studying with no breaks is on the “NOT the answer” list. He does not move, so the tense feeling stays.'], tip:'Look for the choice that moves first and then goes back to the task. “Move, then go back” is the healthiest pattern.'},
+      {q:'True or False: Sleeping the entire afternoon without moving is a physical activity that reduces stress.', options:['True','False'], correct:1, explain:'False — sleeping without moving is not a physical activity. A brisk walk would be.', why:['True is not right because of the words WITHOUT MOVING. Sleeping without moving is not a physical activity at all.', ''], tip:'A physical activity must move your body. If a statement says “without moving”, it cannot be describing a physical activity.'},
+      {q:'True or False: Riding a bicycle or playing outside for a while can help you feel less tense before going back to homework.', options:['True','False'], correct:0, explain:'Correct — that was the healthiest choice for Joshua on your test.', why:['', 'False is not right because riding a bicycle or playing outside for a while, then going back to homework, was the healthiest choice for Joshua.'], tip:'Check both parts: it moves your body AND you still go back to the homework. That passes the BEST-Answer Test.'},
+      {q:'True or False: Skipping P.E. class to rest is a good way to calm down through movement.', options:['True','False'], correct:1, explain:'False — skipping P.E. means <b>less</b> movement. Stretching and breathing exercises are the healthy choice.', why:['True is not right because skipping P.E. means LESS movement, and it is on the “NOT the answer” list.', ''], tip:'Ask, “Does this make me move more or less?” Calming down through movement needs MORE movement.'},
+      {q:'True or False: Light stretching and deep breathing before a game can help you join it confidently.', options:['True','False'], correct:0, explain:'Correct — that is exactly how Samantha handled her nerves before dodgeball.', why:['', 'False is not right because light stretching and deep breathing is exactly how Samantha calmed her nerves before joining the dodgeball game.'], tip:'Remember Samantha: stretch and breathe, then join. Moving your body and still facing the game is the healthy pattern.'},
+      {q:'Which of these is <b>NOT</b> a physical activity?', options:['Scrolling on your phone for hours','Taking a brisk walk around the block','Playing a friendly game of badminton','Riding your bicycle outside for a while'], correct:0, explain:'Scrolling keeps you sitting still. Walking, badminton and cycling all move your body.', why:['', 'Taking a brisk walk IS a physical activity, so it is not the answer — we need the one that is NOT.', 'Playing badminton IS a physical activity, so it is not the answer — we need the one that is NOT.', 'Riding your bicycle IS a physical activity, so it is not the answer — we need the one that is NOT.'], tip:'For NOT questions, find the odd one out. Three choices move your body; the answer is the one where you sit still.'}
+    ]
+  },
+  {
+    id:'stresswords',
+    icon:'🔤',
+    title:'Stress Word Bank',
+    subtitle:'Identification: stress, phobia, stretching & more',
+    cards:[
+      {front:'STRESS', back:'Feeling <b>overwhelmed</b> and <b>worried</b>, and finding it hard to focus &mdash; like Carlos during examination week.'},
+      {front:'POSITIVE THINKING', back:'Reminding yourself that <b>mistakes are part of learning</b> and you can improve with practice &mdash; like Anna after losing a game.'},
+      {front:'DEEP BREATHING', back:'Pausing and <b>slowly inhaling and exhaling</b> to feel calmer &mdash; like Miguel before his speech.'},
+      {front:'PHOBIA', back:'An <b>intense fear</b> of something that makes a person <b>panic</b> &mdash; like Bea&rsquo;s fear of heights.'},
+      {front:'STRETCHING', back:'<b>Gentle arm swings and leg movements</b> that prepare the muscles and <b>reduce the chance of injury</b> &mdash; like Ethan before volleyball.'},
+      {front:'INSOMNIA', back:'Having <b>trouble falling asleep or staying asleep</b>. On your test it was the extra word in the bank that no item needed.'},
+      {front:'Identification Rules', back:'Each word may be used <b>only once</b>, and answers go in <b>CAPITAL LETTERS</b>. Ticking each word as you use it, like you did, stops you using one twice.'}
+    ],
+    quiz:[
+      {q:'During examination week, Carlos feels overwhelmed by the number of tests he has to take. He finds it difficult to focus and feels worried most of the day.', options:['STRESS','PHOBIA','INSOMNIA','STRETCHING'], correct:0, explain:'Overwhelmed, worried and unable to focus &mdash; that is <b>STRESS</b>.', why:['', 'PHOBIA is an intense fear that makes a person panic. Carlos is not afraid of something; he is overwhelmed by his tests.', 'INSOMNIA is trouble falling asleep or staying asleep. The story says nothing about his sleep.', 'STRETCHING is gentle arm and leg movement to prepare the muscles. Carlos is not moving; he is worried.'], tip:'Match the story’s clue words to a card: overwhelmed, worried, and hard to focus = STRESS.'},
+      {q:'After losing a game, Anna reminds herself that mistakes are part of learning and that she can improve with more practice.', options:['POSITIVE THINKING','DEEP BREATHING','STRESS','PHOBIA'], correct:0, explain:'Telling herself she can learn and improve is <b>POSITIVE THINKING</b>.', why:['', 'DEEP BREATHING is slowly inhaling and exhaling. Anna is not breathing slowly; she is telling herself something.', 'STRESS is feeling overwhelmed and worried. Anna is encouraging herself, not worrying.', 'PHOBIA is an intense fear that causes panic. Anna is not afraid of anything.'], tip:'If the person is reminding themselves of something good (mistakes help me learn, I can improve), it is happening in their thoughts: POSITIVE THINKING.'},
+      {q:'Before delivering a speech, Miguel pauses for a moment and slowly inhales and exhales to help himself feel calmer.', options:['DEEP BREATHING','STRETCHING','POSITIVE THINKING','INSOMNIA'], correct:0, explain:'Slowly inhaling and exhaling is <b>DEEP BREATHING</b>.', why:['', 'STRETCHING is gentle arm swings and leg movements. Miguel is not moving his arms or legs; he is breathing.', 'POSITIVE THINKING is reminding yourself that you can learn and improve. Miguel is breathing slowly, not telling himself something.', 'INSOMNIA is trouble falling asleep or staying asleep. This story is about calming down before a speech, not about sleep.'], tip:'“Inhale” and “exhale” are breathing words. When you see them, pick DEEP BREATHING.'},
+      {q:'Bea refuses to join a hiking activity because her intense fear of heights makes her panic whenever she is in high places.', options:['PHOBIA','STRESS','INSOMNIA','DEEP BREATHING'], correct:0, explain:'An intense fear that causes panic is a <b>PHOBIA</b>.', why:['', 'STRESS is feeling overwhelmed and worried, like Carlos during exam week. Bea has an intense fear of one thing: heights.', 'INSOMNIA is trouble falling asleep or staying asleep. This story is about fear of high places.', 'DEEP BREATHING is a way to calm down. Bea is not doing it; she panics and refuses to go.'], tip:'The clue words “intense fear” and “panic” point to PHOBIA.'},
+      {q:'Before starting a volleyball game, Ethan performs gentle arm swings and leg movements to prepare his muscles and reduce the chance of injury.', options:['STRETCHING','DEEP BREATHING','POSITIVE THINKING','PHOBIA'], correct:0, explain:'Gentle arm and leg movements that prepare the muscles are <b>STRETCHING</b>.', why:['', 'DEEP BREATHING is slowly inhaling and exhaling. Ethan is moving his arms and legs.', 'POSITIVE THINKING happens in your thoughts. Ethan is moving his body to prepare his muscles.', 'PHOBIA is an intense fear. Ethan is not afraid; he is getting ready to play.'], tip:'Arm swings, leg movements, preparing the muscles, reducing injury — these body-moving clues mean STRETCHING.'},
+      {q:'Night after night, Mark has trouble falling asleep and staying asleep.', options:['INSOMNIA','PHOBIA','STRETCHING','POSITIVE THINKING'], correct:0, explain:'Trouble falling or staying asleep is <b>INSOMNIA</b>.', why:['', 'PHOBIA is an intense fear that causes panic. This story is only about Mark’s sleep.', 'STRETCHING is gentle arm and leg movement before a game. It has nothing to do with sleeping.', 'POSITIVE THINKING is reminding yourself you can improve. This story is about trouble sleeping.'], tip:'Sleep clue = INSOMNIA. Any story about trouble falling asleep or staying asleep points to that word.'},
+      {q:'True or False: A phobia is an intense fear that can make a person panic.', options:['True','False'], correct:0, explain:'Correct — like Bea, who panics in high places.', why:['', 'False is not right because the lesson defines a phobia as an intense fear that makes a person panic, like Bea in high places.'], tip:'Memory hook: PHOBIA = intense fear + panic. Think of Bea and the heights.'},
+      {q:'True or False: Stretching means sitting still to rest your muscles before a game.', options:['True','False'], correct:1, explain:'False — stretching is <b>gentle movement</b>, like arm swings and leg movements, that prepares your muscles.', why:['True is not right because of the words SITTING STILL. Stretching is gentle MOVEMENT, like arm swings and leg movements.', ''], tip:'Stretching always moves your body. If a statement says sitting still, it is not describing stretching.'},
+      {q:'True or False: Deep breathing means slowly inhaling and exhaling to feel calmer.', options:['True','False'], correct:0, explain:'Correct — that is what Miguel did before his speech.', why:['', 'False is not right because slowly inhaling and exhaling to feel calmer is exactly what deep breathing means.'], tip:'Picture Miguel before his speech: slow breath in, slow breath out, feel calmer = DEEP BREATHING.'},
+      {q:'True or False: If each word in the word bank may be used only once, you may write the same word for two different items.', options:['True','False'], correct:1, explain:'False — <b>only once</b> means each word fits one item. If you want to use a word twice, one of those answers is wrong.', why:['True is not right because “only once” means each word fits just ONE item. Writing the same word twice breaks the rule.', ''], tip:'Tick each word in the bank as you use it. If you want to use a ticked word again, go back and check, because one of those answers is wrong.'}
+    ]
+  }
+];
+
+// Questions she may answer by typing first (+5 bonus). Value: other accepted answers.
+const TYPE_IT = {
+  "Ramon throws a ball against the gym wall so his partner can catch it and return it. Which game is he playing?": ["wallball"],
+  "Mia reaches far to the side for a ball but keeps her body steady and does not fall over. Which ABC skill is she showing?": [],
+  "Your teacher sets up a ladder on the floor for side steps, in-and-out, and zigzag runs. Which skill is this drill built for?": [],
+  "Before delivering a speech, Miguel pauses for a moment and slowly inhales and exhales to help himself feel calmer.": [],
+  "Bea refuses to join a hiking activity because her intense fear of heights makes her panic whenever she is in high places.": [],
+  "Night after night, Mark has trouble falling asleep and staying asleep.": [],
+};
+const FINAL_EXAM_PER_LESSON = 4;
+const SH = window.StudyHistory, SH_APP = 'rally-ready', SH_TITLE = 'Rally Ready';
+let historyLessonId = null, historyQuizId = null;
+const STORAGE_KEY = 'rallyready_progress_v1';
+/* Points are cumulative and deliberately survive ?reset=1 — stars reset each visit, points never do. */
+const POINTS_KEY = 'rallyready_points_v1';
+const POINTS_PER_CORRECT = 10, EXAM_POINTS_PER_CORRECT = 20, STREAK_BONUS = 5, STREAK_BONUS_AT = 3;
+function loadTotalPoints(){ try{ return parseInt(localStorage.getItem(POINTS_KEY), 10) || 0; }catch(e){ return 0; } }
+function saveTotalPoints(n){ try{ localStorage.setItem(POINTS_KEY, String(n)); }catch(e){} if(window.Wallet && Wallet.renderCoins) Wallet.renderCoins(); }
+let totalPoints = loadTotalPoints();
+
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveProgress(p){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }catch(e){}
+}
+let progress = loadProgress();
+/* Opened from the lobby with ?reset=1 -> start a completely fresh run. */
+const STARS_DAY_KEY = STORAGE_KEY + '_day';
+const starsToday = (function(d){ return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); })(new Date());
+let starsDay = null;
+try{ starsDay = localStorage.getItem(STARS_DAY_KEY); }catch(e){}
+if (starsDay !== starsToday){
+  progress = {};
+  saveProgress(progress);
+  try{ localStorage.setItem(STARS_DAY_KEY, starsToday); }catch(e){}
+}
+if (/(^|[?&])reset=1(&|$)/.test(location.search)){
+  SH && SH.appOpened(SH_APP, SH_TITLE);
+  if (window.history && window.history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+// Recall decides whether this question pays, shows a typing box, and offers power-ups.
+function offerQuestion(pu){
+  if (window.Recall) Recall.ask(pu, SH_APP, typeof TYPE_IT === 'undefined' ? null : TYPE_IT);
+  else if (window.PowerUps) PowerUps.offer(pu);
+}
+function prepareQuestion(q){
+  const order = shuffle(q.options.map((_,i)=>i));
+  const options = order.map(i=>q.options[i]);
+  const correct = order.indexOf(q.correct);
+  const why = q.why ? order.map(i=>q.why[i]) : [];
+  const whyEn = q.whyEn ? order.map(i=>q.whyEn[i]) : [];
+  return {q:q.q, options, correct, explain:q.explain, why, whyEn, tip:q.tip, tipEn:q.tipEn};
+}
+function starsFor(pct){
+  if(pct >= 1) return 3;
+  if(pct >= 0.8) return 2;
+  if(pct >= 0.5) return 1;
+  return 0;
+}
+function starString(n){
+  let s='';
+  for(let i=0;i<3;i++) s += i<n ? '★' : '<span class="off">★</span>';
+  return s;
+}
+
+function courtMarkup(n){
+  const show = i => n>=i ? 1 : 0.06;
+  return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+    <rect x="34" y="24" width="132" height="168" rx="6" fill="var(--accent-soft)" opacity="${show(1)}"/>
+    <rect x="34" y="24" width="132" height="168" rx="6" fill="none" stroke="var(--accent-dark)" stroke-width="3" opacity="${show(2)}"/>
+    <rect x="34" y="82" width="132" height="52" fill="var(--gold)" opacity="${show(3) * 0.45}"/>
+    <g opacity="${show(4)}" stroke="var(--accent-dark)" stroke-width="2.5">
+      <line x1="100" y1="24" x2="100" y2="82"/>
+      <line x1="100" y1="134" x2="100" y2="192"/>
+    </g>
+    <g opacity="${show(5)}">
+      <line x1="24" y1="108" x2="176" y2="108" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="24" cy="108" r="4" fill="var(--ink)"/>
+      <circle cx="176" cy="108" r="4" fill="var(--ink)"/>
+    </g>
+    <path d="M34 108 h132" stroke="#FFFFFF" stroke-width="1.6" stroke-dasharray="4 4" opacity="${show(6)}"/>
+    <g opacity="${show(7)}">
+      <ellipse cx="58" cy="162" rx="15" ry="19" fill="var(--coral)"/>
+      <rect x="54" y="178" width="8" height="18" rx="3" fill="var(--accent-dark)"/>
+    </g>
+    <g opacity="${show(8)}">
+      <path d="M70 148 Q102 100 124 70" stroke="var(--coral)" stroke-width="2.5" fill="none" stroke-dasharray="5 5" stroke-linecap="round"/>
+      <circle cx="132" cy="62" r="9" fill="var(--gold)" stroke="var(--accent-dark)" stroke-width="2"/>
+      <circle cx="129" cy="59" r="1.5" fill="var(--accent-dark)"/>
+      <circle cx="135.5" cy="62.5" r="1.5" fill="var(--accent-dark)"/>
+      <circle cx="130.5" cy="66" r="1.5" fill="var(--accent-dark)"/>
+      <text x="100" y="212" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent-dark)" font-family="Baloo 2, cursive">RALLY!</text>
+    </g>
+  </svg>`;
+}
+
+const STRATEGY = [
+  {kicker:'True or False Tip #1', title:'Watch for absolute words', body:'Words like "always," "never," "only," and "must" often make a statement FALSE. "Players are NEVER allowed in the kitchen" is false &mdash; you may enter it after the ball bounces.'},
+  {kicker:'True or False Tip #2', title:'One false part = the whole thing is False', body:'If any single part of the sentence is wrong, mark the WHOLE sentence False &mdash; even if the rest sounds correct.'},
+  {kicker:'P.E. Tip #1', title:'Learn the exact numbers', body:'P.E. tests love specifics: pickleball began in <b>1965</b> on Bainbridge Island, it had <b>3</b> inventors, and the kitchen is <b>7 feet</b> on <b>both</b> sides of the net. Memorise those four facts.'},
+  {kicker:'P.E. Tip #2', title:'Match the clue word to the ABC skill', body:'"Change direction" &rarr; <b>agility</b>. "Stay steady" or "keep stable" &rarr; <b>balance</b>. "Hands, eyes and feet together" &rarr; <b>coordination</b>. "How fast" or "react quickly" &rarr; <b>speed</b>. The question almost always hides one of these clues.'},
+  {kicker:'P.E. Tip #3', title:'Attack is low and fast, defence is high and safe', body:'If the answer talks about hitting into open space, low and fast, it is <b>attacking</b>. If it talks about a high, safe return that buys you time, it is <b>defending</b>.'},
+  {kicker:'P.E. Tip #4', title:'The kitchen trap', body:'The kitchen only bans <b>volleys</b> &mdash; hitting the ball before it bounces. You may step in and play a ball that has already bounced. Questions are often written to make you forget that.'},
+  {kicker:'Stress Tip', title:'The BEST answer faces the problem calmly', body:'In a stress situation, cross out anything that <b>avoids</b> (skipping, staying away, pretending to be sick), <b>blames</b>, <b>compares</b>, or spends hours on <b>screens</b> or in bed. The answer left usually calms you down <b>and</b> still gets the job done &mdash; breathe, stretch, plan, practise, then go back.'},
+  {kicker:'Identification Tip', title:'Tick the word bank as you go', body:'Each word is used <b>only once</b>, so tick it off after you use it &mdash; exactly what you did on your summative test. Write every answer in <b>CAPITAL LETTERS</b>. One word is often left over (INSOMNIA was the extra one last time).'},
+  {kicker:'Situational Tip', title:'Pick the safest, most controlled action', body:'In situational questions, the right answer is usually the one that is controlled, balanced and ready &mdash; not the wildest or hardest hit.'},
+  {kicker:'General Tip', title:'Reread before you finalize', body:'Read the question one more time with your answer in mind. If it still matches what the lesson actually said, you have got it.'}
+];
+
+let currentLessonIdx = null;
+let flashIdx = 0;
+let currentQuizSet = [];
+let currentQuizMeta = null;
+let quizIdx = 0;
+let missedQuestions = [];
+function learnEn(text){
+  return text ? '<div class="fb-en"><b>Sa English:</b> ' + text + '</div>' : '';
+}
+function learnHtml(m){
+  return '<div class="learn">' +
+    '<div class="learn-title">Not quite &mdash; let&rsquo;s learn from this!</div>' +
+    '<div class="learn-row learn-picked"><b class="learn-label">You picked</b><span class="learn-choice">' + m.picked + '</span>' +
+      (m.why ? '<span class="learn-why">Why that&rsquo;s not right: ' + m.why + '</span>' + learnEn(m.whyEn) : '') + '</div>' +
+    '<div class="learn-row learn-right"><b class="learn-label">The right answer</b><span class="learn-choice">' + m.answer + '</span>' +
+      '<span class="learn-why">' + m.explain + '</span></div>' +
+    (m.tip ? '<div class="learn-row learn-tip"><b class="learn-label">&#128161; Tip for next time</b>' + m.tip + learnEn(m.tipEn) + '</div>' : '') +
+  '</div>';
+}
+function renderMissedReview(){
+  const el = document.getElementById('missedReview');
+  el.style.display = missedQuestions.length ? 'block' : 'none';
+  el.innerHTML = missedQuestions.length
+    ? '<h3>Questions to Review</h3><div class="missed-list">' +
+      missedQuestions.map(m => '<div class="missed-item"><p class="missed-q">' + m.q + '</p>' + learnHtml(m) + '</div>').join('') + '</div>'
+    : '';
+}
+let quizScore = 0;
+let sessionPoints = 0, streak = 0, bestStreak = 0;
+
+function updatePointsLive(){
+  const el = document.getElementById('points-live');
+  if(!el) return;
+  el.innerHTML = '⭐ ' + sessionPoints + ' pts' + (streak >= 2 ? ' <span class="streak">🔥 x' + streak + '</span>' : '') + (window.Wallet && Wallet.liveHtml ? Wallet.liveHtml() : '');
+}
+
+function cardKey(e){
+  if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){
+    e.preventDefault();
+    e.currentTarget.click();
+  }
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){ renderHome(); showScreen('home'); }
+
+function renderHome(){
+  document.getElementById('points-total-badge').textContent = '⭐ ' + totalPoints + ' points earned';
+  const list = document.getElementById('homeList');
+  const finalTotal = LESSONS.length * FINAL_EXAM_PER_LESSON;
+  const finalBest = progress['final'] || 0;
+  let html = '';
+
+  html += `<div class="item-card final-card" role="button" tabindex="0" onclick="startFinalExam()" onkeydown="cardKey(event)">
+    <div class="icon">🏆</div>
+    <div class="info">
+      <span class="final-badge">Mock Exam</span>
+      <h3>Full Mock Exam</h3>
+      <p>${finalTotal} mixed questions from all ${LESSONS.length} lessons</p>
+    </div>
+    <div class="stars">${starString(starsFor(finalBest/finalTotal))}</div>
+  </div>`;
+
+  html += `<div class="item-card strategy-card" role="button" tabindex="0" onclick="showScreen('strategyScreen')" onkeydown="cardKey(event)">
+    <div class="icon">🎯</div>
+    <div class="info">
+      <h3>Exam Strategy</h3>
+      <p>How to ace True/False & situational questions</p>
+    </div>
+  </div>`;
+
+  LESSONS.forEach((l,i)=>{
+    const best = progress[l.id] || 0;
+    html += `<div class="item-card" role="button" tabindex="0" onclick="openLesson(${i})" onkeydown="cardKey(event)">
+      <div class="icon">${l.icon}</div>
+      <div class="info">
+        <h3>${l.title}</h3>
+        <p>${l.subtitle}</p>
+      </div>
+      <div class="stars">${starString(starsFor(best/l.quiz.length))}</div>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+}
+
+function openLesson(i){
+  currentLessonIdx = i;
+  flashIdx = 0;
+  historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].cards.length) : null;
+  document.getElementById('flashTitle').textContent = LESSONS[i].title;
+  renderFlash();
+  showScreen('flashScreen');
+}
+/* Card and question text may contain simple markup (<b>, entities) written by
+   the lesson author, so these render as HTML, not literal text. Content is
+   author-supplied only — never user input. */
+function renderFlash(){
+  const l = LESSONS[currentLessonIdx];
+  const c = l.cards[flashIdx];
+  SH && SH.cardViewed(historyLessonId, flashIdx + 1);
+  document.getElementById('flashFront').innerHTML = c.front;
+  document.getElementById('flashBack').innerHTML = c.back;
+  document.getElementById('flashBack').style.display = 'none';
+  document.getElementById('flashFront').style.display = 'block';
+  document.getElementById('flashTag').textContent = 'Term';
+  document.getElementById('flashHint').textContent = 'Tap the card to flip';
+  document.getElementById('flashDots').textContent = `${flashIdx+1} / ${l.cards.length}`;
+}
+function flipCard(){
+  const front = document.getElementById('flashFront');
+  const back = document.getElementById('flashBack');
+  const flipped = back.style.display !== 'none';
+  front.style.display = flipped ? 'block' : 'none';
+  back.style.display = flipped ? 'none' : 'block';
+  document.getElementById('flashTag').textContent = flipped ? 'Term' : 'Meaning';
+}
+function nextCard(){
+  const l = LESSONS[currentLessonIdx];
+  flashIdx = (flashIdx+1) % l.cards.length;
+  renderFlash();
+}
+function prevCard(){
+  const l = LESSONS[currentLessonIdx];
+  flashIdx = (flashIdx-1+l.cards.length) % l.cards.length;
+  renderFlash();
+}
+
+function startQuiz(){
+  const l = LESSONS[currentLessonIdx];
+  currentQuizSet = shuffle(l.quiz).map(prepareQuestion);
+  currentQuizMeta = {id:l.id, title:l.title};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  sessionPoints = 0; streak = 0; bestStreak = 0;
+  document.getElementById('quizTitle').textContent = l.title;
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+
+function startFinalExam(){
+  let qs = [];
+  LESSONS.forEach(l=>{
+    qs = qs.concat(shuffle(l.quiz).slice(0, FINAL_EXAM_PER_LESSON));
+  });
+  currentQuizSet = shuffle(qs).map(prepareQuestion);
+  currentQuizMeta = {id:'final', title:'Full Mock Exam'};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  sessionPoints = 0; streak = 0; bestStreak = 0;
+  document.getElementById('quizTitle').textContent = 'Full Mock Exam';
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+
+function renderQuestion(){
+  const total = currentQuizSet.length;
+  const q = currentQuizSet[quizIdx];
+  document.getElementById('quizCounter').textContent = `Question ${quizIdx+1} of ${total}`;
+  document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
+  updatePointsLive();
+  document.getElementById('quizFill').style.width = `${(quizIdx/total)*100}%`;
+  document.getElementById('sceneSvg').innerHTML = courtMarkup(Math.round((quizScore/total)*8));
+  document.getElementById('qText').innerHTML = q.q;
+  document.getElementById('explainBox').style.display = 'none';
+  document.getElementById('exploreBox').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  q.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = opt;
+    btn.onclick = ()=>selectOption(i);
+    box.appendChild(btn);
+  });
+  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:box, options:box.children, correct:q.correct, tip:q.tip, tipEn:q.tipEn, q:q.q, historyId:historyQuizId, streak:streak, index:quizIdx, rerender:renderQuestion });
+}
+
+function selectOption(i){
+  const q = currentQuizSet[quizIdx];
+  const buttons = document.querySelectorAll('#optionsBox .option');
+  SH && SH.quizAnswered(historyQuizId, i === q.correct, q.art ? q.q + ' [' + q.options[q.correct] + ']' : q.q, q.options[i], q.options[q.correct], window.Recall ? Recall.typed() : false);
+  buttons.forEach((b,idx)=>{
+    if(idx === q.correct) b.classList.add('correct');
+    else if(idx === i) b.classList.add('wrong');
+    if(idx === i){ b.disabled = true; return; }
+    b.classList.add('explorable');
+    b.onclick = ()=>exploreOption(idx);
+  });
+  const helped = !!(window.PowerUps && PowerUps.answered());
+  if(i === q.correct){
+    quizScore++;
+    if(!helped) streak++;
+    if(streak > bestStreak) bestStreak = streak;
+    const ptsBase = currentQuizMeta.id === 'final' ? EXAM_POINTS_PER_CORRECT : POINTS_PER_CORRECT, ptsBonus = streak >= STREAK_BONUS_AT ? STREAK_BONUS : 0;
+    const pts = window.Recall ? Recall.points(helped, ptsBase, ptsBonus) : helped ? ptsBase / 2 : ptsBase + ptsBonus;
+    sessionPoints += pts;
+    totalPoints += pts;
+    saveTotalPoints(totalPoints);
+    window.Fx && Fx.correct(helped ? 0 : streak);
+  } else {
+    if(!(window.PowerUps && PowerUps.shield())) streak = 0;
+    window.Fx && Fx.wrong();
+  }
+  updatePointsLive();
+  document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
+  document.getElementById('sceneSvg').innerHTML = courtMarkup(Math.round((quizScore/currentQuizSet.length)*8));
+  const explainHtml = q.explain;
+  const miss = i === q.correct ? null : { q:q.q, picked:q.options[i], why:(q.why||[])[i] || '', whyEn:(q.whyEn||[])[i] || '', answer:q.options[q.correct], explain:explainHtml, tip:q.tip || '', tipEn:q.tipEn || '' };
+  if(miss) missedQuestions.push(miss);
+  document.getElementById('explainBox').innerHTML = miss ? learnHtml(miss) : explainHtml;
+  document.getElementById('explainBox').style.display = 'block';
+  document.getElementById('exploreBox').innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>';
+  document.getElementById('exploreBox').style.display = 'block';
+  document.getElementById('nextBtn').style.display = 'block';
+  document.getElementById('nextBtn').textContent = quizIdx < currentQuizSet.length-1 ? 'Next ▶' : 'See Results 🏆';
+}
+
+function exploreOption(i){
+  const q = currentQuizSet[quizIdx];
+  document.querySelectorAll('#optionsBox .option').forEach((b,idx)=>b.classList.toggle('explored', idx === i));
+  const explainHtml = q.explain;
+  const right = i === q.correct;
+  const card = right
+    ? '<div class="explore-card explore-right"><b class="learn-label">This is the right answer</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + explainHtml + '</span></div>'
+    : '<div class="explore-card"><b class="learn-label">Why not this one?</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + ((q.why||[])[i] || 'This is not the right answer.') + '</span>' + learnEn((q.whyEn||[])[i]) + '</div>';
+  document.getElementById('exploreBox').innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>' + card;
+}
+
+function nextQuestion(){
+  if(quizIdx < currentQuizSet.length-1){
+    quizIdx++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz(){
+  const total = currentQuizSet.length;
+  const best = progress[currentQuizMeta.id] || 0;
+  if(quizScore > best) progress[currentQuizMeta.id] = quizScore;
+  saveProgress(progress);
+  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / total), sessionPoints, bestStreak);
+  window.Fx && Fx.finish(starsFor(quizScore / total));
+  renderResults(total);
+  showScreen('resultsScreen');
+}
+
+function renderResults(total){
+  const pct = quizScore/total;
+  const n = starsFor(pct);
+  document.getElementById('resultScene').innerHTML = courtMarkup(Math.round(pct*8));
+  document.getElementById('resultStars').innerHTML = starString(n);
+  document.getElementById('resultTitle').textContent =
+    n===3 ? 'Match Point! Perfect Score!' :
+    n===2 ? 'Great Rally!' :
+    n===1 ? 'Good Start!' : 'Keep Practicing!';
+  document.getElementById('resultScore').textContent = `You scored ${quizScore} out of ${total}.`;
+  let ptsLine = `⭐ +${sessionPoints} points this round`;
+  if(bestStreak >= STREAK_BONUS_AT) ptsLine += ` · 🔥 best streak: ${bestStreak} in a row!`;
+  document.getElementById('points-earned').textContent = ptsLine + (window.Recall ? Recall.resultLine() : '');
+  renderMissedReview();
+}
+
+function retryQuiz(){
+  if(currentQuizMeta.id === 'final'){ startFinalExam(); }
+  else { startQuiz(); }
+}
+
+function renderStrategy(){
+  const box = document.getElementById('strategyList');
+  box.innerHTML = STRATEGY.map(t=>`
+    <div class="tip">
+      <div class="kicker">${t.kicker}</div>
+      <h4>${t.title}</h4>
+      <p>${t.body}</p>
+    </div>
+  `).join('');
+}
+
+renderHome();
+renderStrategy();
+</script>

@@ -1,0 +1,19 @@
+# Source decks, scans and downloads (multi-GB; the .md extractions are kept)
+*.pdf
+*.pptx
+*.zip
+*.jpg
+*.jpeg
+*.png
+**/extracted/
+**/drive-download-*/
+
+# Saved Google Forms pages (the .html score pages themselves are kept)
+grade5-score-released/*_files/
+
+# Tool output
+.gstack/
+*.log
+*.jsonl
+node_modules/
+.claude/settings.local.json

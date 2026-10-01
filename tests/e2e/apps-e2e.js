@@ -1,0 +1,304 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { GRADE2, makeWorkDir, dumpDom, readOutput, injectDriver } = require('./chrome.js');
+
+const GRADE5 = path.join(__dirname, '..', '..');
+
+const GRADE2_APPS = [
+  { file: 'block-bot.html', slug: 'block-bot', title: 'Block Bot', family: 'a' },
+  { file: 'kuwentista.html', slug: 'kuwentista', title: 'Kuwentista', family: 'a' },
+  { file: 'word-train.html', slug: 'word-train', title: 'Word Train', family: 'b' },
+  { file: 'batang-bayani.html', slug: 'batang-bayani', title: 'Batang Bayani', family: 'b' },
+  { file: 'growing-good.html', slug: 'growing-good', title: 'Growing Good', family: 'b' },
+  { file: 'byte-buddies.html', slug: 'byte-buddies', title: 'Byte Buddies', family: 'b' },
+  { file: 'science-detectives.html', slug: 'science-detectives', title: 'Science Detectives', family: 'b' },
+];
+
+const GRADE5_APPS = [
+  { file: 'history-explorers.html', slug: 'history-explorers', title: 'History Explorers', family: 'c' },
+  { file: 'wikaharian.html', slug: 'wikaharian', title: 'Wikaharian', family: 'c' },
+  { file: 'page-turners.html', slug: 'page-turners', title: 'Page Turners', family: 'c' },
+  { file: 'rise-shine.html', slug: 'rise-shine', title: 'Rise & Shine', family: 'c' },
+  { file: 'rally-ready.html', slug: 'rally-ready', title: 'Rally Ready', family: 'c' },
+  { file: 'craft-corner.html', slug: 'craft-corner', title: 'Craft Corner', family: 'c' },
+  { file: 'life-lab.html', slug: 'life-lab', title: 'Life Lab', family: 'c' },
+  { file: 'math-mastery.html', slug: 'math-mastery', title: 'Math Mastery', family: 'math' },
+];
+
+const grade = process.argv[2] === '5' ? 5 : 2;
+const dir = grade === 5 ? GRADE5 : GRADE2;
+const key = grade === 5 ? 'grade5_history_v1' : 'grade2_history_v1';
+const APPS = grade === 5 ? GRADE5_APPS : GRADE2_APPS;
+const shFile = grade === 5 ? 'study-history.js' : 'study-history-grade2.js';
+const walletFile = grade === 5 ? 'wallet.js' : 'wallet-grade2.js';
+const fxFile = grade === 5 ? 'fx.js' : 'fx-grade2.js';
+const puFile = grade === 5 ? 'powerups.js' : 'powerups-grade2.js';
+
+const { plain } = require(path.join(dir, shFile));
+
+const read = (name) => fs.readFileSync(path.join(__dirname, name), 'utf8');
+
+function driverFileFor(app) {
+  return app.family === 'math' ? 'driver-math.page.js' : 'driver-family-' + app.family + '.page.js';
+}
+
+function checkMath(mine, x) {
+  const walkthroughs = mine.filter((e) => e.kind === 'walkthrough');
+  assert.equal(walkthroughs.length, 3, 'walkthrough entry count');
+  const [perfect, wrong, partial] = walkthroughs;
+
+  assert.equal(perfect.finished, true);
+  assert.equal(perfect.total, 5);
+  assert.equal(perfect.correct, 5);
+  assert.equal(perfect.points, 65);
+  assert.equal(perfect.wrong.length, 0);
+
+  assert.equal(wrong.finished, true);
+  assert.equal(wrong.correct, 0);
+  assert.equal(wrong.wrong.length, 5);
+  const stripEllipsis = (s) => (s.endsWith('...') ? s.slice(0, -3) : s);
+  wrong.wrong.forEach((w) => {
+    assert.ok(w.q && w.picked && w.answer, 'wrong walkthrough entry has question, pick and answer');
+    assert.notEqual(w.picked, w.answer, 'pick differs from answer');
+    assert.ok(w.q.endsWith(']'), 'walkthrough wrong q names the problem, e.g. "...[Dough problem]"');
+    assert.ok(
+      stripEllipsis(w.q).includes(stripEllipsis(wrong.lessonTitle)),
+      'the bracketed problem name matches this entry\'s lessonTitle'
+    );
+  });
+
+  assert.equal(partial.finished, false);
+  assert.equal(partial.answered, 1);
+
+  const cases = mine.filter((e) => e.kind === 'case');
+  assert.equal(cases.length, 2, 'case entry count');
+  const [casePerfect, caseWrong] = cases;
+
+  assert.equal(casePerfect.finished, true);
+  assert.equal(casePerfect.correct, x.casePerfectTotal);
+  assert.equal(casePerfect.total, x.casePerfectTotal);
+  assert.equal(casePerfect.points, 10 * x.casePerfectTotal + 5 * Math.max(0, x.casePerfectTotal - 2));
+
+  assert.equal(caseWrong.correct, 0);
+  assert.equal(caseWrong.wrong.length, x.caseWrongTotal);
+
+  walkthroughs.concat(cases).forEach((e) => {
+    assert.ok(e.lessonTitle, 'lessonTitle present');
+    assert.doesNotMatch(e.lessonTitle, /[<]|&(#\d+|[a-z]+);/i, 'lessonTitle is plain text');
+    if (e.kind === 'walkthrough') assert.ok(e.lessonTitle.length <= 60, 'walkthrough title is at most 60 chars');
+  });
+}
+
+function checkPlay(app, out) {
+  const x = out.expect;
+  assert.deepEqual(out.errors, [], 'page errors');
+  assert.ok(Array.isArray(out.entries), 'history is readable');
+  assert.ok(out.entries.some((e) => e.id === 'seed-1'), '?reset=1 kept the existing history');
+  assert.ok(x.explore.taps > 0, 'other options were tapped after answering');
+  assert.ok(x.coins.expected > 40, 'the playthrough earned coins');
+  assert.ok(x.coins.badge.includes(' ' + x.coins.expected + ' coins'), 'home badge shows the coin balance: ' + x.coins.badge);
+  assert.ok(x.coins.have.includes(' ' + x.coins.expected + ' coins'), 'results line shows the coin balance: ' + x.coins.have);
+  assert.ok(x.coins.live.includes(String(x.coins.expected)), 'quiz header shows the coin balance: ' + x.coins.live);
+  assert.equal(x.coins.guideOpened, true, 'tapping the coin badge opens the guide');
+  assert.equal(x.coins.guideClosed, true, 'the guide closes');
+  assert.equal(x.explore.empty, 0, 'every tapped option showed its reason');
+  const mine = out.entries.filter((e) => e.app === app.slug);
+
+  const opens = mine.filter((e) => e.type === 'open');
+  assert.equal(opens.length, 1, 'one open entry');
+  assert.equal(opens[0].appTitle, app.title);
+
+  const lessons = mine.filter((e) => e.type === 'lesson');
+  assert.equal(lessons.length, x.wrapLesson ? 2 : 1, 'lesson entry count');
+  assert.equal(lessons[0].cardsViewed, 3, 'cards viewed');
+  assert.equal(lessons[0].cardsTotal, x.cardsTotal);
+  assert.equal(lessons[0].lessonTitle, plain(x.lessonTitle));
+  if (x.wrapLesson) {
+    assert.equal(lessons[1].cardsViewed, 2, 'wrapped lesson cards viewed (card 1 plus the wrapped-to last card)');
+  }
+
+  const quizzes = mine.filter((e) => e.type === 'quiz' && !e.kind);
+  assert.equal(quizzes.length, x.numberlineTotal ? 5 : 4, 'quiz entry count');
+  const [perfect, wrong, partial, final] = quizzes;
+
+  assert.equal(perfect.finished, true);
+  assert.equal(perfect.total, x.perfectTotal);
+  assert.equal(perfect.correct, x.perfectTotal);
+  assert.equal(perfect.wrong.length, 0);
+  assert.equal(perfect.stars, 3);
+  assert.equal(perfect.points, x.perfectPoints, 'points match the app');
+  assert.equal(perfect.points, 10 * x.perfectTotal + 5 * Math.max(0, x.perfectTotal - 2), 'points formula');
+  assert.equal(perfect.bestStreak, x.perfectTotal);
+
+  assert.equal(wrong.finished, true);
+  assert.equal(wrong.answered, x.wrongTotal);
+  assert.equal(wrong.correct, 0);
+  assert.equal(wrong.wrong.length, x.wrongTotal);
+  assert.equal(wrong.stars, 0);
+  assert.equal(wrong.points, 0);
+  wrong.wrong.forEach((w) => {
+    assert.ok(w.q && w.picked && w.answer, 'wrong answer has question, pick and answer');
+    assert.notEqual(w.picked, w.answer, 'pick differs from answer');
+    assert.doesNotMatch(w.q + w.picked + w.answer, /&(#\d+|[a-z]+);/i, 'stored as plain text');
+  });
+
+  assert.equal(partial.finished, false);
+  assert.equal(partial.total, x.partialTotal);
+  assert.equal(partial.answered, 2);
+  assert.equal(partial.correct, 2);
+
+  assert.equal(final.final, true);
+  assert.equal(final.finished, true);
+  assert.equal(final.correct, x.finalTotal);
+  assert.equal(final.points, 20 * x.finalTotal + 5 * Math.max(0, x.finalTotal - 2), 'the mock exam pays 20 a question');
+
+  if (x.numberlineTotal) {
+    const nl = quizzes[4];
+    assert.equal(nl.wrong.length, x.numberlineTotal);
+    nl.wrong.filter((w) => /^\d+ \+ \d+ = \?$/.test(w.q)).forEach((w) => {
+      assert.equal(w.picked, String(Number(w.answer) + 1), 'number-line pick is the typed number');
+    });
+  }
+
+  if (app.family === 'math') checkMath(mine, x);
+}
+
+function checkRefresh(play, refresh) {
+  assert.deepEqual(refresh.errors, []);
+  assert.equal(refresh.entries.length, play.entries.length, 'a refresh adds no entries');
+}
+
+function checkPowerUps(app, out) {
+  const r = out.pu;
+  assert.deepEqual(out.errors, [], 'page errors');
+  assert.ok(r.used.length >= 1, 'at least one power-up was usable in lesson 1');
+  assert.equal(r.spent, r.used.reduce((sum, k) => sum + r.prices[k], 0), 'coins spent match the prices');
+  r.helpedPoints.forEach((p) => assert.equal(p, 5, 'a helped right answer earns half points'));
+  assert.equal(r.streakKept, true, 'a helped answer does not grow the streak');
+  assert.equal(r.tipShown, true, 'the hint shows the tip');
+  r.outCounts.forEach((c) => assert.ok(c >= 1, '50/50 crossed out a wrong answer'));
+  assert.equal(r.outReenabled, true, 'crossed-out answers can be explored after answering');
+  if (r.used.length === 2 && r.maxBlocked !== null) assert.equal(r.maxBlocked, true, 'no third power-up in a quiz');
+  assert.equal(r.examBlocked, true, 'no power-ups in the mock exam');
+  assert.match(r.examNote, /Mock Exam/);
+  const quiz = out.entries.filter((e) => e.app === app.slug && e.type === 'quiz' && !e.final && !e.kind).pop();
+  assert.deepEqual((quiz.powerUps || []).map((p) => p.kind), r.used, 'every use is logged on the quiz');
+  console.log('  power-ups used: ' + r.used.join(', '));
+}
+
+function checkPowerUps2(app, out) {
+  const r = out.pu;
+  assert.deepEqual(out.errors, [], 'page errors');
+  assert.ok(r.later, 'Save for Later was offered on question 1');
+  assert.equal(r.later.movedToEnd, true, 'the saved question moved to the end');
+  assert.equal(r.later.sameLength, true, 'no question was lost');
+  assert.equal(r.later.nextShown, true, 'the next question shows in its place');
+  assert.match(r.later.note, /⏭️/, 'the saved note shows');
+  if (r.second) {
+    assert.equal(r.second.tried, true, 'the missed pick is marked');
+    assert.equal(r.second.stillOpen, true, 'the question stays open after the first miss');
+    assert.equal(r.second.noPoints, true, 'the miss itself gives nothing');
+    assert.equal(r.second.helpedPoints, 5, 'a right second try earns half points');
+  }
+  assert.ok(r.shield, 'Streak Shield was offered after 2 right answers');
+  assert.equal(r.shield.after, r.shield.before, 'the shield kept the streak through a miss');
+  assert.match(r.shield.note, /🛡️/, 'the shield-saved note shows');
+  assert.equal(r.spent, r.used.reduce((sum, k) => sum + r.prices[k], 0), 'coins spent match the prices');
+  const quizzes = out.entries.filter((e) => e.app === app.slug && e.type === 'quiz' && !e.final && !e.kind);
+  const logged = quizzes.slice(-2).map((q) => (q.powerUps || []).map((p) => p.kind)).flat();
+  assert.deepEqual(logged, r.used, 'every use is logged on its quiz');
+  console.log('  2b power-ups used: ' + r.used.join(', '));
+}
+
+function checkPowerUps3(app, out) {
+  const r = out.pu;
+  assert.deepEqual(out.errors, [], 'page errors');
+  assert.deepEqual(r.helpers, grade === 2 ? ['ate', 'mommy', 'tatay'] : ['mommy', 'tatay'], 'Ate is Grade 2 only');
+  assert.equal(r.askedMommy, true);
+  assert.match(r.card, /Mommy/, 'the card names the helper');
+  assert.equal(r.noCancel, true, 'paying is final: no cancel button');
+  assert.equal(r.tatayBlocked, true, 'one helper per question');
+  assert.equal(r.helpedPoints, 5, 'a family-helped right answer earns half points');
+  assert.equal(r.cardAfterAnswer, false, 'the card closes after answering');
+  assert.equal(r.spent, r.prices.mommy);
+  const quizzes = out.entries.filter((e) => e.app === app.slug && e.type === 'quiz' && !e.final && !e.kind);
+  assert.deepEqual((quizzes[quizzes.length - 2].powerUps || []).map((p) => p.kind), ['mommy'], 'the ask is logged on its quiz');
+  assert.equal(r.examShowsAsk, false, 'an unfinished ask does not follow her into the mock exam');
+  assert.equal(r.examShowsPicker, false, 'nor does an open helper picker');
+}
+
+function checkNoJs(out) {
+  assert.deepEqual(out.errors, [], 'no errors without study-history.js');
+  assert.equal(out.hasSH, false);
+  assert.ok(out.total > 0 && out.score === out.total, 'quiz still plays to the end');
+  assert.equal(out.coinBadgeHidden, true, 'no wallet file: the empty coin badge stays hidden');
+}
+
+function checkRecall(app, out) {
+  assert.deepEqual(out.errors, [], 'recall: page errors');
+  assert.equal(out.hasRecall, true, 'recall file loaded');
+  const { first, second, third, exam } = out.recall;
+  const perfect = (base, n) => base * n + 5 * Math.max(0, n - 2);
+  assert.equal(first.score, first.total);
+  assert.equal(first.resting, 0, 'nothing rests on the first round');
+  assert.equal(first.points, perfect(10, first.total), 'a wrong typed guess, then the right pick, pays normally');
+  assert.equal(second.resting, second.total, 'every question rests on the same day');
+  assert.equal(second.points, 0, 'a resting round pays nothing');
+  assert.equal(second.score, second.total, 'but still counts for the score');
+  assert.equal(second.bars, 0, 'no power-up bar on a resting question');
+  assert.match(second.resultText, /⏳/, 'the results screen says questions were resting');
+  assert.ok(third.typedBoxes > 0, 'the chosen lesson has a typed question');
+  assert.equal(third.resting, 0, '3 days later every question pays again');
+  assert.equal(third.points, perfect(10, third.total) + 5 * third.typedBoxes, 'typed answers add 5 each');
+  assert.equal(third.typedLogged, third.typedBoxes, 'history counts typed answers');
+  assert.equal(exam.points, perfect(20, exam.total), 'the mock exam pays 20 a question');
+  console.log('  recall: typed ' + third.typedBoxes + ', exam ' + exam.points + ' pts');
+}
+
+const work = makeWorkDir('study-history-e2e');
+const withJs = path.join(work, 'with-js');
+const noJs = path.join(work, 'no-js');
+fs.mkdirSync(withJs);
+fs.mkdirSync(noJs);
+fs.copyFileSync(path.join(dir, shFile), path.join(withJs, shFile));
+fs.copyFileSync(path.join(dir, walletFile), path.join(withJs, walletFile));
+fs.copyFileSync(path.join(dir, fxFile), path.join(withJs, fxFile));
+fs.copyFileSync(path.join(dir, puFile), path.join(withJs, puFile));
+const recallFile = grade === 5 ? 'recall.js' : 'recall-grade2.js';
+const withRecall = path.join(work, 'with-recall');
+fs.mkdirSync(withRecall);
+[shFile, walletFile, fxFile, puFile, recallFile].forEach((f) => fs.copyFileSync(path.join(dir, f), path.join(withRecall, f)));
+
+const common = "var __E2E_KEY = '" + key + "';\nvar __E2E_WALLET_KEY = 'grade" + grade + "_wallet_v1';\n" + read('driver-common.page.js');
+const failures = [];
+for (const app of APPS) {
+  const driver = common + '\n' + read(driverFileFor(app));
+  const html = injectDriver(fs.readFileSync(path.join(dir, app.file), 'utf8'), driver);
+  const file = path.join(withJs, app.file);
+  fs.writeFileSync(file, html);
+  fs.writeFileSync(path.join(noJs, app.file), html);
+  if (app.family !== 'math') fs.writeFileSync(path.join(withRecall, app.file), html);
+  const profile = path.join(work, 'profile-' + app.slug);
+  try {
+    dumpDom(profile, file, '#e2e=seed');
+    const play = readOutput(dumpDom(profile, file, '?reset=1#e2e=play'));
+    checkPlay(app, play);
+    checkRefresh(play, readOutput(dumpDom(profile, file, '#e2e=refresh')));
+    checkPowerUps(app, readOutput(dumpDom(profile, file, '#e2e=powerups')));
+    checkPowerUps2(app, readOutput(dumpDom(profile, file, '#e2e=powerups2')));
+    checkPowerUps3(app, readOutput(dumpDom(profile, file, '#e2e=powerups3')));
+    if (app.family !== 'math') checkRecall(app, readOutput(dumpDom(path.join(work, 'profile-recall-' + app.slug), path.join(withRecall, app.file), '#e2e=recall')));
+    checkNoJs(readOutput(dumpDom(path.join(work, 'profile-nojs-' + app.slug), path.join(noJs, app.file), '#e2e=nojs')));
+    console.log('PASS ' + app.file);
+  } catch (err) {
+    failures.push(app.file);
+    console.log('FAIL ' + app.file + ': ' + err.message);
+  }
+}
+fs.rmSync(work, { recursive: true, force: true });
+if (failures.length) {
+  console.log(failures.length + ' of ' + APPS.length + ' apps failed');
+  process.exit(1);
+}
+console.log('All ' + APPS.length + ' apps passed');
