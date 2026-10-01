@@ -1054,6 +1054,15 @@ window.SHOP_TEXT = {
     $('backup-age').textContent = days === null ? '⚠️ No full backup from this device yet.' :
       (late ? '⚠️ ' : '✅ ') + 'Last full backup: ' + (days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago') + (late ? '. Time to export a new one.' : '.');
   }
+  function totalsText(state){ return '⭐ ' + pointsIn(state) + ' points' + coinsText(state); }
+  function noStateReason(text){
+    var data = null;
+    try { data = JSON.parse(text); } catch (e) {}
+    if (data && data.state && typeof data.state === 'object') {
+      return 'This backup has 0 points and no coins: the page it was copied from had nothing saved. Make the backup where she can see her points (the same app and the same link), then try again.';
+    }
+    return 'This backup has no points or coins in it (it was made with the old Export button).';
+  }
   function coinsText(state){ return W && W.savedBalance ? ' and 🪙 ' + W.savedBalance(state) + ' coins' : ''; }
   function restoreState(b){
     var current = savedState();
@@ -1157,6 +1166,7 @@ window.SHOP_TEXT = {
 
   $('export-json').addEventListener('click', function(){
     download('study-backup-' + SH.grade + '-' + today() + '.json', SH.exportJson(savedState()), 'application/json');
+    $('backup-msg').textContent += ' It holds ' + totalsText(savedState()) + '.';
     SH.markBackedUp();
     renderBackupAge();
   });
@@ -1176,7 +1186,7 @@ window.SHOP_TEXT = {
       var b = SH.backupState(text);
       var history = 'Study history: added ' + entriesWord(r.added) + ', skipped ' + plural(r.skipped, 'duplicate') + '.';
       renderHistory();
-      importResult(history + ' ' + (b ? restoreState(b) : 'This backup has no points or coins in it (it was made with the old Export button), so only the history was added.'));
+      importResult(history + ' ' + (b ? restoreState(b) : noStateReason(text) + ' Only the history was added.'));
     } catch (err) {
       importResult(err.message);
     }
@@ -1206,7 +1216,7 @@ window.SHOP_TEXT = {
     if (copyText(text)) {
       SH.markBackedUp();
       renderBackupAge();
-      importResult('Full backup copied. Paste it somewhere safe (a note, or a message to yourself). To restore, open the lobby, then Parent, Paste backup.');
+      importResult('Full backup copied: ' + totalsText(savedState()) + '. Paste it somewhere safe (a note, or a message to yourself). To restore, open the lobby, then Parent, Paste backup.');
       return;
     }
     showPasteBox('Copying did not work here. Select all of the text below and copy it yourself.', text);

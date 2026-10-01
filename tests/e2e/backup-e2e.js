@@ -114,6 +114,11 @@ const driver = `
   $('copy-backup').click();
   r.manualCopyText = $('paste-text').value;
   r.manualCopyHint = $('paste-hint').textContent;
+  var empty = JSON.parse(copied);
+  empty.state = {};
+  $('paste-text').value = JSON.stringify(empty);
+  $('paste-import').click();
+  r.emptyStateAlert = lastAlert;
 
   r.errors = window.__e2eErrors || [];
   var pre = document.createElement('pre');
@@ -158,7 +163,8 @@ try {
   assert.match(r.declined.shown, /^Study history: added 1 entry, skipped 0 duplicates\. /);
   assert.match(r.restored.shown, /^Study history: added 0 entries, skipped 1 duplicate\. /);
   assert.deepEqual(r.copiedKeys, r.exportedKeys, 'copy holds the same keys as the file export');
-  assert.match(r.copyAlert, /^Full backup copied\./);
+  assert.match(r.copyAlert, new RegExp('^Full backup copied: ⭐ 620 points and 🪙 ' + coins + ' coins\\. '));
+  assert.match(r.emptyStateAlert, /This backup has 0 points and no coins: the page it was copied from had nothing saved\./);
   assert.equal(r.pasteBoxShown, true);
   assert.match(r.pasteAlert, /Restored points and coins/);
   assert.equal(r.pastedPoints, '500');
