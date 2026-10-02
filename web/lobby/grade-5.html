@@ -669,7 +669,7 @@ window.SHOP_TEXT = {
   buy: 'Buy',
   notes: { ml: 'One match, win or lose. Only after studying. Play time is extra, on top of your normal time.' },
   ask: function(item, coins){ return 'Ask a parent to enter the PIN to approve: ' + item + ' for ' + coins + ' coins'; },
-  askPhone: function(item, coins){ return 'Ask a parent to approve: ' + item + ' for ' + coins + ' coins. Tap the green button to send it to their phone, or a parent can type the PIN here.'; },
+  askPhone: function(item, coins){ return 'Ask a parent to approve: ' + item + ' for ' + coins + ' coins. Tap the green button to send it to their phone.'; },
   pinHint: 'Parent PIN',
   wrongPin: 'Wrong PIN',
   cancel: 'Cancel',
@@ -677,7 +677,7 @@ window.SHOP_TEXT = {
   saveFail: 'Could not save, so nothing was spent. Please try again.',
   back: 'Back to the shop',
   phone: "📱 Ask on parent's phone",
-  waiting: 'Waiting for a parent… Ask your parent to open the parent page on their phone. The PIN still works here too.',
+  waiting: 'Waiting for a parent… Ask your parent to open the parent page on their phone.',
   declined: 'Your parent said not this time.',
   short: 'Not enough coins now, so nothing was bought.',
   expired: 'That request is too old. Ask again.'
@@ -696,7 +696,7 @@ window.SHOP_TEXT = {
   var overlay = $('shop-overlay'), dots = $('shop-pin-dots'), wrap = document.querySelector('.wrap');
   var pending = null, entered = '', shakeT = null;
   var C = window.Cloud, R = window.ShopRequests && W ? ShopRequests.create(STORE, Date.now) : null;
-  var asked = null, unwatch = null;
+  var asked = null, unwatch = null, phoneOnly = false;
 
   function el(tag, cls, text){
     var e = document.createElement(tag);
@@ -793,8 +793,10 @@ window.SHOP_TEXT = {
     $('shop-ask').textContent = T.ask(label(item), item.coins);
     $('shop-pin-hint').textContent = T.pinHint;
     $('shop-phone-msg').textContent = '';
-    var phone = !!(R && C && C.signedIn());
+    // With cloud sync on, only a parent's phone can approve: the PIN pad is not offered.
+    var phone = phoneOnly = !!(R && C && C.signedIn());
     $('shop-phone').hidden = !phone;
+    ['shop-pin-hint', 'shop-pin-dots', 'shop-pin-pad'].forEach(function(id){ $(id).hidden = phone; });
     if (phone && T.askPhone) $('shop-ask').textContent = T.askPhone(label(item), item.coins);
     var waiting = R ? R.waiting().filter(function(r){ return r.item === item.id; })[0] : null;
     if (waiting){
@@ -833,7 +835,7 @@ window.SHOP_TEXT = {
       var item = itemById(r.item), points = readPoints();
       if (!item || !W.canBuy(item.id, points).ok) return 'short';
       if (!W.buy(item.id, points)) return 'short';
-      if (SH) SH.purchased(item.id, item.name, item.coins);
+      if (SH) SH.purchased(item.id, item.name, item.coins, 'phone');
       return 'done';
     });
     if (results.length) C.sync();
@@ -863,7 +865,7 @@ window.SHOP_TEXT = {
     var points = readPoints();
     if (!W.canBuy(item.id, points).ok){ backToList(); return; }
     var bought = W.buy(item.id, points);
-    if (bought && SH) SH.purchased(item.id, item.name, item.coins);
+    if (bought && SH) SH.purchased(item.id, item.name, item.coins, 'pin');
     if (bought && window.Fx) Fx.purchase();
     var left = W.balance(points);
     $('coin-badge').textContent = T.coins(left);
@@ -872,7 +874,7 @@ window.SHOP_TEXT = {
     $('shop-back').focus();
   }
   function pressKey(key){
-    if (!pending) return;
+    if (!pending || phoneOnly) return;
     if (key === 'clear'){ entered = entered.slice(0, -1); drawDots(); return; }
     if (entered.length >= 4) return;
     entered += key;

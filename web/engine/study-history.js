@@ -195,8 +195,11 @@
       });
     };
 
-    api.purchased = function (item, itemName, coins) {
-      return add({ type: 'purchase', app: 'shop', appTitle: 'Shop', item: String(item), itemName: plain(itemName), coins: coins });
+    // via: 'pin' (typed on the tablet) or 'phone' (approved on the parent page).
+    api.purchased = function (item, itemName, coins, via) {
+      var e = { type: 'purchase', app: 'shop', appTitle: 'Shop', item: String(item), itemName: plain(itemName), coins: coins };
+      if (via === 'pin' || via === 'phone') e.via = via;
+      return add(e);
     };
 
     api.testScore = function (app, appTitle, testName, score, total, coins) {

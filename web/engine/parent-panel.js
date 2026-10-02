@@ -99,7 +99,7 @@
     function describe(e) {
       var subject = subjectOf(e.app, e.appTitle);
       if (e.type === 'open') return '📂 Opened ' + subject;
-      if (e.type === 'purchase') return '🛒 Bought ' + e.itemName + ' — ' + e.coins + ' coins';
+      if (e.type === 'purchase') return '🛒 Bought ' + e.itemName + ' — ' + e.coins + ' coins' + (e.via === 'phone' ? " · approved on the parent's phone" : e.via === 'pin' ? ' · approved with the PIN on the tablet' : '');
       if (e.type === 'test') return '📝 Real test · ' + subject + ' · ' + e.testName + ' — ' + e.score + '/' + e.total + ' · +' + e.coins + ' coins';
       if (e.type === 'lesson') return '📖 ' + subject + ' · ' + e.lessonTitle + ' — viewed ' + e.cardsViewed + ' of ' + e.cardsTotal + ' cards';
       var icon = '✏️', name;

@@ -695,3 +695,11 @@ test('weakSpots ranks lessons by accuracy, needs 5 answers, and keeps the exam s
   assert.equal(sh.weakSpots(entries, 2).length, 2);
   assert.deepEqual(sh.weakSpots([]), []);
 });
+
+test('a purchase remembers how it was approved: the PIN on the tablet or the parent\'s phone', () => {
+  const { sh, storage } = setup();
+  sh.purchased('ml', 'ML game', 40, 'phone');
+  sh.purchased('ml', 'ML game', 40, 'pin');
+  sh.purchased('ml', 'ML game', 40, 'anything else');
+  assert.deepEqual(saved(storage).map((e) => e.via), ['phone', 'pin', undefined]);
+});
