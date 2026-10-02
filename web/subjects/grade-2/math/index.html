@@ -293,9 +293,10 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
 <script src="../../../engine/powerups.js" data-grade="grade2"></script>
 <script src="../../../engine/recall.js" data-grade="grade2"></script>
+<script src="../../../engine/study-kit.js" data-grade="grade2"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall' };
+  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
@@ -453,7 +454,6 @@ function blockGroup(flats, units){
   }
   return out + '</div>';
 }
-
 
 const LESSONS = [
   {
@@ -796,29 +796,10 @@ const TYPE_IT = {
 const SH = window.StudyHistory, SH_APP = 'block-bot', SH_TITLE = 'Block Bot';
 let historyLessonId = null, historyQuizId = null;
 const STORAGE_KEY = 'blockbot_progress_v2';
-function loadProgress(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; } }
-function saveProgress(p){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }catch(e){} }
-let progress = loadProgress();
-const STARS_DAY_KEY = STORAGE_KEY + '_day';
-const starsToday = (function(d){ return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); })(new Date());
-let starsDay = null;
-try{ starsDay = localStorage.getItem(STARS_DAY_KEY); }catch(e){}
-if (starsDay !== starsToday){
-  progress = {};
-  saveProgress(progress);
-  try{ localStorage.setItem(STARS_DAY_KEY, starsToday); }catch(e){}
-}
-if (/(^|[?&])reset=1(&|$)/.test(location.search)){
-  SH && SH.appOpened(SH_APP, SH_TITLE);
-  if (window.history && window.history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
-}
+const kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'blockbot_points_v1', progressKey: STORAGE_KEY });
+let progress = kit.progress();
 
 const FINAL_EXAM_PER_LESSON = 3;
-
-const POINTS_KEY = 'blockbot_points_v1';
-function loadTotalPoints(){ try{ return parseInt(localStorage.getItem(POINTS_KEY), 10) || 0; }catch(e){ return 0; } }
-function saveTotalPoints(n){ try{ localStorage.setItem(POINTS_KEY, String(n)); }catch(e){} if(window.Wallet && Wallet.renderCoins) Wallet.renderCoins(); }
-let totalPoints = loadTotalPoints();
 
 function shuffle(arr){
   const a = arr.slice();
@@ -984,20 +965,10 @@ function checkNumberline(){
   const helped = !!(window.PowerUps && PowerUps.answered());
   if(correct){
     quizScore++;
-    if(!helped) streak++;
-    if(streak > bestStreak) bestStreak = streak;
-    const ptsBase = currentQuizMeta.id === 'final' ? EXAM_POINTS_PER_CORRECT : POINTS_PER_CORRECT, ptsBonus = streak >= STREAK_BONUS_AT ? STREAK_BONUS : 0;
-    const pts = window.Recall ? Recall.points(helped, ptsBase, ptsBonus) : helped ? ptsBase / 2 : ptsBase + ptsBonus;
-    sessionPoints += pts;
-    totalPoints += pts;
-    saveTotalPoints(totalPoints);
-    window.Fx && Fx.correct(helped ? 0 : streak);
   } else {
-    if(!(window.PowerUps && PowerUps.shield())) streak = 0;
-    window.Fx && Fx.wrong();
     missedQuestions.push(nlMiss);
   }
-  updatePointsLive();
+  kit.answer(correct, { helped: helped, exam: currentQuizMeta.id === 'final' });
   input.disabled = true;
   input.classList.add(correct ? 'correct' : 'incorrect');
   document.getElementById('nline-check').disabled = true;
@@ -1026,14 +997,6 @@ let answered = false;
 let currentQuizSet = [];
 let currentQuizMeta = null;
 let missedQuestions = [];
-let sessionPoints = 0, streak = 0, bestStreak = 0;
-const POINTS_PER_CORRECT = 10, EXAM_POINTS_PER_CORRECT = 20, STREAK_BONUS = 5, STREAK_BONUS_AT = 3;
-
-function updatePointsLive(){
-  const el = document.getElementById('points-live');
-  if (!el) return;
-  el.innerHTML = '⭐ ' + sessionPoints + ' pts' + (streak >= 2 ? ' <span class="streak">🔥 x' + streak + '</span>' : '') + (window.Wallet && Wallet.liveHtml ? Wallet.liveHtml() : '');
-}
 
 const homeScreen = document.getElementById('screen-home');
 const cardsScreen = document.getElementById('screen-cards');
@@ -1054,7 +1017,7 @@ function starsFor(pct){
 }
 
 function renderHome(){
-  document.getElementById('points-total-badge').textContent = '⭐ ' + totalPoints + ' points earned';
+  document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' points earned';
   renderBot(document.getElementById('hero-bot-svg'), 8);
   const grid = document.getElementById('lesson-grid');
   grid.innerHTML = '';
@@ -1142,7 +1105,7 @@ function startQuiz(){
   quizIdx = 0;
   quizScore = 0;
   missedQuestions = [];
-  sessionPoints = 0; streak = 0; bestStreak = 0;
+  kit.startRound();
   renderQuestion();
   showScreen(quizScreen);
 }
@@ -1162,7 +1125,7 @@ function startFinalExam(){
   quizIdx = 0;
   quizScore = 0;
   missedQuestions = [];
-  sessionPoints = 0; streak = 0; bestStreak = 0;
+  kit.startRound();
   renderQuestion();
   showScreen(quizScreen);
 }
@@ -1175,7 +1138,7 @@ function showSentence(sentence){
 function renderQuestion(){
   answered = false;
   document.getElementById('quiz-title').textContent = currentQuizMeta.title;
-  updatePointsLive();
+  kit.renderLive();
   const total = currentQuizSet.length;
   document.getElementById('quiz-progress').style.width = `${(quizIdx/total)*100}%`;
   renderBot(document.getElementById('quiz-bot-svg'), Math.round((quizScore/total)*8));
@@ -1191,7 +1154,7 @@ function renderQuestion(){
     document.getElementById('q-options').classList.add('hidden');
     document.getElementById('q-numberline').classList.remove('hidden');
     renderNumberlineQuestion(q);
-    offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:document.getElementById('q-numberline'), options:[], tip:NUMBERLINE_TIP, q:`${q.start} + ${q.jumps} = ?`, historyId:historyQuizId, streak:streak, index:quizIdx, rerender:renderQuestion });
+    offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:document.getElementById('q-numberline'), options:[], tip:NUMBERLINE_TIP, q:`${q.start} + ${q.jumps} = ?`, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
     return;
   }
 
@@ -1212,7 +1175,7 @@ function renderQuestion(){
     b.onclick = ()=>selectOption(idx);
     opts.appendChild(b);
   });
-  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:opts, options:opts.children, correct:q.correct, tip:q.tip, q:q.q, historyId:historyQuizId, streak:streak, index:quizIdx, rerender:renderQuestion });
+  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:opts, options:opts.children, correct:q.correct, tip:q.tip, q:q.q, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
 }
 
 function selectOption(idx){
@@ -1234,20 +1197,10 @@ function selectOption(idx){
   const helped = !!(window.PowerUps && PowerUps.answered());
   if(correct){
     quizScore++;
-    if(!helped) streak++;
-    if(streak > bestStreak) bestStreak = streak;
-    const ptsBase = currentQuizMeta.id === 'final' ? EXAM_POINTS_PER_CORRECT : POINTS_PER_CORRECT, ptsBonus = streak >= STREAK_BONUS_AT ? STREAK_BONUS : 0;
-    const pts = window.Recall ? Recall.points(helped, ptsBase, ptsBonus) : helped ? ptsBase / 2 : ptsBase + ptsBonus;
-    sessionPoints += pts;
-    totalPoints += pts;
-    saveTotalPoints(totalPoints);
-    window.Fx && Fx.correct(helped ? 0 : streak);
   } else {
-    if(!(window.PowerUps && PowerUps.shield())) streak = 0;
-    window.Fx && Fx.wrong();
     missedQuestions.push(miss);
   }
-  updatePointsLive();
+  kit.answer(correct, { helped: helped, exam: currentQuizMeta.id === 'final' });
   renderBot(document.getElementById('quiz-bot-svg'), Math.round((quizScore/total)*8));
   const fb = document.getElementById('q-feedback');
   fb.innerHTML = correct
@@ -1286,8 +1239,8 @@ function finishQuiz(){
   const total = currentQuizSet.length;
   const best = Math.max(progress[currentQuizMeta.id] || 0, quizScore);
   progress[currentQuizMeta.id] = best;
-  saveProgress(progress);
-  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / currentQuizSet.length), sessionPoints, bestStreak);
+  kit.saveProgress(progress);
+  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / currentQuizSet.length), kit.sessionPoints(), kit.bestStreak());
   window.Fx && Fx.finish(starsFor(quizScore / currentQuizSet.length));
   renderResults(total);
   showScreen(resultsScreen);
@@ -1299,9 +1252,7 @@ function renderResults(total){
   document.getElementById('results-heading').textContent =
     stars === 3 ? 'Block Bot Complete!' : stars > 0 ? 'Great Progress!' : 'Keep Building!';
   document.getElementById('results-score').textContent = `You scored ${quizScore} out of ${total} on ${currentQuizMeta.title}`;
-  let ptsLine = `⭐ +${sessionPoints} points this round`;
-  if(bestStreak >= STREAK_BONUS_AT) ptsLine += ` · 🔥 best streak: ${bestStreak} in a row!`;
-  document.getElementById('points-earned').textContent = ptsLine + (window.Recall ? Recall.resultLine() : '');
+  document.getElementById('points-earned').textContent = kit.resultLine();
   document.getElementById('results-stars').innerHTML = [1,2,3].map(s=>`<span class="${s<=stars?'star-on':'star-off'}">★</span>`).join('');
   const reviewEl = document.getElementById('missed-review');
   if(missedQuestions.length){

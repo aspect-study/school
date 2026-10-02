@@ -1,7 +1,7 @@
 # Project structure for the long run
 
 Date: 2026-10-02
-Status: approved. Phase 1 done 2026-10-02 (250 unit tests + all e2e green). Phases 2–5 are open.
+Status: approved. Phase 1 done 2026-10-02 (250 unit tests + all e2e green). Phase 2 (first slice) done 2026-10-02: scoring in `web/engine/study-kit.js` (280 unit tests + all e2e green). Phases 3–5 are open.
 
 ## Why
 
@@ -134,3 +134,14 @@ Any change to the inside of a game (engine extraction, content split), learner p
 The redirect pages can be deleted once every device has opened the new addresses, for example at the start of the next school year. When they are deleted, remove them from `REDIRECTS` in `tests/paths.js` and from `PRECACHE`.
 
 Android caveat: a Grade 2 icon installed before the move had the scope `grade 2/`. Its redirect leads outside that scope, so Android shows a thin browser bar. Reinstalling from `lobby/grade-2.html` fixes it, and points and coins carry over because Android shares storage with Chrome.
+
+## Phase 2, first slice: study-kit.js (done 2026-10-02)
+
+`web/engine/study-kit.js` now owns what all 15 games had copied: the scoring rules (10 / 20 in the exam / +5 from 3 in a row), the halving and streak rules for helped answers, the Streak Shield check, Recall's say on points, the total and round points, the live counter, the "points this round" line, the daily star reset, and the `?reset=1` lobby visit.
+
+- A game calls `const kit = StudyKit.start({ app, title, pointsKey, progressKey[, liveLabel][, liveSelector] })`, then `kit.answer(correct, { helped, exam })` per answer, plus `kit.startRound()`, `kit.resultLine()` / `kit.roundLine(what)`, `kit.totalPoints()`, `kit.progress()` / `kit.saveProgress(p)`.
+- `{ shield: false }` marks answers that never had power-ups (Math Mastery walkthrough and case-study steps), so an unused Streak Shield is not spent there. This matches the old `awardPoint(ok)` behavior.
+- `study-kit.js` is the one **required** engine file. The others stay optional, and the no-extras e2e run keeps checking that.
+- Storage keys are unchanged, so existing points, stars and wallets carry over.
+
+Still per game (later slices of phase 2): screens, question rendering, results, missed-question review and explore mode. Each still differs between families A/B/C/math, and moving them goes with phase 3 (content as data, one play page).

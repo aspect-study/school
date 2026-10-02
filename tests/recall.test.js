@@ -204,18 +204,19 @@ for (const g of games) {
     assert.ok(html.indexOf(g.tag) > html.indexOf('<script src="' + g.pu + '"'), 'recall tag after the power-ups tag');
     assert.equal(count(html, 'PowerUps.offer('), 1, 'only offerQuestion calls PowerUps.offer');
     assert.ok(count(html, 'offerQuestion({') >= 1, 'questions are offered through offerQuestion');
-    assert.match(html, /EXAM_POINTS_PER_CORRECT = 20/);
-    assert.equal(count(html, 'Recall.points(helped, ptsBase, ptsBonus)'), count(html, 'streak++;'), 'every right answer is scored by Recall');
+    // The study kit asks Recall what every right answer pays (tests/study-kit.test.js).
+    assert.ok(html.indexOf('<script src="../../../engine/study-kit.js"') > html.indexOf(g.tag), 'study-kit tag after the recall tag');
+    assert.equal(count(html, 'Recall.points('), 0, 'no points paid outside the study kit');
     assert.equal(count(html, ', window.Recall ? Recall.typed() : false);'), count(html, 'SH.quizAnswered('), 'history hears about typed answers');
-    assert.equal(count(html, 'Recall.resultLine()'), 1, 'the results screen shows resting questions');
+    assert.equal(count(html, 'Recall.resultLine()'), 0, 'resting questions are shown through kit.resultLine()');
+    assert.equal(count(html, 'kit.resultLine()'), 1, 'the results screen shows resting questions');
     assert.match(html, /(const|var) TYPE_IT = \{/);
   });
 }
 
 test('Math Mastery pays double in the mock exam but never rests questions', () => {
   const html = fs.readFileSync(appFile('math-mastery'), 'utf8');
-  assert.match(html, /EXAM_POINTS_PER_CORRECT = 20/);
-  assert.match(html, /function awardPoint\(correct, helped, shielded, exam\)/);
-  assert.match(html, /awardPoint\(correct, helped, [^\n]*, currentQuizMeta\.id === 'final'\);/);
+  assert.equal(count(html, "kit.answer(correct, { helped: helped, exam: currentQuizMeta.id === 'final' });"), 1);
+  assert.equal(count(html, 'kit.answer(ok, { shield: false });'), 5, 'walkthrough and case-study steps never spend a Streak Shield');
   assert.equal(count(html, 'recall.js'), 0);
 });

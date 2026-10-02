@@ -207,10 +207,12 @@ for (const g of games) {
     assert.ok(answers > 0);
     const offers = html.split('PowerUps.offer({').length - 1 + html.split('offerQuestion({').length - 1;
     assert.ok(offers >= answers, 'every answered question was offered');
-    assert.equal(html.split('if(!helped) streak++;').length + html.split('if (!helped) streak++;').length - 2, html.split('streak++;').length - 1, 'a helped answer never grows the streak');
-    assert.equal(html.split(/helped \? ptsBase \/ 2 :/).length - 1, html.split('streak++;').length - 1, 'a helped answer earns half points');
+    // The study kit halves helped points, keeps the streak and checks the Streak Shield (tests/study-kit.test.js).
+    const helpedAnswers = html.split("kit.answer(").length - 1 - (html.split('{ shield: false })').length - 1);
+    assert.equal(html.split("{ helped: helped, exam: currentQuizMeta.id === 'final' })").length - 1, answers, 'every answer that could use a power-up tells the kit');
+    assert.equal(helpedAnswers, answers, 'answers without power-ups say shield: false');
     assert.match(html, /exam: ?currentQuizMeta\.id === 'final'/, 'no power-ups in the mock exam');
-    assert.equal(html.split('PowerUps.shield()').length - 1, html.split('window.Fx && Fx.wrong();').length - 1, 'every wrong answer checks for a Streak Shield');
+    assert.equal(html.split('PowerUps.shield()').length - 1, 0, 'only the study kit uses the Streak Shield');
     assert.equal(html.split('rerender:').length - 1, offers, 'every question can be saved for later');
   });
 }

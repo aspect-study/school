@@ -20,7 +20,7 @@ function __e2eSeed() {
     v: 1, entries: [{ id: 'seed-1', type: 'open', app: 'seed', appTitle: 'Seed', t: 1 }]
   }));
   var baselines = {};
-  baselines[POINTS_KEY] = 0;
+  baselines[kit.pointsKey] = 0;
   localStorage.setItem(__E2E_WALLET_KEY, JSON.stringify({ v: 1, baselines: baselines, spent: 0, purchases: [], oldPointsCounted: true }));
   __e2eOut({ seeded: true });
 }
@@ -38,7 +38,7 @@ function __e2eExploreAll(btnSelector, boxId) {
 }
 
 function __e2eCoins() {
-  var pts = parseInt(localStorage.getItem(POINTS_KEY), 10) || 0;
+  var pts = parseInt(localStorage.getItem(kit.pointsKey), 10) || 0;
   var badge = document.querySelector('[data-coins="badge"]');
   var have = document.querySelector('[data-coins="haveNow"]');
   var live = document.querySelector('.points-live .coins-live');
@@ -81,11 +81,11 @@ function __e2ePowerUps(startLesson, next, startExam) {
       var tip = document.querySelector('.pu-tip');
       if (!tip || tip.hidden || !tip.textContent.trim()) r.tipShown = false;
     }
-    var streak0 = streak, points0 = sessionPoints;
+    var streak0 = kit.streak(), points0 = kit.sessionPoints();
     __e2eAnswer(true);
     if (here.length) {
-      r.helpedPoints.push(sessionPoints - points0);
-      if (streak !== streak0) r.streakKept = false;
+      r.helpedPoints.push(kit.sessionPoints() - points0);
+      if (kit.streak() !== streak0) r.streakKept = false;
       if (document.querySelector('.pu-out:disabled')) r.outReenabled = false;
     }
     r.used = r.used.concat(here);
@@ -125,12 +125,12 @@ function __e2ePowerUps2(startLesson, next) {
   for (var k = 0; k < n; k++) {
     if (!r.second && __e2ePu('second')) {
       r.used.push('second');
-      var right = __e2eRightIdx(), btns = __e2eOptionButtons(), points0 = sessionPoints;
+      var right = __e2eRightIdx(), btns = __e2eOptionButtons(), points0 = kit.sessionPoints();
       btns[(right + 1) % btns.length].click();
       r.second = { tried: btns[(right + 1) % btns.length].classList.contains('pu-tried'), stillOpen: !Array.prototype.some.call(btns, function (b) { return b.classList.contains('correct'); }),
-        noPoints: sessionPoints === points0 };
+        noPoints: kit.sessionPoints() === points0 };
       btns[right].click();
-      r.second.helpedPoints = sessionPoints - points0;
+      r.second.helpedPoints = kit.sessionPoints() - points0;
     } else {
       __e2eAnswer(true);
     }
@@ -142,9 +142,9 @@ function __e2ePowerUps2(startLesson, next) {
   __e2eAnswer(true); next();
   if (__e2ePu('shield')) {
     r.used.push('shield');
-    var before = streak;
+    var before = kit.streak();
     __e2eAnswer(false);
-    r.shield = { before: before, after: streak, note: document.querySelector('.pu-bar .pu-note').textContent };
+    r.shield = { before: before, after: kit.streak(), note: document.querySelector('.pu-bar .pu-note').textContent };
   }
   r.spent = __e2eSpent() - spent0;
   r.prices = Wallet.powerUps;
@@ -166,9 +166,9 @@ function __e2ePowerUps3(startLesson, startExam) {
   r.card = __e2eVisible('.pu-ask') ? document.querySelector('.pu-ask').textContent : '';
   r.noCancel = !document.querySelector('.pu-ask button');
   r.tatayBlocked = !__e2ePu('tatay');
-  var points0 = sessionPoints;
+  var points0 = kit.sessionPoints();
   __e2eAnswer(true);
-  r.helpedPoints = sessionPoints - points0;
+  r.helpedPoints = kit.sessionPoints() - points0;
   r.cardAfterAnswer = __e2eVisible('.pu-ask');
   r.spent = __e2eSpent() - spent0;
   r.prices = Wallet.powerUps;

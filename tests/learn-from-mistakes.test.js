@@ -18,6 +18,7 @@ function sandbox() {
     location: { search: '', pathname: '', hash: '' },
     history: {},
     genNumberlineSet() { return []; },
+    StudyKit: { start() { return { progress() { return {}; } }; } },
   };
 }
 

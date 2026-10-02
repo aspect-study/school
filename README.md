@@ -113,6 +113,7 @@ web/                         the published site (the only folder GitHub Pages se
     powerups.js                in-quiz power-ups
     recall.js                  question rest + type-it-first
     fx.js                      sound effects + streak call-outs (Web Audio)
+    study-kit.js               points, streaks, rounds, daily star reset (required by every game)
   assets/icons/              home-screen icons
   sw.js                      offline cache (service worker)
   *.html, grade 2/*.html     redirects from the old addresses
@@ -125,7 +126,7 @@ docs/                        design specs, plans and handoff notes
 
 The engine files serve both grades. Each page says which grade it is with `data-grade` on the script tag (`<script src="../../../engine/wallet.js" data-grade="grade5">`), and every grade keeps its own storage keys.
 
-Every page checks that its engine files loaded and shows a red **Missing or broken file** bar if one didn't.
+Every page checks that its engine files loaded and shows a red **Missing or broken file** bar if one didn't. A game needs `study-kit.js` to play; the other engine files are optional extras.
 
 Subject folders are named after the subject (`math`, `english`, `araling-panlipunan`…), not the game, and grades are `grade-2` … `grade-12`. Each game's internal ID (`math-mastery`, `block-bot`…) is saved in study history and must never change; `tests/paths.js` maps each ID to its folder.
 
@@ -162,7 +163,7 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 
 **A new subject or grade** (for example Grade 6 Math):
 
-1. Put the game at `web/subjects/grade-6/math/index.html`, loading the engine as `../../../engine/<file>.js` with `data-grade="grade6"`.
+1. Put the game at `web/subjects/grade-6/math/index.html`, loading the engine as `../../../engine/<file>.js` with `data-grade="grade6"` (`study-kit.js` last). Start it with `const kit = StudyKit.start({ app, title, pointsKey, progressKey })` and score every answer with `kit.answer(correct, { helped, exam })`.
 2. Add it to `APPS` in `tests/paths.js` with a new, permanent ID.
 3. Add a subject card to the lobby: `<a class="subject-card" data-app="<id>" href="../subjects/grade-6/math/index.html?reset=1">`.
 4. Add the page to `PRECACHE` in `web/sw.js`. `node --test` lists anything you missed.

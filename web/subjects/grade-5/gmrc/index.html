@@ -391,9 +391,10 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 <script src="../../../engine/fx.js" data-grade="grade5"></script>
 <script src="../../../engine/powerups.js" data-grade="grade5"></script>
 <script src="../../../engine/recall.js" data-grade="grade5"></script>
+<script src="../../../engine/study-kit.js" data-grade="grade5"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall' };
+  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
@@ -848,34 +849,9 @@ const FINAL_EXAM_PER_LESSON = 3;
 const SH = window.StudyHistory, SH_APP = 'rise-shine', SH_TITLE = 'Rise & Shine';
 let historyLessonId = null, historyQuizId = null;
 const STORAGE_KEY = 'riseshine_progress_v1';
-/* Points are cumulative and deliberately survive ?reset=1 — stars reset each visit, points never do. */
-const POINTS_KEY = 'riseshine_points_v1';
-const POINTS_PER_CORRECT = 10, EXAM_POINTS_PER_CORRECT = 20, STREAK_BONUS = 5, STREAK_BONUS_AT = 3;
-function loadTotalPoints(){ try{ return parseInt(localStorage.getItem(POINTS_KEY), 10) || 0; }catch(e){ return 0; } }
-function saveTotalPoints(n){ try{ localStorage.setItem(POINTS_KEY, String(n)); }catch(e){} if(window.Wallet && Wallet.renderCoins) Wallet.renderCoins(); }
-let totalPoints = loadTotalPoints();
 
-function loadProgress(){
-  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; }
-}
-function saveProgress(p){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }catch(e){}
-}
-let progress = loadProgress();
-/* Opened from the lobby with ?reset=1 -> start a completely fresh run. */
-const STARS_DAY_KEY = STORAGE_KEY + '_day';
-const starsToday = (function(d){ return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); })(new Date());
-let starsDay = null;
-try{ starsDay = localStorage.getItem(STARS_DAY_KEY); }catch(e){}
-if (starsDay !== starsToday){
-  progress = {};
-  saveProgress(progress);
-  try{ localStorage.setItem(STARS_DAY_KEY, starsToday); }catch(e){}
-}
-if (/(^|[?&])reset=1(&|$)/.test(location.search)){
-  SH && SH.appOpened(SH_APP, SH_TITLE);
-  if (window.history && window.history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
-}
+const kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'riseshine_points_v1', progressKey: STORAGE_KEY });
+let progress = kit.progress();
 
 function shuffle(arr){
   const a = arr.slice();
@@ -972,13 +948,6 @@ function renderMissedReview(){
     : '';
 }
 let quizScore = 0;
-let sessionPoints = 0, streak = 0, bestStreak = 0;
-
-function updatePointsLive(){
-  const el = document.getElementById('points-live');
-  if(!el) return;
-  el.innerHTML = '⭐ ' + sessionPoints + ' pts' + (streak >= 2 ? ' <span class="streak">🔥 x' + streak + '</span>' : '') + (window.Wallet && Wallet.liveHtml ? Wallet.liveHtml() : '');
-}
 
 function cardKey(e){
   if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){
@@ -993,7 +962,7 @@ function showScreen(id){
 function goHome(){ renderHome(); showScreen('home'); }
 
 function renderHome(){
-  document.getElementById('points-total-badge').textContent = '⭐ ' + totalPoints + ' points earned';
+  document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' points earned';
   const list = document.getElementById('homeList');
   const finalTotal = LESSONS.length * FINAL_EXAM_PER_LESSON;
   const finalBest = progress['final'] || 0;
@@ -1082,7 +1051,7 @@ function startQuiz(){
   quizIdx = 0;
   quizScore = 0;
   missedQuestions = [];
-  sessionPoints = 0; streak = 0; bestStreak = 0;
+  kit.startRound();
   document.getElementById('quizTitle').textContent = l.title;
   document.getElementById('passageBox').innerHTML = '';
   renderQuestion();
@@ -1100,7 +1069,7 @@ function startFinalExam(){
   quizIdx = 0;
   quizScore = 0;
   missedQuestions = [];
-  sessionPoints = 0; streak = 0; bestStreak = 0;
+  kit.startRound();
   document.getElementById('quizTitle').textContent = 'Full Mock Exam';
   document.getElementById('passageBox').innerHTML = '';
   renderQuestion();
@@ -1112,7 +1081,7 @@ function renderQuestion(){
   const q = currentQuizSet[quizIdx];
   document.getElementById('quizCounter').textContent = `Question ${quizIdx+1} of ${total}`;
   document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
-  updatePointsLive();
+  kit.renderLive();
   document.getElementById('quizFill').style.width = `${(quizIdx/total)*100}%`;
   document.getElementById('medalSvg').innerHTML = medalMarkup(Math.round((quizScore/total)*8));
   const art = document.getElementById('qArt');
@@ -1132,7 +1101,7 @@ function renderQuestion(){
     btn.onclick = ()=>selectOption(i);
     box.appendChild(btn);
   });
-  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:box, options:box.children, correct:q.correct, tip:q.tip, tipEn:q.tipEn, q:q.q, historyId:historyQuizId, streak:streak, index:quizIdx, rerender:renderQuestion });
+  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:box, options:box.children, correct:q.correct, tip:q.tip, tipEn:q.tipEn, q:q.q, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
 }
 
 function selectOption(i){
@@ -1149,19 +1118,8 @@ function selectOption(i){
   const helped = !!(window.PowerUps && PowerUps.answered());
   if(i === q.correct){
     quizScore++;
-    if(!helped) streak++;
-    if(streak > bestStreak) bestStreak = streak;
-    const ptsBase = currentQuizMeta.id === 'final' ? EXAM_POINTS_PER_CORRECT : POINTS_PER_CORRECT, ptsBonus = streak >= STREAK_BONUS_AT ? STREAK_BONUS : 0;
-    const pts = window.Recall ? Recall.points(helped, ptsBase, ptsBonus) : helped ? ptsBase / 2 : ptsBase + ptsBonus;
-    sessionPoints += pts;
-    totalPoints += pts;
-    saveTotalPoints(totalPoints);
-    window.Fx && Fx.correct(helped ? 0 : streak);
-  } else {
-    if(!(window.PowerUps && PowerUps.shield())) streak = 0;
-    window.Fx && Fx.wrong();
   }
-  updatePointsLive();
+  kit.answer(i === q.correct, { helped: helped, exam: currentQuizMeta.id === 'final' });
   document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
   document.getElementById('medalSvg').innerHTML = medalMarkup(Math.round((quizScore/currentQuizSet.length)*8));
   const explainHtml = q.explain;
@@ -1199,8 +1157,8 @@ function finishQuiz(){
   const total = currentQuizSet.length;
   const best = progress[currentQuizMeta.id] || 0;
   if(quizScore > best) progress[currentQuizMeta.id] = quizScore;
-  saveProgress(progress);
-  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / total), sessionPoints, bestStreak);
+  kit.saveProgress(progress);
+  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / total), kit.sessionPoints(), kit.bestStreak());
   window.Fx && Fx.finish(starsFor(quizScore / total));
   renderResults(total);
   showScreen('resultsScreen');
@@ -1216,9 +1174,7 @@ function renderResults(total){
     n===2 ? 'Great Job!' :
     n===1 ? 'Good Start!' : 'Keep Practicing!';
   document.getElementById('resultScore').textContent = `You scored ${quizScore} out of ${total}.`;
-  let ptsLine = `⭐ +${sessionPoints} points this round`;
-  if(bestStreak >= STREAK_BONUS_AT) ptsLine += ` · 🔥 best streak: ${bestStreak} in a row!`;
-  document.getElementById('points-earned').textContent = ptsLine + (window.Recall ? Recall.resultLine() : '');
+  document.getElementById('points-earned').textContent = kit.resultLine();
   renderMissedReview();
 }
 

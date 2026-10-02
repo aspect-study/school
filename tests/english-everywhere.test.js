@@ -51,8 +51,8 @@ test('Grade 2 games show "points" with every "puntos"', () => {
     lines.forEach((line, i) => {
       if (!/puntos|(?<![-\w])sunod-sunod/.test(line)) return;
       const near = lines.slice(i, i + 5).join(' ');
-      // A standalone "points", so ids like points-earned don't count as English.
-      assert.match(near, /(?<![-\w])points(?![-\w])|in a row/, file + ':' + (i + 1) + ' has no English: ' + line.trim());
+      // A standalone "points", so ids like points-earned don't count as English. kit.resultLine() is the English points line.
+      assert.match(near, /(?<![-\w])points(?![-\w])|in a row|kit\.resultLine\(\)/, file + ':' + (i + 1) + ' has no English: ' + line.trim());
     });
   }
 });

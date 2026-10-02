@@ -18,6 +18,7 @@ const missing = (files) => '⚠️ Missing or broken file: ' + files + '. Check 
 const cases = [
   [app('rise-shine').page, appFile('rise-shine'), [], null],
   [app('rise-shine').page, appFile('rise-shine'), ['recall.js'], missing('recall.js')],
+  [app('math-mastery').page, appFile('math-mastery'), ['study-kit.js'], missing('study-kit.js')],
   [LOBBIES[5].page, lobbyFile(5), ['wallet.js'], missing('wallet.js')],
   [app('kuwentista').page, appFile('kuwentista'), [], null],
   [app('kuwentista').page, appFile('kuwentista'), ['fx.js', 'study-history.js'], missing('study-history.js, fx.js')],

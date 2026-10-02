@@ -14,6 +14,7 @@ const PRECACHE = [
   'engine/powerups.js',
   'engine/recall.js',
   'engine/study-history.js',
+  'engine/study-kit.js',
   'engine/wallet.js',
   'subjects/grade-2/computer/index.html',
   'subjects/grade-2/english/index.html',

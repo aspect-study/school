@@ -22,10 +22,9 @@ for (const g of APPS.map((app) => ({ a: app.id, file: appFile(app.id), fx: '../.
   test(g.a + ' loads the effects and plays them on every answer and result', () => {
     const html = fs.readFileSync(g.file, 'utf8');
     assert.ok(html.includes('<script src="' + g.fx + '" data-grade="' + g.grade + '"></script>'), 'missing fx script tag');
-    const answers = html.split('streak++;').length - 1;
-    assert.ok(answers > 0);
-    assert.equal(html.split('window.Fx && Fx.correct(helped ? 0 : streak);').length - 1, answers, 'every correct-answer branch calls Fx.correct, quietly when helped');
-    assert.equal(html.split('window.Fx && Fx.wrong();').length - 1, answers, 'every wrong-answer branch calls Fx.wrong');
+    // Every answer goes through kit.answer, which plays Fx.correct / Fx.wrong (tests/study-kit.test.js).
+    assert.ok(html.split('kit.answer(').length - 1 > 0, 'answers are scored by the study kit');
+    assert.equal(html.split('Fx.correct(').length + html.split('Fx.wrong(').length - 2, 0, 'no answer sound outside the study kit');
     assert.equal(html.split('window.Fx && Fx.finish(').length - 1, html.split('SH.quizFinished(').length - 1, 'every finished round calls Fx.finish');
   });
 }

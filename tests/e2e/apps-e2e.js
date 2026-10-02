@@ -221,8 +221,9 @@ function checkPowerUps3(app, out) {
   assert.equal(r.examShowsPicker, false, 'nor does an open helper picker');
 }
 
+// Only study-kit.js is required; every other engine file is optional.
 function checkNoJs(out) {
-  assert.deepEqual(out.errors, [], 'no errors without study-history.js');
+  assert.deepEqual(out.errors, [], 'no errors with only study-kit.js');
   assert.equal(out.hasSH, false);
   assert.ok(out.total > 0 && out.score === out.total, 'quiz still plays to the end');
   assert.equal(out.coinBadgeHidden, true, 'no wallet file: the empty coin badge stays hidden');
@@ -262,7 +263,7 @@ for (const app of APPS) {
   const page = appInfo(app.slug).page;
   const html = injectDriver(fs.readFileSync(appFile(app.slug), 'utf8'), driver);
   const file = stage(withJs, page, html, WITHOUT_RECALL);
-  const noJsFile = stage(noJs, page, html, []);
+  const noJsFile = stage(noJs, page, html, ['study-kit.js']);
   const recallFile = app.family !== 'math' && stage(withRecall, page, html, ENGINE_FILES);
   const profile = path.join(work, 'profile-' + app.slug);
   try {

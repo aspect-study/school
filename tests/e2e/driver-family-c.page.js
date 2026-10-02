@@ -31,7 +31,7 @@ function __e2eRun() {
 
   currentLessonIdx = 0; startQuiz();
   expect.perfectTotal = __e2eAnswerAll(true);
-  expect.perfectPoints = sessionPoints;
+  expect.perfectPoints = kit.sessionPoints();
 
   currentLessonIdx = 0; startQuiz();
   expect.wrongTotal = __e2eAnswerAll(false);

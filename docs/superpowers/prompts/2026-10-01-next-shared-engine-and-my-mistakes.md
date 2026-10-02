@@ -12,7 +12,7 @@ Read first: memory `study-games-repo`, `power-ups`, `fair-points-anti-memorizati
 - `node tests/e2e/lobby-e2e.js [5]`, `backup-e2e.js [5]`, `file-check-e2e.js`
 - The repo is in git now. Check `git status` is clean before starting, so the diff shows only this work.
 
-## Step 4: extract the shared quiz engine into `study-kit.js`
+## Step 4: extract the shared quiz engine into `study-kit.js` (DONE 2026-10-02, see the structure spec, phase 2)
 Problem: the points/streak/round logic is copy-pasted into all 15 games, so every
 feature costs 15 edits (power-ups, recall, fx, wallet badge, explore mode all did).
 

@@ -419,9 +419,10 @@
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
 <script src="../../../engine/powerups.js" data-grade="grade2"></script>
 <script src="../../../engine/recall.js" data-grade="grade2"></script>
+<script src="../../../engine/study-kit.js" data-grade="grade2"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall' };
+  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
@@ -478,29 +479,10 @@
   var SH = window.StudyHistory, SH_APP = 'science-detectives', SH_TITLE = 'Science Detectives', SH_TRUE = 'True', SH_FALSE = 'False';
   var historyLessonId = null, historyQuizId = null;
   var STORAGE_KEY = 'sciencedetectives_progress_v1';
-  function loadProgress(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; } }
-  function saveProgress(p){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }catch(e){} }
-  var progress = loadProgress();
-  var STARS_DAY_KEY = STORAGE_KEY + '_day';
-  var starsToday = (function(d){ return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); })(new Date());
-  var starsDay = null;
-  try{ starsDay = localStorage.getItem(STARS_DAY_KEY); }catch(e){}
-  if (starsDay !== starsToday){
-    progress = {};
-    saveProgress(progress);
-    try{ localStorage.setItem(STARS_DAY_KEY, starsToday); }catch(e){}
-  }
-  if (/(^|[?&])reset=1(&|$)/.test(location.search)){
-    SH && SH.appOpened(SH_APP, SH_TITLE);
-    if (window.history && window.history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
-  }
+  var kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'sciencedetectives_points_v1', progressKey: STORAGE_KEY });
+  var progress = kit.progress();
 
   var FINAL_EXAM_PER_LESSON = 3;
-
-  var POINTS_KEY = 'sciencedetectives_points_v1';
-  function loadTotalPoints(){ try{ return parseInt(localStorage.getItem(POINTS_KEY), 10) || 0; }catch(e){ return 0; } }
-  function saveTotalPoints(n){ try{ localStorage.setItem(POINTS_KEY, String(n)); }catch(e){} if(window.Wallet && Wallet.renderCoins) Wallet.renderCoins(); }
-  var totalPoints = loadTotalPoints();
 
   function starsFor(pct){
     if (pct >= 1) return 3;
@@ -772,7 +754,7 @@
 
   /* ================= Home ================= */
   function renderHome(){
-    document.getElementById('points-total-badge').textContent = '⭐ ' + totalPoints + ' points earned';
+    document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' points earned';
     var list = document.getElementById('home-list');
     var finalTotal = lessons.length * FINAL_EXAM_PER_LESSON;
     var finalBest = progress['final'] || 0;
@@ -858,14 +840,6 @@
   var currentQuizSet = [];
   var currentQuizMeta = null;
   var missedQuestions = [];
-  var sessionPoints = 0, streak = 0, bestStreak = 0;
-  var POINTS_PER_CORRECT = 10, EXAM_POINTS_PER_CORRECT = 20, STREAK_BONUS = 5, STREAK_BONUS_AT = 3;
-
-  function updatePointsLive(){
-    var el = document.getElementById('points-live');
-    if (!el) return;
-    el.innerHTML = '⭐ ' + sessionPoints + ' pts' + (streak >= 2 ? ' <span class="streak">🔥 x' + streak + '</span>' : '') + (window.Wallet && Wallet.liveHtml ? Wallet.liveHtml() : '');
-  }
 
   function revealProgress(){
     var n = Math.round((score / currentQuizSet.length) * 8);
@@ -881,7 +855,7 @@
     currentQuizSet = buildQuizSet(lesson);
     currentQuizMeta = { id: currentLesson, title: lesson.title };
     historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
-    qIdx = 0; score = 0; missedQuestions = []; sessionPoints = 0; streak = 0; bestStreak = 0; resetFlask();
+    qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetFlask();
     showScreen('quiz');
     renderQuestion();
   }
@@ -894,7 +868,7 @@
     currentQuizSet = shuffle(qs);
     currentQuizMeta = { id: 'final', title: 'Science Detectives Review' };
     historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
-    qIdx = 0; score = 0; missedQuestions = []; sessionPoints = 0; streak = 0; bestStreak = 0; resetFlask();
+    qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetFlask();
     showScreen('quiz');
     renderQuestion();
   }
@@ -910,7 +884,7 @@
     var item = currentQuizSet[qIdx];
     document.getElementById('q-count').textContent = 'Question ' + (qIdx + 1) + ' of ' + currentQuizSet.length + (currentQuizMeta.id === 'final' ? ' — ' + decode(currentQuizMeta.title) : '');
     document.getElementById('track-fill').style.width = Math.round((qIdx / currentQuizSet.length) * 100) + '%';
-    updatePointsLive();
+    kit.renderLive();
     document.getElementById('q-kicker').textContent = item.type === 'tf' ? 'True or False?' : 'Choose the correct answer';
     var parts = decode(item.q).split('\n');
     document.getElementById('q-text').textContent = parts[0];
@@ -947,7 +921,7 @@
     }
     offerQuestion({ quiz: currentQuizSet, exam: currentQuizMeta.id === 'final', before: optWrap,
       options: item.type === 'tf' ? [] : optWrap.querySelectorAll('.opt'), correct: item.type === 'tf' ? -1 : item.options.findIndex(function(o){ return o.correct; }),
-      tip: item.tip, tipEn: item.tipEn, q: item.q, historyId: historyQuizId, streak: streak, index: qIdx, rerender: renderQuestion });
+      tip: item.tip, tipEn: item.tipEn, q: item.q, historyId: historyQuizId, streak: kit.streak(), index: qIdx, rerender: renderQuestion });
   }
 
   function lockOptions(chosen){
@@ -1005,20 +979,10 @@
     var helped = !!(window.PowerUps && PowerUps.answered());
     if (isCorrect){
       score++;
-      if (!helped) streak++;
-      if (streak > bestStreak) bestStreak = streak;
-      var ptsBase = currentQuizMeta.id === 'final' ? EXAM_POINTS_PER_CORRECT : POINTS_PER_CORRECT, ptsBonus = streak >= STREAK_BONUS_AT ? STREAK_BONUS : 0;
-      var pts = window.Recall ? Recall.points(helped, ptsBase, ptsBonus) : helped ? ptsBase / 2 : ptsBase + ptsBonus;
-      sessionPoints += pts;
-      totalPoints += pts;
-      saveTotalPoints(totalPoints);
-      window.Fx && Fx.correct(helped ? 0 : streak);
     } else {
-      if (!(window.PowerUps && PowerUps.shield())) streak = 0;
-      window.Fx && Fx.wrong();
       missedQuestions.push(miss);
     }
-    updatePointsLive();
+    kit.answer(isCorrect, { helped: helped, exam: currentQuizMeta.id === 'final' });
     revealProgress();
   }
 
@@ -1058,16 +1022,14 @@
     document.getElementById('track-fill').style.width = '100%';
     var total = currentQuizSet.length;
     var starCount = starsFor(score / total);
-    SH && SH.quizFinished(historyQuizId, starCount, sessionPoints, bestStreak);
+    SH && SH.quizFinished(historyQuizId, starCount, kit.sessionPoints(), kit.bestStreak());
     window.Fx && Fx.finish(starCount);
     var best = Math.max(progress[currentQuizMeta.id] || 0, score);
     progress[currentQuizMeta.id] = best;
-    saveProgress(progress);
+    kit.saveProgress(progress);
     document.getElementById('stars').innerHTML = starsMarkup(starCount, 3);
     document.getElementById('result-score').textContent = 'You got ' + score + ' out of ' + total + ' questions right on ' + decode(currentQuizMeta.title) + '!';
-    var ptsLine = '⭐ +' + sessionPoints + ' points this round';
-    if (bestStreak >= STREAK_BONUS_AT) ptsLine += ' · 🔥 best streak: ' + bestStreak + ' in a row!';
-    document.getElementById('points-earned').textContent = ptsLine + (window.Recall ? Recall.resultLine() : '');
+    document.getElementById('points-earned').textContent = kit.resultLine();
     var msg;
     if (starCount === 3) msg = 'Case closed! You solved this mystery like a true Science Detective!';
     else if (starCount === 2) msg = 'Nice clue-finding! You are almost a full Science Detective — try again to solve it completely!';
