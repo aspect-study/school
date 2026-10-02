@@ -272,6 +272,10 @@ function checkReview(app, out) {
   assert.equal(r.othersAfter.length, n - 1);
   r.othersAfter.forEach((it) => assert.deepEqual([it.box, it.due], [3, r.in7], 'box 2 right moves to box 3, due in 7 days'));
   assert.equal(r.retryTotal, Math.min(10, r.due - r.reviewTotal), 'what was just answered rests; retry plays only what is still due');
+  assert.equal(r.fixedEvents, 1, 'answering a missed question right on its due day celebrates a fixed mistake');
+  assert.ok(r.fixedPop, 'the fixed-mistakes popup opens');
+  assert.equal(r.fixedPop.big, r.fixedExpectBig, 'its size follows its events');
+  assert.equal(r.fixedPop.hasFix, true, 'the fixed-mistakes event is shown, as the headline or in the list');
   console.log('  review: ' + r.reviewTotal + ' of ' + r.due + ' due, ' + r.points + ' pts');
 }
 
@@ -304,6 +308,20 @@ function checkMedal(app, out) {
   assert.match(m.chip, /🥈 1/, 'the header chip counts it');
   assert.equal(m.slipPaid, 0, 'a slip pays nothing');
   assert.ok(m.slipBadges.includes('🥈🔧'), 'a slipped lesson keeps its medal with a polish mark');
+  assert.equal(m.queued.length, 1, 'one popup event for the new Silver: ' + JSON.stringify(m.queued));
+  assert.deepEqual([m.queued[0].big, m.queued[0].icon], [true, '🥈']);
+  assert.ok(m.pop, 'the popup opens');
+  assert.equal(m.pop.role, 'dialog');
+  assert.equal(m.pop.big, true, 'Silver is a big celebration');
+  assert.ok(m.pop.title.includes(m.lessonTitle), 'the headline names the lesson: ' + m.pop.title);
+  assert.ok(m.pop.bits > 0, 'big celebrations have confetti');
+  assert.equal(m.pop.button, 'Nice!');
+  assert.equal(m.popClosed, true, 'a tap closes it');
+  assert.deepEqual(m.calm, { bits: 0, calmClass: true }, 'reduced motion: no confetti, a plain fade');
+  assert.equal(m.listed, 3, 'a popup lists at most 3 more events');
+  assert.equal(m.hiddenAnchorOpens, false, 'a hidden anchor drops the popup');
+  assert.equal(m.detachedAnchorOpens, false, 'a detached anchor drops the popup');
+  assert.equal(m.visibleAnchorOpens, true, 'a visible anchor still opens it');
   console.log('  medal: ' + m.first + ' + ' + m.second + ' pts');
 }
 

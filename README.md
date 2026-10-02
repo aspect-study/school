@@ -64,6 +64,7 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 - **Explore other answers:** after answering, tap any other choice to see why it is or isn't right. This never affects the score.
 - **Stars** (up to 3 per lesson) reset each day. **Points** are permanent.
 - **Medals** (🥉 Bronze, 🥈 Silver, 🥇 Gold) need every question in a lesson right on 1, 2 and 3 separate days. They never go away; a 🔧 shows when a lesson needs a polish. A new medal pays 20, 40 or 80 points once. The lobby's **🗺️ My Map** shows every lesson's medal.
+- **Celebrations:** a short popup cheers a new medal, a whole game reaching Bronze, Silver or Gold, and fixed mistakes, with what she did and one next step. It waits for PERFECT!, closes with a tap or by itself, follows the mute key and the tablet's reduce-motion setting.
 
 ## Rewards
 

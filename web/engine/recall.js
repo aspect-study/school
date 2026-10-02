@@ -129,7 +129,7 @@
   function create(storage, now, grade, plain) {
     if (!Object.prototype.hasOwnProperty.call(TEXT, grade || '')) throw new Error('Recall needs a grade like "grade5".');
     var KEY = 'review_v1', OLD_KEY = 'recall_v1';
-    var current = null, lastQuiz = null, round = { resting: 0, moved: 0, bonus: 0 };
+    var current = null, lastQuiz = null, round = { resting: 0, moved: 0, bonus: 0, fixed: 0 };
     plain = plain || function (s) { return String(s == null ? '' : s); };
 
     function today() { return dayNumber(dateKey(now())); }
@@ -220,7 +220,7 @@
 
       // opts.review false: a generated question that never comes back, so it is never stored.
       begin: function (quiz, key, opts) {
-        if (quiz !== lastQuiz) { lastQuiz = quiz; round = { resting: 0, moved: 0, bonus: 0 }; }
+        if (quiz !== lastQuiz) { lastQuiz = quiz; round = { resting: 0, moved: 0, bonus: 0, fixed: 0 }; }
         var review = !(opts && opts.review === false);
         var it = review ? item(key) : null;
         current = { key: key, review: review, item: it, resting: daysLeft(it), typed: false };
@@ -245,6 +245,7 @@
         var from = current.item ? current.item.box : 0, gap = GAP_BONUS[from];
         put(current.key, from ? Math.min(MAX_BOX, from + 1) : 2);
         if (from) { round.moved++; round.bonus += gap; }
+        if (from === 1) round.fixed++;
         return base + bonus + gap + typed;
       },
 
@@ -252,6 +253,9 @@
       missed: function () {
         if (current && current.review && !current.resting) put(current.key, 1);
       },
+
+      // Missed questions answered right on their due day in the current round.
+      fixed: function () { return round.fixed; },
 
       resultLine: function () {
         return (round.resting ? TEXT[grade].resultLine(round.resting) : '') +

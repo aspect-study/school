@@ -4,6 +4,8 @@
   'use strict';
 
   var MUTE_KEY = 'study_fx_muted_v1';
+  var POP_MS = { small: 4000, big: 6000 };
+  var POP_CLOSE = 'Nice!';
 
   // Mobile Legends-style streak announcer, one tier per answer in a row.
   var TIERS = [
@@ -32,6 +34,7 @@
     var ctx = null;
     var layer = null;
     var hideTimer = null;
+    var calloutUntil = 0, queued = null, queuedAnchor = null, okButton = null, popTimer = null, closeTimer = null, pop = null, returnFocus = null;
     var subtitle = SUBTITLE[grade] || SUBTITLE.grade5;
 
     function read(key) { try { return win.localStorage.getItem(key); } catch (e) { return null; } }
@@ -120,7 +123,25 @@
         '#fx-mute{position:fixed;left:12px;bottom:12px;z-index:9998;width:44px;height:44px;border-radius:50%;border:2px solid rgba(0,0,0,.12);' +
         'background:rgba(255,255,255,.88);font-size:20px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:0;}' +
         '#fx-mute:focus-visible{outline:3px solid #3b82f6;outline-offset:2px;}' +
-        '@media print{#fx-mute,#fx-layer{display:none}}';
+        '#fx-pop{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.55);overflow:hidden;}' +
+        '#fx-pop .fx-pop-card{position:relative;max-width:340px;width:100%;max-height:calc(100vh - 32px);overflow-y:auto;padding:22px 20px 18px;border-radius:22px;background:#fff;color:#1f2937;' +
+        'text-align:center;font-family:"Segoe UI",system-ui,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.3);}' +
+        '#fx-pop .fx-pop-icon{font-size:68px;line-height:1.1;}' +
+        '#fx-pop .fx-pop-title{margin:6px 0 4px;font-size:1.35rem;font-weight:900;}' +
+        '#fx-pop .fx-pop-line{font-size:1rem;font-weight:600;}' +
+        '#fx-pop .fx-pop-next{margin-top:10px;padding:8px 10px;border-radius:12px;background:#EEF4FF;color:#23395B;font-size:.92rem;font-weight:700;}' +
+        '#fx-pop .fx-pop-more{margin:10px 0 0;padding:0;list-style:none;font-size:.9rem;font-weight:700;}' +
+        '#fx-pop .fx-pop-ok{margin-top:14px;padding:10px 26px;border:0;border-radius:999px;background:#2E9E5B;color:#fff;font:inherit;font-size:1rem;font-weight:800;cursor:pointer;}' +
+        '#fx-pop .fx-pop-ok:focus-visible{outline:3px solid #23395B;outline-offset:2px;}' +
+        '#fx-pop .fx-bit{position:absolute;width:10px;height:14px;border-radius:2px;animation:fx-fall var(--d) ease-in forwards;}' +
+        '#fx-pop .fx-pop-card{animation:fx-drop .5s cubic-bezier(.2,1.4,.4,1);}' +
+        '#fx-pop.fx-pop-big .fx-pop-icon{animation:fx-flip .9s ease-out;}' +
+        '#fx-pop.fx-pop-calm .fx-pop-card,#fx-pop.fx-pop-calm .fx-pop-icon{animation:fx-in .3s ease-out;}' +
+        '@keyframes fx-drop{0%{transform:translateY(-60px) scale(.8);opacity:0}100%{transform:none;opacity:1}}' +
+        '@keyframes fx-flip{0%{transform:rotateY(0) scale(.4)}60%{transform:rotateY(540deg) scale(1.15)}100%{transform:rotateY(720deg) scale(1)}}' +
+        '@keyframes fx-in{0%{opacity:0}100%{opacity:1}}' +
+        '@media (prefers-reduced-motion:reduce){#fx-pop .fx-pop-card,#fx-pop .fx-pop-icon{animation:fx-in .3s ease-out}}' +
+        '@media print{#fx-mute,#fx-layer,#fx-pop{display:none}}';
       var style = doc.createElement('style');
       style.id = 'fx-style';
       style.textContent = css;
@@ -185,6 +206,7 @@
       if (tier.big && !calm) confetti(box, [tier.color, tier.glow, '#facc15', '#ffffff', '#22d3ee'], 36);
       clearTimeout(hideTimer);
       hideTimer = setTimeout(function () { box.innerHTML = ''; }, 1700);
+      calloutUntil = Date.now() + 1700;
     }
 
     function correct(streak) {
@@ -249,6 +271,95 @@
       }
     }
 
+    function el(tag, cls, text) {
+      var e = doc.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined) e.textContent = text;
+      return e;
+    }
+
+    function fanfare(big) {
+      if (big) {
+        [523, 659, 784, 1047].forEach(function (f, i) { tone(f, i * 0.12, 0.25, 'triangle', 0.16); });
+        tone(1319, 0.5, 0.6, 'sine', 0.12);
+      } else {
+        tone(988, 0, 0.15, 'sine', 0.14);
+        tone(1319, 0.1, 0.3, 'sine', 0.14);
+      }
+    }
+
+    function onKey(ev) {
+      if (ev.key === 'Escape') closePop();
+      else if (ev.key === 'Tab') {
+        ev.preventDefault();
+        if (okButton) okButton.focus();
+      }
+    }
+
+    function closePop() {
+      clearTimeout(closeTimer);
+      if (pop && pop.parentNode) pop.parentNode.removeChild(pop);
+      if (pop) doc.removeEventListener('keydown', onKey);
+      pop = null;
+      okButton = null;
+      if (returnFocus && returnFocus.focus) { try { returnFocus.focus(); } catch (e) {} }
+      returnFocus = null;
+    }
+
+    // events: [{ big, icon, title, line, next }], biggest first. The first is the headline; up to 3 more are listed.
+    function openPop() {
+      clearTimeout(popTimer);
+      var events = queued, anchor = queuedAnchor;
+      queued = null;
+      queuedAnchor = null;
+      if (!events || !events.length || !doc.body) return;
+      if (anchor && (!anchor.isConnected || !anchor.offsetParent)) return;
+      addStyle();
+      closePop();
+      var head = events[0], calm = reducedMotion();
+      var big = events.some(function (e) { return e.big; });
+      returnFocus = doc.activeElement;
+      pop = el('div', big ? 'fx-pop-big' : 'fx-pop-small');
+      if (calm) pop.className += ' fx-pop-calm';
+      pop.id = 'fx-pop';
+      pop.setAttribute('role', 'dialog');
+      pop.setAttribute('aria-modal', 'true');
+      pop.setAttribute('aria-labelledby', 'fx-pop-title');
+      var card = el('div', 'fx-pop-card');
+      card.appendChild(el('div', 'fx-pop-icon', head.icon));
+      var title = el('div', 'fx-pop-title', head.title);
+      title.id = 'fx-pop-title';
+      card.appendChild(title);
+      if (head.line) card.appendChild(el('div', 'fx-pop-line', head.line));
+      if (head.next) card.appendChild(el('div', 'fx-pop-next', head.next));
+      if (events.length > 1) {
+        var more = el('ul', 'fx-pop-more');
+        events.slice(1, 4).forEach(function (e) { more.appendChild(el('li', '', e.icon + ' ' + e.title)); });
+        card.appendChild(more);
+      }
+      var ok = el('button', 'fx-pop-ok', POP_CLOSE);
+      ok.type = 'button';
+      okButton = ok;
+      card.appendChild(ok);
+      pop.appendChild(card);
+      if (big && !calm) confetti(pop, ['#eab308', '#fde047', '#22d3ee', '#a855f7', '#ffffff'], 40);
+      pop.addEventListener('click', closePop);
+      doc.addEventListener('keydown', onKey);
+      doc.body.appendChild(pop);
+      try { ok.focus(); } catch (e) {}
+      fanfare(big);
+      closeTimer = setTimeout(closePop, big ? POP_MS.big : POP_MS.small);
+    }
+
+    // Waits for a call-out like PERFECT! to finish, so the two never overlap. If the anchor element is hidden by then, the player has moved on and nothing opens.
+    function celebrate(events, anchor) {
+      if (!events || !events.length) return;
+      queued = events;
+      queuedAnchor = anchor || null;
+      clearTimeout(popTimer);
+      popTimer = setTimeout(openPop, Math.max(0, calloutUntil - Date.now()));
+    }
+
     function renderMute(btn) {
       var m = muted();
       btn.textContent = m ? '🔇' : '🔊';
@@ -278,10 +389,11 @@
     if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start);
     else start();
 
-    return { correct: correct, wrong: wrong, finish: finish, purchase: purchase, muted: muted };
+    return { correct: correct, wrong: wrong, finish: finish, purchase: purchase, muted: muted,
+      celebrate: celebrate, celebrateNow: openPop, queued: function () { return queued; } };
   }
 
-  var exported = { tierFor: tierFor, TIERS: TIERS, SUBTITLE: SUBTITLE, MUTE_KEY: MUTE_KEY };
+  var exported = { tierFor: tierFor, TIERS: TIERS, SUBTITLE: SUBTITLE, MUTE_KEY: MUTE_KEY, POP_MS: POP_MS, POP_CLOSE: POP_CLOSE };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

@@ -12,6 +12,21 @@
 
   function tally(c) { return '🥇 ' + c.gold + ' · 🥈 ' + c.silver + ' · 🥉 ' + c.bronze; }
 
+  function questionsEn(n) { return n > 1 ? 'all ' + n + ' questions' : 'every question'; }
+  function lessonsEn(n) { return n + (n === 1 ? ' lesson' : ' lessons'); }
+  var MEDAL_LINE_EN = [
+    '',
+    function (n) { return 'You got ' + questionsEn(n) + ' right.'; },
+    function (n) { return 'You got ' + questionsEn(n) + ' right on 2 different days.'; },
+    function (n) { return 'You got ' + questionsEn(n) + ' right on 3 different days.'; }
+  ];
+  var MEDAL_NEXT_EN = ['', '🥈 next: get them right again in 3 days', '🥇 next: once more in about 7 days', 'It comes back in 2 weeks to stay strong'];
+  var MEDAL_NEXT_FIL = ['', '🥈 Susunod: sagutin ulit sa 3 araw', '🥇 Susunod: isa pa pagkalipas ng mga 7 araw', 'Babalik ito sa 2 linggo'];
+  function subjectNextEn(l, n) { return l < 3 ? 'Next: all-' + NAMES.en[l + 1] + ', ' + lessonsEn(n) + ' to go' : 'Every lesson is Gold. Amazing!'; }
+  function fixedTitleEn(n) { return 'You fixed ' + n + (n === 1 ? ' mistake!' : ' mistakes!'); }
+  function fixedLineEn(n) { return n === 1 ? 'A question you missed before is right now.' : n + ' questions you missed before are right now.'; }
+  function fixedNextEn(n) { return (n === 1 ? 'It comes' : 'They come') + ' back in 3 days to check'; }
+
   var TEXT = {
     grade5: {
       name: function (l) { return NAMES.en[l]; },
@@ -21,7 +36,16 @@
       mapButton: '🗺️ My Map',
       mapTitle: '🗺️ My Medal Map',
       mapHint: 'Get every question in a lesson right: 🥉 on 1 day · 🥈 on 2 days · 🥇 on 3 days',
-      openOnce: 'Open this game once to see its medals'
+      openOnce: 'Open this game once to see its medals',
+      medalTitle: function (m) { return NAMES.en[m.level] + ': ' + m.title + '!'; },
+      medalLine: function (l, n) { return MEDAL_LINE_EN[l](n); },
+      medalNext: function (l) { return MEDAL_NEXT_EN[l]; },
+      subjectTitle: function (l, app) { return 'All of ' + app + ' is ' + NAMES.en[l] + '!'; },
+      subjectLine: function (l) { return 'Every lesson has ' + MEDALS[l] + ' or better.'; },
+      subjectNext: subjectNextEn,
+      fixedTitle: fixedTitleEn,
+      fixedLine: fixedLineEn,
+      fixedNext: fixedNextEn
     },
     grade2: {
       name: function (l) { return NAMES.fil[l] + ' · ' + NAMES.en[l]; },
@@ -31,7 +55,21 @@
       mapButton: '🗺️ My Map',
       mapTitle: '🗺️ Mapa ng Galing · Map of My Medals',
       mapHint: 'Sagutin nang tama ang lahat: 🥉 1 araw · 🥈 2 araw · 🥇 3 araw · Get all of the questions right: 🥉 1 day · 🥈 2 days · 🥇 3 days',
-      openOnce: 'Buksan muna ang laro · Open this game once to see its medals'
+      openOnce: 'Buksan muna ang laro · Open this game once to see its medals',
+      medalTitle: function (m) { return NAMES.fil[m.level] + ' · ' + NAMES.en[m.level] + ': ' + m.title + '!'; },
+      medalLine: function (l, n) {
+        var fil = l === 1 ? (n > 1 ? 'Tama lahat ng ' + n + ' tanong' : 'Tama ang bawat tanong') : 'Tama lahat sa ' + l + ' magkaibang araw';
+        return fil + ' · ' + MEDAL_LINE_EN[l](n);
+      },
+      medalNext: function (l) { return MEDAL_NEXT_FIL[l] + ' · ' + MEDAL_NEXT_EN[l]; },
+      subjectTitle: function (l, app) { return NAMES.fil[l] + ' na ang lahat ng ' + app + '! · All of ' + app + ' is ' + NAMES.en[l] + '!'; },
+      subjectLine: function (l) { return 'May ' + MEDALS[l] + ' o higit pa ang bawat aralin · Every lesson has ' + MEDALS[l] + ' or better.'; },
+      subjectNext: function (l, n) {
+        return (l < 3 ? 'Susunod: lahat ' + NAMES.fil[l + 1] + ', ' + n + ' aralin pa' : 'Ginto na lahat. Galing!') + ' · ' + subjectNextEn(l, n);
+      },
+      fixedTitle: function (n) { return 'Inayos mo ang ' + n + ' mali · ' + fixedTitleEn(n); },
+      fixedLine: function (n) { return n + ' tanong na mali dati, tama na ngayon · ' + fixedLineEn(n); },
+      fixedNext: function (n) { return 'Babalik sa 3 araw para masuri · ' + fixedNextEn(n); }
     }
   };
 
@@ -78,6 +116,12 @@
     return lessonsOf(entry).filter(function (l) { return level(l.now) < level(l.best); }).map(function (l) { return String(l.title); });
   }
 
+  // A game's level is its weakest shown lesson's best medal.
+  function subjectLevel(entry) {
+    var list = lessonsOf(entry);
+    return list.length ? Math.min.apply(null, list.map(function (l) { return level(l.best); })) : 0;
+  }
+
   function create(storage, now, grade) {
     if (!Object.prototype.hasOwnProperty.call(TEXT, grade || '')) throw new Error('Mastery needs a grade like "grade5".');
     return {
@@ -85,20 +129,37 @@
 
       summary: function () { return read(storage); },
 
+      // Popup events for Fx.celebrate, biggest first: a game-wide level, then medals, then fixed mistakes.
+      events: function (result, fixed, appTitle) {
+        var T = TEXT[grade], list = [];
+        if (result.subjectUp) {
+          list.push({ rank: 10 + result.subjectUp, big: true, icon: '🏆', title: T.subjectTitle(result.subjectUp, appTitle),
+            line: T.subjectLine(result.subjectUp), next: T.subjectNext(result.subjectUp, result.toNext) });
+        }
+        (result.newly || []).forEach(function (m) {
+          list.push({ rank: 1 + m.level, big: m.level >= 2, icon: MEDALS[m.level], title: T.medalTitle(m),
+            line: T.medalLine(m.level, m.count || 1), next: T.medalNext(m.level) });
+        });
+        if (fixed > 0) list.push({ rank: 1, big: false, icon: '🔧', title: T.fixedTitle(fixed), line: T.fixedLine(fixed), next: T.fixedNext(fixed) });
+        list.sort(function (a, b) { return b.rank - a.rank; });
+        return list.map(function (e) { return { big: e.big, icon: e.icon, title: e.title, line: e.line, next: e.next }; });
+      },
+
       // lessons: [{ id, title, icon, keys }], keys being the lesson's review_v1 keys. A lesson with no keys has no medal.
       update: function (app, lessons) {
         var boxes = readJson(storage, 'review_v1'), items = isObj(boxes) && isObj(boxes.items) ? boxes.items : {};
         var state = read(storage), old = isObj(state.apps[app]) && isObj(state.apps[app].lessons) ? state.apps[app].lessons : {};
-        var entry = { t: now(), order: [], lessons: {} }, result = { lessons: {}, newly: [], points: 0 };
+        var entry = { t: now(), order: [], lessons: {} }, result = { lessons: {}, newly: [], points: 0 }, raised = false;
         lessons.forEach(function (l) {
           if (!l.keys || !l.keys.length || has(entry.lessons, l.id)) return;
           var was = has(old, l.id) && isObj(old[l.id]) ? old[l.id] : null, lv = levelOf(items, l.keys);
           var best = Math.max(lv, was ? level(was.best) : 0);
+          if (was && best > level(was.best)) raised = true;
           // A lesson seen for the first time starts as paid, so medals earned before it was tracked pay nothing.
           var paid = was ? level(was.paid) : best, pts = 0;
           for (var x = paid + 1; x <= best; x++) pts += PAY[x];
           if (pts) {
-            result.newly.push({ id: l.id, title: l.title, level: best, points: pts });
+            result.newly.push({ id: l.id, title: l.title, level: best, points: pts, count: l.keys.length });
             result.points += pts;
           }
           entry.order.push(l.id);
@@ -108,7 +169,9 @@
         Object.keys(old).forEach(function (id) {
           if (!has(entry.lessons, id) && isObj(old[id])) entry.lessons[id] = old[id];
         });
-        var prev = state.apps[app];
+        var prev = state.apps[app], after = subjectLevel(entry);
+        result.subjectUp = isObj(prev) && raised && after > subjectLevel(prev) ? after : 0;
+        result.toNext = after < 3 ? lessonsOf(entry).filter(function (l) { return level(l.best) <= after; }).length : 0;
         if (!isObj(prev) || JSON.stringify([prev.order, prev.lessons]) !== JSON.stringify([entry.order, entry.lessons])) {
           state.apps[app] = entry;
           try {
@@ -116,6 +179,7 @@
           } catch (e) {
             result.points = 0;
             result.newly = [];
+            result.subjectUp = 0;
           }
         }
         result.counts = counts(entry);

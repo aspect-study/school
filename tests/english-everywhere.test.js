@@ -63,11 +63,26 @@ test('the Grade 2 streak call-out has English', () => {
   assert.match(SUBTITLE.grade2(3), /3 in a row/);
 });
 
-test('every Grade 2 medal line has English', () => {
+test('every Grade 2 medal and popup line has English', () => {
   const { TEXT } = require(engineFile('mastery.js'));
   const c = { gold: 1, silver: 2, bronze: 3, total: 9 };
+  const samples = {
+    newLine: [[{ level: 2, title: 'Halaman', points: 40 }]],
+    chip: [[c]],
+    name: [[1], [2], [3]],
+    medalTitle: [[{ level: 1, title: 'Halaman' }], [{ level: 2, title: 'Halaman' }], [{ level: 3, title: 'Halaman' }]],
+    medalLine: [[1, 1], [1, 5], [2, 5], [3, 5]],
+    medalNext: [[1], [2], [3]],
+    subjectTitle: [[1, 'Kuwentista'], [2, 'Kuwentista'], [3, 'Kuwentista']],
+    subjectLine: [[1], [2], [3]],
+    subjectNext: [[1, 1], [2, 3], [3, 0]],
+    fixedTitle: [[1], [3]],
+    fixedLine: [[1], [3]],
+    fixedNext: [[1], [3]],
+  };
   for (const [key, value] of Object.entries(TEXT.grade2)) {
-    const v = key === 'newLine' ? value({ level: 2, title: 'Halaman', points: 40 }) : key === 'chip' ? value(c) : key === 'name' ? value(2) : value;
-    hasEnglishWhereFilipino(v, 'medal ' + key);
+    if (typeof value !== 'function') { hasEnglishWhereFilipino(value, 'medal ' + key); continue; }
+    assert.ok(samples[key], 'add sample arguments for ' + key);
+    for (const args of samples[key]) hasEnglishWhereFilipino(value(...args), 'medal ' + key);
   }
 });

@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { APPS, engineFile, appFile, lobbyFile } = require('./paths.js');
-const { tierFor, SUBTITLE } = require(engineFile('fx.js'));
+const { tierFor, SUBTITLE, POP_MS, POP_CLOSE } = require(engineFile('fx.js'));
 
 
 test('the streak announcer climbs one tier per answer in a row and stays legendary', () => {
@@ -16,6 +16,11 @@ test('the streak announcer climbs one tier per answer in a row and stays legenda
 test('the call-out subtitle speaks each lobby\'s language', () => {
   assert.equal(SUBTITLE.grade5(5), '🔥 5 in a row!');
   assert.equal(SUBTITLE.grade2(5), '🔥 5 sunod-sunod na tama! · 5 in a row!');
+});
+
+test('a celebration closes by itself: small after 4 s, big after 6 s; its button stays English', () => {
+  assert.deepEqual(POP_MS, { small: 4000, big: 6000 });
+  assert.equal(POP_CLOSE, 'Nice!');
 });
 
 for (const g of APPS.map((app) => ({ a: app.id, file: appFile(app.id), fx: '../../../engine/fx.js', grade: 'grade' + app.grade }))) {

@@ -53,7 +53,7 @@ test('a new medal pays once, the tiers between add up, and earning it back pays 
   s.data.review_v1 = boxes({ a: 3 });
   const up = m.update('life-lab', lessons);
   assert.equal(up.points, 60, 'nothing to Silver pays Bronze 20 + Silver 40');
-  assert.deepEqual(up.newly, [{ id: 'l1', title: 'Lesson l1', level: 2, points: 60 }]);
+  assert.deepEqual(up.newly, [{ id: 'l1', title: 'Lesson l1', level: 2, points: 60, count: 1 }]);
   assert.equal(m.update('life-lab', lessons).points, 0, 'paid once');
   s.data.review_v1 = boxes({ a: 1 });
   const slip = m.update('life-lab', lessons);
@@ -182,4 +182,54 @@ test('an update that changes nothing does not write, so it queues no upload', ()
   assert.equal(writes, 2);
   assert.equal(saved(s).apps['life-lab'].lessons.l1.best, 2);
   assert.notEqual(saved(s).apps['life-lab'].t, 1000);
+});
+
+test('a new medal, a game-wide milestone and fixed mistakes become popup events, biggest first', () => {
+  const s = memory({ review_v1: boxes({ a: 1, a2: 1, b: 2 }) });
+  const m = create(s, now, 'grade5'), lessons = [lesson('l1', ['a', 'a2']), lesson('l2', ['b'])];
+  assert.equal(m.update('life-lab', lessons).subjectUp, 0, 'the first report never celebrates');
+  s.data.review_v1 = boxes({ a: 3, a2: 3, b: 2 });
+  const r = m.update('life-lab', lessons);
+  assert.equal(r.subjectUp, 1, 'every lesson now has Bronze or better');
+  assert.equal(r.toNext, 1, 'one lesson is still below Silver');
+  assert.deepEqual(m.events(r, 2, 'Life Lab'), [
+    { big: true, icon: '🏆', title: 'All of Life Lab is Bronze!', line: 'Every lesson has 🥉 or better.', next: 'Next: all-Silver, 1 lesson to go' },
+    { big: true, icon: '🥈', title: 'Silver: Lesson l1!', line: 'You got all 2 questions right on 2 different days.', next: '🥇 next: once more in about 7 days' },
+    { big: false, icon: '🔧', title: 'You fixed 2 mistakes!', line: '2 questions you missed before are right now.', next: 'They come back in 3 days to check' },
+  ]);
+  assert.equal(m.update('life-lab', lessons).subjectUp, 0, 'it celebrates once');
+  assert.deepEqual(m.events(m.update('life-lab', lessons), 0, 'Life Lab'), [], 'nothing new, no popup');
+});
+
+test('popup text for each medal, all-Gold and a single fix', () => {
+  const T = create(memory(), now, 'grade5');
+  const ev = (result, fixed) => T.events(Object.assign({ newly: [], subjectUp: 0, toNext: 0 }, result), fixed || 0, 'Life Lab');
+  assert.deepEqual(ev({ newly: [{ id: 'x', title: 'Plants', level: 1, points: 20, count: 1 }] }), [
+    { big: false, icon: '🥉', title: 'Bronze: Plants!', line: 'You got every question right.', next: '🥈 next: get them right again in 3 days' }]);
+  assert.deepEqual(ev({ newly: [{ id: 'x', title: 'Plants', level: 3, points: 80, count: 3 }] }), [
+    { big: true, icon: '🥇', title: 'Gold: Plants!', line: 'You got all 3 questions right on 3 different days.', next: 'It comes back in 2 weeks to stay strong' }]);
+  assert.deepEqual(ev({ subjectUp: 3 })[0].next, 'Every lesson is Gold. Amazing!');
+  assert.deepEqual(ev({}, 1), [
+    { big: false, icon: '🔧', title: 'You fixed 1 mistake!', line: 'A question you missed before is right now.', next: 'It comes back in 3 days to check' }]);
+  const g2 = create(memory(), now, 'grade2').events({ newly: [{ id: 'x', title: 'Halaman', level: 2, points: 40, count: 4 }], subjectUp: 0, toNext: 0 }, 0, 'Kuwentista');
+  assert.equal(g2[0].title, 'Pilak · Silver: Halaman!');
+});
+
+test('a failed save never celebrates a milestone twice', () => {
+  const s = memory({ review_v1: boxes({ a: 1 }) });
+  const m = create(s, now, 'grade5'), lessons = [lesson('l1', ['a'])];
+  m.update('life-lab', lessons);
+  s.data.review_v1 = boxes({ a: 2 });
+  const failing = { getItem: s.getItem, setItem: () => { throw new Error('full'); } };
+  const r = create(failing, now, 'grade5').update('life-lab', lessons);
+  assert.equal(r.subjectUp, 0);
+  assert.deepEqual(r.newly, []);
+});
+
+test('removing the only weak lesson is not a game-wide milestone', () => {
+  const s = memory({ review_v1: boxes({ a: 2 }) });
+  const m = create(s, now, 'grade5');
+  m.update('life-lab', [lesson('l1', ['a']), lesson('l2', ['b'])]);
+  const r = m.update('life-lab', [lesson('l1', ['a'])]);
+  assert.equal(r.subjectUp, 0);
 });

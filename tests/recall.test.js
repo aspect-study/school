@@ -555,3 +555,26 @@ test('Math Mastery pays double in the mock exam, never rests questions, and revi
   assert.equal(count(html, 'Recall.ask('), 0, 'questions never rest');
   assert.equal(count(html, 'offerQuestion('), 0);
 });
+
+test('fixed counts missed questions answered right while due, per round', () => {
+  const s = memory(), now = clock(2026, 10, 1);
+  const r = create(s, now, 'grade5');
+  const day1 = [];
+  r.begin(day1, 'a'); r.missed();
+  r.begin(day1, 'b'); r.points(false, 10, 0);
+  assert.equal(r.fixed(), 0, 'a miss is not a fix');
+  const retry = [];
+  r.begin(retry, 'a');
+  assert.equal(r.points(false, 10, 0), 0, 'same day: resting');
+  assert.equal(r.fixed(), 0, 'a same-day retry is not a fix');
+  now.days(1);
+  const helped = [];
+  r.begin(helped, 'a'); r.points(true, 10, 0);
+  assert.equal(r.fixed(), 0, 'a helped answer is not a fix');
+  now.days(1);
+  const due = [];
+  r.begin(due, 'a'); r.points(false, 10, 0);
+  assert.equal(r.fixed(), 1, 'box 1, due, right on her own');
+  r.begin([], 'c');
+  assert.equal(r.fixed(), 0, 'a new round starts at 0');
+});

@@ -23,6 +23,7 @@ for (const app of APPS) {
     if (app.id !== 'math-mastery') assert.ok(html.indexOf('Recall.tidy(SH_APP') < html.indexOf(open), 'after the review boxes are tidied');
     assert.ok(html.indexOf(open) < html.lastIndexOf('renderHome();'), 'before the home screen is drawn');
     assert.equal(count(html, 'Mastery.renderChip(medals)'), 1, 'header chip');
+    assert.equal(count(html, "if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE), el);"), 1, 'celebrates milestones');
     assert.ok(count(html, 'medalBadge(') >= 2, 'lesson cards show the medal');
   });
 }

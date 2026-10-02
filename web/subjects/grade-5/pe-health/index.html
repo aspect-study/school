@@ -473,7 +473,9 @@ function updateMedals(){
 }
 function showMedals(el){
   const m = updateMedals();
-  if (m) Mastery.showNew(el, m.newly);
+  if (!m) return;
+  Mastery.showNew(el, m.newly);
+  if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE), el);
 }
 function medalBadge(id){
   return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
