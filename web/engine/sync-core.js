@@ -10,6 +10,8 @@
   var PROGRESS = /_progress_v\d+$/;
   var PROGRESS_DAY = /_progress_v\d+_day$/;
   var WALLET_COUNTERS = ['spent', 'bonus'];
+  var REQUEST_STEP = { waiting: 0, approved: 1, declined: 1, done: 2, cancelled: 2, short: 2 };
+  var REQUESTS_KEEP_MS = 7 * 86400000;
 
   function json(text, fallback) {
     try { var v = JSON.parse(text); return v === null || v === undefined ? fallback : v; } catch (e) { return fallback; }
@@ -34,6 +36,7 @@
     if (key === 'history_v1') return 'history';
     if (key === 'profile_v1') return 'profile';
     if (key === 'coin_guide_seen_v1') return 'flag';
+    if (key === 'shop_requests_v1') return 'requests';
     if (PROGRESS.test(key) || PROGRESS_DAY.test(key)) return 'progress';
     return 'replace';
   }
@@ -76,6 +79,24 @@
       var newer = (Number(a.at) || 0) >= (Number(b.at) || 0) ? a : b;
       return { name: newer.name, emoji: newer.emoji, grade: Math.max(Number(a.grade) || 0, Number(b.grade) || 0), at: newer.at || 0 };
     },
+    // Shop requests: per request, the copy further along wins (waiting, then an answer, then the tablet's result),
+    // then the later change. Requests asked a week before the newest one are dropped, the same on every device.
+    requests: function (a, b) {
+      var la = (a && a.list) || {}, lb = (b && b.list) || {}, list = {}, newest = 0;
+      function pick(x, y) {
+        if (!x || !y) return x || y;
+        var sx = REQUEST_STEP[x.status] || 0, sy = REQUEST_STEP[y.status] || 0;
+        if (sx !== sy) return sx > sy ? x : y;
+        if ((Number(x.at) || 0) !== (Number(y.at) || 0)) return (Number(x.at) || 0) > (Number(y.at) || 0) ? x : y;
+        return String(x.status) >= String(y.status) ? x : y;
+      }
+      Object.keys(la).concat(Object.keys(lb)).forEach(function (id) {
+        list[id] = pick(la[id], lb[id]);
+        newest = Math.max(newest, Number(list[id].t) || 0);
+      });
+      Object.keys(list).forEach(function (id) { if ((Number(list[id].t) || 0) < newest - REQUESTS_KEEP_MS) delete list[id]; });
+      return { v: 1, list: list };
+    },
     flag: function (a, b) { return a === '1' || b === '1' ? '1' : (a !== null && a !== undefined ? a : b); },
     replace: function (a, b) { return a !== null && a !== undefined ? a : b; }
   };
@@ -98,7 +119,7 @@
         var w = json(space.getItem('wallet_v1'), null);
         return w ? { baselines: w.baselines || {}, purchases: w.purchases || [], oldPointsCounted: w.oldPointsCounted === true } : null;
       }
-      if (kind === 'recall' || kind === 'profile') return json(space.getItem(key), null);
+      if (kind === 'recall' || kind === 'profile' || kind === 'requests') return json(space.getItem(key), null);
       return space.getItem(key);
     }
     function writeLocal(kind, key, value) {
@@ -113,7 +134,7 @@
         w.purchases = value.purchases;
         w.oldPointsCounted = value.oldPointsCounted;
         space.put('wallet_v1', JSON.stringify(w));
-      } else if (kind === 'recall' || kind === 'profile') {
+      } else if (kind === 'recall' || kind === 'profile' || kind === 'requests') {
         space.put(key, JSON.stringify(value));
       } else {
         space.put(key, String(value));
@@ -212,9 +233,10 @@
       });
       return Object.keys(keys).reduce(function (chain, key) {
         return chain.then(function () {
-          var kind = keys[key], local = readLocal(kind, key);
+          var kind = keys[key], rule = MERGE[kind] || MERGE.replace, local = readLocal(kind, key);
           if (local === null) return null;
-          return remote.merge(id, key, local, MERGE[kind] || MERGE.replace).then(function (merged) { writeLocal(kind, key, merged); });
+          // Re-merge with what the device holds now: it may have changed while the cloud round trip ran.
+          return remote.merge(id, key, local, rule).then(function (merged) { writeLocal(kind, key, rule(readLocal(kind, key), merged)); });
         });
       }, Promise.resolve());
     }

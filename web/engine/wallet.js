@@ -409,9 +409,12 @@
     module.exports = exported;
     return;
   }
+  var script = root.document && root.document.currentScript;
+  // A page with no grade (the parent page) only builds wallets of its own.
+  if (!(script && script.getAttribute('data-grade'))) { root.Wallet = { create: create }; return; }
   try {
-    var script = root.document && root.document.currentScript;
     root.Wallet = create(root.Learner ? root.Learner.storage : root.localStorage, Date.now, script ? script.getAttribute('data-grade') : null);
+    root.Wallet.create = create;
     mountUi(root, root.Wallet);
   } catch (e) {}
 })(this);

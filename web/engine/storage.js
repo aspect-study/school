@@ -67,7 +67,19 @@
     return Object.keys(seen);
   }
 
-  var exported = { space: space, spaces: spaces, PREFIX: PREFIX, OUTBOX: OUTBOX };
+  // A store shaped like localStorage that lives only in memory: the parent page pulls each child into one.
+  function memory() {
+    var data = {};
+    return {
+      getItem: function (k) { return Object.prototype.hasOwnProperty.call(data, k) ? data[k] : null; },
+      setItem: function (k, v) { data[k] = String(v); },
+      removeItem: function (k) { delete data[k]; },
+      key: function (i) { var k = Object.keys(data); return i < k.length ? k[i] : null; },
+      get length() { return Object.keys(data).length; }
+    };
+  }
+
+  var exported = { space: space, spaces: spaces, memory: memory, PREFIX: PREFIX, OUTBOX: OUTBOX };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;
@@ -76,6 +88,7 @@
   root.StudyStore = {
     space: function (id) { return space(root.localStorage, id, now); },
     spaces: function () { return spaces(root.localStorage); },
+    memorySpace: function (id) { return space(memory(), id, now); },
     raw: root.localStorage
   };
 })(this);

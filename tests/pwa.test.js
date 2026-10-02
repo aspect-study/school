@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { WEB, LOBBIES, web } = require('./paths.js');
+const { WEB, LOBBIES, PARENT, web } = require('./paths.js');
 
 function precacheList() {
   const sw = fs.readFileSync(web('sw.js'), 'utf8');
@@ -30,7 +30,7 @@ test('every precached file exists', () => {
   }
 });
 
-for (const { page, manifest } of Object.values(LOBBIES)) {
+for (const { page, manifest } of [...Object.values(LOBBIES), PARENT]) {
   test(page + ' is installable and registers the service worker for the whole site', () => {
     const html = fs.readFileSync(web(page), 'utf8');
     const dir = path.dirname(web(page));

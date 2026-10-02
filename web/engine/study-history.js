@@ -466,6 +466,7 @@
     var store = root.Learner ? root.Learner.storage : root.localStorage;
     var sh = create(store, Date.now, grade);
     store.getItem(KEY);
+    sh.create = create;
     root.StudyHistory = sh;
   } catch (e) {}
 })(this);

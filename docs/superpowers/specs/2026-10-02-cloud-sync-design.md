@@ -105,6 +105,6 @@ Children's names, quiz history and coins are stored in the parent's Firebase pro
 - Profiles carry `at` (time of the last change) so the name merge can pick the latest.
 - `firebase/firestore.rules` is test-checked. `tests/sync.test.js` runs two simulated devices against an in-memory cloud.
 
-## Phase 5c: parent view (outline)
+## Phase 5c: parent view
 
-`web/parent/index.html`: sign in with the family login and pick a child to see her coins, points per subject, history (same filters), Needs practice and Real test scores. It reuses `study-history.js`'s rendering with the cloud data as its storage. It is read-only at first; approving shop purchases from the phone comes later.
+Designed in `2026-10-02-parent-view-design.md`: a phone page that acts as one more synced device, with viewing, real test scores and shop approvals.

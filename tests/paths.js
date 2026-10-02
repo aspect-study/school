@@ -5,12 +5,15 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 const WEB = path.join(ROOT, 'web');
 const ENGINE = path.join(WEB, 'engine');
-const ENGINE_FILES = ['storage.js', 'learner.js', 'study-history.js', 'wallet.js', 'fx.js', 'powerups.js', 'recall.js', 'study-kit.js', 'sync-core.js', 'firebase-config.js', 'cloud.js'];
+const ENGINE_FILES = ['storage.js', 'learner.js', 'study-history.js', 'wallet.js', 'fx.js', 'powerups.js', 'recall.js', 'study-kit.js', 'sync-core.js', 'firebase-config.js', 'firebase-remote.js', 'cloud.js', 'shop-requests.js', 'subjects.js', 'parent-panel.js'];
 
 const LOBBIES = {
   5: { page: 'lobby/grade-5.html', manifest: 'lobby/grade-5.webmanifest' },
   2: { page: 'lobby/grade-2.html', manifest: 'lobby/grade-2.webmanifest' },
 };
+
+// The parent page on the phone (phase 5c): not a lobby, but installable the same way.
+const PARENT = { page: 'parent/index.html', manifest: 'parent/parent.webmanifest' };
 
 // Every game folder has a subject.json: { id, title, grade, subject, pointsKey, progressKey }.
 // id is the app's study-history ID and must never change; subject is its folder.
@@ -54,4 +57,4 @@ const lobbyFile = (grade) => web(LOBBIES[grade].page);
 const engineFile = (name) => path.join(ENGINE, name);
 const appsOf = (grade) => APPS.filter((a) => a.grade === grade);
 
-module.exports = { ROOT, WEB, ENGINE, ENGINE_FILES, LOBBIES, APPS, REDIRECTS, app, web, appFile, lobbyFile, engineFile, appsOf };
+module.exports = { ROOT, WEB, ENGINE, ENGINE_FILES, LOBBIES, PARENT, APPS, REDIRECTS, app, web, appFile, lobbyFile, engineFile, appsOf };

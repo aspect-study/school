@@ -276,3 +276,185 @@ test('the Firestore rules only let the signed-in family read or write its own da
   assert.match(rules, /match \/families\/\{uid\}\/\{document=\*\*\} \{ allow read, write: if request\.auth != null && request\.auth\.uid == uid; \}/);
   assert.equal((rules.match(/allow /g) || []).length, 1, 'no other allow rules');
 });
+
+const DAY = 86400000;
+const req = (status, at, t = 100) => ({ v: 1, list: { r1: { item: 'ml', name: 'Mobile Legends', emoji: '', coins: 40, t, status, at } } });
+
+test('shop_requests_v1 syncs with its own merge rule', () => {
+  assert.equal(kindOf('shop_requests_v1'), 'requests');
+});
+
+test('shop requests: the copy further along wins, in either order', () => {
+  const cases = [
+    ['waiting', 'approved', 'approved'],
+    ['approved', 'done', 'done'],
+    ['approved', 'cancelled', 'cancelled'],
+    ['waiting', 'declined', 'declined'],
+    ['approved', 'short', 'short'],
+  ];
+  for (const [a, b, want] of cases) {
+    assert.equal(MERGE.requests(req(a, 1), req(b, 2)).list.r1.status, want, a + ' + ' + b);
+    assert.equal(MERGE.requests(req(b, 2), req(a, 1)).list.r1.status, want, b + ' + ' + a);
+  }
+});
+
+test('shop requests: at the same step, the later answer wins', () => {
+  assert.equal(MERGE.requests(req('approved', 5), req('declined', 9)).list.r1.status, 'declined');
+  assert.equal(MERGE.requests(req('declined', 9), req('approved', 5)).list.r1.status, 'declined');
+});
+
+test('shop requests: both devices\' requests are kept, and ones a week older than the newest are dropped', () => {
+  const a = { v: 1, list: { old: { item: 'ml', coins: 40, t: 0, status: 'done', at: 1 } } };
+  const b = { v: 1, list: { r2: { item: 'ml', coins: 40, t: 3 * DAY, status: 'waiting', at: 3 * DAY } } };
+  assert.deepEqual(Object.keys(MERGE.requests(a, b).list).sort(), ['old', 'r2']);
+  b.list.r3 = { item: 'ml', coins: 40, t: 8 * DAY, status: 'waiting', at: 8 * DAY };
+  assert.deepEqual(Object.keys(MERGE.requests(a, b).list).sort(), ['r2', 'r3']);
+  assert.deepEqual(MERGE.requests(null, b), MERGE.requests(b, null));
+});
+
+const ShopRequests = require(engineFile('shop-requests.js'));
+const WalletLib = require(engineFile('wallet.js'));
+const HistoryLib = require(engineFile('study-history.js'));
+
+test('the parent phone is one more device: a test score added there reaches the tablet', async () => {
+  const cloud = fakeCloud();
+  const tablet = device(cloud);
+  seedTablet(tablet);
+  await tablet.sync();
+  const phone = device(cloud);
+  await phone.sync();
+  assert.equal(wallet(phone).bonus, 50);
+  assert.equal(pts(phone), 420);
+
+  assert.ok(WalletLib.create(phone.s, now, 'grade5').addBonus(40));
+  HistoryLib.create(phone.s, now, 'grade5').testScore('rise-shine', 'GMRC', 'GMRC ST1', 19, 20, 40);
+  await phone.sync();
+  await tablet.sync();
+
+  assert.equal(wallet(tablet).bonus, 90);
+  const entries = JSON.parse(tablet.s.getItem('history_v1')).entries;
+  assert.ok(entries.some((e) => e.type === 'test' && e.testName === 'GMRC ST1' && e.coins === 40));
+});
+
+test('a shop request asked on the tablet and approved on the phone is bought on the tablet', async () => {
+  const cloud = fakeCloud();
+  const tablet = device(cloud);
+  seedTablet(tablet);
+  await tablet.sync();
+  const phone = device(cloud);
+  await phone.sync();
+
+  const id = ShopRequests.create(tablet.s, now).ask({ id: 'ml', name: 'Mobile Legends', emoji: '', coins: 40 });
+  await tablet.sync();
+  await phone.sync();
+  const onPhone = ShopRequests.create(phone.s, now);
+  assert.deepEqual(onPhone.waiting().map((r) => r.id), [id]);
+  assert.ok(onPhone.answer(id, true));
+  await phone.sync();
+  await tablet.sync();
+
+  const bought = [];
+  const out = ShopRequests.create(tablet.s, now).settle((r) => { bought.push(r.item); return 'done'; });
+  assert.deepEqual(bought, ['ml']);
+  assert.deepEqual(out, [{ id, status: 'done' }]);
+  await tablet.sync();
+  await phone.sync();
+  assert.equal(ShopRequests.create(phone.s, now).get(id).status, 'done');
+});
+
+test('cancelling on the tablet beats an approval from the phone', async () => {
+  const cloud = fakeCloud();
+  const tablet = device(cloud);
+  seedTablet(tablet);
+  await tablet.sync();
+  const phone = device(cloud);
+  await phone.sync();
+
+  const id = ShopRequests.create(tablet.s, now).ask({ id: 'ml', name: 'Mobile Legends', emoji: '', coins: 40 });
+  await tablet.sync();
+  await phone.sync();
+  ShopRequests.create(tablet.s, now).cancel(id);
+  ShopRequests.create(phone.s, now).answer(id, true);
+  await phone.sync();
+  await tablet.sync();
+  await phone.sync();
+
+  assert.equal(ShopRequests.create(tablet.s, now).get(id).status, 'cancelled');
+  assert.equal(ShopRequests.create(phone.s, now).get(id).status, 'cancelled');
+  assert.deepEqual(ShopRequests.create(tablet.s, now).settle(() => 'done'), []);
+});
+
+test('an approved request is bought once even when the tablet syncs more than a week later', async () => {
+  const cloud = fakeCloud();
+  const tablet = device(cloud);
+  seedTablet(tablet);
+  await tablet.sync();
+  const phone = device(cloud);
+  await phone.sync();
+
+  const id = ShopRequests.create(tablet.s, now).ask({ id: 'ml', name: 'Mobile Legends', emoji: '', coins: 40 });
+  await tablet.sync();
+  await phone.sync();
+  ShopRequests.create(phone.s, now).answer(id, true);
+  await phone.sync();
+
+  t += 8 * DAY;
+  await tablet.sync();
+  let buys = 0;
+  const buy = () => { buys++; return 'done'; };
+  ShopRequests.create(tablet.s, now).settle(buy);
+  await tablet.sync();
+  ShopRequests.create(tablet.s, now).settle(buy);
+  await tablet.sync();
+
+  assert.equal(buys, 1);
+  assert.equal(cloud.db.ana.state.shop_requests_v1.value.list[id].status, 'done');
+});
+
+test('shop requests: a further-along copy wins even with the earlier change time', () => {
+  assert.equal(MERGE.requests(req('cancelled', 1), req('approved', 2)).list.r1.status, 'cancelled');
+  assert.equal(MERGE.requests(req('approved', 2), req('cancelled', 1)).list.r1.status, 'cancelled');
+});
+
+test('a change made on the device during the cloud round trip is not overwritten', async () => {
+  const cloud = fakeCloud();
+  const tablet = device(cloud);
+  seedTablet(tablet);
+  await tablet.sync();
+  const id = ShopRequests.create(tablet.s, now).ask({ id: 'ml', name: 'Mobile Legends', emoji: '', coins: 40 });
+  const merge = cloud.merge;
+  let hook = true;
+  cloud.merge = async (cid, key, local, fn) => {
+    const out = await merge(cid, key, local, fn);
+    if (hook && key === 'shop_requests_v1') { hook = false; ShopRequests.create(tablet.s, now).cancel(id); }
+    return out;
+  };
+  await tablet.sync();
+  assert.equal(ShopRequests.create(tablet.s, now).get(id).status, 'cancelled');
+  await tablet.sync();
+  assert.equal(cloud.db.ana.state.shop_requests_v1.value.list[id].status, 'cancelled');
+});
+
+test('a purchase made during the cloud round trip stays in the wallet', async () => {
+  const cloud = fakeCloud();
+  const tablet = device(cloud);
+  seedTablet(tablet);
+  await tablet.sync();
+  tablet.s.setItem('wallet_v1', JSON.stringify(Object.assign(wallet(tablet), { bonus: 51 })));
+  const merge = cloud.merge;
+  let hook = true;
+  cloud.merge = async (cid, key, local, fn) => {
+    const out = await merge(cid, key, local, fn);
+    if (hook && key === 'wallet_v1') {
+      hook = false;
+      const w = wallet(tablet);
+      w.purchases.push({ t: 99, item: 'late', coins: 10 });
+      tablet.s.setItem('wallet_v1', JSON.stringify(w));
+    }
+    return out;
+  };
+  await tablet.sync();
+  assert.ok(wallet(tablet).purchases.some((p) => p.item === 'late'));
+  await tablet.sync();
+  assert.ok(cloud.db.ana.state.wallet_v1.value.purchases.some((p) => p.item === 'late'));
+});

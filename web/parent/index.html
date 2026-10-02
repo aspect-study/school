@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Study Games &mdash; Parent</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="parent.webmanifest">
+<meta name="theme-color" content="#1B7A79">
+<link rel="icon" type="image/png" href="../assets/icons/grade5-192.png">
+<link rel="apple-touch-icon" href="../assets/icons/grade5-180.png">
+<meta name="apple-mobile-web-app-title" content="Parent">
+<meta name="mobile-web-app-capable" content="yes">
+<script data-pwa>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  addEventListener('load', function(){ navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(function(){}); });
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="parent.css">
+
+<div class="phone">
+  <div class="parent-head">
+    <h1>🔒 Parent</h1>
+    <button class="p-btn" id="signout" type="button" hidden>Sign out</button>
+  </div>
+  <p class="p-note status-line" id="status" aria-live="polite">Loading…</p>
+
+  <div id="signin-view" class="p-section" hidden>
+    <h3>☁️ Sign in</h3>
+    <p class="p-note">Use the family login, the same one as on the tablets. This phone remembers it.</p>
+    <div class="p-row">
+      <input type="email" id="signin-email" autocomplete="username" placeholder="Family email">
+      <input type="password" id="signin-pass" autocomplete="current-password" placeholder="Password">
+      <button class="p-btn" type="button" id="signin-go">Sign in</button>
+    </div>
+    <p class="p-note" id="signin-msg"></p>
+  </div>
+
+  <div id="pin-view" hidden>
+    <p class="pin-hint" id="pin-hint">Enter the parent PIN</p>
+    <div class="pin-dots" id="pin-dots"><span></span><span></span><span></span><span></span></div>
+    <div class="pin-pad" id="pin-pad">
+      <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+      <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+      <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+      <button type="button" data-key="clear" aria-label="Delete digit">⌫</button><button type="button">0</button><span></span>
+    </div>
+  </div>
+
+  <div id="pick-view" class="p-section" hidden>
+    <h3>Which child?</h3>
+    <div id="kids"></div>
+  </div>
+
+  <div id="child-view" hidden>
+    <div class="p-row status-line">
+      <button class="p-btn" type="button" id="switch-child">↩ Children</button>
+      <button class="p-btn" type="button" id="refresh">↻ Refresh</button>
+    </div>
+    <div id="child"></div>
+  </div>
+</div>
+
+<template id="child-template">
+  <div class="p-section" id="requests" hidden></div>
+  <div class="p-section" id="recent" hidden></div>
+  <div class="p-section">
+    <h3 id="kid-name"></h3>
+    <p class="coins-big" id="kid-coins"></p>
+    <div class="pts-list" id="kid-points"></div>
+  </div>
+
+  <div class="p-warn" id="history-full" hidden>History storage is full.</div>
+  <div class="p-section">
+    <div class="p-row" id="range-buttons">
+      <button class="p-btn" type="button" data-range="today">Today</button>
+      <button class="p-btn on" type="button" data-range="7">Last 7 days</button>
+      <button class="p-btn" type="button" data-range="30">Last 30 days</button>
+      <button class="p-btn" type="button" data-range="all">All</button>
+      <button class="p-btn" type="button" data-range="custom">Custom</button>
+    </div>
+    <div class="p-row" id="custom-range" hidden>
+      <label>From <input type="date" id="range-from"></label>
+      <label>To <input type="date" id="range-to"></label>
+    </div>
+    <p class="p-note" id="range-msg"></p>
+    <div class="p-row">
+      <label>Subject <select id="subject-filter"><option value="">All subjects</option></select></label>
+    </div>
+  </div>
+  <div class="p-section"><div class="h-summary" id="hist-summary"></div></div>
+  <div class="p-section" id="weak-spots"></div>
+
+  <div class="p-section" id="test-score">
+    <h3>📝 Real test score</h3>
+    <div class="p-row">
+      <label>Subject <select id="ts-subject"></select></label>
+      <label>Test <input type="text" id="ts-name" maxlength="60" placeholder="e.g. Science ST1"></label>
+    </div>
+    <div class="p-row">
+      <label>Score <input type="number" id="ts-score" min="0" step="1" inputmode="numeric"></label>
+      <label>out of <input type="number" id="ts-total" min="1" step="1" inputmode="numeric"></label>
+      <button class="p-btn" type="button" id="ts-add" disabled>Add coins</button>
+    </div>
+    <p class="p-note">100% = 50 coins · 90% or more = 40 · 80% or more = 30 · below 80% = 10 for trying.</p>
+    <p class="p-note" id="ts-msg"></p>
+  </div>
+
+  <div class="p-section" id="hist-list"></div>
+</template>
+
+<script src="../engine/storage.js"></script>
+<script src="../engine/study-history.js"></script>
+<script src="../engine/wallet.js"></script>
+<script src="../engine/sync-core.js"></script>
+<script src="../engine/firebase-config.js"></script>
+<script src="../engine/firebase-remote.js"></script>
+<script src="../engine/shop-requests.js"></script>
+<script src="../engine/subjects.js"></script>
+<script src="../engine/parent-panel.js"></script>
+<script src="phone.js"></script>

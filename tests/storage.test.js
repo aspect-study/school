@@ -88,3 +88,17 @@ test('put() saves values from the cloud without sending them back', () => {
   assert.equal(s.getItem('history_v1'), null);
   assert.deepEqual(s.outbox(), {});
 });
+
+test('memory() is an empty store shaped like localStorage, for the parent page', () => {
+  const { memory } = require(engineFile('storage.js'));
+  const m = memory();
+  assert.equal(m.length, 0);
+  const s = space(m, 'kid', now);
+  s.setItem('wallet_v1', '{}');
+  assert.equal(m.getItem('learner/kid/wallet_v1'), '{}');
+  assert.deepEqual(s.keys().sort(), ['sync_outbox_v1', 'wallet_v1']);
+  assert.deepEqual(spaces(m), ['kid']);
+  m.removeItem('learner/kid/wallet_v1');
+  assert.equal(s.getItem('wallet_v1'), null);
+  assert.equal(memory().length, 0, 'each memory() is a new, separate store');
+});

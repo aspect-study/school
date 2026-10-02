@@ -11,7 +11,7 @@ function walk(dir) {
     e.isDirectory() ? walk(path.join(dir, e.name)) : [path.relative(WEB, path.join(dir, e.name)).split(path.sep).join('/')]);
 }
 
-const GROUPS = [/^index\.html$/, /^lobby\//, /^engine\//, /^subjects\//, /^assets\//];
+const GROUPS = [/^index\.html$/, /^lobby\//, /^parent\//, /^engine\//, /^subjects\//, /^assets\//];
 const group = (f) => {
   const i = GROUPS.findIndex((re) => re.test(f));
   return i < 0 ? GROUPS.length : i;
