@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-const { engineFile } = require('../paths.js');
+const { engineFile, web } = require('../paths.js');
 
 const CHROME = [
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -14,11 +14,16 @@ const CHROME = [
 const ERROR_TRAP = '<script>window.__e2eErrors=[];addEventListener("error",function(e){__e2eErrors.push(String(e.message));});</script>';
 
 // Writes a page into a temp site at its real relative path (e.g. subjects/grade-5/math/index.html),
-// with the chosen engine files beside it, so its relative script paths resolve as on the live site.
+// with the chosen engine files and the page's own data files (lessons/…), so its relative script paths resolve as on the live site.
 function stage(siteDir, page, html, engineFiles) {
   const file = path.join(siteDir, page);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, html);
+  for (const m of html.matchAll(/<script src="([^"./][^"]*\.js)"><\/script>/g)) {
+    const to = path.join(path.dirname(file), m[1]);
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.copyFileSync(path.join(path.dirname(web(page)), m[1]), to);
+  }
   fs.mkdirSync(path.join(siteDir, 'engine'), { recursive: true });
   for (const name of engineFiles) fs.copyFileSync(engineFile(name), path.join(siteDir, 'engine', name));
   return file;

@@ -210,7 +210,7 @@ for (const g of games) {
     assert.equal(count(html, ', window.Recall ? Recall.typed() : false);'), count(html, 'SH.quizAnswered('), 'history hears about typed answers');
     assert.equal(count(html, 'Recall.resultLine()'), 0, 'resting questions are shown through kit.resultLine()');
     assert.equal(count(html, 'kit.resultLine()'), 1, 'the results screen shows resting questions');
-    assert.match(html, /(const|var) TYPE_IT = \{/);
+    assert.match(html, /(const|var) TYPE_IT = StudyKit\.content\('typeIt'\);/);
   });
 }
 

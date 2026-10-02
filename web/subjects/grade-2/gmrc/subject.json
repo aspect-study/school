@@ -1,0 +1,8 @@
+{
+  "id": "growing-good",
+  "title": "Growing Good",
+  "grade": 2,
+  "subject": "gmrc",
+  "pointsKey": "growinggood_points_v1",
+  "progressKey": "growinggood_progress_v1"
+}

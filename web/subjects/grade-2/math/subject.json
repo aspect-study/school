@@ -1,0 +1,8 @@
+{
+  "id": "block-bot",
+  "title": "Block Bot",
+  "grade": 2,
+  "subject": "math",
+  "pointsKey": "blockbot_points_v1",
+  "progressKey": "blockbot_progress_v2"
+}

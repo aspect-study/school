@@ -90,10 +90,31 @@
     };
   }
 
-  var exported = { start: start, RULES: RULES };
+  // Each subjects/<grade>/<subject>/lessons/NN-name.js file calls lesson({...}); the page's script tags set the order.
+  // content(name, value) holds the rest of a subject's data (exam tips, type-it answers, case studies).
+  function library() {
+    var lessons = [], content = {};
+    return {
+      lesson: function (l) { lessons.push(l); },
+      lessons: function () { return lessons; },
+      content: function (name, value) {
+        if (arguments.length > 1) content[name] = value;
+        return content[name];
+      }
+    };
+  }
+
+  var exported = { start: start, library: library, RULES: RULES };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;
   }
-  root.StudyKit = { RULES: RULES, start: function (opts) { return start(opts, root, function () { return new Date(); }); } };
+  var lib = library();
+  root.StudyKit = {
+    RULES: RULES,
+    start: function (opts) { return start(opts, root, function () { return new Date(); }); },
+    lesson: lib.lesson,
+    lessons: lib.lessons,
+    content: lib.content
+  };
 })(this);

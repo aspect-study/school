@@ -20,7 +20,7 @@ function siteFiles(dir = WEB) {
 test('the service worker precaches every page, script, manifest and icon of the site', () => {
   const list = precacheList();
   for (const file of siteFiles().filter((f) => f !== 'sw.js')) {
-    assert.ok(list.includes(file), file + ' is missing from PRECACHE in web/sw.js');
+    assert.ok(list.includes(file), file + ' is missing from PRECACHE in web/sw.js. Run: node tools/update-precache.js');
   }
 });
 

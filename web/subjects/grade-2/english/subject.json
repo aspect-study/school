@@ -1,0 +1,8 @@
+{
+  "id": "word-train",
+  "title": "Word Train",
+  "grade": 2,
+  "subject": "english",
+  "pointsKey": "wordtrain_points_v1",
+  "progressKey": "wordtrain_progress_v1"
+}

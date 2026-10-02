@@ -1,7 +1,7 @@
 # Project structure for the long run
 
 Date: 2026-10-02
-Status: approved. Phase 1 done 2026-10-02 (250 unit tests + all e2e green). Phase 2 (first slice) done 2026-10-02: scoring in `web/engine/study-kit.js` (280 unit tests + all e2e green). Phases 3–5 are open.
+Status: approved. Phase 1 done 2026-10-02. Phase 2 (scoring) done 2026-10-02. Phase 3 (content as data) done 2026-10-02: 341 unit tests + all e2e green. Phases 4–5 are open.
 
 ## Why
 
@@ -145,3 +145,14 @@ Android caveat: a Grade 2 icon installed before the move had the scope `grade 2/
 - Storage keys are unchanged, so existing points, stars and wallets carry over.
 
 Still per game (later slices of phase 2): screens, question rendering, results, missed-question review and explore mode. Each still differs between families A/B/C/math, and moving them goes with phase 3 (content as data, one play page).
+
+## Phase 3: content as data (done 2026-10-02)
+
+The user chose **content only**: every game keeps its own screens and look, and a shared play page is not planned. Lesson content (75–85% of each game file) moved into data files:
+
+- `subjects/<grade>/<subject>/lessons/NN-name.js` holds one lesson per file as `StudyKit.lesson({...})`. The name comes from the lesson `id`, or from its title when there is no id (family B tracks progress by position, so the number prefix keeps that order). The page loads them with one script tag each.
+- `strategy.js`, `type-it.js` (and `cases.js`, `walkthroughs.js` for Math Mastery) hold `StudyKit.content(name, value)`. The page reads them with `StudyKit.lessons()` / `StudyKit.content(name)`.
+- Files are `.js`, not `.json`, because pages opened straight from a file cannot fetch JSON.
+- The files are **plain data**. They were made by running each page's own code (its `mc`/`tf` builders, picture builders and passage constants) and writing out the result, then checked to round-trip exactly. Builders used only by content were removed from the pages. Block Bot's one generator is named in its data (`generate: 'numberline'`) and resolved by the page. Math Mastery's lessons are generators, so they stay in its page.
+- `subject.json` per game holds `id`, `title`, `grade`, `subject`, `pointsKey`, `progressKey`. `tests/paths.js` discovers games from these files, and `REDIRECTS` is now a fixed historical list.
+- `tools/update-precache.js` rewrites the offline cache list. `tests/content.js` loads data files through the kit's real `library()`, and `tests/content.test.js` checks the tags match the files, the numbering, plain-data purity and that `subject.json` agrees with the page.

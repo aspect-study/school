@@ -1,28 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const vm = require('node:vm');
-
-const { appFile } = require('./paths.js');
+const { lessons, content } = require('./content.js');
 const APPS = ['history-explorers', 'wikaharian'];
 
-function extractArray(html, name) {
-  const marker = `const ${name} = [`;
-  const start = html.indexOf(marker);
-  assert.ok(start !== -1, `${name} not found`);
-  const arrOpen = start + marker.length - 1; // index of the '['
-  const closeIdx = html.indexOf('\n];', arrOpen);
-  assert.ok(closeIdx !== -1, `${name} closing "];" not found`);
-  return html.slice(arrOpen, closeIdx + 2); // up to and including the ']'
-}
-
-function loadApp(file) {
-  const html = fs.readFileSync(appFile(file), 'utf8');
-  const lessonsText = extractArray(html, 'LESSONS');
-  const strategyText = extractArray(html, 'STRATEGY');
-  const LESSONS = vm.runInNewContext('(' + lessonsText + ')');
-  const STRATEGY = vm.runInNewContext('(' + strategyText + ')');
-  return { LESSONS, STRATEGY };
+function loadApp(id) {
+  return { LESSONS: lessons(id), STRATEGY: content(id, 'strategy') };
 }
 
 for (const file of APPS) {

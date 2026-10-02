@@ -4,11 +4,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { REDIRECTS, APPS, LOBBIES, web } = require('./paths.js');
 
-test('every lobby and game has a redirect page at its old URL', () => {
-  const targets = REDIRECTS.map((r) => r.to);
-  for (const page of [...Object.values(LOBBIES).map((l) => l.page), ...APPS.map((a) => a.page)]) {
-    assert.ok(targets.includes(page), page + ' has no redirect from its old URL');
-  }
+test('every old URL leads to a current lobby or game', () => {
+  const pages = [...Object.values(LOBBIES).map((l) => l.page), ...APPS.map((a) => a.page)];
+  for (const { from, to } of REDIRECTS) assert.ok(pages.includes(to), from + ' leads to ' + to + ', which is not a lobby or game');
+  assert.equal(REDIRECTS.length, 17, 'the 2 lobbies and 15 games that existed before 2026-10-02');
 });
 
 for (const { from, to } of REDIRECTS) {

@@ -1,0 +1,8 @@
+{
+  "id": "math-mastery",
+  "title": "Math Mastery",
+  "grade": 5,
+  "subject": "math",
+  "pointsKey": "mathmastery_points_v1",
+  "progressKey": "mathmastery_progress_v1"
+}

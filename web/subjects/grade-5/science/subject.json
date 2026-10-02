@@ -1,0 +1,8 @@
+{
+  "id": "life-lab",
+  "title": "Life Lab",
+  "grade": 5,
+  "subject": "science",
+  "pointsKey": "lifelab_points_v1",
+  "progressKey": "lifelab_progress_v1"
+}

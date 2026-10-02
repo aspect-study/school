@@ -1,0 +1,28 @@
+StudyKit.lesson({
+  id: 'skip',
+  emoji: '⏭️',
+  title: 'Skip Counting',
+  subtitle: 'By 2s, 5s, 10s, 50s, and 100s',
+  flashcards: [
+    { icon: '2️⃣', term: 'Skip by 2s', def: '2, 4, 6, 8, 10, 12, 14, 16, 18, 20...' },
+    { icon: '5️⃣', term: 'Skip by 5s', def: '5, 10, 15, 20, 25, 30, 35, 40, 45, 50...' },
+    { icon: '🔟', term: 'Skip by 10s', def: '10, 20, 30, 40, 50, 60, 70, 80, 90, 100...' },
+    { icon: '5️⃣0️⃣', term: 'Skip by 50s', def: '50, 100, 150, 200, 250, 300, 350, 400, 450, 500...' },
+    { icon: '💯', term: 'Skip by 100s', def: '100, 200, 300, 400, 500, 600, 700, 800, 900, 1000...' },
+    { icon: '➕', term: 'The Big Rule', def: 'Skip counting just means adding the SAME number every time to get the next one.' }
+  ],
+  quiz: [
+    { q: 'Skip count by 2s. Which number is missing?\n2, 4, 6, __, 10', options: ['7', '8', '9', '12'], correct: 1, explain: 'Adding 2 each time: 6 + 2 = 8.', why: ['7 is 6 + 1. We are skip counting by 2s, so add 2: 6 + 2 = 8.', '', '9 is 6 + 3. Skip by 2s means add 2: 6 + 2 = 8.', '12 is too far. It even comes after 10. 6 + 2 = 8.'], tip: 'Check the next number too: 8 + 2 = 10. If your answer leads to the number after the blank, it is right.' },
+    { q: 'Skip count by 5s. Which number is missing?\n15, 20, __, 30', options: ['22', '24', '25', '26'], correct: 2, explain: 'Adding 5 each time: 20 + 5 = 25.', why: ['22 is 20 + 2. We count by 5s, so add 5: 20 + 5 = 25.', '24 is 20 + 4. Add 5, not 4: 20 + 5 = 25.', '', '26 is 20 + 6. Add 5: 20 + 5 = 25. Then 25 + 5 = 30 fits.'], tip: 'Add 5 to the number before the blank. Then add 5 again and see if you reach the number after it.' },
+    { q: 'Skip count by 10s. Which number is missing?\n40, 50, __, 70', options: ['55', '60', '65', '61'], correct: 1, explain: 'Adding 10 each time: 50 + 10 = 60.', why: ['55 is 50 + 5. We count by 10s, so add 10: 50 + 10 = 60.', '', '65 is 50 + 15. Add just 10: 50 + 10 = 60.', '61 is 50 + 11. Add 10: 50 + 10 = 60.'], tip: 'When you skip by 10s, only the tens digit goes up by 1: 4 tens, 5 tens, 6 tens, 7 tens.' },
+    { q: 'Skip count by 50s. Which number is missing?\n150, 200, __, 300', options: ['225', '240', '250', '260'], correct: 2, explain: 'Adding 50 each time: 200 + 50 = 250.', why: ['225 is 200 + 25. Skip by 50s means add 50: 200 + 50 = 250.', '240 is 200 + 40. Add 50: 200 + 50 = 250.', '', '260 is 200 + 60. Add 50: 200 + 50 = 250.'], tip: 'Check both sides of the blank: 200 + 50 = 250, and 250 + 50 = 300. Both must work.' },
+    { q: 'Skip count by 100s. Which number is missing?\n500, 600, __, 800', options: ['650', '700', '750', '710'], correct: 1, explain: 'Adding 100 each time: 600 + 100 = 700.', why: ['650 is 600 + 50. Skip by 100s means add 100: 600 + 100 = 700.', '', '750 is 600 + 150. Add just 100: 600 + 100 = 700.', '710 is 600 + 110. Add 100: 600 + 100 = 700.'], tip: 'Skipping by 100s changes only the hundreds digit: 5 hundreds, 6 hundreds, 7 hundreds, 8 hundreds.' },
+    { q: 'True or False: Skip counting means adding a different number each time.', options: ['True', 'False'], correct: 1, explain: 'Skip counting always adds the SAME number every time — like always +2, or always +50.', why: ['You said True, but skip counting adds the SAME number every time, like +2, +2, +2.', ''], tip: 'Look for the word different in the sentence. Skip counting is always the same jump again and again.' },
+    { q: 'Skip count by 10s. Which number is missing?\n70, 80, 90, __', options: ['95', '100', '110', '99'], correct: 1, explain: 'Adding 10 each time: 90 + 10 = 100.', why: ['95 is 90 + 5. Count by 10s: 90 + 10 = 100.', '', '110 is 90 + 20, one jump too far. 90 + 10 = 100.', '99 is 90 + 9. Count by 10s: 90 + 10 = 100.'], tip: 'After 9 tens comes 10 tens, and 10 tens is 100.' },
+    { q: 'Skip count by 5s. Which number is missing?\n40, 45, __', options: ['48', '50', '55', '46'], correct: 1, explain: 'Adding 5 each time: 45 + 5 = 50.', why: ['48 is 45 + 3. Count by 5s: 45 + 5 = 50.', '', '55 is 45 + 10, one jump too far. 45 + 5 = 50.', '46 is 45 + 1. Count by 5s: 45 + 5 = 50.'], tip: 'First find the jump: from 40 to 45 is 5. Then add that same jump once more.' },
+    { q: 'Skip count by 2s. Which number is missing?\n12, 14, __, 18', options: ['15', '16', '17', '20'], correct: 1, explain: 'Adding 2 each time: 14 + 2 = 16.', why: ['15 is 14 + 1. Count by 2s: 14 + 2 = 16.', '', '17 is 14 + 3. Count by 2s: 14 + 2 = 16.', '20 is too far. It comes after 18. 14 + 2 = 16.'], tip: 'Say the numbers out loud and skip one each time: 12, (13), 14, (15), 16, (17), 18.' },
+    { q: 'Skip count by 100s. Which number is missing?\n200, 300, __, 500', options: ['350', '400', '450', '410'], correct: 1, explain: 'Adding 100 each time: 300 + 100 = 400.', why: ['350 is 300 + 50. Count by 100s: 300 + 100 = 400.', '', '450 is 300 + 150. Add just 100: 300 + 100 = 400.', '410 is 300 + 110. Add 100: 300 + 100 = 400.'], tip: 'Check your answer with the next number: 400 + 100 = 500. It fits!' },
+    { q: 'Skip count by 50s. Which number is missing?\n50, __, 150, 200', options: ['75', '100', '125', '90'], correct: 1, explain: 'Adding 50 each time: 50 + 50 = 100.', why: ['75 is 50 + 25, only half a jump. Count by 50s: 50 + 50 = 100.', '', '125 is 50 + 75. Add 50: 50 + 50 = 100.', '90 is 50 + 40. Add 50: 50 + 50 = 100.'], tip: 'Two 50s make 100. Check it with the next number: 100 + 50 = 150.' },
+    { q: 'True or False: Skip counting by 5s from 5 gives 5, 10, 15, 20, 25.', options: ['True', 'False'], correct: 0, explain: 'Correct — each step adds 5.', why: ['', 'You said False, but this is true: 5 + 5 = 10, 10 + 5 = 15, 15 + 5 = 20, 20 + 5 = 25.'], tip: 'Check every step of the list. If each step adds the same 5, the list is right.' }
+  ]
+});

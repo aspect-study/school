@@ -1,0 +1,8 @@
+{
+  "id": "batang-bayani",
+  "title": "Batang Bayani",
+  "grade": 2,
+  "subject": "makabansa",
+  "pointsKey": "batangbayani_points_v1",
+  "progressKey": "batangbayani_progress_v1"
+}

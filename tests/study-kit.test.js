@@ -177,3 +177,14 @@ for (const app of APPS) {
     }
   });
 }
+
+test('lessons come back in the order their files loaded, and content by name', () => {
+  const { library } = require(engineFile('study-kit.js'));
+  const lib = library();
+  lib.lesson({ id: 'a' });
+  lib.lesson({ id: 'b' });
+  assert.deepEqual(lib.lessons().map((l) => l.id), ['a', 'b']);
+  assert.equal(lib.content('strategy'), undefined);
+  lib.content('strategy', [{ title: 'Read twice' }]);
+  assert.deepEqual(lib.content('strategy'), [{ title: 'Read twice' }]);
+});

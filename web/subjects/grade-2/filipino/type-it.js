@@ -1,0 +1,20 @@
+StudyKit.content('typeIt', {
+  'Ilang titik mayroon ang Alpabetong Filipino?': [],
+  'Ilan ang patinig sa Filipino?': ['lima'],
+  'Ano ang kasunod na titik pagkatapos ng "F"?': [],
+  'Anong panauhan ang "Kami"?\n"Kami ay maglalaro sa hardin."': ['Unang Panauhan'],
+  'Anong panauhan ang "niya"?\n"Ginawa niya ang proyekto."': ['Ikatlong Panauhan'],
+  'Alin ang ginagamit kapag nagtatanong ng DAHILAN?': [],
+  'Alin ang ginagamit kapag nagtatanong ng LUGAR?': [],
+  'Anong uri ng pang-uri ang "Bilog"?\n"Bilog ang bola."': [],
+  'Anong uri ng pang-uri ang "Maalat"?\n"Maalat ang sabaw ng sinigang."': [],
+  'Anong uri ng pang-uri ang "Mabaho"?\n"Mabaho ang basura sa labas."': [],
+  'Anong uri ng pang-uri ang "Dilaw"?\n"Dilaw ang saging na hinog."': [],
+  'Ilan ang pandiwa sa pangungusap?\n"Kumakain at umiinom ang mga bata."': ['dalawa'],
+  'Anong bigkas ang may tuldik na pahilis ( ´ )?': [],
+  'Anong bigkas ang may impit sa huling pantig at tuldik na pakupya ( ˆ )?': [],
+  'Anong salita ang mabubuo?\nma + linis = ?': [],
+  'Anong antas ng paglalarawan?\n"Mabango ang rosas."': [],
+  'Anong antas ng paglalarawan?\n"Pinakamabango ang rosas sa lahat ng bulaklak."': [],
+  'Ano ang tawag sa grupo ng mga salita na buo ang diwa?': []
+});

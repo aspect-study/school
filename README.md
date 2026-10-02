@@ -106,7 +106,11 @@ web/                         the published site (the only folder GitHub Pages se
   index.html                 "Who's studying?" grade picker
   lobby/grade-5.html         Grade 5 lobby (subject cards, shop, parent panel) + its .webmanifest
   lobby/grade-2.html         Grade 2 lobby + its .webmanifest
-  subjects/<grade>/<subject>/index.html   one game per subject, e.g. subjects/grade-5/math/
+  subjects/<grade>/<subject>/  one game per subject, e.g. subjects/grade-5/science/:
+    index.html                 the game: screens, look and quiz flow
+    subject.json               its permanent ID, title and storage keys
+    lessons/NN-name.js         one lesson per file (cards + quiz), plain data
+    strategy.js, type-it.js    exam tips; questions she may type first (cases.js, walkthroughs.js in Math)
   engine/                    shared by every page, one copy each:
     study-history.js           study history + backup
     wallet.js                  points → coins, shop catalog, coin guide
@@ -118,8 +122,10 @@ web/                         the published site (the only folder GitHub Pages se
   sw.js                      offline cache (service worker)
   *.html, grade 2/*.html     redirects from the old addresses
 sources/<grade>/<subject>/   text extracted from the lesson decks the games were built from
+tools/update-precache.js     lists every file under web/ in the offline cache
 tests/                       unit tests (node:test) and headless-Chrome end-to-end tests
-  paths.js                   the one map of where every page lives; tests read paths from here
+  paths.js                   where every page lives (games are found through their subject.json)
+  content.js                 loads a game's lesson files the way the browser does
 docs/                        design specs, plans and handoff notes
 .github/workflows/pages.yml  runs the unit tests, then publishes web/
 ```
@@ -128,7 +134,7 @@ The engine files serve both grades. Each page says which grade it is with `data-
 
 Every page checks that its engine files loaded and shows a red **Missing or broken file** bar if one didn't. A game needs `study-kit.js` to play; the other engine files are optional extras.
 
-Subject folders are named after the subject (`math`, `english`, `araling-panlipunan`…), not the game, and grades are `grade-2` … `grade-12`. Each game's internal ID (`math-mastery`, `block-bot`…) is saved in study history and must never change; `tests/paths.js` maps each ID to its folder.
+Subject folders are named after the subject (`math`, `english`, `araling-panlipunan`…), not the game, and grades are `grade-2` … `grade-12`. Each game's internal ID (`math-mastery`, `block-bot`…) is saved in study history and must never change; it lives in the game's `subject.json`.
 
 The source lesson decks (PDF/PPTX), photos and scans are deliberately not in the repo; see `.gitignore`. They go in `sources/<grade>/<subject>/` next to their `.md` extractions.
 
@@ -157,16 +163,19 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 
 ## Adding content
 
-- Quiz content is a `LESSONS` array inside each game. New questions need an explanation for each wrong option (`why`) and a tip (`tip`); the tests enforce this.
+- Each lesson is its own file in `lessons/`, for example `web/subjects/grade-5/science/lessons/19-plants.js`, containing `StudyKit.lesson({ ... })`. The page loads them with one `<script src="lessons/…">` tag each, in number order.
+- To add a lesson: copy a lesson file from the same game (each game family has its own question format), give it the next number, add its script tag after the last lesson tag, then run `node tools/update-precache.js`.
+- New questions need an explanation for each wrong option (`why`) and a tip (`tip`); the tests enforce this.
+- Math Mastery's lessons generate fresh numbers each time, so they stay in its page; its case studies and walkthroughs are data files.
 - Keep the correct answer from usually being the longest option, and keep true/false answers roughly half and half.
 - Follow the class deck's wording and facts, even where an outside source says something different.
 
 **A new subject or grade** (for example Grade 6 Math):
 
 1. Put the game at `web/subjects/grade-6/math/index.html`, loading the engine as `../../../engine/<file>.js` with `data-grade="grade6"` (`study-kit.js` last). Start it with `const kit = StudyKit.start({ app, title, pointsKey, progressKey })` and score every answer with `kit.answer(correct, { helped, exam })`.
-2. Add it to `APPS` in `tests/paths.js` with a new, permanent ID.
+2. Add `subject.json` next to it with a new, permanent `id`, plus `title`, `grade`, `subject`, `pointsKey` and `progressKey`. The tests find the game through this file.
 3. Add a subject card to the lobby: `<a class="subject-card" data-app="<id>" href="../subjects/grade-6/math/index.html?reset=1">`.
-4. Add the page to `PRECACHE` in `web/sw.js`. `node --test` lists anything you missed.
+4. Run `node tools/update-precache.js` so it works offline. `node --test` lists anything you missed.
 5. Put the source decks in `sources/grade-6/math/`.
 
 ## Deployment

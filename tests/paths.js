@@ -1,4 +1,5 @@
 // The one map of where the site's files live. Tests read paths from here, never hard-code them.
+const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
@@ -11,31 +12,35 @@ const LOBBIES = {
   2: { page: 'lobby/grade-2.html', manifest: 'lobby/grade-2.webmanifest' },
 };
 
+// Every game folder has a subject.json: { id, title, grade, subject, pointsKey, progressKey }.
 // id is the app's study-history ID and must never change; subject is its folder.
-const APPS = [
-  { id: 'math-mastery', grade: 5, subject: 'math', title: 'Math Mastery' },
-  { id: 'page-turners', grade: 5, subject: 'english', title: 'Page Turners' },
-  { id: 'wikaharian', grade: 5, subject: 'filipino', title: 'Wikaharian' },
-  { id: 'history-explorers', grade: 5, subject: 'araling-panlipunan', title: 'History Explorers' },
-  { id: 'life-lab', grade: 5, subject: 'science', title: 'Life Lab' },
-  { id: 'rise-shine', grade: 5, subject: 'gmrc', title: 'Rise & Shine' },
-  { id: 'rally-ready', grade: 5, subject: 'pe-health', title: 'Rally Ready' },
-  { id: 'craft-corner', grade: 5, subject: 'tle', title: 'Craft Corner' },
-  { id: 'block-bot', grade: 2, subject: 'math', title: 'Block Bot' },
-  { id: 'word-train', grade: 2, subject: 'english', title: 'Word Train' },
-  { id: 'kuwentista', grade: 2, subject: 'filipino', title: 'Kuwentista' },
-  { id: 'batang-bayani', grade: 2, subject: 'makabansa', title: 'Batang Bayani' },
-  { id: 'science-detectives', grade: 2, subject: 'science', title: 'Science Detectives' },
-  { id: 'growing-good', grade: 2, subject: 'gmrc', title: 'Growing Good' },
-  { id: 'byte-buddies', grade: 2, subject: 'computer', title: 'Byte Buddies' },
-].map((app) => ({ ...app, page: 'subjects/grade-' + app.grade + '/' + app.subject + '/index.html' }));
+const APPS = fs.readdirSync(path.join(WEB, 'subjects')).flatMap((g) =>
+  fs.readdirSync(path.join(WEB, 'subjects', g))
+    .filter((s) => fs.existsSync(path.join(WEB, 'subjects', g, s, 'subject.json')))
+    .map((s) => JSON.parse(fs.readFileSync(path.join(WEB, 'subjects', g, s, 'subject.json'), 'utf8'))))
+  .sort((x, y) => y.grade - x.grade || x.subject.localeCompare(y.subject))
+  .map((app) => ({ ...app, page: 'subjects/grade-' + app.grade + '/' + app.subject + '/index.html' }));
 
-// Old URLs (before 2026-10-02) that installed home-screen icons and bookmarks may still open.
+// The addresses pages had before 2026-10-02, kept so installed home-screen icons and bookmarks still open.
 const REDIRECTS = [
-  { from: 'lobby-grade5.html', to: LOBBIES[5].page },
-  { from: 'grade 2/lobby.html', to: LOBBIES[2].page },
-  ...APPS.map((a) => ({ from: (a.grade === 2 ? 'grade 2/' : '') + a.id + '.html', to: a.page })),
-];
+  ['lobby-grade5.html', LOBBIES[5].page],
+  ['grade 2/lobby.html', LOBBIES[2].page],
+  ['math-mastery.html', 'subjects/grade-5/math/index.html'],
+  ['page-turners.html', 'subjects/grade-5/english/index.html'],
+  ['wikaharian.html', 'subjects/grade-5/filipino/index.html'],
+  ['history-explorers.html', 'subjects/grade-5/araling-panlipunan/index.html'],
+  ['life-lab.html', 'subjects/grade-5/science/index.html'],
+  ['rise-shine.html', 'subjects/grade-5/gmrc/index.html'],
+  ['rally-ready.html', 'subjects/grade-5/pe-health/index.html'],
+  ['craft-corner.html', 'subjects/grade-5/tle/index.html'],
+  ['grade 2/block-bot.html', 'subjects/grade-2/math/index.html'],
+  ['grade 2/word-train.html', 'subjects/grade-2/english/index.html'],
+  ['grade 2/kuwentista.html', 'subjects/grade-2/filipino/index.html'],
+  ['grade 2/batang-bayani.html', 'subjects/grade-2/makabansa/index.html'],
+  ['grade 2/science-detectives.html', 'subjects/grade-2/science/index.html'],
+  ['grade 2/growing-good.html', 'subjects/grade-2/gmrc/index.html'],
+  ['grade 2/byte-buddies.html', 'subjects/grade-2/computer/index.html'],
+].map(([from, to]) => ({ from, to }));
 
 function app(id) {
   const found = APPS.find((a) => a.id === id);

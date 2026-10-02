@@ -1,0 +1,21 @@
+StudyKit.content('typeIt', {
+  'What do we call the physical parts of a computer that we can see and touch?': [],
+  'What do we call the programs that tell the hardware what to do?': [],
+  'What part of the computer do we use to see the screen?': [],
+  'Through this bar, you can easily switch between the programs or files that are simultaneously opened or running. What is it?': ['task bar'],
+  'These are the small images on the desktop that serve as the shortcuts for programs, folders, or files. What are they?': ['icon'],
+  'It is the background area of the desktop. What is it?': [],
+  'Which icon stores the deleted files?': [],
+  'Which icon explores and manages the contents of the computer drives?': [],
+  'Which icon shows the available network connections, computers, and devices?': [],
+  'To change the desktop wallpaper:\n1. Click the ___ button.': [],
+  'To change the desktop wallpaper:\n2. Select the ___ icon on the left.': [],
+  'To change the desktop wallpaper:\n4. Select ___. Select the box underneath it to choose between a picture, solid color, or slideshow.': [],
+  'We want to use a picture from our computer. What do we select under Choose your picture?': [],
+  'We right-click a shortcut on the desktop. What do we choose to add it to the taskbar?': ['pin'],
+  'Fill in the blank.\nThe ___ is a connection of networks.': [],
+  'Complete the word.\nYou can get to know more of your school by visiting your school&rsquo;s w______.': ['website'],
+  'Complete the word.\nThe I______ is working when I can go to other pages on the website.': [],
+  'Which connection is usually the slowest?': ['dialup'],
+  'Look at the picture. What device did the ISP technician bring?': []
+});
