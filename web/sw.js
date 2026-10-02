@@ -22,6 +22,7 @@ const PRECACHE = [
   'engine/mastery.js',
   'engine/parent-panel.js',
   'engine/powerups.js',
+  'engine/quests.js',
   'engine/recall.js',
   'engine/shop-requests.js',
   'engine/storage.js',

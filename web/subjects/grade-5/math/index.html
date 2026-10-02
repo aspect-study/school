@@ -440,6 +440,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="../../../engine/powerups.js" data-grade="grade5"></script>
 <script src="../../../engine/recall.js" data-grade="grade5"></script>
 <script src="../../../engine/mastery.js" data-grade="grade5"></script>
+<script src="../../../engine/quests.js" data-grade="grade5"></script>
 <script src="../../../engine/study-kit.js" data-grade="grade5"></script>
 <script src="cases.js"></script>
 <script src="walkthroughs.js"></script>
@@ -2057,7 +2058,7 @@ function showMedals(el){
   const m = updateMedals();
   if (!m) return;
   Mastery.showNew(el, m.newly);
-  if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE), el);
+  if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE).concat(window.Quests && Quests.check ? Quests.check() : []), el);
 }
 function medalBadge(id){
   return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
@@ -2761,6 +2762,7 @@ function wtShowSummary(){
     ${more ? '<button class="secondary-btn" style="width:100%; margin-top:10px" id="wt-stop">Stop for now</button>' : ''}
   `;
   document.getElementById('wt-continue').onclick = more ? wtNextProblem : goHome;
+  if(window.Fx && Fx.celebrate && window.Quests && Quests.check) Fx.celebrate(Quests.check(), document.getElementById('wt-continue'));
   const stop = document.getElementById('wt-stop');
   if(stop) stop.onclick = goHome;
   window.scrollTo(0,0);
@@ -2973,6 +2975,7 @@ function caseShowKey(){
     `<button class="secondary-btn" style="width:100%; margin-top:10px" id="case-stop">Back to the case studies</button>`;
   document.getElementById('case-continue').onclick = more ? ()=>openCase(caseIdx+1) : startCases;
   document.getElementById('case-stop').onclick = startCases;
+  if(window.Fx && Fx.celebrate && window.Quests && Quests.check) Fx.celebrate(Quests.check(), document.getElementById('case-continue'));
   window.scrollTo(0,0);
 }
 

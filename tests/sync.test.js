@@ -588,3 +588,52 @@ test('medals: junk best and paid are clamped to 0..3', () => {
   const l = MERGE.mastery(x, null).apps.g.lessons.l;
   assert.deepEqual({ best: l.best, paid: l.paid }, { best: 3, paid: 0 });
 });
+
+test('quests: the later day wins; on the same day the first pick is kept and done marks add up', () => {
+  const q = (id, done) => ({ id, kind: 'rounds', done });
+  const a = { v: 1, day: '2026-10-02', at: 100, list: [q('x', true), q('y', false), q('z', false)], days: ['2026-10-01', '2026-10-02'], paidDay: '', streakPaid: ['2026-09-20|7'] };
+  const b = { v: 1, day: '2026-10-02', at: 200, list: [q('p', true), q('y', true), q('r', false)], days: ['2026-09-30'], paidDay: '2026-10-02', streakPaid: [] };
+  const want = { v: 1, day: '2026-10-02', at: 100, list: [q('x', true), q('y', true), q('z', false)],
+    days: ['2026-09-30', '2026-10-01', '2026-10-02'], paidDay: '2026-10-02', streakPaid: ['2026-09-20|7'] };
+  assert.deepEqual(MERGE.quests(a, b), want);
+  assert.deepEqual(MERGE.quests(b, a), want);
+  assert.deepEqual(MERGE.quests(MERGE.quests(a, b), b), want, 'safe to repeat');
+  const older = Object.assign({}, b, { day: '2026-10-01', at: 1 });
+  assert.equal(MERGE.quests(a, older).day, '2026-10-02');
+  assert.equal(MERGE.quests(older, a).at, 100);
+  assert.equal(kindOf('quests_v1'), 'quests');
+});
+
+test('quests: at the same pick time either order agrees; days keep a long history; junk is ignored', () => {
+  const a = { v: 1, day: '2026-10-02', at: 5, list: [{ id: 'a', done: false }], days: [], paidDay: '', streakPaid: [] };
+  const b = { v: 1, day: '2026-10-02', at: 5, list: [{ id: 'b', done: false }], days: [], paidDay: '', streakPaid: [] };
+  assert.deepEqual(MERGE.quests(a, b), MERGE.quests(b, a));
+  const many = [];
+  for (let i = 1; i <= 70; i++) many.push('2026-07-' + String(i).padStart(2, '0'));
+  assert.equal(MERGE.quests({ v: 1, day: '', at: 0, list: [], days: many.slice(0, 40), paidDay: '', streakPaid: [] }, { v: 1, day: '', at: 0, list: [], days: many.slice(30), paidDay: '', streakPaid: [] }).days.length, 70);
+  assert.deepEqual(MERGE.quests('nope', null), null);
+});
+
+test('quests travel to a second device', async () => {
+  const cloud = fakeCloud();
+  const a = device(cloud), b = device(cloud);
+  a.s.setItem('quests_v1', JSON.stringify({ v: 1, day: '2026-10-02', at: 5, list: [{ id: 'rounds', kind: 'rounds', done: true }], days: ['2026-10-02'], paidDay: '', streakPaid: [] }));
+  await a.sync();
+  await b.sync();
+  assert.deepEqual(JSON.parse(b.s.getItem('quests_v1')).days, ['2026-10-02']);
+});
+
+test('quests: junk day values cannot make the merge order-dependent, and paidDay stays a string', () => {
+  const a = { v: 1, day: 'junk', at: 1, list: [{ id: 'a', done: false }], days: [], paidDay: 5, streakPaid: [] };
+  const b = { v: 1, day: 'x-y-z', at: 1, list: [{ id: 'a', done: false }], days: [], paidDay: null, streakPaid: [] };
+  assert.deepEqual(MERGE.quests(a, b), MERGE.quests(b, a));
+  assert.equal(MERGE.quests(a, b).paidDay, '');
+});
+
+test('quests: study days keep the last 400', () => {
+  const many = [];
+  for (let i = 0; i < 450; i++) { const d = new Date(Date.UTC(2025, 0, 1 + i)); many.push(d.toISOString().slice(0, 10)); }
+  const x = { v: 1, day: '', at: 0, list: [], days: many.slice(0, 250), paidDay: '', streakPaid: [] };
+  const y = { v: 1, day: '', at: 0, list: [], days: many.slice(200), paidDay: '', streakPaid: [] };
+  assert.equal(MERGE.quests(x, y).days.length, 400);
+});

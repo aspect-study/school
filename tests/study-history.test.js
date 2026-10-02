@@ -635,6 +635,7 @@ test('a full backup carries points, wallet, rest-days and her name, for its own 
     recall_v1: '{"v":1,"rest":{}}',
     review_v1: '{"v":1,"items":{}}',
     mastery_v1: '{"v":1,"apps":{}}',
+    quests_v1: '{"v":1}',
     history_v1: '[]',
     'not a key': 'x',
     mathmastery_points_v1: 7,
@@ -642,7 +643,7 @@ test('a full backup carries points, wallet, rest-days and her name, for its own 
   const backup = sh.exportJson(state, { id: 'l1', name: 'Ana', emoji: '🌻', grade: 5 });
   assert.deepEqual(sh.backupState(backup), {
     exportedAt: clock.ms,
-    state: { lifelab_points_v1: '420', wallet_v1: '{"v":1,"spent":40}', recall_v1: '{"v":1,"rest":{}}', review_v1: '{"v":1,"items":{}}', mastery_v1: '{"v":1,"apps":{}}' },
+    state: { lifelab_points_v1: '420', wallet_v1: '{"v":1,"spent":40}', recall_v1: '{"v":1,"rest":{}}', review_v1: '{"v":1,"items":{}}', mastery_v1: '{"v":1,"apps":{}}', quests_v1: '{"v":1}' },
     learner: { name: 'Ana', emoji: '🌻' },
   });
   assert.equal(create(memStorage(), clock.now, 'grade2').backupState(backup), null, 'another grade never restores it');

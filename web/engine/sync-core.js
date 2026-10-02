@@ -35,6 +35,7 @@
     if (key === 'recall_v1') return 'recall';
     if (key === 'review_v1') return 'review';
     if (key === 'mastery_v1') return 'mastery';
+    if (key === 'quests_v1') return 'quests';
     if (key === 'history_v1') return 'history';
     if (key === 'profile_v1') return 'profile';
     if (key === 'coin_guide_seen_v1') return 'flag';
@@ -72,6 +73,21 @@
     return { t: newer.t, order: newer.order, lessons: lessons };
   }
 
+  function union(x, y, keep) {
+    var seen = {}, out = [];
+    (Array.isArray(x) ? x : []).concat(Array.isArray(y) ? y : []).forEach(function (s) { if (typeof s === 'string' && !seen[s]) { seen[s] = true; out.push(s); } });
+    out.sort();
+    return keep ? out.slice(-keep) : out;
+  }
+  function paidDayOf(x, y) {
+    x = typeof x === 'string' ? x : '';
+    y = typeof y === 'string' ? y : '';
+    if (dnum(x) !== dnum(y)) return dnum(x) > dnum(y) ? x : y;
+    return x > y ? x : y;
+  }
+  function dnum(d) { return dayNum(d) || 0; }
+  function questIds(q) { return JSON.stringify((q.list || []).map(function (x) { return x && x.id; })); }
+
   var MERGE = {
     // Review boxes: per question the later answer wins; at the same time the higher box, then the later due day.
     review: function (a, b) {
@@ -100,6 +116,31 @@
         });
       });
       return { v: 1, apps: apps };
+    },
+    // Daily quests: the later day's list wins; on the same day the first pick is kept and a quest done anywhere is done.
+    // Study days and paid streak milestones add up; the all-3 bonus day is the later one.
+    quests: function (a, b) {
+      a = isObj(a) ? a : null;
+      b = isObj(b) ? b : null;
+      if (!a || !b) return a || b;
+      var keep;
+      if (dnum(a.day) !== dnum(b.day)) keep = dnum(a.day) > dnum(b.day) ? a : b;
+      else if ((Number(a.at) || 0) !== (Number(b.at) || 0)) keep = (Number(a.at) || 0) < (Number(b.at) || 0) ? a : b;
+      else keep = questIds(a) <= questIds(b) ? a : b;
+      var other = keep === a ? b : a, sameDay = dnum(a.day) === dnum(b.day), doneThere = {};
+      if (sameDay) (Array.isArray(other.list) ? other.list : []).forEach(function (q) { if (q && q.done) doneThere[q.id] = true; });
+      var list = (Array.isArray(keep.list) ? keep.list : []).filter(isObj).map(function (q) {
+        var c = {};
+        Object.keys(q).forEach(function (k) { c[k] = q[k]; });
+        c.done = !!(q.done || doneThere[q.id]);
+        return c;
+      });
+      return {
+        v: 1, day: sameDay ? paidDayOf(a.day, b.day) : (typeof keep.day === 'string' ? keep.day : ''), at: Number(keep.at) || 0, list: list,
+        days: union(a.days, b.days, 400),
+        paidDay: paidDayOf(a.paidDay, b.paidDay),
+        streakPaid: union(a.streakPaid, b.streakPaid)
+      };
     },
     recall: function (a, b) {
       var rest = {};
@@ -176,7 +217,7 @@
         var w = json(space.getItem('wallet_v1'), null);
         return w ? { baselines: w.baselines || {}, purchases: w.purchases || [], oldPointsCounted: w.oldPointsCounted === true } : null;
       }
-      if (kind === 'recall' || kind === 'review' || kind === 'mastery' || kind === 'profile' || kind === 'requests') return json(space.getItem(key), null);
+      if (kind === 'recall' || kind === 'review' || kind === 'quests' || kind === 'mastery' || kind === 'profile' || kind === 'requests') return json(space.getItem(key), null);
       return space.getItem(key);
     }
     function writeLocal(kind, key, value) {
@@ -191,7 +232,7 @@
         w.purchases = value.purchases;
         w.oldPointsCounted = value.oldPointsCounted;
         space.put('wallet_v1', JSON.stringify(w));
-      } else if (kind === 'recall' || kind === 'review' || kind === 'mastery' || kind === 'profile' || kind === 'requests') {
+      } else if (kind === 'recall' || kind === 'review' || kind === 'quests' || kind === 'mastery' || kind === 'profile' || kind === 'requests') {
         space.put(key, JSON.stringify(value));
       } else {
         space.put(key, String(value));

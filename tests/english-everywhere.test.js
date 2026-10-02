@@ -86,3 +86,12 @@ test('every Grade 2 medal and popup line has English', () => {
     for (const args of samples[key]) hasEnglishWhereFilipino(value(...args), 'medal ' + key);
   }
 });
+
+test('every Grade 2 quest and streak line has English', () => {
+  const { TEXT } = require(engineFile('quests.js'));
+  const t = TEXT.grade2;
+  const quests = ['review', 'practice', 'stars', 'right', 'rounds', 'explore', 'best'].map((kind) => t.quest({ kind, title: 'Kuwentista', lesson: 'Pangngalan' }));
+  const lines = [t.title, t.doneTitle, t.allTitle, t.allNext, t.doneNext(2, 3), t.streakTitle(7), t.streakNext(14), t.streakNext(0),
+    t.streak({ days: 5, restLeft: 2 }), t.streak({ days: 5, restLeft: 0 }), t.streak({ days: 0, welcomeBack: true }), t.streak({ days: 0 })].concat(quests);
+  lines.forEach((line) => hasEnglishWhereFilipino(line, 'quest text'));
+});

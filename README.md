@@ -65,6 +65,7 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 - **Stars** (up to 3 per lesson) reset each day. **Points** are permanent.
 - **Medals** (🥉 Bronze, 🥈 Silver, 🥇 Gold) need every question in a lesson right on 1, 2 and 3 separate days. They never go away; a 🔧 shows when a lesson needs a polish. A new medal pays 20, 40 or 80 points once. The lobby's **🗺️ My Map** shows every lesson's medal.
 - **Celebrations:** a short popup cheers a new medal, a whole game reaching Bronze, Silver or Gold, and fixed mistakes, with what she did and one next step. It waits for PERFECT!, closes with a tap or by itself, follows the mute key and the tablet's reduce-motion setting.
+- **Daily quests:** the lobby offers 3 quests a day fitted to her (a Review that is due, her weakest recent lesson, and a rotating one), never the same twice in a row when there is another choice. All 3 pay 3 coins once a day. The **streak** counts days with at least one quest and survives 2 rest days in any 7; it pays 5, 10, 15 and 20 coins at 7, 14, 30 and 60 days. It never talks about losing a streak.
 
 ## Rewards
 
@@ -129,6 +130,7 @@ web/                         the published site (the only folder GitHub Pages se
     powerups.js                in-quiz power-ups
     recall.js                  review boxes (1/3/7/14/30 days), Review rounds, type-it-first
     mastery.js                 lesson medals (🥉🥈🥇 from the review boxes), the lobby map, medal points
+    quests.js                  daily quests, the gentle streak, quest and streak coins
     fx.js                      sound effects + streak call-outs (Web Audio)
     study-kit.js               points, streaks, rounds, daily star reset (required by every game)
   assets/icons/              home-screen icons
@@ -191,7 +193,7 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 2. Add `subject.json` next to it with a new, permanent `id`, plus `title`, `grade`, `subject`, `pointsKey` and `progressKey`. The tests find the game through this file.
 3. Add a subject card to the lobby: `<a class="subject-card" data-app="<id>" href="../subjects/grade-6/math/index.html?reset=1">`.
 4. Give it a Review round: `reviewInfo`, `reviewPool`, `startReview`, the `Recall.homeCard` card, the `currentQuizMeta.id === 'review'` retry line and the `Recall.tidy` / `Recall.wantsReview` lines at the end of its script (copy them from a game of the same family; `tests/review-wiring.test.js` checks them).
-5. Give it medals: `medalLessons`, `updateMedals`, `showMedals`, `medalBadge`, the `Mastery.renderChip(medals)` line in `renderHome`, `showMedals(...'points-earned')` after the round's points line and `showMedals(...'points-total-badge')` before the first `renderHome()` (copy them from a game of the same family; `tests/mastery-wiring.test.js` checks them).
+5. Give it medals: `medalLessons`, `updateMedals`, `showMedals`, `medalBadge`, the `Mastery.renderChip(medals)` line in `renderHome`, `showMedals(...'points-earned')` after the round's points line and `showMedals(...'points-total-badge')` before the first `renderHome()`, and load `quests.js` after `mastery.js` so quest events join the medal popup (copy them from a game of the same family; `tests/mastery-wiring.test.js` checks them).
 6. Run `node tools/update-precache.js` so it works offline. `node --test` lists anything you missed.
 7. Put the source decks in `sources/grade-6/math/`.
 

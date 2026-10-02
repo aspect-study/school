@@ -276,6 +276,8 @@ function checkReview(app, out) {
   assert.ok(r.fixedPop, 'the fixed-mistakes popup opens');
   assert.equal(r.fixedPop.big, r.fixedExpectBig, 'its size follows its events');
   assert.equal(r.fixedPop.hasFix, true, 'the fixed-mistakes event is shown, as the headline or in the list');
+  assert.equal(r.questDone, true, 'a Review round ticks off the Review quest');
+  assert.equal(r.questEvents, 1, 'with a quest popup');
   console.log('  review: ' + r.reviewTotal + ' of ' + r.due + ' due, ' + r.points + ' pts');
 }
 

@@ -209,6 +209,7 @@
     var coins = child.wallet.balance(points);
     $('kid-name').textContent = label(child.learner);
     $('kid-coins').textContent = '🪙 ' + coins + (coins === 1 ? ' coin' : ' coins') + ' · ⭐ ' + total + ' points';
+    $('kid-streak').textContent = window.Quests ? Quests.parentLine(Quests.read(child.space), Date.now()) : '';
     renderShop(points);
   }
 

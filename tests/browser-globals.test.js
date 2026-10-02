@@ -43,3 +43,11 @@ test('the parent page can read medals from a child\'s in-memory space', () => {
   assert.deepEqual([...win.Mastery.polishList(e)], ['Rocks']);
   assert.equal(win.Mastery.update, undefined, 'no grade: no game helpers');
 });
+
+test('the parent page can show a child\'s streak line', () => {
+  const win = browser('storage.js', 'quests.js');
+  const s = win.StudyStore.memorySpace('kid');
+  s.put('quests_v1', JSON.stringify({ v: 1, day: '2026-10-02', at: 1, list: [{ done: true }], days: ['2026-10-02'], paidDay: '', streakPaid: [] }));
+  assert.equal(win.Quests.parentLine(win.Quests.read(s), new Date(2026, 9, 2, 9).getTime()), '🔥 1-day streak · today 1 of 1 quests');
+  assert.equal(win.Quests.check, undefined, 'no grade: no lobby or game helpers');
+});

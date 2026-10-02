@@ -326,7 +326,7 @@
       var BACKUP_DUE_DAYS = 7;
       function savedState() {
         var state = {};
-        var keys = ['wallet_v1', 'recall_v1', 'review_v1', 'mastery_v1'];
+        var keys = ['wallet_v1', 'recall_v1', 'review_v1', 'mastery_v1', 'quests_v1'];
         o.subjects.forEach(function (s) { keys.push(s.pointsKey); });
         keys.forEach(function (k) {
           var v = null;

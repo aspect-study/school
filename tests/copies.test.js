@@ -33,7 +33,7 @@ test('the Parent panel lives in engine/parent-panel.js, not inline in the lobbie
 test('the parent page loads the shared panel and its engine files', () => {
   const { web, PARENT } = require('./paths.js');
   const html = fs.readFileSync(web(PARENT.page), 'utf8');
-  for (const f of ['storage', 'study-history', 'wallet', 'sync-core', 'firebase-config', 'firebase-remote', 'shop-requests', 'subjects', 'mastery', 'parent-panel']) {
+  for (const f of ['storage', 'study-history', 'wallet', 'sync-core', 'firebase-config', 'firebase-remote', 'shop-requests', 'subjects', 'mastery', 'quests', 'parent-panel']) {
     assert.ok(html.includes('<script src="../engine/' + f + '.js"></script>'), 'parent page does not load ' + f + '.js');
   }
   assert.ok(!html.includes('learner.js'), 'the parent page must not create a learner on the phone');

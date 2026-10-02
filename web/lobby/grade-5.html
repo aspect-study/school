@@ -376,6 +376,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
   </div>
 
+  <div class="quests" id="quests" hidden></div>
   <div class="review-due" id="review-due" hidden></div>
   <button class="map-open" id="map-open" type="button" aria-expanded="false" aria-controls="map-view" hidden></button>
   <div class="map-view" id="map-view" hidden></div>
@@ -647,6 +648,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <script src="../engine/recall.js" data-grade="grade5"></script>
 <script src="../engine/mastery.js" data-grade="grade5"></script>
 <script src="../engine/wallet.js" data-grade="grade5"></script>
+<script src="../engine/quests.js" data-grade="grade5"></script>
 <script src="../engine/shop-requests.js" data-grade="grade5"></script>
 <script src="../engine/fx.js" data-grade="grade5"></script>
 <script src="../engine/sync-core.js" data-grade="grade5"></script>
@@ -679,6 +681,21 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   function showReview(){ if (window.Recall && Recall.renderLobby) Recall.renderLobby(document.getElementById('review-due'), document.querySelectorAll('.subject-card[data-app]')); }
   showReview();
   document.addEventListener('cloud-synced', showReview);
+  function showQuests(){
+    if (!window.Quests || !Quests.pick) return;
+    var box = document.getElementById('quests');
+    var cards = Array.prototype.map.call(document.querySelectorAll('.subject-card[data-app]'), function(c){
+      var name = c.querySelector('.subject-app') || c.querySelector('.subject-title');
+      return { app: c.getAttribute('data-app'), title: name ? name.textContent.trim() : c.getAttribute('data-app'), href: c.getAttribute('href') };
+    });
+    Quests.pick(cards);
+    var events = Quests.check();
+    Quests.renderLobby(box, cards);
+    if (events.length && window.Fx && Fx.celebrate) Fx.celebrate(events, box);
+  }
+  showQuests();
+  document.addEventListener('cloud-synced', showQuests);
+  window.addEventListener('pageshow', function(e){ if (e.persisted) showQuests(); });
   function showMap(){ Mastery.renderMap(document.getElementById('map-view'), document.querySelectorAll('.subject-card[data-app]')); }
   (function(){
     var btn = document.getElementById('map-open'), view = document.getElementById('map-view');
@@ -713,7 +730,7 @@ window.SHOP_TEXT = {
   close: '✕ Close',
   intro: 'Every 10 points you earn gives you 1 coin. Pick a reward, then ask a parent to approve it.',
   goal: function(n, goal){ return n + ' more ' + (n === 1 ? 'coin' : 'coins') + ' to ' + goal + '!'; },
-  earned: function(pts, coins, welcome, spent, bonus){ return '⭐ ' + pts + ' new points → 🪙 ' + coins + ' coins · 🎁 ' + welcome + ' welcome' + (bonus ? ' · 📝 ' + bonus + ' test bonus' : '') + ' · 🛒 ' + spent + ' spent'; },
+  earned: function(pts, coins, welcome, spent, bonus){ return '⭐ ' + pts + ' new points → 🪙 ' + coins + ' coins · 🎁 ' + welcome + ' welcome' + (bonus ? ' · ✨ ' + bonus + ' bonus' : '') + ' · 🛒 ' + spent + ' spent'; },
   allGoals: 'You can get any reward! 🎉',
   need: function(n){ return n + ' more ' + (n === 1 ? 'coin' : 'coins'); },
   tomorrow: 'Come back tomorrow',

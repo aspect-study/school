@@ -354,7 +354,10 @@
     // Waits for a call-out like PERFECT! to finish, so the two never overlap. If the anchor element is hidden by then, the player has moved on and nothing opens.
     function celebrate(events, anchor) {
       if (!events || !events.length) return;
-      queued = events;
+      // Big ones lead the card; the order within each size is kept.
+      queued = events.map(function (e, i) { return { e: e, i: i }; })
+        .sort(function (x, y) { return (y.e.big ? 1 : 0) - (x.e.big ? 1 : 0) || x.i - y.i; })
+        .map(function (x) { return x.e; });
       queuedAnchor = anchor || null;
       clearTimeout(popTimer);
       popTimer = setTimeout(openPop, Math.max(0, calloutUntil - Date.now()));

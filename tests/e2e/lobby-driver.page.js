@@ -112,6 +112,42 @@
     r.closed = view.hidden;
     return out(r);
   }
+  if (mode === 'quests') {
+    var qcard = document.querySelector('.subject-card[data-app]'), qapp = qcard.getAttribute('data-app');
+    var qkey = function (x) { return x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-' + ('0' + x.getDate()).slice(-2); };
+    var qitems = {};
+    qitems[qapp + '|aa'] = { box: 1, due: qkey(new Date()), t: 1 };
+    __store.setItem('review_v1', JSON.stringify({ v: 1, items: qitems }));
+    __store.removeItem('quests_v1');
+    __store.setItem(KEY, JSON.stringify({ v: 1, entries: [] }));
+    var qcards = Array.prototype.map.call(document.querySelectorAll('.subject-card[data-app]'), function (c) {
+      return { app: c.getAttribute('data-app'), title: c.getAttribute('data-app'), href: c.getAttribute('href') };
+    });
+    Quests.pick(qcards);
+    Quests.renderLobby($('quests'), qcards);
+    r.hidden = $('quests').hidden;
+    r.items = Array.prototype.map.call($('quests').querySelectorAll('li'), function (li) { return li.textContent; });
+    var link = $('quests').querySelector('li a');
+    r.firstHref = link ? link.getAttribute('href') : null;
+    r.cardHref = qcard.getAttribute('href');
+    r.streakBefore = $('quests').querySelector('.quests-streak').textContent;
+    var bonusBefore = (JSON.parse(__store.getItem('wallet_v1') || '{}').bonus) || 0;
+    var t = Date.now() + 1000, n = 0;
+    var entry = function (f) { var e = { id: 'qe' + (n++), type: 'quiz', app: qapp, appTitle: qapp, lessonId: 'l', lessonTitle: 'L', final: false, total: 10, answered: 10, correct: 10, wrong: [], finished: true, stars: 3, points: 0, bestStreak: 0, t: t + n }; for (var k in f) e[k] = f[k]; return e; };
+    __store.setItem(KEY, JSON.stringify({ v: 1, entries: [entry({ kind: 'review', lessonTitle: 'Review', stars: 0 }), entry({}), entry({ correct: 12 })] }));
+    r.events = Quests.check().map(function (e) { return { big: e.big, icon: e.icon }; });
+    r.again = Quests.check().length;
+    r.bonusPaid = ((JSON.parse(__store.getItem('wallet_v1') || '{}').bonus) || 0) - bonusBefore;
+    Quests.renderLobby($('quests'), qcards);
+    r.doneCount = $('quests').querySelectorAll('li .done').length;
+    r.streakAfter = $('quests').querySelector('.quests-streak').textContent;
+    var bonusDone = ((JSON.parse(__store.getItem('wallet_v1') || '{}').bonus) || 0);
+    document.dispatchEvent(new Event('cloud-synced'));
+    document.dispatchEvent(new Event('cloud-synced'));
+    r.bonusAfterSync = ((JSON.parse(__store.getItem('wallet_v1') || '{}').bonus) || 0) - bonusDone;
+    r.queuedAfterSync = ((window.Fx && Fx.queued && Fx.queued()) || []).length;
+    return out(r);
+  }
   if (mode === 'nojs') {
     $('parent-open').click();
     press('0108');

@@ -320,7 +320,7 @@
     };
 
     // Points, coins and rest-days ride along with the history, so a wiped tablet can be fully restored.
-    var STATE_KEY_RE = /^(?:[a-z0-9]+_points_v1|wallet_v1|recall_v1|review_v1|mastery_v1)$/;
+    var STATE_KEY_RE = /^(?:[a-z0-9]+_points_v1|wallet_v1|recall_v1|review_v1|mastery_v1|quests_v1)$/;
     // Backups made before learners name the wallet and rest-days after the grade.
     var LEGACY_STATE_KEY = new RegExp('^' + prefix + '_(wallet_v1|recall_v1)$');
 

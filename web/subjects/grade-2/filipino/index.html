@@ -292,6 +292,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="../../../engine/powerups.js" data-grade="grade2"></script>
 <script src="../../../engine/recall.js" data-grade="grade2"></script>
 <script src="../../../engine/mastery.js" data-grade="grade2"></script>
+<script src="../../../engine/quests.js" data-grade="grade2"></script>
 <script src="../../../engine/study-kit.js" data-grade="grade2"></script>
 <script src="lessons/01-alpabeto.js"></script>
 <script src="lessons/02-pangngalan.js"></script>
@@ -386,7 +387,7 @@ function showMedals(el){
   const m = updateMedals();
   if (!m) return;
   Mastery.showNew(el, m.newly);
-  if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE), el);
+  if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE).concat(window.Quests && Quests.check ? Quests.check() : []), el);
 }
 function medalBadge(id){
   return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';

@@ -258,6 +258,9 @@ function __e2eReview(startLesson, next) {
   r.dueToday = Recall.dueCount(SH_APP);
   __e2eAllDueToday();
   r.due = Recall.dueCount(SH_APP);
+  __store.setItem('quests_v1', JSON.stringify({ v: 1, day: __e2eToday(), at: Date.now(), list: [
+    { id: 'review|' + SH_APP, kind: 'review', app: SH_APP, title: SH_TITLE, done: false },
+    { id: 'right', kind: 'right', done: false }, { id: 'rounds', kind: 'rounds', done: false }], days: [], paidDay: '', streakPaid: [] }));
   startReview();
   r.reviewTotal = currentQuizSet.length;
   r.reviewTitle = currentQuizMeta.title;
@@ -274,6 +277,8 @@ function __e2eReview(startLesson, next) {
   r.points = quizzes[quizzes.length - 1].points;
   r.resultText = document.getElementById('points-earned').textContent;
   r.fixedEvents = (Fx.queued() || []).filter(function (e) { return e.icon === '🔧'; }).length;
+  r.questEvents = (Fx.queued() || []).filter(function (e) { return e.icon === '🎯'; }).length;
+  r.questDone = JSON.parse(__store.getItem('quests_v1')).list[0].done;
   var queuedNow = Fx.queued() || [];
   Fx.celebrateNow();
   var fixedPop = document.getElementById('fx-pop');
