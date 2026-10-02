@@ -3,13 +3,11 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { GRADE2, makeWorkDir, dumpDom, readOutput, appendDriver } = require('./chrome.js');
+const { stage, makeWorkDir, dumpDom, readOutput, appendDriver } = require('./chrome.js');
+const { LOBBIES, lobbyFile } = require('../paths.js');
 
-const GRADE5 = path.join(__dirname, '..', '..');
 const grade = process.argv[2] === '5' ? 5 : 2;
-const cfg = grade === 5
-  ? { dir: GRADE5, lobby: 'lobby-grade5.html', files: ['study-history.js', 'wallet.js', 'fx.js'], grade: 'grade5' }
-  : { dir: GRADE2, lobby: 'lobby.html', files: ['study-history-grade2.js', 'wallet-grade2.js', 'fx-grade2.js'], grade: 'grade2' };
+const cfg = { grade: 'grade' + grade };
 
 // Synchronous stand-ins for Blob/FileReader, because --dump-dom reads the page right after load.
 const driver = `
@@ -129,11 +127,10 @@ const driver = `
 `;
 
 const work = makeWorkDir('backup-e2e');
-for (const f of cfg.files) fs.copyFileSync(path.join(cfg.dir, f), path.join(work, f));
-fs.writeFileSync(path.join(work, 'lobby.html'), appendDriver(fs.readFileSync(path.join(cfg.dir, cfg.lobby), 'utf8'), driver));
+const lobby = stage(path.join(work, 'site'), LOBBIES[grade].page, appendDriver(fs.readFileSync(lobbyFile(grade), 'utf8'), driver), ['study-history.js', 'wallet.js', 'fx.js']);
 
 try {
-  const r = readOutput(dumpDom(path.join(work, 'profile'), path.join(work, 'lobby.html'), ''));
+  const r = readOutput(dumpDom(path.join(work, 'profile'), lobby, ''));
   const coins = 40 + 62 + 50 - 30;
   assert.deepEqual(r.errors, [], 'page errors');
   assert.equal(r.coinsBefore, coins);

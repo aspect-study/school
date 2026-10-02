@@ -1,0 +1,1243 @@
+<html lang="en">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Rise & Shine: GMRC Champions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF7EC;
+  --card:#FFFFFF;
+  --ink:#2B2320;
+  --accent:#1B7A79;
+  --accent-dark:#0E4F4E;
+  --accent-soft:#E4F3F1;
+  --gold:#FFB627;
+  --coral:#FF6F59;
+  --muted:#8A7F73;
+  --border:#F0E4D2;
+  --good:#2E9E5B;
+  --bad:#E15555;
+  --shadow: 0 10px 28px rgba(43,35,32,0.10);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15201F;
+    --card:#1E2C2A;
+    --ink:#F5EFE3;
+    --accent:#3FBDBA;
+    --accent-dark:#9AE8E5;
+    --accent-soft:#243836;
+    --gold:#FFC65C;
+    --coral:#FF8A73;
+    --muted:#B9AE9E;
+    --border:#2C3B39;
+    --good:#4FCB82;
+    --bad:#FF7A7A;
+    --shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15201F;
+  --card:#1E2C2A;
+  --ink:#F5EFE3;
+  --accent:#3FBDBA;
+  --accent-dark:#9AE8E5;
+  --accent-soft:#243836;
+  --gold:#FFC65C;
+  --coral:#FF8A73;
+  --muted:#B9AE9E;
+  --border:#2C3B39;
+  --good:#4FCB82;
+  --bad:#FF7A7A;
+  --shadow: 0 10px 28px rgba(0,0,0,0.35);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
+#app{max-width:720px;margin:0 auto;padding:20px 16px 60px;}
+.screen{display:none;}
+.screen.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.hero{
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  color:#fff;
+  border-radius:22px;
+  padding:26px 22px;
+  box-shadow:var(--shadow);
+  margin-bottom:20px;
+}
+/* In dark mode --accent-dark is deliberately LIGHT (it is used as text colour on
+   dark cards). That makes the hero gradient pale, and the hero's white text drops
+   to ~1.4:1 contrast. Darken both stops here so the white text stays readable. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .hero{
+    background:linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 55%, #0C1414),
+      color-mix(in srgb, var(--accent-dark) 35%, #0C1414));
+  }
+}
+:root[data-theme="dark"] .hero{
+  background:linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 55%, #0C1414),
+    color-mix(in srgb, var(--accent-dark) 35%, #0C1414));
+}
+.hero h1{margin:0 0 6px;font-size:1.7rem;}
+.hero p{margin:0;opacity:.92;line-height:1.5;font-size:.95rem;}
+.hero .badge{
+  display:inline-block;background:rgba(255,255,255,.18);
+  padding:4px 12px;border-radius:999px;font-size:.75rem;font-weight:800;
+  letter-spacing:.04em;margin-bottom:10px;
+}
+
+.card-list{display:flex;flex-direction:column;gap:12px;}
+.item-card{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  display:flex;align-items:center;gap:14px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:transform .15s ease, border-color .15s ease;
+}
+.item-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+/* Cards and the flashcard are divs (they contain headings, so they cannot be
+   <button>). They carry role=button + tabindex, so give them a visible focus
+   ring for anyone driving the app from the keyboard. */
+.item-card:focus-visible,
+.flashcard:focus-visible,
+.btn:focus-visible,
+.option:focus-visible,
+.btn-icon:focus-visible{
+  outline:3px solid var(--gold);
+  outline-offset:3px;
+}
+.item-card .icon{
+  width:52px;height:52px;border-radius:14px;
+  background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;
+}
+.item-card .info{flex:1;min-width:0;}
+.item-card .info h3{margin:0 0 3px;font-size:1.05rem;}
+.item-card .info p{margin:0;color:var(--muted);font-size:.82rem;}
+.stars{font-size:.95rem;letter-spacing:1px;color:var(--gold);white-space:nowrap;}
+.stars .off{color:var(--border);}
+
+.final-card{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--accent-soft),var(--card));
+}
+.final-badge{
+  display:inline-block;background:var(--gold);color:#3A2900;
+  font-size:.68rem;font-weight:800;padding:2px 10px;border-radius:999px;
+  margin-bottom:4px;letter-spacing:.03em;
+}
+.strategy-card{border-color:var(--coral);}
+.strategy-card .icon{background:#FFEAE6;}
+
+.topbar{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.btn-icon{
+  background:var(--card);border:2px solid var(--border);border-radius:12px;
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1.1rem;color:var(--ink);flex-shrink:0;
+}
+.topbar h2{margin:0;font-size:1.15rem;flex:1;}
+
+.flash-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;}
+.flashcard{
+  width:100%;min-height:220px;
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:26px 22px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;cursor:pointer;
+  position:relative;
+}
+.flashcard .tag{
+  position:absolute;top:14px;left:16px;font-size:.7rem;font-weight:800;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.05em;
+}
+.flashcard h3{margin:6px 0 10px;font-size:1.3rem;color:var(--accent-dark);}
+.flashcard p{margin:0;font-size:1rem;line-height:1.55;}
+.flashcard .hint{margin-top:14px;font-size:.78rem;color:var(--muted);}
+.flash-nav{display:flex;align-items:center;gap:16px;width:100%;justify-content:space-between;}
+.flash-dots{font-size:.85rem;color:var(--muted);font-weight:700;}
+
+.btn{
+  font-family:'Baloo 2',cursive;
+  border:none;border-radius:14px;
+  padding:13px 22px;font-size:1rem;font-weight:700;
+  cursor:pointer;color:#fff;
+  background:var(--accent);
+  box-shadow:0 6px 0 var(--accent-dark);
+  transition:transform .1s ease;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--accent-dark);}
+.btn.gold{background:var(--gold);box-shadow:0 6px 0 #C98600;color:#3A2900;}
+.btn.gold:active{box-shadow:0 2px 0 #C98600;}
+.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--border);box-shadow:none;}
+.btn.full{width:100%;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.progress-bar{
+  height:10px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:18px;
+}
+.progress-bar .fill{height:100%;background:var(--gold);transition:width .3s ease;}
+
+.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.85rem;color:var(--muted);font-weight:700;}
+.medal-box{
+  background:var(--card);border:2px solid var(--border);border-radius:18px;
+  padding:10px;margin-bottom:16px;box-shadow:var(--shadow);
+}
+.medal-box svg{width:100%;max-width:150px;display:block;margin:0 auto;}
+
+.passage{
+  background:var(--accent-soft);border:2px solid var(--accent);border-radius:16px;
+  padding:16px;margin-bottom:16px;font-size:.95rem;line-height:1.6;
+}
+.passage strong{color:var(--accent-dark);}
+
+.q-card{
+  background:var(--card);border:2px solid var(--border);border-radius:18px;
+  padding:20px;box-shadow:var(--shadow);margin-bottom:16px;
+}
+.q-card h3{margin:0 0 16px;font-size:1.1rem;line-height:1.5;}
+.q-art{text-align:center;margin:0 0 12px;}
+.q-art svg.sign{width:130px;height:130px;}
+.sign-art{display:block;margin:0 auto 10px;}
+.sign-art svg.sign{width:120px;height:120px;display:block;margin:0 auto;}
+.option{
+  display:block;width:100%;text-align:left;
+  background:var(--bg);border:2px solid var(--border);border-radius:14px;
+  padding:13px 16px;margin-bottom:10px;font-size:.95rem;font-family:'Nunito',sans-serif;
+  cursor:pointer;color:var(--ink);font-weight:700;
+}
+.option:hover{border-color:var(--accent);}
+.option.correct{background:#E5F6EB;border-color:var(--good);color:#1B6B3C;}
+.option.wrong{background:#FCE9E9;border-color:var(--bad);color:#A82F2F;}
+.option:disabled{cursor:default;}
+.option.explorable{border-style:dashed;}
+.option.explored{box-shadow:0 0 0 3px var(--accent-soft);}
+.explore{margin-top:4px;}
+.explore-hint{font-size:.85rem;color:var(--muted);font-weight:700;}
+.explore-card{margin-top:8px;background:var(--card);border:2px solid var(--border);border-left:5px solid var(--bad);border-radius:10px;padding:9px 12px;line-height:1.5;font-size:.88rem;}
+.explore-card.explore-right{border-left-color:var(--good);}
+.explore-card b.learn-label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.explore-card .learn-choice{font-weight:800;}
+.explore-card .learn-why{display:block;margin-top:3px;}
+.explain{
+  margin-top:12px;padding:12px 14px;background:var(--accent-soft);
+  border-radius:12px;font-size:.88rem;line-height:1.5;color:var(--ink);
+}
+
+.results-hero{text-align:center;padding:20px 0;}
+.results-hero .big-stars{font-size:2.2rem;color:var(--gold);letter-spacing:4px;}
+.results-hero h2{margin:8px 0 4px;}
+.results-hero p{color:var(--muted);margin:0 0 16px;}
+.result-actions{display:flex;flex-direction:column;gap:10px;}
+
+.strategy-list{display:flex;flex-direction:column;gap:12px;}
+.tip{
+  background:var(--card);border:2px solid var(--border);border-left:6px solid var(--coral);
+  border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);
+}
+.tip h4{margin:0 0 5px;font-size:.98rem;color:var(--accent-dark);}
+.tip p{margin:0;font-size:.9rem;line-height:1.55;}
+.tip .kicker{font-size:.7rem;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.05em;}
+
+/* 3-up lesson map on wide screens, so every lesson shows at once.
+   Only the lesson list widens -- flashcards, quiz and results stay narrow. */
+@media (min-width:900px){
+  #app{max-width:1120px;}
+  #app .screen:not(#home){max-width:720px; margin-left:auto; margin-right:auto;}
+  #home > *:not(.card-list){max-width:720px; margin-left:auto; margin-right:auto;}
+  #home .card-list{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; align-items:stretch;}
+  #home .item-card{flex-direction:column; align-items:stretch; height:100%;}
+  #home .item-card .icon{align-self:flex-start;}
+  #home .item-card .info{flex:1;}
+}
+
+/* ---- POINTS ---- */
+.points-total{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.18);color:#fff;
+  padding:6px 14px;border-radius:999px;
+  font-size:.82rem;font-weight:800;margin-top:12px;
+}
+.points-live{color:var(--gold);font-weight:800;white-space:nowrap;}
+.points-live .streak{color:var(--coral);margin-left:4px;}
+.points-earned{font-size:1rem;font-weight:800;color:var(--ink);margin:8px 0 0;}
+/* ---- Learn from a wrong answer ---- */
+.learn{display:flex;flex-direction:column;gap:8px;}
+.learn-title{font-weight:800;}
+.learn-row{background:var(--card);border-radius:10px;padding:9px 12px;border-left:5px solid var(--bad);line-height:1.5;}
+.learn-row b.learn-label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.learn-row .learn-choice{font-weight:800;}
+.learn-row .learn-why{display:block;margin-top:3px;}
+.learn-right{border-left-color:var(--good);}
+.learn-tip{border-left-color:var(--gold);}
+.missed-review{text-align:left;margin:0 0 18px;padding-top:14px;border-top:1px solid var(--border);}
+.missed-review h3{text-align:center;margin:0 0 10px;font-size:1rem;}
+.missed-list{max-height:420px;overflow-y:auto;}
+.missed-item{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:.88rem;}
+.missed-item .missed-q{white-space:pre-line;font-weight:700;margin:0 0 8px;}
+</style>
+
+<div id="app">
+
+  <div id="home" class="screen active">
+    <div class="hero">
+      <span class="badge">GMRC · Grade 5 Practice</span>
+      <h1>Rise & Shine 🏅</h1>
+      <p>Build your Champion Medal one correct answer at a time! Study Knowing Yourself, Saving & Spending, Human Dignity, Faith, Traffic Signs & Rules, Good Manners, Sacred Books, Gratitude to Parents, E-waste and Using Devices — then take the Mock Exam and check the Exam Strategy guide so you're ready to ace your teacher's test.</p>
+      <div class="points-total" id="points-total-badge"></div>
+      <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
+    </div>
+    <div class="card-list" id="homeList"></div>
+  </div>
+
+  <div id="flashScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2 id="flashTitle"></h2>
+    </div>
+    <div class="flash-wrap">
+      <div class="flashcard" id="flashCard" onclick="flipCard()"
+           role="button" tabindex="0" aria-label="Flashcard. Activate to flip between the term and its meaning."
+           onkeydown="cardKey(event)">
+        <span class="tag" id="flashTag">Term</span>
+        <h3 id="flashFront"></h3>
+        <p id="flashBack" style="display:none;"></p>
+        <div class="hint" id="flashHint">Tap the card to flip</div>
+      </div>
+      <div class="flash-nav">
+        <button class="btn ghost" onclick="prevCard()">◀ Prev</button>
+        <span class="flash-dots" id="flashDots"></span>
+        <button class="btn ghost" onclick="nextCard()">Next ▶</button>
+      </div>
+      <button class="btn gold full" onclick="startQuiz()">Start Quiz 🏅</button>
+    </div>
+  </div>
+
+  <div id="quizScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2 id="quizTitle"></h2>
+    </div>
+    <div class="medal-box"><div id="medalSvg"></div></div>
+    <div class="progress-bar"><div class="fill" id="quizFill" style="width:0%"></div></div>
+    <div class="quiz-head">
+      <span id="quizCounter"></span>
+      <span id="quizScoreLabel"></span>
+      <span class="points-live" id="points-live"></span>
+    </div>
+    <div id="passageBox"></div>
+    <div class="q-card">
+      <div class="q-art" id="qArt" style="display:none;"></div>
+      <h3 id="qText"></h3>
+      <div id="optionsBox"></div>
+      <div class="explore" id="exploreBox" style="display:none;"></div>
+      <div class="explain" id="explainBox" style="display:none;"></div>
+    </div>
+    <button class="btn full" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next ▶</button>
+  </div>
+
+  <div id="resultsScreen" class="screen">
+    <div class="results-hero">
+      <div class="medal-box" style="max-width:180px;margin:0 auto 14px;"><div id="resultMedal"></div></div>
+      <div class="big-stars" id="resultStars"></div>
+      <h2 id="resultTitle"></h2>
+      <p id="resultScore"></p>
+      <div class="points-earned" id="points-earned"></div>
+      <div class="coins-have" data-coins="haveNow"></div>
+    </div>
+    <div class="missed-review" id="missedReview" style="display:none;"></div>
+    <div class="result-actions">
+      <button class="btn full" onclick="retryQuiz()">Try Again 🔁</button>
+      <button class="btn ghost full" onclick="goHome()">Back to Home</button>
+    </div>
+  </div>
+
+  <div id="strategyScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2>Exam Strategy 🎯</h2>
+    </div>
+    <div class="hero" style="background:linear-gradient(135deg,var(--coral),#C94B3A);">
+      <span class="badge">Before you take the real test</span>
+      <h1 style="font-size:1.35rem;">How to Ace a True/False & Situational Test</h1>
+      <p>These are the exact moves to use on your teacher's GMRC exam — not just for this app.</p>
+    </div>
+    <div class="strategy-list" id="strategyList"></div>
+  </div>
+
+</div>
+
+<script src="../../../engine/study-history.js" data-grade="grade5"></script>
+<script src="../../../engine/wallet.js" data-grade="grade5"></script>
+<script src="../../../engine/fx.js" data-grade="grade5"></script>
+<script src="../../../engine/powerups.js" data-grade="grade5"></script>
+<script src="../../../engine/recall.js" data-grade="grade5"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+/* Traffic signs drawn as inline SVG, keyed by name. Must stay above LESSONS,
+   which calls sign() while the array literal is built. */
+const SIGN_ART = {
+  turnright:{label:'Turn right sign', svg:
+    '<circle cx="50" cy="50" r="44" fill="#fff" stroke="#D71920" stroke-width="9"/>'+
+    '<path d="M38 76 V50 Q38 40 48 40 H60" stroke="#111" stroke-width="9" fill="none"/>'+
+    '<polygon points="58,27 77,40 58,53" fill="#111"/>'},
+  stop:{label:'Stop sign', svg:
+    '<polygon points="67.6,7.5 92.5,32.4 92.5,67.6 67.6,92.5 32.4,92.5 7.5,67.6 7.5,32.4 32.4,7.5" fill="#E11D2A" stroke="#fff" stroke-width="3"/>'+
+    '<g fill="#fff"><rect x="36" y="46" width="29" height="28" rx="9"/>'+
+    '<rect x="36" y="27" width="6.5" height="28" rx="3.2"/><rect x="43.5" y="22" width="6.5" height="32" rx="3.2"/>'+
+    '<rect x="51" y="23" width="6.5" height="31" rx="3.2"/><rect x="58.5" y="28" width="6.5" height="27" rx="3.2"/>'+
+    '<rect x="27" y="50" width="7" height="20" rx="3.5" transform="rotate(-35 30 60)"/></g>'},
+  pedcross:{label:'Pedestrian crossing sign', svg:
+    '<polygon points="50,4 96,50 50,96 4,50" fill="#F2C230" stroke="#111" stroke-width="3" stroke-linejoin="round"/>'+
+    '<g stroke="#111" stroke-width="5" stroke-linecap="round" fill="none"><path d="M51 37 L47 55 L39 67 M47 55 L57 65 M50 42 L41 50 M50 42 L59 48"/></g>'+
+    '<circle cx="53" cy="30" r="5" fill="#111"/>'+
+    '<g fill="#111"><rect x="33" y="71" width="6" height="7"/><rect x="43" y="71" width="6" height="7"/><rect x="53" y="71" width="6" height="7"/><rect x="63" y="71" width="6" height="7"/></g>'},
+  noovertake:{label:'No overtaking sign', svg:
+    '<circle cx="50" cy="50" r="44" fill="#fff" stroke="#D71920" stroke-width="9"/>'+
+    '<g fill="#D71920"><rect x="22" y="40" width="24" height="20" rx="5"/><rect x="24" y="58" width="5" height="7"/><rect x="39" y="58" width="5" height="7"/></g>'+
+    '<g fill="#111"><rect x="54" y="40" width="24" height="20" rx="5"/><rect x="56" y="58" width="5" height="7"/><rect x="71" y="58" width="5" height="7"/></g>'+
+    '<rect x="27" y="43" width="14" height="6" rx="1.5" fill="#fff"/><rect x="59" y="43" width="14" height="6" rx="1.5" fill="#fff"/>'},
+  lights:{label:'Traffic lights', svg:
+    '<rect x="32" y="5" width="36" height="90" rx="9" fill="#222"/>'+
+    '<circle cx="50" cy="24" r="11" fill="#E53935"/><circle cx="50" cy="50" r="11" fill="#FBC02D"/><circle cx="50" cy="76" r="11" fill="#43A047"/>'},
+  school:{label:'School zone sign', svg:
+    '<polygon points="50,5 94,40 94,94 6,94 6,40" fill="#D4E02C" stroke="#111" stroke-width="3" stroke-linejoin="round"/>'+
+    '<g stroke="#111" stroke-width="6" stroke-linecap="round" fill="none"><path d="M38 50 V70 M38 70 L33 84 M38 70 L43 84 M38 55 L48 58"/><path d="M60 43 V71 M60 71 L54 86 M60 71 L67 86 M60 50 L49 58"/></g>'+
+    '<circle cx="38" cy="42" r="5.5" fill="#111"/><circle cx="60" cy="34" r="6.5" fill="#111"/>'},
+  noentry:{label:'No entry sign', svg:
+    '<circle cx="50" cy="50" r="45" fill="#E11D2A"/><rect x="17" y="42" width="66" height="16" rx="2" fill="#fff"/>'},
+  noped:{label:'No pedestrian sign', svg:
+    '<circle cx="50" cy="50" r="44" fill="#fff" stroke="#D71920" stroke-width="9"/>'+
+    '<g stroke="#111" stroke-width="5" stroke-linecap="round" fill="none"><path d="M51 36 L47 56 L39 72 M47 56 L58 70 M50 42 L40 51 M50 42 L60 49"/></g>'+
+    '<circle cx="53" cy="28" r="5.5" fill="#111"/>'+
+    '<line x1="19" y1="19" x2="81" y2="81" stroke="#D71920" stroke-width="9"/>'},
+  roadwork:{label:'Roadwork ahead sign', svg:
+    '<polygon points="50,9 93,87 7,87" fill="#fff" stroke="#C80000" stroke-width="9" stroke-linejoin="round"/>'+
+    '<g stroke="#111" stroke-width="4.5" stroke-linecap="round" fill="none"><path d="M47 48 L42 64 L35 77 M42 64 L48 77 M46 52 L58 62 L63 70"/></g>'+
+    '<circle cx="50" cy="42" r="4.5" fill="#111"/><polygon points="58,79 68,68 80,79" fill="#111"/>'}
+};
+function sign(key){
+  const s = SIGN_ART[key];
+  return `<svg class="sign" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${s.label}">${s.svg}</svg>`;
+}
+function signCard(key){
+  return `<span class="sign-art">${sign(key)}</span>What sign is this?`;
+}
+
+const LESSONS = [
+  {
+    id:'myself',
+    icon:'🌱',
+    title:'Knowing & Understanding Myself',
+    subtitle:'Strengths, weaknesses, change & resilience',
+    cards:[
+      {front:'Knowing Yourself', back:'Understanding your personality, likes and dislikes, strengths, weaknesses, and feelings.'},
+      {front:'Strengths', back:'Things you do well — like drawing, singing, solving math problems, helping others, being kind, or being responsible.'},
+      {front:'Weaknesses', back:'Things you still need to improve — like being easily distracted, shy when speaking, poor time management, or afraid to try new things.'},
+      {front:'3 Kinds of Change', back:'Physical (becoming taller/stronger), Emotional (understanding and managing feelings), Personal (discovering new skills, talents, interests).'},
+      {front:'Resilience', back:'The ability to recover from difficulties and keep going. Challenges at home or school help build resilience.'},
+      {front:'5 Ways to Value Yourself', back:'1) Obey your parents, 2) Change undesirable attitudes, 3) Do something good for yourself and others, 4) Learn to appreciate, 5) Be aware of yourself.'},
+      {front:'Remember', back:'"Growth begins when we embrace change."'}
+    ],
+    quiz:[
+      {q:'True or False: Knowing yourself only means knowing your favorite color and food.', options:['True','False'], correct:1, explain:'Knowing yourself means understanding your personality, likes/dislikes, strengths, weaknesses, AND feelings — much more than favorites.', why:['The word "only" makes this false. Knowing yourself also means understanding your personality, strengths, weaknesses and feelings — favorites are just a small part.', ''], tip:'Watch for the word "only" in True/False. Ask: is that REALLY the only thing? If the lesson lists more, the answer is False.'},
+      {q:'Ana always finishes her homework on time and helps classmates who don’t understand a lesson. Which STRENGTH does this show?', options:['Being disorganized','Being responsible and helpful','Being shy','Being easily distracted'], correct:1, explain:'Finishing tasks on time and helping others shows responsibility and helpfulness — both strengths.', why:['Being disorganized would look like Ana losing her things or forgetting her homework — but she finishes her homework on time.', '', 'Being shy would look like Ana staying quiet and keeping away from others — but she goes and helps her classmates.', 'Being easily distracted would look like Ana not finishing her work — but she finishes on time.'], tip:'Match each action to a word: "finishes on time" = responsible, "helps classmates" = helpful. A strength is something good that she does well.'},
+      {q:'True or False: A weakness is something you can never improve, no matter how hard you try.', options:['True','False'], correct:1, explain:'Weaknesses are things you still NEED to improve — they can get better with effort, unlike the statement claims.', why:['The word "never" makes this false. The lesson calls weaknesses things you still NEED to improve — with effort they can get better.', ''], tip:'Words like "never" and "always" often make a statement false. Remember: a weakness is a "not yet," not a "never."'},
+      {q:'Miguel gets nervous and forgets his words whenever he speaks in front of the class. Which weakness does this show?', options:['Poor time management','Shy when speaking','Easily distracted','Afraid of change'], correct:1, explain:'Getting nervous while speaking in front of others is the weakness "shy when speaking."', why:['Poor time management would mean Miguel runs out of time or is late with his work — the story is about his speaking, not his time.', '', 'Being easily distracted would mean his attention wanders to other things — Miguel is nervous, not distracted.', 'Being afraid of change is about fearing new things — Miguel\'s problem is speaking in front of the class.'], tip:'Find the key action in the story ("nervous... speaks in front of the class") and pick the weakness that names that same action.'},
+      {q:'True or False: Becoming taller and stronger as you grow older is an example of physical change.', options:['True','False'], correct:0, explain:'Yes — becoming taller and stronger is exactly what physical change means.', why:['', 'This statement is true. Physical change is about your body, and becoming taller and stronger is exactly the lesson\'s example.'], tip:'Remember the 3 kinds of change: Physical = body, Emotional = feelings, Personal = new skills and interests. Taller and stronger is about the body.'},
+      {q:'Which of these shows an EMOTIONAL change?', options:['Growing three inches taller','Learning to stay calm instead of shouting when angry','Discovering you are good at chess','Wearing a bigger shoe size'], correct:1, explain:'Learning to understand and manage your feelings, like calming down instead of shouting, is emotional change.', why:['Growing taller is a change in your body, so it is a PHYSICAL change, not an emotional one.', '', 'Discovering you are good at chess is finding a new skill or talent — that is a PERSONAL change.', 'A bigger shoe size means your body grew — that is a PHYSICAL change.'], tip:'EMOTIONAL has the word "emotion" in it. Look for the choice about feelings, like anger or staying calm.'},
+      {q:'True or False: Resilience means giving up immediately when something becomes difficult.', options:['True','False'], correct:1, explain:'Resilience is the OPPOSITE — it means recovering from difficulty and continuing on.', why:['Resilience is the opposite of giving up. It means recovering from difficulties and continuing on.', ''], tip:'Think of a ball that bounces back. A resilient person bounces back from problems instead of quitting.'},
+      {q:'Liza’s parents told her to stop staying up late playing games because it affects her studies. What should Liza do to value herself, based on the lesson?', options:['Ignore her parents completely','Get angry at her parents','Listen and respect their advice','Play even later to prove a point'], correct:2, explain:'"Obey your parents — listen, learn from their experience, and respect their advice" is one of the 5 ways to value yourself.', why:['Ignoring her parents is the opposite of "Obey your parents," one of the 5 ways to value yourself.', 'Getting angry does not show respect. The lesson says to listen to your parents and respect their advice.', '', 'Playing even later goes against her parents\' advice and hurts her studies — that does not value herself.'], tip:'When a question is about a parent\'s advice, remember Way #1: Obey your parents — listen, learn and respect.'},
+      {q:'True or False: One way to value yourself is to help other people and join school or community activities.', options:['True','False'], correct:0, explain:'Yes — "do something good for yourself and others" includes helping people and joining activities.', why:['', 'This statement is true. "Do something good for yourself and others" is one of the 5 ways, and helping people and joining activities fit it.'], tip:'Check the statement against the 5 Ways to Value Yourself. If it matches one of them, it is True.'},
+      {q:'Every night before bed, Carlo thinks of three things he is thankful for. Which of the 5 Ways to Value Oneself is Carlo practicing?', options:['Obey your parents','Change undesirable attitudes','Learn to appreciate','Be aware of yourself'], correct:2, explain:'Being thankful and practicing gratitude every day is exactly "learn to appreciate."', why:['Obey your parents is about listening to their advice — Carlo\'s story is about being thankful.', 'Changing undesirable attitudes means fixing a bad habit — Carlo is not fixing anything, he is giving thanks.', '', 'Being aware of yourself is about knowing your own strengths and feelings — Carlo is thinking about what he is thankful for.'], tip:'Clue word: "thankful." Thankful = appreciate. Link the key word in the story to the name of the way.'}
+    ]
+  },
+  {
+    id:'saving',
+    icon:'🐷',
+    title:'Saving Early & Spending Wisely',
+    subtitle:'Needs vs wants, budgeting & good habits',
+    cards:[
+      {front:'Saving', back:'Keeping part of your money instead of spending it all, so you can use it for important things in the future.'},
+      {front:'Why We Save', back:'To prepare for emergencies, buy things we really need, reach our goals, and become responsible with money.'},
+      {front:'How to Save Money', back:'Do budget planning, shop only with a list, stay within your means, and learn to be thrifty.'},
+      {front:'Wise Spending', back:'Thinking before buying, buying what you need first, avoiding unnecessary expenses, and comparing prices.'},
+      {front:'Needs vs Wants', back:'Needs: food, water, school supplies, medicine. Wants: toys, expensive gadgets, fancy accessories, makeup.'},
+      {front:'Good Saving Habits', back:'Save part of your allowance, use a piggy bank, set a savings goal, avoid impulse buying, spend only within budget.'},
+      {front:'Remember', back:'"A penny saved is a penny earned." — Benjamin Franklin'}
+    ],
+    quiz:[
+      {q:'True or False: Saving means spending all your money right away so it doesn’t get lost.', options:['True','False'], correct:1, explain:'Saving means keeping PART of your money instead of spending it all.', why:['"Spending all your money right away" makes this false. Saving means keeping PART of your money, not spending it all.', ''], tip:'Saving = keeping. If a sentence says "spend it all," it cannot be describing saving.'},
+      {q:'Your parents give you ₱200. What is the WISEST thing to do?', options:['Buy toys immediately','Buy everything you want','Save some and spend only what you need','Give it all away'], correct:2, explain:'Saving some and spending only what you truly need is the wise choice from the lesson.', why:['Buying toys right away spends money on a want without thinking, and leaves nothing saved.', 'Buying everything you want means spending it all — the opposite of saving and wise spending.', '', 'Giving it all away leaves nothing for your needs or your savings. The lesson says save some and spend only on what you need.'], tip:'The wisest choice usually does two things: it covers what you need AND saves some. Look for the word "save."'},
+      {q:'True or False: Food, water, medicine, and school supplies are examples of NEEDS.', options:['True','False'], correct:0, explain:'Correct — these are all things people need, not just want.', why:['', 'This statement is true. The lesson lists food, water, medicine and school supplies as NEEDS.'], tip:'Ask: "Can I live or go to school without it?" If not, it is a need.'},
+      {q:'Which of these is a WANT, not a need?', options:['School supplies','Medicine','Expensive gadgets','Water'], correct:2, explain:'Expensive gadgets are a want — nice to have, but not necessary for survival or school.', why:['School supplies are a need — you use them to learn at school.', 'Medicine is a need — it keeps you healthy when you are sick.', '', 'Water is a need — everyone needs it to live.'], tip:'Cross out the needs you know (food, water, medicine, school supplies). The one left over is the want.'},
+      {q:'True or False: Wise spending means buying anything you like as long as you have money in your pocket.', options:['True','False'], correct:1, explain:'Wise spending means thinking before buying, buying needs first, and comparing prices — not buying anything you like.', why:['"Anything you like" makes this false. Wise spending means thinking before buying, buying needs first, and comparing prices.', ''], tip:'Wise spending asks "Do I need this?" before buying. If a statement skips the thinking, it is not wise spending.'},
+      {q:'True or False: Maria receives ₱100 allowance. She spends ₱40 on snacks, ₱20 on school materials, and saves ₱40. Maria is spending wisely.', options:['True','False'], correct:0, explain:'Correct — she covered her needs, allowed a small treat, and still saved part of her money.', why:['', 'This statement is true. Maria paid for school materials, had a small treat, and still saved ₱40 — that is wise spending.'], tip:'For money stories, check three things: Were the needs covered? Was some money saved? Did she stay within her budget?'},
+      {q:'True or False: Having personal savings can help you avoid unnecessary debts.', options:['True','False'], correct:0, explain:'Correct — when you have spare money saved, you don’t need to borrow as much.', why:['', 'This statement is true. When you have money saved, you do not need to borrow as much, so you avoid unnecessary debts.'], tip:'Think: if I already have money saved, do I need to borrow? No — so savings help you avoid debt.'},
+      {q:'Before buying a new toy, what should you ask yourself first, based on the lesson?', options:['"Will my friends be jealous?"','"Do I really need this, and can I save this money instead?"','"Is it the most expensive one?"','"Can I buy it without telling anyone?"'], correct:1, explain:'The lesson’s "Think Before You Buy" questions are: Do I need this? Can I save instead? Will it help me in the future?', why:['Making your friends jealous is not a good reason to buy something. The lesson asks whether you really need it.', '', 'Choosing the most expensive one goes against comparing prices and avoiding unnecessary expenses.', 'Buying something secretly is not honest, and it skips the "Think Before You Buy" questions.'], tip:'Remember the "Think Before You Buy" questions: Do I need this? Can I save instead? Will it help me in the future?'},
+      {q:'True or False: Using a piggy bank and setting a savings goal are examples of good saving habits.', options:['True','False'], correct:0, explain:'Correct — both are listed as good saving habits in the lesson.', why:['', 'This statement is true. Using a piggy bank and setting a savings goal are both on the list of good saving habits.'], tip:'Recall the Good Saving Habits: save part of your allowance, use a piggy bank, set a savings goal, avoid impulse buying, stay within budget.'},
+      {q:'Jayson’s group has ₱2,000 for a weekend hangout. Which shows a responsible group?', options:['Spend all ₱2,000 on snacks and games','Plan a budget, buy what’s needed, and set aside money for savings','Borrow more money to spend more','Spend everything on the first item they see'], correct:1, explain:'Responsible people plan their budget and still set aside savings, even while having fun.', why:['Spending all ₱2,000 leaves nothing saved — responsible people set some money aside.', '', 'Borrowing more money means spending more than you have and getting into debt.', 'Buying the first thing they see is impulse buying, which good savers avoid.'], tip:'Look for the choice with a plan. "Budget," "what\'s needed" and "savings" are the clue words of responsible spending.'}
+    ]
+  },
+  {
+    id:'dignity',
+    icon:'🤝',
+    title:'Valuing Human Dignity',
+    subtitle:'Respect, worth & caring for others',
+    cards:[
+      {front:'Human Dignity', back:'Every person has value and worth simply because he or she is a human being.'},
+      {front:'Everyone Deserves', back:'Love, respect, kindness, and fair treatment — no exceptions.'},
+      {front:'Understanding Human Dignity', back:'Your worth as a person; human life is a gift; everyone is unique; everyone can dream; everyone has something to contribute.'},
+      {front:'What Destroys Human Dignity', back:'Forced or child labor, hate crimes, trespassing on human rights, lack of access to basic necessities, the refugee crisis, and fake news.'},
+      {front:'3 Ways to Respect Human Life', back:'1) Improve your life through education, 2) Practice values and virtues, 3) Accept corrections from parents and teachers with humility.'},
+      {front:'Remember', back:'"Every person is special. We may look different, think differently, or come from different backgrounds, but we all deserve respect because every human being has dignity."'}
+    ],
+    quiz:[
+      {q:'True or False: Human dignity means only smart or rich people deserve respect.', options:['True','False'], correct:1, explain:'Everyone deserves respect simply because they are human — dignity is not based on being smart or rich.', why:['The word "only" makes this false. Everyone deserves respect simply because they are human, not because they are smart or rich.', ''], tip:'Human dignity belongs to EVERY person. If a statement says only some people deserve respect, it is False.'},
+      {q:'A classmate is being teased for wearing old shoes. What should you do to respect his human dignity?', options:['Join the teasing','Ignore it and walk away','Defend him and treat him with kindness','Laugh along quietly'], correct:2, explain:'Standing up for someone and showing kindness respects their dignity as a person.', why:['Joining the teasing hurts him even more and does not respect his dignity.', 'Walking away leaves him alone while he is being hurt. Respecting dignity means showing kindness.', '', 'Laughing, even quietly, still joins in the teasing and makes him feel small.'], tip:'Ask yourself: "Which choice treats him with kindness and respect?" Choices that hurt him or ignore him do not respect dignity.'},
+      {q:'True or False: Every person is unique, but only some people have something to contribute to the world.', options:['True','False'], correct:1, explain:'The lesson says EVERYONE has something to contribute, not just some people.', why:['"Only some people" makes this false. The lesson says EVERYONE has something to contribute.', ''], tip:'Read each half of the sentence. The first half is true, but "only some people" is wrong — one wrong part makes the whole statement False.'},
+      {q:'Which situation is an example of something that DESTROYS human dignity?', options:['A child being forced to work instead of going to school','A student studying hard for a test','A family sharing a meal','Friends helping each other with homework'], correct:0, explain:'Forced or child labor is listed as something that destroys and violates human dignity.', why:['', 'A student studying hard is improving her life through education — that respects human life.', 'A family sharing a meal shows love and care, which respects dignity.', 'Friends helping each other with homework is kindness — it respects dignity.'], tip:'Remember the list of what destroys dignity: forced or child labor, hate crimes, lack of basic necessities, the refugee crisis and fake news. Find the choice that hurts someone.'},
+      {q:'True or False: Accepting corrections from your parents and teachers is a sign of humility and respect for human life.', options:['True','False'], correct:0, explain:'Correct — accepting corrections with humility is one of the 3 ways to respect human life.', why:['', 'This statement is true. Accepting corrections from parents and teachers with humility is one of the 3 ways to respect human life.'], tip:'Remember the 3 ways to respect human life: education, values and virtues, and accepting corrections with humility.'},
+      {q:'You see a younger student struggling to carry their bags. What is the BEST way to show you value human dignity?', options:['Walk past without helping','Offer to help carry the bags','Tell them it’s not your problem','Take a photo to post online'], correct:1, explain:'Offering help is a direct way of showing kindness and respect for another person’s worth.', why:['Walking past without helping shows no kindness to someone who needs it.', '', 'Saying "it\'s not your problem" is unkind and ignores the person\'s worth.', 'Taking a photo to post online does not help them, and it could embarrass them.'], tip:'In "BEST way" questions, pick the choice that actually helps the person with kindness.'},
+      {q:'True or False: Spreading fake news about someone is an example of respecting their human dignity.', options:['True','False'], correct:1, explain:'Fake news is listed as something that destroys human dignity, not respects it.', why:['Fake news is on the list of things that DESTROY human dignity, so spreading it does not respect anyone.', ''], tip:'If an action is on the "destroys dignity" list, it can never be a way of respecting dignity.'},
+      {q:'According to the lesson, which is one of the 3 ways to respect human life?', options:['Avoiding school','Practicing values and virtues','Ignoring corrections','Comparing yourself to others'], correct:1, explain:'Practicing values and virtues is one of the 3 ways to respect human life mentioned in the lesson.', why:['Avoiding school is the opposite of "improve your life through education."', '', 'Ignoring corrections is the opposite of "accept corrections with humility."', 'Comparing yourself to others is not one of the 3 ways to respect human life.'], tip:'Wrong choices are often the OPPOSITE of the real list. Remember the 3 ways: education, values and virtues, and accepting corrections.'},
+      {q:'True or False: Everyone deserves love, respect, kindness, and fair treatment, no matter who they are.', options:['True','False'], correct:0, explain:'Correct — this is exactly what human dignity means.', why:['', 'This statement is true. "No matter who they are" is the whole point — every person deserves love, respect, kindness and fair treatment.'], tip:'Statements that say EVERYONE deserves respect match the lesson on human dignity, so they are True.'},
+      {q:'A new student joins your class and looks different from everyone else. What should you do?', options:['Avoid talking to them','Treat them the same way you’d want to be treated, with respect','Make fun of how they look','Tell others not to be friends with them'], correct:1, explain:'Treating everyone with respect, regardless of how they look, is the core of valuing human dignity.', why:['Avoiding the new student leaves them alone just because they look different — that is not fair treatment.', '', 'Making fun of how someone looks hurts them and does not respect their dignity.', 'Telling others not to be friends with them is unfair and unkind.'], tip:'Use this question: "How would I want to be treated if I were the new student?" That choice is the answer.'}
+    ]
+  },
+  {
+    id:'faith',
+    icon:'🙏',
+    title:'Faith',
+    subtitle:'Believing in God and choosing what is good',
+    cards:[
+      {front:'What Is Faith?', back:'<b>Believing in God.</b>'},
+      {front:'Why Faith Matters', back:'Faith <b>guides us to choose what is good and avoid what is wrong</b>.'},
+      {front:'How Faith Helps Us Choose', back:'It <b>gives us guidance in doing what is right and good</b> &mdash; not just whatever makes us happy.'},
+      {front:'What Faith Is NOT', back:'Believing <b>only in yourself</b>, believing only in what you can <b>see</b>, or simply <b>following what other people do</b>.'},
+      {front:'Faith Does NOT Teach Us To&hellip;', back:'Get even when someone hurts us &middot; always put ourselves first &middot; do whatever we want &middot; think we are better than other people.'}
+    ],
+    quiz:[
+      {q:'What does &ldquo;faith&rdquo; mean?', options:['Believing in God','Believing only in oneself','Believing in what we can see','Following what other people do'], correct:0, explain:'Faith means <b>believing in God</b>.', why:['', 'Believing only in yourself is on the list of what faith is NOT.', 'Believing only in what you can see is on the list of what faith is NOT.', 'Simply following what other people do is on the list of what faith is NOT.'], tip:'Faith = believing in God. The other choices all come from the "What Faith Is NOT" card.'},
+      {q:'Why is faith important in a person&rsquo;s life?', options:['It guides us to choose what is good and avoid what is wrong.','It teaches us to get even when someone hurts us.','It teaches us to always put ourselves first.','It teaches us to do whatever we want.'], correct:0, explain:'Faith <b>guides</b> us toward what is good and away from what is wrong.', why:['', 'Getting even when someone hurts us is something faith does NOT teach.', 'Always putting ourselves first is something faith does NOT teach.', 'Doing whatever we want is something faith does NOT teach — faith guides us to do what is good.'], tip:'Faith points us to what is GOOD. Any choice about getting even, being selfish or doing whatever we want is wrong.'},
+      {q:'How does faith help us know what is right and wrong?', options:['It gives us guidance in doing what is right and good.','It makes us better than other people.','It tells us to do only what makes us happy.','It means we no longer need to listen to others.'], correct:0, explain:'Faith gives us <b>guidance</b> in doing what is right and good.', why:['', 'Faith does not make us better than other people — thinking that way is something faith does NOT teach.', 'Faith guides us to what is right and good, not just to whatever makes us happy.', 'Faith does not tell us to stop listening to others. It gives us guidance in doing what is right.'], tip:'Clue word: "guidance." Faith guides us, so look for the choice about doing what is right and good.'},
+      {q:'True or False: Faith means believing only in yourself.', options:['True','False'], correct:1, explain:'False — faith means <b>believing in God</b>, not only in yourself.', why:['"Only in yourself" makes this false. Faith means believing in God — believing only in yourself is what faith is NOT.', ''], tip:'If a sentence says faith is believing in something other than God, it is False.'},
+      {q:'True or False: Faith guides us to choose what is good and avoid what is wrong.', options:['True','False'], correct:0, explain:'Correct — that is why faith is important in a person&rsquo;s life.', why:['', 'This statement is true. Guiding us to choose good and avoid wrong is exactly why faith is important in a person\'s life.'], tip:'Remember why faith matters: it guides us to choose good and avoid wrong. A statement that says this is True.'},
+      {q:'True or False: Faith teaches us to get even when someone hurts us.', options:['True','False'], correct:1, explain:'False — getting even is the opposite of what faith teaches. Faith guides us to do what is <b>good</b>.', why:['Getting even is on the list of things faith does NOT teach. Faith guides us to do what is good.', ''], tip:'Getting even (paying someone back for hurting you) is never what faith teaches. Spot "get even" and answer False.'},
+      {q:'True or False: Faith can guide us in doing what is right and good.', options:['True','False'], correct:0, explain:'Correct — faith gives us guidance in doing what is right and good.', why:['', 'This statement is true. Faith gives us guidance in doing what is right and good.'], tip:'Faith + guidance + right and good = True. Look for those words together.'},
+      {q:'A classmate took your pencil without asking. Which choice shows faith guiding you?', options:['Calmly ask for it back and forgive her','Take something of hers so you are even','Tell the whole class that she is a thief','Refuse to ever talk to her again at all'], correct:0, explain:'Faith guides us to choose what is <b>good</b>, not to get even.', why:['', 'Taking something of hers so you are "even" is getting even — faith does not teach that.', 'Calling her a thief in front of the class hurts and embarrasses her. That is not choosing what is good.', 'Refusing to ever talk to her again is holding on to anger instead of forgiving.'], tip:'In a "someone hurt me" story, the faith choice is calm and forgiving — never getting even or hurting back.'},
+      {q:'Which of these is NOT something faith teaches us?', options:['to always put ourselves first','to choose what is good','to avoid what is wrong','to do what is right'], correct:0, explain:'Always putting ourselves first is one of the wrong answers on your test. The other three are what faith teaches.', why:['', 'Choosing what is good IS something faith teaches, so it is not the answer — we need the one faith does NOT teach.', 'Avoiding what is wrong IS something faith teaches, so it is not the answer — we need the one that is NOT.', 'Doing what is right IS something faith teaches, so it is not the answer — we need the one that is NOT.'], tip:'For NOT questions, cross out every choice that faith DOES teach. The one left over is your answer.'},
+      {q:'Which of these best describes a person guided by faith?', options:['She chooses what is right even when no one is watching.','She does whatever she wants, whenever she feels like it.','She believes only in the things that she can see herself.','She copies whatever her friends decide to do each day.'], correct:0, explain:'Faith guides us to do what is right and good, not whatever we want or whatever others do.', why:['', 'Doing whatever she wants is something faith does NOT teach.', 'Believing only in what she can see is on the list of what faith is NOT.', 'Copying her friends is "following what other people do," which is what faith is NOT.'], tip:'Check each choice against the "What Faith Is NOT" card. The one that is NOT on that card describes the person guided by faith.'}
+    ]
+  },
+  {
+    id:'strengthsave',
+    icon:'🌟',
+    title:'Strengths, Weaknesses & Saving',
+    subtitle:'The situations from your summative test',
+    cards:[
+      {front:'Knowing Yourself', back:'<b>Understanding your strengths, weaknesses, feelings, and interests.</b>'},
+      {front:'Why Know Your Strengths & Weaknesses?', back:'So you can <b>understand yourself and improve your abilities</b>.'},
+      {front:'Noticing a Weakness Is Good', back:'Ana gets nervous speaking in front of the class and realizes public speaking is a skill to improve. That shows she <b>understands one of her weaknesses and is willing to improve</b>.'},
+      {front:'Keep Your Strength, Work on Your Weakness', back:'Carlo is good at drawing but needs to improve reading. He should <b>keep developing his drawing while practicing his reading</b> &mdash; not stop drawing, ignore reading, or compare himself.'},
+      {front:'Why Save?', back:'Saving helps you <b>prepare for future needs and opportunities</b>.'},
+      {front:'Saving in Action', back:'Ana <b>saves part of her money for school supplies she may need later</b>. Spending everything on snacks, toys or things you do not need is the opposite.'},
+      {front:'The ₱200 Choice', back:'You need ₱100 for school supplies and want a ₱100 toy. Wisest: <b>buy the school supplies and save the rest</b>.'}
+    ],
+    quiz:[
+      {q:'Why is it important to understand your strengths and weaknesses?', options:['So, you can understand yourself and improve your abilities.','So, you can hide your weaknesses from everyone.','So, you can avoid trying new things.','So, you can feel better than others.'], correct:0, explain:'Knowing them helps you <b>understand yourself and improve</b>.', why:['', 'Hiding your weaknesses stops you from working on them. We learn our weaknesses so we can improve.', 'Avoiding new things is the opposite — knowing yourself helps you improve your abilities.', 'Knowing yourself is not about feeling better than others. It is about understanding and improving yourself.'], tip:'Ask: "Why do I need to know my weaknesses?" To get BETTER. Pick the choice that talks about improving.'},
+      {q:'What does &ldquo;knowing yourself&rdquo; mean?', options:['understanding your strengths, weaknesses, feelings, and interests','knowing what you like and dislike','copying what your friends do','trying to be better than everyone else'], correct:0, explain:'Likes and dislikes are only part of it. Knowing yourself means understanding your <b>strengths, weaknesses, feelings, and interests</b>.', why:['', 'Likes and dislikes are only part of it. Knowing yourself also means your strengths, weaknesses, feelings and interests.', 'Copying your friends is being like someone else, not knowing yourself.', 'Trying to be better than everyone is comparing yourself, not understanding yourself.'], tip:'When one choice is only part of the answer and another is the whole thing, pick the most complete choice.'},
+      {q:'Ana becomes nervous when speaking in front of the class. She realizes that public speaking is one of the skills she needs to improve. What does Ana&rsquo;s action show?', options:['She understands one of her weaknesses and is willing to improve.','She does not know herself.','She should avoid speaking in front of others forever.','She should compare herself with confident classmates.'], correct:0, explain:'Seeing a weakness and wanting to improve it shows she <b>knows herself</b>.', why:['', 'Ana does know herself — she noticed exactly which skill she needs to improve.', 'Avoiding speaking forever means giving up on the weakness instead of improving it.', 'Comparing herself with others does not help her improve. Practicing does.'], tip:'Noticing a weakness AND wanting to improve it is a good thing. Look for the choice that says "willing to improve."'},
+      {q:'Carlo knows that he is good at drawing but needs to improve his reading skills. What should Carlo do?', options:['Continue developing his drawing skills while practicing his reading.','Ignore his reading skills.','Stop drawing because reading is more important.','Compare himself with classmates who are good at reading.'], correct:0, explain:'Keep growing the strength <b>and</b> work on the weakness.', why:['', 'Ignoring his reading means his weakness gets no practice, so it will not improve.', 'Stopping drawing throws away his strength — he should keep developing it.', 'Comparing himself with classmates does not help him. Practicing his reading does.'], tip:'Remember: keep growing your strength AND work on your weakness. Pick the choice that does both.'},
+      {q:'How can the habit of saving help you in the future?', options:['to prepare for future needs and opportunities','to avoid helping others','to buy everything we want','to spend all our money right away'], correct:0, explain:'Saving prepares you for <b>future needs and opportunities</b>.', why:['', 'Saving is not about avoiding helping others — it is about preparing for the future.', 'Buying everything we want is spending, the opposite of saving.', 'Spending all our money right away leaves nothing saved for later.'], tip:'Saving looks FORWARD. Pick the choice with the word "future."'},
+      {q:'Which of the following situations shows the importance of saving for future needs?', options:['Ana saves part of her money for school supplies she may need later.','Liza uses all her savings to buy things she does not need.','Carlo buys toys whenever he sees something he likes.','Ben spends all his money on snacks every day.'], correct:0, explain:'Only Ana is keeping money for something she will <b>need later</b>.', why:['', 'Liza uses up her savings on things she does not need — that is the opposite of saving.', 'Carlo buys toys whenever he likes something, so he spends his money instead of saving it.', 'Ben spends all his money on snacks every day, so nothing is left for later.'], tip:'Look for the person who KEEPS money for something they will NEED later.'},
+      {q:'You have ₱200. You need ₱100 for school supplies and want to buy a ₱100 toy. What is the wisest thing to do?', options:['Buy the school supplies and save the remaining money.','Borrow more money to buy both.','Buy the toy and forget about the school supplies.','Buy the toy and spend the rest of the money on snacks.'], correct:0, explain:'Needs come first (school supplies), and the rest is <b>saved</b>.', why:['', 'Borrowing to buy both means spending more money than you have.', 'Forgetting the school supplies means giving up a need just to buy a want.', 'Buying the toy and snacks spends everything on wants and leaves out the school supplies.'], tip:'Needs first, then save the rest. Find the need in the story (school supplies) and pick the choice that buys it.'},
+      {q:'True or False: Knowing yourself only means knowing what you like and dislike.', options:['True','False'], correct:1, explain:'False — it also means understanding your <b>strengths, weaknesses, feelings, and interests</b>.', why:['"Only" makes this false. Knowing yourself also means understanding your strengths, weaknesses, feelings and interests.', ''], tip:'Spot the word "only" and ask: is that really all? Knowing yourself has four parts: strengths, weaknesses, feelings and interests.'},
+      {q:'True or False: Carlo should stop drawing so he can focus only on reading.', options:['True','False'], correct:1, explain:'False — he should <b>keep developing his drawing</b> while practicing his reading.', why:['"Stop drawing" makes this false. Carlo should keep developing his drawing while he practices his reading.', ''], tip:'You do not have to drop a strength to fix a weakness — you can do both.'},
+      {q:'True or False: Saving part of your money for school supplies you may need later shows the importance of saving.', options:['True','False'], correct:0, explain:'Correct — that is exactly what Ana did on your test.', why:['', 'This statement is true. Keeping money for school supplies you may need later is saving for future needs, just like Ana did.'], tip:'Saving money for something you will need later shows why saving is important. That is True.'},
+      {q:'True or False: Admitting that you need to improve a skill shows that you understand yourself.', options:['True','False'], correct:0, explain:'Correct — like Ana, who knew public speaking was a skill to improve.', why:['', 'This statement is true. Knowing which skill you need to improve means you understand yourself, like Ana with public speaking.'], tip:'Admitting a weakness is a sign that you know yourself, not a failure. Remember Ana.'}
+    ]
+  },
+  {
+    id:'dignitywords',
+    icon:'🔤',
+    title:'Human Dignity Word Bank',
+    subtitle:'Identification: what destroys human dignity',
+    cards:[
+      {front:'REFUGEE CRISIS', back:'A family is <b>forced to leave their home because of war</b> and must find a safe place to live.'},
+      {front:'LACK OF ACCESS TO BASIC NECESSITIES', back:'A family <b>does not have clean water, enough food, or a safe place</b> to live in.'},
+      {front:'HATE CRIMES', back:'The <b>unfair treatment of people because of their religion</b>.'},
+      {front:'FORCED CHILD LABOR', back:'A young child <b>works long hours every day instead of going to school</b>.'},
+      {front:'FAKE NEWS', back:'<b>Checking reliable sources</b> shows that the information is <b>false</b>.'},
+      {front:'Copy the Word Bank Exactly', back:'Write each answer <b>exactly as it is printed</b> in the word bank, in <b>CAPITAL LETTERS</b>. Your Human Dignity lesson calls it &ldquo;forced or child labor&rdquo;, but your test&rsquo;s word bank printed &ldquo;Forced Child Labor&rdquo;, so you wrote FORCED CHILD LABOR &mdash; and your teacher gave you the point.'}
+    ],
+    quiz:[
+      {q:'It is the situation in which a family is forced to leave their home because of war and must find a safe place to live.', options:['REFUGEE CRISIS','FAKE NEWS','HATE CRIMES','FORCED CHILD LABOR'], correct:0, explain:'Forced to leave home because of war &rarr; <b>REFUGEE CRISIS</b>.', why:['', 'FAKE NEWS is information that turns out to be false — nothing here is about information.', 'HATE CRIMES is unfair treatment of people because of their religion — this family is leaving because of war.', 'FORCED CHILD LABOR is a child working instead of going to school — this is about a whole family leaving home.'], tip:'Clue words "leave their home" and "war" point to REFUGEE CRISIS.'},
+      {q:'It is the situation in which a family does not have clean water, enough food, or a safe place to live in.', options:['LACK OF ACCESS TO BASIC NECESSITIES','REFUGEE CRISIS','FAKE NEWS','HATE CRIMES'], correct:0, explain:'No clean water, food or safe home &rarr; <b>LACK OF ACCESS TO BASIC NECESSITIES</b>.', why:['', 'REFUGEE CRISIS is being forced to leave home because of war — this family has not left; they are missing water, food and a safe home.', 'FAKE NEWS is false information — it is not about water or food.', 'HATE CRIMES is unfair treatment because of religion — it is not about missing water or food.'], tip:'Clue words "does not have" clean water, food or a safe place point to LACK OF ACCESS TO BASIC NECESSITIES.'},
+      {q:'It is the unfair treatment of people because of their religion.', options:['HATE CRIMES','FAKE NEWS','REFUGEE CRISIS','FORCED CHILD LABOR'], correct:0, explain:'Unfair treatment because of religion &rarr; <b>HATE CRIMES</b>.', why:['', 'FAKE NEWS is information that turns out to be false — this is about treating people unfairly.', 'REFUGEE CRISIS is a family leaving home because of war — it is not about religion.', 'FORCED CHILD LABOR is a child working instead of going to school — it is not about religion.'], tip:'Clue words "unfair treatment" and "religion" point to HATE CRIMES.'},
+      {q:'It is the situation in which a young child works long hours every day instead of going to school.', options:['FORCED CHILD LABOR','HATE CRIMES','REFUGEE CRISIS','LACK OF ACCESS TO BASIC NECESSITIES'], correct:0, explain:'A child working instead of going to school &rarr; <b>FORCED CHILD LABOR</b>.', why:['', 'HATE CRIMES is unfair treatment because of religion — this is about a child working.', 'REFUGEE CRISIS is a family leaving home because of war — this child is working, not leaving home.', 'LACK OF ACCESS TO BASIC NECESSITIES is having no clean water, food or safe home — this is about working instead of going to school.'], tip:'Clue words "young child," "works" and "instead of going to school" point to FORCED CHILD LABOR.'},
+      {q:'It is the practice of checking reliable sources and discovering that the information is false.', options:['FAKE NEWS','HATE CRIMES','REFUGEE CRISIS','FORCED CHILD LABOR'], correct:0, explain:'Information found to be false &rarr; <b>FAKE NEWS</b>.', why:['', 'HATE CRIMES is unfair treatment because of religion — this is about checking information.', 'REFUGEE CRISIS is leaving home because of war — nothing here is about war.', 'FORCED CHILD LABOR is a child working instead of going to school — it is not about information.'], tip:'Clue words "reliable sources" and "information is false" point to FAKE NEWS.'},
+      {q:'True or False: A refugee crisis happens when a family must leave their home because of war.', options:['True','False'], correct:0, explain:'Correct — they must find a safe place to live.', why:['', 'This statement is true. Being forced to leave home because of war and finding a safe place to live is exactly a refugee crisis.'], tip:'War + leaving home = REFUGEE CRISIS. Match the description to the word bank card.'},
+      {q:'True or False: Treating people unfairly because of their religion is called fake news.', options:['True','False'], correct:1, explain:'False — that is <b>HATE CRIMES</b>. Fake news is information that turns out to be false.', why:['The name is swapped. Unfair treatment because of religion is HATE CRIMES; fake news is information that turns out to be false.', ''], tip:'In True/False about names, check if the name matches the description. A swapped name makes it False.'},
+      {q:'True or False: A child working long hours every day instead of going to school is an example of forced child labor.', options:['True','False'], correct:0, explain:'Correct — it takes away the child&rsquo;s chance to go to school.', why:['', 'This statement is true. A young child working long hours instead of going to school is exactly forced child labor.'], tip:'Child + working long hours + no school = FORCED CHILD LABOR.'},
+      {q:'True or False: Having clean water, enough food, and a safe home is called lack of access to basic necessities.', options:['True','False'], correct:1, explain:'False — lack of access means <b>NOT</b> having clean water, enough food, or a safe place to live.', why:['The word "Having" makes this false. Lack of access means NOT having clean water, enough food or a safe home.', ''], tip:'"Lack" means "not having." Check whether the sentence says the family HAS the things or does NOT have them.'},
+      {q:'You read a surprising post online. What should you do before sharing it?', options:['Check reliable sources to see if it is true','Share it right away with all of your friends','Add your own details to make it more exciting','Believe it because so many people have liked it'], correct:0, explain:'Checking reliable sources is how you discover <b>fake news</b> before it spreads.', why:['', 'Sharing right away could spread fake news before you know if it is true.', 'Adding your own details makes the post even less true — that is how fake news is made.', 'Lots of likes do not make a post true. Only checking reliable sources shows that.'], tip:'Before you share, check! Reliable sources are how you catch fake news.'}
+    ]
+  },
+  {
+    id:'signs',
+    icon:'🚦',
+    title:'Traffic Signs',
+    subtitle:'Name the sign from its picture (Week 8)',
+    cards:[
+      {front:signCard('turnright'), back:'<b>TURN RIGHT</b> &mdash; a red circle with an arrow bending to the right. Vehicles must turn right here.'},
+      {front:signCard('stop'), back:'<b>STOP</b> &mdash; a red sign with <b>8 sides</b> (octagon). Come to a full stop and look before you go.'},
+      {front:signCard('pedcross'), back:'<b>PEDESTRIAN CROSSING</b> &mdash; a yellow diamond with a person walking on stripes. People cross here, so drivers slow down and let them pass.'},
+      {front:signCard('noovertake'), back:'<b>NO OVERTAKING</b> &mdash; two cars side by side in a red circle. Do not pass the vehicle in front of you.'},
+      {front:signCard('lights'), back:'<b>TRAFFIC LIGHTS</b> &mdash; <b>Red</b> = stop. <b>Yellow</b> = slow down, get ready to stop. <b>Green</b> = go, but still look.'},
+      {front:signCard('school'), back:'<b>SCHOOL ZONE</b> &mdash; two children walking on a yellow-green sign. A school is near: slow down and watch out for students.'},
+      {front:signCard('noentry'), back:'<b>NO ENTRY</b> &mdash; a red circle with a white bar across it. Vehicles must not enter this road.'},
+      {front:signCard('noped'), back:'<b>NO PEDESTRIAN</b> &mdash; a walking person crossed out with a red line. People must not walk or cross here.'},
+      {front:signCard('roadwork'), back:'<b>ROADWORK AHEAD</b> &mdash; a red triangle with a worker digging. The road ahead is being repaired: slow down and be careful.'},
+      {front:'Shape &amp; Color Clues', back:'<b>Red circle</b> = a rule you must obey. <b>8-sided red sign</b> = stop. <b>Triangle or diamond</b> = warning, be careful. Then look at the picture inside to name it.'}
+    ],
+    quiz:[
+      {art:sign('turnright'), q:'Which traffic sign is this?', options:['Turn right','Turn left','No entry','Stop'], correct:0, explain:'The arrow bends to the right &rarr; <b>TURN RIGHT</b>.', why:['', 'Turn left would need an arrow bending to the LEFT — this arrow bends to the right.', 'No entry is a red circle with a white bar across it — this sign shows an arrow, not a bar.', 'Stop is a red sign with 8 sides — this sign is a round circle with an arrow.'], tip:'Look at the shape first (circle, 8 sides or triangle), then at the picture inside. Here, follow which way the arrow bends.'},
+      {art:sign('stop'), q:'Which traffic sign is this?', options:['Stop','No entry','Traffic lights','No overtaking'], correct:0, explain:'A red 8-sided sign with a raised hand &rarr; <b>STOP</b>.', why:['', 'No entry is a red CIRCLE with a white bar — this sign has 8 sides.', 'Traffic lights show red, yellow and green lights — this is one red sign.', 'No overtaking shows two cars side by side in a red circle — there are no cars here.'], tip:'Count the sides! A red sign with 8 sides (an octagon) is always STOP.'},
+      {art:sign('pedcross'), q:'Which traffic sign is this?', options:['Pedestrian crossing','No pedestrian','School zone','Roadwork ahead'], correct:0, explain:'A person walking on stripes, with no red line through it &rarr; <b>PEDESTRIAN CROSSING</b>.', why:['', 'No pedestrian has a red line crossing out the walking person — this sign has no red line.', 'School zone shows TWO children walking — this shows one person walking on stripes.', 'Roadwork ahead shows a worker digging inside a red triangle — this person is walking on stripes.'], tip:'Yellow diamond + one person walking on stripes = PEDESTRIAN CROSSING. Always check for a red line: if there is none, people may cross.'},
+      {art:sign('noovertake'), q:'Which traffic sign is this?', options:['No overtaking','No entry','Turn right','Pedestrian crossing'], correct:0, explain:'Two cars side by side in a red circle &rarr; <b>NO OVERTAKING</b>.', why:['', 'No entry has only a white bar across the red circle — this one shows two cars.', 'Turn right shows an arrow bending to the right — this shows two cars side by side.', 'Pedestrian crossing is a yellow diamond with a walking person — this is a red circle with cars.'], tip:'Two cars side by side in a red circle means you must not pass the car in front — NO OVERTAKING.'},
+      {art:sign('lights'), q:'What is this?', options:['Traffic lights','Stop','School zone','No entry'], correct:0, explain:'Red, yellow and green lights &rarr; <b>TRAFFIC LIGHTS</b>.', why:['', 'Stop is one red sign with 8 sides — this has three lights: red, yellow and green.', 'School zone shows two children walking — there are no children here.', 'No entry is a red circle with a white bar — this has three colored lights.'], tip:'Three lights together (red, yellow and green) = TRAFFIC LIGHTS.'},
+      {art:sign('school'), q:'Which traffic sign is this?', options:['School zone','Pedestrian crossing','No pedestrian','Roadwork ahead'], correct:0, explain:'Two children walking with their bags &rarr; <b>SCHOOL ZONE</b>.', why:['', 'Pedestrian crossing shows ONE person walking on stripes — this sign shows two children.', 'No pedestrian has a walking person crossed out with a red line — these children are not crossed out.', 'Roadwork ahead shows a worker digging — these are two children walking.'], tip:'Count the people: two children walking on a yellow-green sign = SCHOOL ZONE.'},
+      {art:sign('noentry'), q:'Which traffic sign is this?', options:['No entry','Stop','No overtaking','No pedestrian'], correct:0, explain:'A white bar across a red circle &rarr; <b>NO ENTRY</b>.', why:['', 'Stop is a red sign with 8 sides — this is a circle with a white bar.', 'No overtaking shows two cars inside the red circle — this one has only a white bar.', 'No pedestrian shows a walking person crossed out — there is no person on this sign.'], tip:'A plain white bar across a red circle = NO ENTRY. There is no picture inside, just the bar.'},
+      {art:sign('noped'), q:'Which traffic sign is this?', options:['No pedestrian','Pedestrian crossing','School zone','No entry'], correct:0, explain:'The walking person is crossed out with a red line &rarr; <b>NO PEDESTRIAN</b>.', why:['', 'Pedestrian crossing shows a walking person with NO red line — here the person is crossed out.', 'School zone shows two children walking — this is one person crossed out with a red line.', 'No entry is a red circle with a white bar — this sign shows a person with a red line through it.'], tip:'A red line across a picture means "NO." A walking person with a red line = NO PEDESTRIAN.'},
+      {art:sign('roadwork'), q:'Which traffic sign is this?', options:['Roadwork ahead','School zone','No pedestrian','Stop'], correct:0, explain:'A worker digging inside a red triangle &rarr; <b>ROADWORK AHEAD</b>.', why:['', 'School zone shows two children walking — this shows a worker digging.', 'No pedestrian shows a walking person crossed out with a red line — this person is digging, not crossed out.', 'Stop is a red sign with 8 sides — this sign is a triangle.'], tip:'A triangle warns you to be careful. A worker digging inside = ROADWORK AHEAD.'},
+      {art:sign('noentry'), q:'True or False: This sign means NO OVERTAKING.', options:['True','False'], correct:1, explain:'False &mdash; a white bar on a red circle is <b>NO ENTRY</b>. No overtaking shows two cars.', why:['This sign has a white bar across a red circle, so it is NO ENTRY. No overtaking shows two cars side by side.', ''], tip:'Check the picture inside the red circle: a white bar = no entry, two cars = no overtaking.'},
+      {art:sign('pedcross'), q:'True or False: This sign tells drivers that people may be crossing the road here.', options:['True','False'], correct:0, explain:'Correct &mdash; it is <b>PEDESTRIAN CROSSING</b>, so drivers slow down and let people cross.', why:['', 'This statement is true. It is the PEDESTRIAN CROSSING sign — a person walking on stripes with no red line — so drivers slow down and let people cross.'], tip:'No red line through the walking person means people are allowed to cross here.'},
+      {art:sign('noped'), q:'True or False: This sign shows a safe place for people to cross the road.', options:['True','False'], correct:1, explain:'False &mdash; the red line means <b>NO PEDESTRIAN</b>: people must not walk or cross here.', why:['The red line crossing out the person means NO PEDESTRIAN — people must NOT walk or cross here, so it is not a safe place to cross.', ''], tip:'Red line = "no." Always look for a red line before deciding what a sign allows.'},
+      {q:'True or False: On a traffic light, the RED light means go.', options:['True','False'], correct:1, explain:'False &mdash; <b>red means stop</b>. Green means go.', why:['The colors are swapped. Red means stop; green means go.', ''], tip:'Memory hook: Red = Stop, Yellow = Slow down, Green = Go.'},
+      {art:sign('roadwork'), q:'True or False: This sign warns that the road ahead is being repaired, so drivers should slow down.', options:['True','False'], correct:0, explain:'Correct &mdash; it is <b>ROADWORK AHEAD</b>.', why:['', 'This statement is true. The worker digging in the red triangle is ROADWORK AHEAD — the road is being repaired, so drivers slow down.'], tip:'Triangle signs are warnings to slow down and be careful. The picture inside tells you what the danger is.'},
+      {art:sign('school'), q:'Your tito is driving you to school when you pass this sign. What should he do?', options:['Slow down and watch out for students crossing','Speed up so that you will not be late for class','Honk loudly so the students move out of the way','Overtake the slow jeepney that is in front of him'], correct:0, explain:'<b>SCHOOL ZONE</b> means students are near, so drivers slow down and watch carefully.', why:['', 'Speeding up near a school is dangerous — this sign tells drivers to slow down because students are near.', 'Honking at students does not keep them safe. The driver should slow down and watch out for them.', 'Overtaking near a school is risky while students may be crossing. The sign says slow down and be careful.'], tip:'First name the sign (two children = SCHOOL ZONE), then ask: what keeps the children safe? Slowing down.'},
+      {q:'The traffic light turns YELLOW as your family&rsquo;s car nears the corner. What does yellow tell the driver?', options:['Slow down and get ready to stop','Speed up to pass before it turns red','Stop the car and turn off the engine','Turn right at the corner right away'], correct:0, explain:'<b>Yellow</b> means slow down and get ready to stop &mdash; red is coming next.', why:['', 'Speeding up is the opposite of what yellow means — yellow says slow down.', 'Yellow does not mean stop and turn off the engine. It means slow down and get ready to stop.', 'Yellow is a light color, not an arrow — it does not tell the driver which way to turn.'], tip:'Yellow is in the middle, between go (green) and stop (red). So it means slow down and get ready to stop.'},
+      {art:sign('noovertake'), q:'A bus is moving slowly in front of your dad&rsquo;s car, and he sees this sign. What should your dad do?', options:['Stay behind the bus and do not pass it','Pass the bus quickly while no car is coming','Honk again and again until the bus moves aside','Turn around and drive back the other way'], correct:0, explain:'<b>NO OVERTAKING</b> means do not pass the vehicle in front, even if it is slow.', why:['', 'Passing the bus is overtaking, which this sign says not to do — even when no car is coming.', 'Honking again and again does not follow the sign. Your dad should simply stay behind the bus.', 'Turning around is not needed. The sign only says do not pass the vehicle in front.'], tip:'Name the sign first (two cars = NO OVERTAKING), then pick the choice that obeys it.'}
+    ]
+  },
+  {
+    id:'trafficrules',
+    icon:'🚸',
+    title:'Following Traffic Rules',
+    subtitle:'Why rules matter &amp; how to help others follow them',
+    cards:[
+      {front:'Traffic Rules', back:'Rules that <b>pedestrians, passengers and drivers</b> follow so that everyone on the road stays safe.'},
+      {front:'Why Follow Traffic Rules?', back:'They <b>keep us safe</b>, <b>prevent accidents and injuries</b>, keep traffic in order, and show <b>respect for the lives of others</b>.'},
+      {front:'A Safe Pedestrian&hellip;', back:'Walks on the sidewalk &middot; crosses only at the <b>pedestrian crossing</b> &middot; <b>stops and looks left and right</b> before crossing &middot; waits for the signal &middot; never plays or runs on the road.'},
+      {front:'A Safe Passenger&hellip;', back:'Wears a <b>seatbelt</b> (or a helmet on a motorcycle) &middot; stays seated &middot; keeps hands and head <b>inside</b> &middot; does not distract the driver &middot; gets on or off only when the vehicle has <b>fully stopped</b>.'},
+      {front:'Traffic Light Colors', back:'<b>Red</b> = stop &middot; <b>Yellow</b> = slow down, get ready to stop &middot; <b>Green</b> = go, but still look for cars.'},
+      {front:'How a Student Can Promote Traffic Rules', back:'<b>Be a good example</b> &middot; <b>kindly remind</b> friends and family &middot; make posters and slogans &middot; join school safety activities &middot; obey traffic enforcers and school guards.'}
+    ],
+    quiz:[
+      {q:'Why is it important to follow traffic rules?', options:['They keep everyone safe and help prevent accidents.','They help us reach places faster than other people.','They keep us from being scolded by the police.','They make walking on the road more fun for kids.'], correct:0, explain:'Traffic rules <b>keep everyone safe</b> and <b>prevent accidents</b>.', why:['', 'Traffic rules are not for getting places faster — they are for keeping everyone safe.', 'We follow traffic rules to stay safe and to respect others\' lives, not just to avoid being scolded.', 'Traffic rules are not about making the road fun. A safe pedestrian never plays on the road.'], tip:'The main reason for any traffic rule is SAFETY. Look for "safe" or "prevent accidents."'},
+      {q:'Mia is in a hurry, and the pedestrian crossing is a few steps away. What should she do?', options:['Walk to the pedestrian crossing and cross there','Run across the road right where she is standing','Squeeze between the parked cars and cross there','Follow a friend who is crossing in the middle'], correct:0, explain:'Even in a hurry, a safe pedestrian crosses at the <b>pedestrian crossing</b>.', why:['', 'Running across right where she is standing means not using the pedestrian crossing, which is dangerous.', 'The space between parked cars is not a crossing, and drivers may not see her.', 'Crossing in the middle, even with a friend, is not using the pedestrian crossing.'], tip:'Being in a hurry never changes the rule: cross at the pedestrian crossing.'},
+      {q:'You are at the pedestrian crossing. What should you do FIRST?', options:['Stop, then look left and right for cars','Close your eyes and walk quickly across','Look at your phone while you cross','Run fast so that no car can hit you'], correct:0, explain:'Always <b>stop and look left and right</b> before crossing.', why:['', 'Closing your eyes means you cannot see the cars — you must look left and right.', 'Looking at your phone takes your eyes off the road.', 'Running across without looking is dangerous. Stop and look first.'], tip:'Clue word "FIRST": the very first step is always to stop, then look left and right.'},
+      {q:'Your classmates are playing tag near the busy road outside the school. What is the BEST thing to do?', options:['Kindly remind them to play somewhere away from the road','Join them, because the game looks like a lot of fun','Ignore them, because it is not really your problem','Shout at them and call them names so they stop'], correct:0, explain:'<b>Kindly reminding</b> others is how a student helps others follow traffic rules.', why:['', 'Joining them puts you in danger too — playing near the road is not safe.', 'Ignoring them leaves them in danger. The lesson says to kindly remind others.', 'Shouting and calling names is unkind. The lesson says to KINDLY remind.'], tip:'The best way to help others follow rules is to be kind AND safe. Look for "kindly remind."'},
+      {q:'On the way to the mall, your little brother refuses to wear his seatbelt. What should you do?', options:['Help him buckle it and explain that it keeps him safe','Let him skip it since the trip is short anyway','Take off your own seatbelt so he will not feel alone','Laugh at him and tell your parents about it later'], correct:0, explain:'A safe passenger <b>wears a seatbelt</b> &mdash; and helping him is kind, too.', why:['', 'Even a short trip needs a seatbelt — a safe passenger always wears one.', 'Taking off your own seatbelt puts you in danger too.', 'Laughing at him is unkind, and it does not get his seatbelt on.'], tip:'Ask two questions: Is it safe? Is it kind? The right choice is both.'},
+      {q:'You are riding a jeepney and want to see the view outside. What should you do?', options:['Stay seated and keep your hands and head inside','Stick your arm out of the window to feel the wind','Stand on the back step so you can see better','Lean out of the window to wave at your friends'], correct:0, explain:'Passengers keep their <b>hands and head inside</b> the vehicle.', why:['', 'Sticking your arm out breaks the rule to keep your hands inside the vehicle.', 'Standing on the back step breaks the rule to stay seated.', 'Leaning out of the window breaks the rule to keep your head inside.'], tip:'Safe passenger rule: stay seated, with hands and head INSIDE.'},
+      {q:'As a student, how can you help encourage others to follow traffic rules in your school and community?', options:['Be a good example and kindly remind others to follow them','Follow traffic rules only when a teacher is watching you','Make fun of classmates who always wait at the crossing','Cross anywhere you like as long as no guard is looking'], correct:0, explain:'The best way to promote traffic rules is to <b>be a good example</b> and <b>kindly remind</b> others.', why:['', 'Following the rules only when a teacher is watching is not being a good example — rules are for all the time.', 'Making fun of classmates who wait at the crossing is unkind, and they are the ones doing it right.', 'Crossing anywhere breaks the rule to cross at the pedestrian crossing.'], tip:'To help OTHERS follow rules, first follow them yourself — be a good example.'},
+      {q:'The school guard signals students to wait at the crossing while cars pass. What should you do?', options:['Wait patiently and cross only when the guard signals','Cross anyway, since you are already late for class','Argue with the guard because you want to go first','Walk behind the guard and sneak across the road'], correct:0, explain:'Obeying the <b>school guard</b> and traffic enforcers is part of following traffic rules.', why:['', 'Being late does not make it safe to cross. Obey the guard.', 'Arguing with the guard is disrespectful. We obey traffic enforcers and school guards.', 'Sneaking across disobeys the guard and puts you in danger from the passing cars.'], tip:'When a guard or traffic enforcer gives a signal, obey it — they help keep everyone safe.'},
+      {q:'Your friend makes a poster that says &ldquo;Stop, Look and Listen before you cross!&rdquo; What is she doing?', options:['Encouraging others to follow traffic rules','Wasting her time on an art project','Breaking one of the school&rsquo;s rules','Showing others she is better than them'], correct:0, explain:'Posters and slogans are a way to <b>promote traffic rules</b>.', why:['', 'Making posters is not a waste of time — the lesson lists posters and slogans as a way to promote traffic rules.', 'Making a safety poster does not break any rule; it helps others follow the rules.', 'She is not showing off — she is helping others stay safe.'], tip:'Remember the ways a student promotes traffic rules: be a good example, kindly remind, make posters and slogans, join safety activities, obey guards.'},
+      {q:'You see a lola about to cross the street where there is no pedestrian crossing. What is the BEST thing to do?', options:['Politely show her the crossing or ask an adult to help','Laugh because she is walking so slowly across the road','Pull her by the arm and run across the road together','Pretend you did not see her and keep on walking'], correct:0, explain:'Helping others cross <b>safely and respectfully</b> is good manners and right conduct.', why:['', 'Laughing at her is disrespectful to an elder.', 'Pulling her arm and running is not safe — she could fall or get hurt.', 'Pretending not to see her leaves her in danger.'], tip:'Helping an elder should be safe AND polite. Look for the words "politely" and "help."'},
+      {q:'True or False: It is okay to cross the road anywhere as long as you run fast.', options:['True','False'], correct:1, explain:'False &mdash; cross only at the <b>pedestrian crossing</b>, after you stop and look.', why:['Running fast does not make it safe. You must cross only at the pedestrian crossing, after you stop and look.', ''], tip:'"Anywhere" is a warning word. The rule says to cross only at the pedestrian crossing.'},
+      {q:'True or False: Following traffic rules shows respect for our own life and for the lives of others.', options:['True','False'], correct:0, explain:'Correct &mdash; traffic rules protect <b>everyone</b> on the road.', why:['', 'This statement is true. Traffic rules protect everyone on the road, so following them shows respect for our own life and for others\' lives.'], tip:'Traffic rules are for everyone\'s safety, so a statement about respecting lives is True.'},
+      {q:'True or False: A passenger should get off a jeepney only when it has fully stopped.', options:['True','False'], correct:0, explain:'Correct &mdash; getting off a moving vehicle can cause accidents.', why:['', 'This statement is true. A safe passenger gets on or off only when the vehicle has fully stopped.'], tip:'Remember: never get on or off a moving vehicle — wait for it to stop completely.'},
+      {q:'True or False: Traffic rules are only for drivers, so pedestrians do not need to follow them.', options:['True','False'], correct:1, explain:'False &mdash; traffic rules are for <b>pedestrians, passengers and drivers</b>.', why:['"Only for drivers" makes this false. Traffic rules are for pedestrians, passengers AND drivers.', ''], tip:'Watch for "only." Traffic rules are for three groups: pedestrians, passengers and drivers.'},
+      {q:'True or False: A green light means go, but you should still look for cars before moving.', options:['True','False'], correct:0, explain:'Correct &mdash; always look first, even on green.', why:['', 'This statement is true. Green means go, but the lesson says to still look for cars before moving.'], tip:'Green = go, but keep your eyes open! Looking first is always part of being safe.'}
+    ]
+  },
+  {
+    id:'manners',
+    icon:'🎩',
+    title:'Good Manners & Right Conduct',
+    subtitle:'Kindness, honesty &amp; respect in everyday situations',
+    cards:[
+      {front:'Good Manners', back:'<b>Polite and respectful ways</b> we speak and act toward other people.'},
+      {front:'Right Conduct', back:'Choosing to do what is <b>right, honest and good</b> &mdash; even when no one is watching.'},
+      {front:'Magic Words', back:'&ldquo;<b>Please</b>,&rdquo; &ldquo;<b>Thank you</b>,&rdquo; &ldquo;<b>Sorry</b>,&rdquo; &ldquo;<b>Excuse me</b>&rdquo; &mdash; and <b>po</b> and <b>opo</b> when talking to elders.'},
+      {front:'Comfort Others', back:'When someone is hurt or sad, <b>stay with them</b>, ask if they are okay, and help them get help.'},
+      {front:'Be Honest', back:'If you find something that is not yours, <b>return it</b> to the owner or bring it to the <b>Lost and Found</b>.'},
+      {front:'Show Thanks', back:'Say <b>thank you</b> when someone gives you a gift, lends you something, or helps you.'},
+      {front:'Respect Elders', back:'Greet them politely, do the <b>mano</b>, <b>offer your seat</b>, and help them &mdash; like pushing a lola&rsquo;s wheelchair.'},
+      {front:'Respect During Prayer', back:'Stay <b>quiet</b>, bow your head, and pray or listen respectfully. Talk only after the prayer.'}
+    ],
+    quiz:[
+      {q:'During a game, a classmate falls and starts to cry. What shows right conduct?', options:['Help him up, check on him, and tell the teacher','Laugh, because the way he fell looked really funny','Keep on playing so your team will not lose','Grab the ball and go play somewhere else'], correct:0, explain:'Comforting someone who is hurt and <b>helping him get help</b> is right conduct.', why:['', 'Laughing at someone who is hurt is unkind and makes him feel worse.', 'Winning the game matters less than a hurt classmate. Stay with him and help.', 'Walking off with the ball leaves him alone while he is hurt.'], tip:'When someone is hurt, remember "Comfort Others": stay with them, ask if they are okay, and help them get help.'},
+      {q:'You find a wallet in the school hallway. What should you do?', options:['Bring it to the Lost and Found or give it to a teacher','Keep the money and throw the empty wallet away','Keep it all, because &ldquo;finders, keepers&rdquo;','Leave it on the floor for someone else to deal with'], correct:0, explain:'Returning what is not yours shows <b>honesty</b>.', why:['', 'Keeping the money is taking what is not yours — that is not honest.', '"Finders, keepers" is not honest. The wallet still belongs to its owner.', 'Leaving it on the floor does not help the owner get it back. Bring it to the Lost and Found.'], tip:'Ask yourself: "Whose is this?" If it is not yours, return it or bring it to the Lost and Found.'},
+      {q:'Your tita gives you a birthday gift that you do not really like. What should you do?', options:['Smile and say &ldquo;Thank you po&rdquo;','Tell her you do not like it at all','Give it back and ask for money','Put it down without saying anything'], correct:0, explain:'We <b>say thank you</b> to show appreciation for the thought and effort behind a gift.', why:['', 'Saying you do not like it hurts her feelings. We say thank you for the thought and effort behind a gift.', 'Giving it back and asking for money is rude and does not appreciate her gift.', 'Putting it down without a word does not show any thanks.'], tip:'For any gift, liked or not, the magic words are "Thank you po."'},
+      {q:'A lola gets on the crowded jeepney and there is no seat left for her. What should you do?', options:['Politely offer her your seat','Pretend to be asleep so she won&rsquo;t ask','Tell her to wait for the next jeepney','Put your bag on the seat next to you'], correct:0, explain:'<b>Offering your seat</b> is a way of respecting elders.', why:['', 'Pretending to be asleep avoids helping her — that is not respecting elders.', 'Telling her to wait for the next jeepney is not respectful. Offer your seat instead.', 'Putting your bag on the seat keeps a seat away from her.'], tip:'Remember the Respect Elders card: greet them, do the mano, OFFER YOUR SEAT, and help them.'},
+      {q:'Your class is praying before lunch, but your seatmate keeps whispering to you. What should you do?', options:['Stay quiet and pray; talk after the prayer','Whisper back so she will not feel ignored','Laugh out loud at what she is saying','Start eating your lunch while they pray'], correct:0, explain:'During prayer we stay <b>quiet and respectful</b>.', why:['', 'Whispering back is still talking during prayer. Talk only after the prayer.', 'Laughing out loud disturbs the prayer.', 'Eating while the others pray is not respectful. Wait until the prayer is done.'], tip:'During prayer: quiet, head bowed, pray or listen. Any noisy choice is the wrong one.'},
+      {q:'You accidentally bump a classmate, and his books fall on the floor. What should you do?', options:['Say &ldquo;Sorry&rdquo; and help him pick up the books','Walk away quickly before anyone notices it','Blame him for standing in your way','Laugh and tell him to be more careful'], correct:0, explain:'Saying <b>sorry</b> and helping fix the mistake is good manners.', why:['', 'Walking away hides your mistake instead of fixing it.', 'Blaming him is not fair — you were the one who bumped him.', 'Laughing and telling him to be careful blames him instead of saying sorry.'], tip:'When YOU cause an accident, use the magic word "Sorry" and help fix it.'},
+      {q:'You need to pass between two teachers who are talking in the hallway. What should you do?', options:['Say &ldquo;Excuse me po&rdquo; and pass politely','Run between them without saying a word','Push between them because you are in a hurry','Interrupt loudly and ask them to move aside'], correct:0, explain:'&ldquo;<b>Excuse me</b>&rdquo; plus <b>po</b> is the polite and respectful way.', why:['', 'Running between them without a word is not polite — say "Excuse me."', 'Pushing is rude, even when you are in a hurry.', 'Interrupting loudly is disrespectful. A quiet "Excuse me po" is enough.'], tip:'Passing between people? Use the magic words "Excuse me," plus po for elders.'},
+      {q:'A classmate lends you a pencil during a quiz. What shows good manners?', options:['Say thank you and return it in good condition','Keep it because she has many other pencils','Return it broken without saying a word','Lend it to someone else without asking her'], correct:0, explain:'<b>Thank</b> the person and <b>take care</b> of what you borrow.', why:['', 'Keeping it is not right — it is her pencil, even if she has many others.', 'Returning it broken without a word does not thank her or take care of what you borrowed.', 'Her pencil is not yours to lend. Lending it without asking is not respectful.'], tip:'The borrowing rule: say thank you, take care of it, and give it back in good condition.'},
+      {q:'During a quiz, you see your friend copying answers. Later she asks you to keep it a secret. What is the right thing to do?', options:['Kindly tell her cheating is wrong; urge her to tell the teacher','Help her copy again on the next quiz so she will like you','Tell the whole class so everyone will laugh at her','Copy answers too, since she did not get caught'], correct:0, explain:'Right conduct means choosing <b>honesty</b> &mdash; and helping a friend be honest with the teacher too.', why:['', 'Helping her copy again is joining in the cheating, which is not honest.', 'Telling the whole class so they laugh at her is unkind. The right way is to kindly talk to her.', 'Copying too because she did not get caught is still cheating. Right conduct means doing right even when no one is watching.'], tip:'Right conduct is honest AND kind. Pick the choice that is both.'},
+      {q:'True or False: Good manners are only needed when a teacher or a parent is watching.', options:['True','False'], correct:1, explain:'False &mdash; right conduct means doing good <b>even when no one is watching</b>.', why:['"Only when a teacher or parent is watching" makes this false. Right conduct means doing good even when no one is watching.', ''], tip:'Good manners are for all the time. "Only when someone is watching" is a sign the statement is False.'},
+      {q:'True or False: Saying &ldquo;po&rdquo; and &ldquo;opo&rdquo; when talking to elders is a sign of respect.', options:['True','False'], correct:0, explain:'Correct &mdash; <b>po</b> and <b>opo</b> show respect to older people.', why:['', 'This statement is true. Po and opo are part of the magic words we use when talking to elders.'], tip:'Remember the Magic Words card: please, thank you, sorry, excuse me — and po and opo for elders.'},
+      {q:'True or False: Returning a lost item to its owner shows honesty and right conduct.', options:['True','False'], correct:0, explain:'Correct &mdash; that is why schools have a <b>Lost and Found</b>.', why:['', 'This statement is true. Returning something that is not yours is honesty, and that is right conduct.'], tip:'Return it = honest. That matches the Be Honest card.'},
+      {q:'True or False: If someone gives you something you did not ask for, you do not need to say thank you.', options:['True','False'], correct:1, explain:'False &mdash; we <b>always</b> say thank you to show appreciation.', why:['The lesson says we always say thank you to show appreciation, even for something we did not ask for.', ''], tip:'Thank you is always right. A statement that says you "do not need" to thank someone is False.'}
+    ]
+  },
+  {
+    id:'sacred',
+    icon:'📖',
+    title:'Respecting Sacred Books',
+    subtitle:'Handling holy books and respecting every faith',
+    cards:[
+      {front:'Sacred Book', back:'A <b>holy book</b> that a religion treats with great respect, because it holds <b>God&rsquo;s word</b> or the religion&rsquo;s teachings.'},
+      {front:'Examples', back:'The <b>Bible</b> is the sacred book of <b>Christians</b>. The <b>Qur&rsquo;an</b> is the sacred book of <b>Muslims</b>.'},
+      {front:'Handle It with Care', back:'Hold it with <b>clean hands</b> &middot; keep it in a <b>clean, proper place</b> &middot; <b>never</b> put it on the floor, step on it, or sit on it.'},
+      {front:'Respect Every Faith', back:'Even if a sacred book is <b>not from your religion</b>, treat it with respect and <b>never make fun of it</b>.'},
+      {front:'Reading It', back:'Read it with a <b>quiet, respectful attitude</b>. Its teachings guide us to do what is good.'}
+    ],
+    quiz:[
+      {q:'What is a sacred book?', options:['A holy book that a religion treats with great respect','Any storybook that you can borrow from the library','A notebook where you write your daily homework','A comic book about heroes and their adventures'], correct:0, explain:'A sacred book is a <b>holy book</b> treated with great respect.', why:['', 'A library storybook is not a holy book — it does not hold God\'s word or a religion\'s teachings.', 'A homework notebook is for your school notes, not a holy book of a religion.', 'A comic book tells fun stories about heroes — it is not a holy book of a religion.'], tip:'Sacred = holy. Look for the choice about a holy book that a religion treats with great respect.'},
+      {q:'Which is the sacred book of Christians?', options:['The Bible','The Qur&rsquo;an','A dictionary','An atlas'], correct:0, explain:'Christians read the <b>Bible</b>.', why:['', 'The Qur\'an is the sacred book of Muslims, not Christians.', 'A dictionary is not a sacred book. The sacred books in the lesson are the Bible and the Qur\'an.', 'An atlas is not a sacred book. The sacred books in the lesson are the Bible and the Qur\'an.'], tip:'Memory hook: Christians — Bible; Muslims — Qur\'an. Cross out the books that are not sacred first.'},
+      {q:'Which is the sacred book of Muslims?', options:['The Qur&rsquo;an','The Bible','A dictionary','An atlas'], correct:0, explain:'Muslims read the <b>Qur&rsquo;an</b>.', why:['', 'The Bible is the sacred book of Christians, not Muslims.', 'A dictionary is not a sacred book. The sacred books in the lesson are the Bible and the Qur\'an.', 'An atlas is not a sacred book. The sacred books in the lesson are the Bible and the Qur\'an.'], tip:'Memory hook: Muslims — Qur\'an; Christians — Bible. Cross out the books that are not sacred, then match the religion.'},
+      {q:'Your little brother stands on the Bible to reach a high shelf. What should you do?', options:['Gently stop him and put the Bible back where it belongs','Let him, since it helps him reach the shelf faster','Laugh and take a video of him to show your friends','Give him more books to stand on so he gets higher'], correct:0, explain:'We <b>never step on</b> a sacred book &mdash; it belongs in a <b>proper place</b>.', why:['', 'Letting him stand on it is disrespectful — we never step on a sacred book.', 'Laughing and filming him makes fun of the sacred book instead of protecting it.', 'Giving him more books to stand on still has him stepping on the Bible.'], tip:'Handle with Care: never on the floor, never stepped on, never sat on. Put it back in its proper place.'},
+      {q:'Your Muslim classmate brings her Qur&rsquo;an to school, and some classmates make jokes about it. What should you do?', options:['Kindly tell them to respect it; it is her sacred book','Join in the jokes so that the others will like you too','Hide her Qur&rsquo;an in your bag while she is not looking','Say nothing and laugh quietly along with the others'], correct:0, explain:'We <b>respect every faith</b>, even when the sacred book is not ours.', why:['', 'Joining in the jokes makes fun of her sacred book — we never do that.', 'Hiding her Qur\'an is not respectful to her or to her sacred book.', 'Laughing quietly still joins in making fun of it.'], tip:'Respect Every Faith: even when a sacred book is not from your religion, treat it with respect.'},
+      {q:'You want to read the Bible right after playing outside with muddy hands. What should you do first?', options:['Wash and dry your hands','Wipe your hands on the pages','Put the Bible on the floor','Read it fast before the mud dries'], correct:0, explain:'Hold a sacred book with <b>clean hands</b>.', why:['', 'Wiping mud on the pages makes the sacred book dirty.', 'A sacred book is never put on the floor.', 'Reading fast with muddy hands still makes it dirty. Wash your hands first.'], tip:'Clean hands first! Any choice that dirties the book or puts it on the floor is wrong.'},
+      {q:'During Bible reading in class, your seatmate keeps folding and crumpling the pages. What should you do?', options:['Politely remind him to handle it with care','Crumple the pages of your own Bible too','Tear out a page and throw it at him','Tell the whole class to look and laugh'], correct:0, explain:'A sacred book is handled <b>with care and respect</b>.', why:['', 'Crumpling the pages of your own Bible copies the disrespect instead of stopping it.', 'Tearing out a page and throwing it is very disrespectful to a sacred book.', 'Making the class laugh at him is unkind, and it does not protect the book.'], tip:'Pick the choice that protects the book AND is polite: "politely remind."'},
+      {q:'True or False: It is okay to put a sacred book on the floor.', options:['True','False'], correct:1, explain:'False &mdash; keep it in a <b>clean, proper place</b>, never on the floor.', why:['We never put a sacred book on the floor. It belongs in a clean, proper place.', ''], tip:'Floor = never. Remember: clean hands and a clean place.'},
+      {q:'True or False: We should respect the sacred books of other religions, even if they are not ours.', options:['True','False'], correct:0, explain:'Correct &mdash; respecting every faith is good manners and right conduct.', why:['', 'This statement is true. We respect every faith, even when the sacred book is not ours.'], tip:'Respect is for ALL sacred books, not only the one from your own religion.'},
+      {q:'True or False: A sacred book should be kept in a clean and proper place.', options:['True','False'], correct:0, explain:'Correct &mdash; that shows respect for it.', why:['', 'This statement is true. Keeping a sacred book in a clean and proper place shows respect for it.'], tip:'Clean, proper place = respect. That is True.'},
+      {q:'True or False: It is fine to make fun of a sacred book if it is not from your religion.', options:['True','False'], correct:1, explain:'False &mdash; we <b>never make fun</b> of any sacred book.', why:['We never make fun of any sacred book, even one that is not from our religion.', ''], tip:'"If it is not from your religion" does not change the rule — respect every faith.'}
+    ]
+  },
+  {
+    id:'gratitude',
+    icon:'💝',
+    title:'Gratitude to Parents',
+    subtitle:'Saying and showing thanks at home',
+    cards:[
+      {front:'Gratitude', back:'Being <b>thankful</b> and <b>showing appreciation</b> for what others do for us.'},
+      {front:'What Our Parents Give Us', back:'Love and care, food, clothes, a home, and the chance to <b>go to school</b>.'},
+      {front:'Say It', back:'Tell your parents &ldquo;<b>Thank you</b>&rdquo; and &ldquo;<b>I love you</b>&rdquo; often &mdash; not only on special days.'},
+      {front:'Show It', back:'<b>Obey</b> them &middot; <b>help with chores</b> without being asked &middot; <b>study hard</b> &middot; take care of the things they buy you.'},
+      {front:'Respect Them', back:'Use <b>po</b> and <b>opo</b>, do the <b>mano</b>, and <b>listen to their advice</b>.'},
+      {front:'Remember Them', back:'<b>Pray for them</b>, make a card or letter, and <b>take care of them</b> when they are sick or old.'}
+    ],
+    quiz:[
+      {q:'How do we express our gratitude to our parents?', options:['By obeying, helping at home, and saying thank you','By asking them to buy more toys and new gadgets','By doing chores only when they pay us to do them','By listening to them only when we feel like it'], correct:0, explain:'We <b>say</b> thanks and <b>show</b> it by obeying and helping.', why:['', 'Asking for more toys is taking, not thanking.', 'Doing chores only when paid is not gratitude — we help because we appreciate them.', 'Listening only when we feel like it is not obeying them.'], tip:'Gratitude means SAY it (thank you) and SHOW it (obey and help). Look for the choice with both.'},
+      {q:'Your mom comes home tired from work. What is the BEST way to show gratitude?', options:['Greet her, do the mano, and offer to help','Ask her to cook your favorite food right away','Keep playing your game and wait for dinner','Complain to her that dinner is late again'], correct:0, explain:'A warm greeting and <b>offering help</b> show that you appreciate her hard work.', why:['', 'Asking her to cook right away adds to her tiredness instead of helping her.', 'Keeping on playing ignores her and her hard work.', 'Complaining is not thankful — she has been working hard all day.'], tip:'Ask yourself: "What would make her day easier?" Greeting her and helping show gratitude.'},
+      {q:'Your father worked extra hours to buy your new school shoes. How can you show your thanks?', options:['Thank him and take good care of the shoes','Wear them to play in the mud after class','Tell him you wanted a different brand','Lose them and ask him for a new pair'], correct:0, explain:'<b>Taking care of the things they buy</b> shows gratitude.', why:['', 'Playing in the mud ruins the shoes he worked extra hours to buy.', 'Saying you wanted a different brand does not thank him for his hard work.', 'Losing them and asking for a new pair does not take care of his gift.'], tip:'Show It card: take care of the things your parents buy you.'},
+      {q:'Your parents remind you to finish your homework before watching TV. What should you do?', options:['Say &ldquo;Opo&rdquo; and do your homework first','Argue that you will do it later tonight','Pretend to do it while watching TV','Wait until they leave, then watch TV'], correct:0, explain:'<b>Obeying</b> with respect is a way to show gratitude.', why:['', 'Arguing is not obeying with respect.', 'Pretending to do homework is not honest, and it is not obeying.', 'Waiting until they leave and then watching TV is still disobeying.'], tip:'"Opo" + doing it right away = obeying with respect. That is gratitude.'},
+      {q:'Your dad is sick in bed. What should you do?', options:['Bring him water, keep quiet, and help take care of him','Play loud music in the room to help him feel better','Ask him to drive you to the mall like he promised','Stay away from home and play at a friend&rsquo;s house'], correct:0, explain:'We <b>take care of our parents</b> when they are sick, just as they care for us.', why:['', 'Loud music disturbs a sick person who needs rest.', 'Asking a sick dad to drive you to the mall is thinking of yourself, not caring for him.', 'Staying away leaves him without help when he needs care.'], tip:'Remember Them card: take care of your parents when they are sick, just as they care for you.'},
+      {q:'It is your mom&rsquo;s birthday, but you have no money for a gift. What can you do?', options:['Make a handmade card or letter thanking her','Say nothing, since you cannot buy a present','Borrow money from a classmate to buy a gift','Remind her to buy you something on her birthday'], correct:0, explain:'A <b>card or letter</b> from the heart is a meaningful way to say thank you.', why:['', 'You do not need money to thank her — a card or letter says it from the heart.', 'Borrowing money is not needed. A handmade card or letter is a meaningful thank-you.', 'Asking for a gift on HER birthday is thinking of yourself, not thanking her.'], tip:'Gratitude does not need money. A card or letter from the heart is enough.'},
+      {q:'Your parents see your low grade and give you advice. What should you do?', options:['Listen respectfully and try to improve','Walk out of the room while they talk','Blame your teacher for the low grade','Hide your next report card from them'], correct:0, explain:'<b>Listening to their advice</b> shows respect and gratitude.', why:['', 'Walking out while they talk is disrespectful.', 'Blaming your teacher does not help you improve.', 'Hiding your report card is not honest with your parents.'], tip:'Respect Them card: listen to their advice and try to improve.'},
+      {q:'Before you sleep, you pray. How can you remember your parents in your prayer?', options:['Thank God for them and ask Him to bless them','Pray only for a new phone and nothing else at all','Skip your prayer because you are already sleepy','Ask God to make them buy you more toys'], correct:0, explain:'<b>Praying for our parents</b> is a way to remember and thank them.', why:['', 'Praying only for a new phone leaves your parents out of your prayer.', 'Skipping your prayer means you do not remember them at all.', 'Asking for toys is about you, not about thanking God for your parents.'], tip:'The question asks how to remember your PARENTS. Pick the prayer that is about them.'},
+      {q:'True or False: Studying hard is one way to show gratitude to our parents.', options:['True','False'], correct:0, explain:'Correct &mdash; they work hard to send us to school.', why:['', 'This statement is true. Studying hard shows gratitude, because our parents work hard to send us to school.'], tip:'Recall the Show It card: obey them, help with chores, study hard, and take care of the things they buy you.'},
+      {q:'True or False: We only need to thank our parents on their birthday.', options:['True','False'], correct:1, explain:'False &mdash; say thank you <b>often</b>, not only on special days.', why:['"Only on their birthday" makes this false. We say thank you often, not only on special days.', ''], tip:'"Only on special days" is a trap — gratitude is for every day.'},
+      {q:'True or False: Helping with household chores without being asked shows gratitude.', options:['True','False'], correct:0, explain:'Correct &mdash; it shows you appreciate all they do.', why:['', 'This statement is true. Helping with chores without being asked shows you appreciate everything they do.'], tip:'"Without being asked" is a good sign — it means you help because you care.'},
+      {q:'True or False: It is okay to answer our parents rudely when we are tired.', options:['True','False'], correct:1, explain:'False &mdash; we always speak to them with <b>respect</b>, using po and opo.', why:['Being tired does not make rudeness okay. We always speak to our parents with respect, using po and opo.', ''], tip:'Respect for parents has no exceptions. "It is okay to be rude when..." is always False.'}
+    ]
+  },
+  {
+    id:'ewaste',
+    icon:'♻️',
+    title:'E-waste',
+    subtitle:'What to do with old and broken gadgets',
+    cards:[
+      {front:'E-waste', back:'<b>Old, broken or unwanted electronic devices</b> &mdash; like cellphones, chargers, earphones, computers, TVs and batteries.'},
+      {front:'Why Is It Dangerous?', back:'It contains <b>harmful substances</b> (like lead and mercury) that can harm <b>people, animals, soil and water</b> if thrown away the wrong way.'},
+      {front:'DON&rsquo;T', back:'<b>Don&rsquo;t</b> throw e-waste in the regular trash, <b>don&rsquo;t burn it</b>, and <b>don&rsquo;t dump it</b> in rivers, canals or empty lots.'},
+      {front:'DO', back:'Bring it to an <b>e-waste collection or drop-off point</b>, or give it to a <b>proper recycler</b>.'},
+      {front:'Repair &amp; Reuse', back:'<b>Repair</b> a broken device if you can. <b>Donate</b> or pass on devices that still work.'},
+      {front:'Reduce', back:'<b>Take good care of your devices</b> so they last longer, and avoid buying new gadgets you do not need.'}
+    ],
+    quiz:[
+      {q:'What do we need to do with e-waste?', options:['Bring it to an e-waste collection point for proper recycling','Throw it in the regular trash bin with the other garbage','Burn it in the backyard so that it quickly disappears','Throw it into the river so it gets carried far away'], correct:0, explain:'E-waste goes to an <b>e-waste collection point</b> or a <b>proper recycler</b>.', why:['', 'The lesson says do NOT throw e-waste in the regular trash.', 'The lesson says do NOT burn e-waste — its harmful substances go into the air.', 'The lesson says do NOT dump e-waste in rivers — it can harm the water, animals and people.'], tip:'Remember the DON\'T list: no trash, no burning, no dumping. The DO is: an e-waste collection point or a proper recycler.'},
+      {q:'Which of these is e-waste?', options:['An old, broken cellphone','A pile of banana peels','Used paper plates','Dry leaves from the yard'], correct:0, explain:'E-waste is <b>electronic</b> &mdash; a broken cellphone.', why:['', 'Banana peels are food scraps, not an electronic device.', 'Paper plates are not an electronic device.', 'Dry leaves come from plants, not from electronic devices.'], tip:'E-waste = ELECTRONIC waste. Ask: "Is it an old or broken electronic device?"'},
+      {q:'Your old tablet still works, but you got a new one. What is the BEST thing to do with the old one?', options:['Donate it or give it to someone who can use it','Throw it in the trash since you do not need it','Smash it so that nobody else can ever use it','Bury it in the garden behind your house'], correct:0, explain:'Devices that still work can be <b>reused</b> by someone else.', why:['', 'It still works, so throwing it away wastes it — and e-waste never goes in the regular trash.', 'Smashing a tablet that still works wastes it and just makes more e-waste.', 'Burying it can let its harmful substances get into the soil.'], tip:'Still works? Reuse it — donate it or pass it on.'},
+      {q:'Your family&rsquo;s old TV is broken. A neighbor says to burn it with the garbage. What should you say?', options:['Burning it is harmful; bring it to an e-waste drop-off','That is a good idea, because it will be gone very quickly','Throw it in the canal instead so it will not make smoke','Just leave it out on the street for someone to take'], correct:0, explain:'<b>Never burn e-waste</b> &mdash; its harmful substances go into the air.', why:['', 'Burning is never a good idea — the harmful substances go into the air.', 'Throwing it in the canal is dumping, which harms the water.', 'Leaving it on the street is not proper disposal. Bring it to an e-waste drop-off.'], tip:'For broken gadgets, the only right place is an e-waste drop-off or a proper recycler.'},
+      {q:'You find old used batteries in a drawer. What should you do with them?', options:['Set them aside for an e-waste collection point','Throw them in the bin together with the food scraps','Toss them into the fire so they burn away','Give them to your baby brother to play with'], correct:0, explain:'Batteries are <b>e-waste</b> and go to a collection point.', why:['', 'Batteries are e-waste, so they do not go in the bin with food scraps.', 'Burning e-waste like batteries releases harmful substances.', 'Batteries contain harmful substances — they are not toys for a baby.'], tip:'Batteries are on the e-waste list! Keep them apart and bring them to a collection point.'},
+      {q:'Your charger broke because you always bent the cord. How can you reduce e-waste next time?', options:['Handle your new charger gently so it lasts longer','Bend the cord of the new charger even harder','Buy three chargers at once so you have extras','Leave the charger plugged in out in the rain'], correct:0, explain:'<b>Taking good care of devices</b> means less e-waste.', why:['', 'Bending the cord even harder will break it faster and make more e-waste.', 'Buying extra chargers you do not need goes against Reduce.', 'Leaving it in the rain will damage it — devices should be kept away from water.'], tip:'Reduce card: take good care of your devices so they last longer, and do not buy gadgets you do not need.'},
+      {q:'Your school holds an e-waste collection drive. How can your family help?', options:['Bring your old, broken gadgets to the drive','Ignore it, since it is only for the teachers','Bring your leftover food scraps to the drive','Keep the broken gadgets hidden at home forever'], correct:0, explain:'A <b>collection drive</b> is the right place for e-waste.', why:['', 'The drive is not only for teachers — families can help by bringing their old gadgets.', 'Food scraps are not e-waste, so they do not belong at an e-waste drive.', 'Hiding broken gadgets at home forever does not dispose of them properly.'], tip:'A collection drive is on the DO list: bring your old, broken gadgets there.'},
+      {q:'Why should e-waste NOT be thrown into rivers?', options:['Its harmful substances can pollute the water and harm fish and people','It will float on the water and look very ugly to people passing by','The river belongs to someone else, so you need their permission first','It will make the water in the river taste much sweeter than before'], correct:0, explain:'E-waste can <b>harm water, animals and people</b>.', why:['', 'The problem is not how it looks — its harmful substances pollute the water.', 'Permission is not the reason. E-waste should never be dumped in rivers at all.', 'E-waste does not make water sweeter. It pollutes the water and harms fish and people.'], tip:'E-waste is dangerous because of its harmful substances. Look for the words "harm" or "pollute."'},
+      {q:'True or False: E-waste can harm people and the environment if it is thrown away the wrong way.', options:['True','False'], correct:0, explain:'Correct &mdash; that is why it needs <b>proper disposal</b>.', why:['', 'This statement is true. E-waste has harmful substances that can hurt people, animals, soil and water if it is thrown away the wrong way.'], tip:'Remember "Why Is It Dangerous?": its harmful substances hurt people and the environment.'},
+      {q:'True or False: Burning old gadgets is a safe way to get rid of e-waste.', options:['True','False'], correct:1, explain:'False &mdash; burning releases <b>harmful substances</b> into the air.', why:['"Safe" makes this false. Burning releases harmful substances into the air — the lesson says don\'t burn e-waste.', ''], tip:'Burning is on the DON\'T list, so any statement that calls it safe is False.'},
+      {q:'True or False: Repairing a broken device instead of throwing it away helps reduce e-waste.', options:['True','False'], correct:0, explain:'Correct &mdash; <b>repair and reuse</b> means less e-waste.', why:['', 'This statement is true. Repairing and reusing a device means less e-waste.'], tip:'Repair & Reuse = less e-waste. Fixing is better than throwing away.'},
+      {q:'True or False: E-waste can be thrown in the same bin as food scraps.', options:['True','False'], correct:1, explain:'False &mdash; e-waste is kept apart and brought to a <b>collection point</b>.', why:['E-waste must be kept apart from food scraps and brought to a collection point.', ''], tip:'E-waste never goes with regular trash. Keep it separate.'}
+    ]
+  },
+  {
+    id:'devices',
+    icon:'📱',
+    title:'Using Devices Properly',
+    subtitle:'Screen time, online safety &amp; being kind online',
+    cards:[
+      {front:'Devices', back:'Gadgets like <b>cellphones, tablets, laptops and computers</b> that help us learn and communicate.'},
+      {front:'Use Them for Good', back:'For <b>learning and research</b>, and for keeping in touch with family.'},
+      {front:'Balance Your Screen Time', back:'Follow the <b>time limit your parents set</b> &middot; take <b>breaks</b> to rest your eyes &middot; leave time for study, play, chores, family and sleep.'},
+      {front:'Ask Permission', back:'Ask your parents <b>before</b> using a device, downloading an app, or going online.'},
+      {front:'Stay Safe Online', back:'<b>Never share</b> your password, address or personal information &middot; don&rsquo;t chat with or meet strangers &middot; <b>tell a parent or teacher</b> if something online makes you uncomfortable.'},
+      {front:'Be Kind Online', back:'<b>Think before you post</b> &middot; never bully, tease or spread rumors &middot; <b>ask permission</b> before posting someone&rsquo;s photo.'},
+      {front:'Device Manners', back:'Put devices away during <b>meals, class and prayer</b> unless allowed. Keep them away from water and handle them with clean hands.'}
+    ],
+    quiz:[
+      {q:'How do we use our devices properly?', options:['For learning, with our parents&rsquo; permission and a time limit','For playing games all night long until we fall asleep','During class whenever we want, even without permission','By sharing our password with everyone we chat with'], correct:0, explain:'Use devices <b>for good</b>, with <b>permission</b> and a <b>time limit</b>.', why:['', 'Playing all night breaks the time limit and leaves no time for sleep.', 'Using devices in class without permission breaks device manners.', 'Sharing your password is never safe online.'], tip:'Proper device use has 3 parts: use it for good, with permission, and with a time limit.'},
+      {q:'Your screen time is over, but you are in the middle of a game. What should you do?', options:['Stop the game and follow the time limit','Hide in your room and keep on playing','Cry until your parents give you more time','Borrow a friend&rsquo;s phone and keep playing'], correct:0, explain:'Following the <b>time limit</b> your parents set is proper device use.', why:['', 'Hiding in your room to keep playing is disobeying the time limit.', 'Crying for more time does not follow the limit your parents set.', 'Borrowing a friend\'s phone is still breaking the time limit.'], tip:'When time is up, it is up. Follow the limit your parents set.'},
+      {q:'Someone you do not know online asks for your home address and school. What should you do?', options:['Do not answer, and tell a parent or teacher','Give it, because they seem really friendly','Give only the name of your school to them','Ask for their address first, then give yours'], correct:0, explain:'<b>Never share personal information</b> with strangers, and tell a trusted adult.', why:['', 'Seeming friendly does not make a stranger safe — never share personal information.', 'The name of your school is personal information too. Do not give it to a stranger.', 'Trading addresses still gives your personal information to a stranger.'], tip:'Stranger + personal information = do not share, and tell a parent or teacher.'},
+      {q:'A classmate posts an embarrassing photo of another classmate, and others laugh at it. What should you do?', options:['Do not share or laugh at it, and tell a teacher','Share it to your group chat to spread the fun','Write a funny comment under the photo','Click like so your classmate feels happy'], correct:0, explain:'<b>Be kind online</b> &mdash; never join in teasing, and tell a trusted adult.', why:['', 'Sharing it spreads the teasing to even more people. Being kind online means never joining in.', 'A funny comment joins in the teasing.', 'Clicking like shows you agree with the teasing — it does not make your classmate happy.'], tip:'Be Kind Online: if a post hurts someone, do not share, comment or like it — tell a teacher.'},
+      {q:'Your phone keeps buzzing during family dinner. What should you do?', options:['Put it away, enjoy dinner, and check it later','Answer every message quickly while you keep eating','Watch videos while eating so dinner is more fun','Keep it on the table and ignore your family'], correct:0, explain:'Put devices away during <b>meals</b> &mdash; family time comes first.', why:['', 'Answering messages while eating takes you away from family time.', 'Watching videos during meals breaks device manners.', 'Keeping it on the table and ignoring your family is not right — family time comes first.'], tip:'Device Manners: meals, class and prayer are "phone away" times.'},
+      {q:'You want to download a new game app. What should you do first?', options:['Ask your parents for permission','Download it secretly at night','Use mom&rsquo;s password without asking','Download many games all at once'], correct:0, explain:'Always <b>ask permission</b> before downloading apps.', why:['', 'Downloading it secretly means you did not ask permission.', 'Using mom\'s password without asking is not honest, and it skips permission.', 'Downloading many games at once still skips asking permission.'], tip:'Before any download, the first step is always: ask your parents.'},
+      {q:'Your friend asks for your password so he can &ldquo;help&rdquo; level up your game. What should you do?', options:['Politely say no and keep your password private','Give it, because he is your good friend','Post your password in your group chat','Write your password on the classroom board'], correct:0, explain:'<b>Never share your password</b>, even with friends.', why:['', 'Even a good friend should not get your password — keep it private.', 'Posting your password in a group chat lets many people see it.', 'Writing it on the board shows your password to the whole class.'], tip:'Your password is private. Never share it, not even with friends.'},
+      {q:'You get a message online that makes you feel scared and uncomfortable. What should you do?', options:['Tell a parent or teacher right away','Keep it a secret from everyone','Reply with an angry message','Forward it to all your friends'], correct:0, explain:'<b>Tell a trusted adult</b> whenever something online makes you uncomfortable.', why:['', 'Keeping it a secret means no one can help you.', 'An angry reply can make things worse. Tell a trusted adult instead.', 'Forwarding it spreads the scary message to your friends.'], tip:'Something online makes you uncomfortable? Tell a parent or teacher right away.'},
+      {q:'You want to post a picture of your classmate online. What should you do first?', options:['Ask her permission before posting it','Post it right away without asking her','Take the picture secretly so she won&rsquo;t know','Edit it to make her look funny, then post it'], correct:0, explain:'<b>Ask permission</b> before posting someone else&rsquo;s photo.', why:['', 'Posting it without asking breaks the rule to ask permission first.', 'Taking the picture secretly skips asking her permission.', 'Editing her to look funny is teasing — that is being unkind online.'], tip:'Someone else\'s photo? Ask permission first, and think before you post.'},
+      {q:'True or False: Taking short breaks from the screen to rest your eyes is a good habit.', options:['True','False'], correct:0, explain:'Correct &mdash; <b>breaks</b> are part of balancing screen time.', why:['', 'This statement is true. Taking breaks to rest your eyes is part of balancing your screen time.'], tip:'Balance Your Screen Time card: follow the time limit, take breaks, and leave time for other things.'},
+      {q:'True or False: Posting a friend&rsquo;s photo without her permission is okay if she looks nice in it.', options:['True','False'], correct:1, explain:'False &mdash; always <b>ask permission</b> first.', why:['Looking nice does not change the rule — always ask permission before posting someone\'s photo.', ''], tip:'Watch for "okay if..." — an excuse never replaces asking permission.'},
+      {q:'True or False: Devices can be used for learning, like researching a school project.', options:['True','False'], correct:0, explain:'Correct &mdash; that is using devices <b>for good</b>.', why:['', 'This statement is true. Using devices for learning and research is using them for good.'], tip:'Use Them for Good card: learning, research, and keeping in touch with family.'},
+      {q:'True or False: It is okay to use your phone during class whenever you feel bored.', options:['True','False'], correct:1, explain:'False &mdash; put devices away during <b>class</b> unless your teacher allows it.', why:['Feeling bored is not permission. Devices are put away during class unless your teacher allows it.', ''], tip:'"Whenever you feel" is a trap. In class, only your teacher can allow devices.'}
+    ]
+  }
+];
+
+// Questions she may answer by typing first (+5 bonus). Value: other accepted answers.
+const TYPE_IT = {
+  "It is the situation in which a family is forced to leave their home because of war and must find a safe place to live.": [],
+  "It is the situation in which a young child works long hours every day instead of going to school.": ["child labor"],
+  "What is this?": ["traffic light"],
+  "Which is the sacred book of Christians?": ["Bible"],
+  "Which is the sacred book of Muslims?": ["Quran", "Qur'an"],
+};
+
+const FINAL_EXAM_PER_LESSON = 3;
+const SH = window.StudyHistory, SH_APP = 'rise-shine', SH_TITLE = 'Rise & Shine';
+let historyLessonId = null, historyQuizId = null;
+const STORAGE_KEY = 'riseshine_progress_v1';
+/* Points are cumulative and deliberately survive ?reset=1 — stars reset each visit, points never do. */
+const POINTS_KEY = 'riseshine_points_v1';
+const POINTS_PER_CORRECT = 10, EXAM_POINTS_PER_CORRECT = 20, STREAK_BONUS = 5, STREAK_BONUS_AT = 3;
+function loadTotalPoints(){ try{ return parseInt(localStorage.getItem(POINTS_KEY), 10) || 0; }catch(e){ return 0; } }
+function saveTotalPoints(n){ try{ localStorage.setItem(POINTS_KEY, String(n)); }catch(e){} if(window.Wallet && Wallet.renderCoins) Wallet.renderCoins(); }
+let totalPoints = loadTotalPoints();
+
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveProgress(p){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }catch(e){}
+}
+let progress = loadProgress();
+/* Opened from the lobby with ?reset=1 -> start a completely fresh run. */
+const STARS_DAY_KEY = STORAGE_KEY + '_day';
+const starsToday = (function(d){ return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); })(new Date());
+let starsDay = null;
+try{ starsDay = localStorage.getItem(STARS_DAY_KEY); }catch(e){}
+if (starsDay !== starsToday){
+  progress = {};
+  saveProgress(progress);
+  try{ localStorage.setItem(STARS_DAY_KEY, starsToday); }catch(e){}
+}
+if (/(^|[?&])reset=1(&|$)/.test(location.search)){
+  SH && SH.appOpened(SH_APP, SH_TITLE);
+  if (window.history && window.history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+// Recall decides whether this question pays, shows a typing box, and offers power-ups.
+function offerQuestion(pu){
+  if (window.Recall) Recall.ask(pu, SH_APP, typeof TYPE_IT === 'undefined' ? null : TYPE_IT);
+  else if (window.PowerUps) PowerUps.offer(pu);
+}
+function prepareQuestion(q){
+  const order = shuffle(q.options.map((_,i)=>i));
+  const options = order.map(i=>q.options[i]);
+  const correct = order.indexOf(q.correct);
+  const why = q.why ? order.map(i=>q.why[i]) : [];
+  const whyEn = q.whyEn ? order.map(i=>q.whyEn[i]) : [];
+  return {q:q.q, art:q.art, options, correct, explain:q.explain, why, whyEn, tip:q.tip, tipEn:q.tipEn};
+}
+function starsFor(pct){
+  if(pct >= 1) return 3;
+  if(pct >= 0.8) return 2;
+  if(pct >= 0.5) return 1;
+  return 0;
+}
+function starString(n){
+  let s='';
+  for(let i=0;i<3;i++) s += i<n ? '★' : '<span class="off">★</span>';
+  return s;
+}
+
+function medalMarkup(n){
+  const show = i => n>=i ? 1 : 0.06;
+  return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="82,88 58,214 100,182" fill="var(--coral)" opacity="${show(1)}"/>
+    <polygon points="118,88 142,214 100,182" fill="var(--accent)" opacity="${show(2)}"/>
+    <circle cx="100" cy="88" r="56" fill="#C9B79C" opacity="${show(3)}"/>
+    <circle cx="100" cy="88" r="48" fill="var(--gold)" opacity="${show(4)}"/>
+    <circle cx="100" cy="88" r="48" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="${show(5)}"/>
+    <polygon points="100,58 108,80 132,80 112,94 120,117 100,103 80,117 88,94 68,80 92,80" fill="var(--accent-dark)" opacity="${show(6)}"/>
+    <path d="M62,58 Q100,36 138,58" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round" opacity="${show(7)}"/>
+    <g opacity="${show(8)}">
+      <circle cx="34" cy="46" r="4" fill="var(--gold)"/>
+      <circle cx="166" cy="52" r="3" fill="var(--coral)"/>
+      <circle cx="152" cy="150" r="4" fill="var(--gold)"/>
+      <circle cx="46" cy="150" r="3" fill="var(--accent)"/>
+      <text x="100" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent-dark)" font-family="Baloo 2, cursive">CHAMPION</text>
+    </g>
+  </svg>`;
+}
+
+const STRATEGY = [
+  {kicker:'True or False Tip #1', title:'Watch for absolute words', body:'Words like "always," "never," "only," and "must" often make a statement FALSE — real life almost always has exceptions. If you see one of these words, read the sentence extra carefully.'},
+  {kicker:'True or False Tip #2', title:'One false part = the whole thing is False', body:'If any single part of a True/False sentence is wrong, mark the WHOLE sentence False — even if the rest of it sounds correct.'},
+  {kicker:'Situational Tip #1', title:'Name the value being tested first', body:'Before choosing an answer, ask: "Is this about respect? Honesty? Saving money? Self-control? Human dignity?" Naming the value points you straight to the correct choice.'},
+  {kicker:'Situational Tip #2', title:'Pick the BEST answer, not just a good one', body:'Teachers often include an option that is "good but not the best." Choose the most responsible, most caring, or most complete action — not just any nice-sounding one.'},
+  {kicker:'Situational Tip #3', title:'Connect it to a lesson example', body:'Ask yourself which lesson this reminds you of — Needs vs Wants? The 5 Ways to Value Yourself? The 3 Ways to Respect Human Life? Matching it to what you studied makes the answer obvious.'},
+  {kicker:'Traffic Sign Tip', title:'Read the shape and color first', body:'A <b>red circle</b> is a rule you must obey, an <b>8-sided red sign</b> is STOP, and a <b>triangle or diamond</b> is a warning. Then check the picture inside: a <b>red line through it</b> means NO (like No Pedestrian).'},
+  {kicker:'Situational Tip #4', title:'Safety and respect win', body:'For traffic, e-waste and device questions, the right answer is the one that keeps <b>everyone safe</b> and asks a <b>parent or teacher</b> when unsure. For manners and gratitude, it is the one that is <b>polite, honest and helpful</b>.'},
+  {kicker:'Identification Tip', title:'Copy the word bank exactly', body:'Write the answer <b>exactly as the word bank prints it</b>, in <b>CAPITAL LETTERS</b>. Do not add, drop or change words &mdash; the computer checks letter by letter, even when your teacher later fixes it.'},
+  {kicker:'General Tip', title:'Reread before you finalize', body:'After choosing an answer, read the question one more time with your answer in mind. If it still makes sense and feels responsible and kind, you’ve got it right.'},
+  {kicker:'General Tip', title:'Eliminate the "unkind" options first', body:'In situational questions, cross out any choice that is unkind, disrespectful, dishonest, or wasteful right away — the real answer is almost never one of those.'},
+  {kicker:'Time Management', title:'Don’t stall on one item', body:'If a question is tricky, mark your best guess, keep moving, and come back later if there’s time. Finishing the whole test matters more than perfecting one question.'}
+];
+
+let currentLessonIdx = null;
+let flashIdx = 0;
+let currentQuizSet = [];
+let currentQuizMeta = null;
+let quizIdx = 0;
+let missedQuestions = [];
+function learnEn(text){
+  return text ? '<div class="fb-en"><b>Sa English:</b> ' + text + '</div>' : '';
+}
+function learnHtml(m){
+  return '<div class="learn">' +
+    '<div class="learn-title">Not quite &mdash; let&rsquo;s learn from this!</div>' +
+    '<div class="learn-row learn-picked"><b class="learn-label">You picked</b><span class="learn-choice">' + m.picked + '</span>' +
+      (m.why ? '<span class="learn-why">Why that&rsquo;s not right: ' + m.why + '</span>' + learnEn(m.whyEn) : '') + '</div>' +
+    '<div class="learn-row learn-right"><b class="learn-label">The right answer</b><span class="learn-choice">' + m.answer + '</span>' +
+      '<span class="learn-why">' + m.explain + '</span></div>' +
+    (m.tip ? '<div class="learn-row learn-tip"><b class="learn-label">&#128161; Tip for next time</b>' + m.tip + learnEn(m.tipEn) + '</div>' : '') +
+  '</div>';
+}
+function renderMissedReview(){
+  const el = document.getElementById('missedReview');
+  el.style.display = missedQuestions.length ? 'block' : 'none';
+  el.innerHTML = missedQuestions.length
+    ? '<h3>Questions to Review</h3><div class="missed-list">' +
+      missedQuestions.map(m => '<div class="missed-item"><p class="missed-q">' + m.q + '</p>' + learnHtml(m) + '</div>').join('') + '</div>'
+    : '';
+}
+let quizScore = 0;
+let sessionPoints = 0, streak = 0, bestStreak = 0;
+
+function updatePointsLive(){
+  const el = document.getElementById('points-live');
+  if(!el) return;
+  el.innerHTML = '⭐ ' + sessionPoints + ' pts' + (streak >= 2 ? ' <span class="streak">🔥 x' + streak + '</span>' : '') + (window.Wallet && Wallet.liveHtml ? Wallet.liveHtml() : '');
+}
+
+function cardKey(e){
+  if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){
+    e.preventDefault();
+    e.currentTarget.click();
+  }
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){ renderHome(); showScreen('home'); }
+
+function renderHome(){
+  document.getElementById('points-total-badge').textContent = '⭐ ' + totalPoints + ' points earned';
+  const list = document.getElementById('homeList');
+  const finalTotal = LESSONS.length * FINAL_EXAM_PER_LESSON;
+  const finalBest = progress['final'] || 0;
+  let html = '';
+
+  html += `<div class="item-card final-card" role="button" tabindex="0" onclick="startFinalExam()" onkeydown="cardKey(event)">
+    <div class="icon">🏆</div>
+    <div class="info">
+      <span class="final-badge">Mock Exam</span>
+      <h3>Full Mock Exam</h3>
+      <p>${finalTotal} mixed questions from all ${LESSONS.length} lessons</p>
+    </div>
+    <div class="stars">${starString(starsFor(finalBest/finalTotal))}</div>
+  </div>`;
+
+  html += `<div class="item-card strategy-card" role="button" tabindex="0" onclick="showScreen('strategyScreen')" onkeydown="cardKey(event)">
+    <div class="icon">🎯</div>
+    <div class="info">
+      <h3>Exam Strategy</h3>
+      <p>How to ace True/False & situational questions</p>
+    </div>
+  </div>`;
+
+  LESSONS.forEach((l,i)=>{
+    const best = progress[l.id] || 0;
+    html += `<div class="item-card" role="button" tabindex="0" onclick="openLesson(${i})" onkeydown="cardKey(event)">
+      <div class="icon">${l.icon}</div>
+      <div class="info">
+        <h3>${l.title}</h3>
+        <p>${l.subtitle}</p>
+      </div>
+      <div class="stars">${starString(starsFor(best/l.quiz.length))}</div>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+}
+
+function openLesson(i){
+  currentLessonIdx = i;
+  flashIdx = 0;
+  historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].cards.length) : null;
+  document.getElementById('flashTitle').textContent = LESSONS[i].title;
+  renderFlash();
+  showScreen('flashScreen');
+}
+/* Card and question text may contain simple markup (<b>, entities) written by
+   the lesson author, so these render as HTML, not literal text. Content is
+   author-supplied only — never user input. */
+function renderFlash(){
+  const l = LESSONS[currentLessonIdx];
+  const c = l.cards[flashIdx];
+  SH && SH.cardViewed(historyLessonId, flashIdx + 1);
+  document.getElementById('flashFront').innerHTML = c.front;
+  document.getElementById('flashBack').innerHTML = c.back;
+  document.getElementById('flashBack').style.display = 'none';
+  document.getElementById('flashFront').style.display = 'block';
+  document.getElementById('flashTag').textContent = 'Term';
+  document.getElementById('flashHint').textContent = 'Tap the card to flip';
+  document.getElementById('flashDots').textContent = `${flashIdx+1} / ${l.cards.length}`;
+}
+function flipCard(){
+  const front = document.getElementById('flashFront');
+  const back = document.getElementById('flashBack');
+  const flipped = back.style.display !== 'none';
+  front.style.display = flipped ? 'block' : 'none';
+  back.style.display = flipped ? 'none' : 'block';
+  document.getElementById('flashTag').textContent = flipped ? 'Term' : 'Meaning';
+}
+function nextCard(){
+  const l = LESSONS[currentLessonIdx];
+  flashIdx = (flashIdx+1) % l.cards.length;
+  renderFlash();
+}
+function prevCard(){
+  const l = LESSONS[currentLessonIdx];
+  flashIdx = (flashIdx-1+l.cards.length) % l.cards.length;
+  renderFlash();
+}
+
+function startQuiz(){
+  const l = LESSONS[currentLessonIdx];
+  currentQuizSet = shuffle(l.quiz).map(prepareQuestion);
+  currentQuizMeta = {id:l.id, title:l.title};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  sessionPoints = 0; streak = 0; bestStreak = 0;
+  document.getElementById('quizTitle').textContent = l.title;
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+
+function startFinalExam(){
+  let qs = [];
+  LESSONS.forEach(l=>{
+    qs = qs.concat(shuffle(l.quiz).slice(0, FINAL_EXAM_PER_LESSON));
+  });
+  currentQuizSet = shuffle(qs).map(prepareQuestion);
+  currentQuizMeta = {id:'final', title:'Full Mock Exam'};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  sessionPoints = 0; streak = 0; bestStreak = 0;
+  document.getElementById('quizTitle').textContent = 'Full Mock Exam';
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+
+function renderQuestion(){
+  const total = currentQuizSet.length;
+  const q = currentQuizSet[quizIdx];
+  document.getElementById('quizCounter').textContent = `Question ${quizIdx+1} of ${total}`;
+  document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
+  updatePointsLive();
+  document.getElementById('quizFill').style.width = `${(quizIdx/total)*100}%`;
+  document.getElementById('medalSvg').innerHTML = medalMarkup(Math.round((quizScore/total)*8));
+  const art = document.getElementById('qArt');
+  art.innerHTML = q.art || '';
+  art.style.display = q.art ? 'block' : 'none';
+  document.getElementById('qText').innerHTML = q.q;
+  document.getElementById('explainBox').style.display = 'none';
+  document.getElementById('exploreBox').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  q.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = opt;
+    btn.onclick = ()=>selectOption(i);
+    box.appendChild(btn);
+  });
+  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:box, options:box.children, correct:q.correct, tip:q.tip, tipEn:q.tipEn, q:q.q, historyId:historyQuizId, streak:streak, index:quizIdx, rerender:renderQuestion });
+}
+
+function selectOption(i){
+  const q = currentQuizSet[quizIdx];
+  const buttons = document.querySelectorAll('#optionsBox .option');
+  SH && SH.quizAnswered(historyQuizId, i === q.correct, q.art ? q.q + ' [' + q.options[q.correct] + ']' : q.q, q.options[i], q.options[q.correct], window.Recall ? Recall.typed() : false);
+  buttons.forEach((b,idx)=>{
+    if(idx === q.correct) b.classList.add('correct');
+    else if(idx === i) b.classList.add('wrong');
+    if(idx === i){ b.disabled = true; return; }
+    b.classList.add('explorable');
+    b.onclick = ()=>exploreOption(idx);
+  });
+  const helped = !!(window.PowerUps && PowerUps.answered());
+  if(i === q.correct){
+    quizScore++;
+    if(!helped) streak++;
+    if(streak > bestStreak) bestStreak = streak;
+    const ptsBase = currentQuizMeta.id === 'final' ? EXAM_POINTS_PER_CORRECT : POINTS_PER_CORRECT, ptsBonus = streak >= STREAK_BONUS_AT ? STREAK_BONUS : 0;
+    const pts = window.Recall ? Recall.points(helped, ptsBase, ptsBonus) : helped ? ptsBase / 2 : ptsBase + ptsBonus;
+    sessionPoints += pts;
+    totalPoints += pts;
+    saveTotalPoints(totalPoints);
+    window.Fx && Fx.correct(helped ? 0 : streak);
+  } else {
+    if(!(window.PowerUps && PowerUps.shield())) streak = 0;
+    window.Fx && Fx.wrong();
+  }
+  updatePointsLive();
+  document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
+  document.getElementById('medalSvg').innerHTML = medalMarkup(Math.round((quizScore/currentQuizSet.length)*8));
+  const explainHtml = q.explain;
+  const miss = i === q.correct ? null : { q:q.q, picked:q.options[i], why:(q.why||[])[i] || '', whyEn:(q.whyEn||[])[i] || '', answer:q.options[q.correct], explain:explainHtml, tip:q.tip || '', tipEn:q.tipEn || '' };
+  if(miss) missedQuestions.push(miss);
+  document.getElementById('explainBox').innerHTML = miss ? learnHtml(miss) : explainHtml;
+  document.getElementById('explainBox').style.display = 'block';
+  document.getElementById('exploreBox').innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>';
+  document.getElementById('exploreBox').style.display = 'block';
+  document.getElementById('nextBtn').style.display = 'block';
+  document.getElementById('nextBtn').textContent = quizIdx < currentQuizSet.length-1 ? 'Next ▶' : 'See Results 🏆';
+}
+
+function exploreOption(i){
+  const q = currentQuizSet[quizIdx];
+  document.querySelectorAll('#optionsBox .option').forEach((b,idx)=>b.classList.toggle('explored', idx === i));
+  const explainHtml = q.explain;
+  const right = i === q.correct;
+  const card = right
+    ? '<div class="explore-card explore-right"><b class="learn-label">This is the right answer</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + explainHtml + '</span></div>'
+    : '<div class="explore-card"><b class="learn-label">Why not this one?</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + ((q.why||[])[i] || 'This is not the right answer.') + '</span>' + learnEn((q.whyEn||[])[i]) + '</div>';
+  document.getElementById('exploreBox').innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>' + card;
+}
+
+function nextQuestion(){
+  if(quizIdx < currentQuizSet.length-1){
+    quizIdx++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz(){
+  const total = currentQuizSet.length;
+  const best = progress[currentQuizMeta.id] || 0;
+  if(quizScore > best) progress[currentQuizMeta.id] = quizScore;
+  saveProgress(progress);
+  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / total), sessionPoints, bestStreak);
+  window.Fx && Fx.finish(starsFor(quizScore / total));
+  renderResults(total);
+  showScreen('resultsScreen');
+}
+
+function renderResults(total){
+  const pct = quizScore/total;
+  const n = starsFor(pct);
+  document.getElementById('resultMedal').innerHTML = medalMarkup(Math.round(pct*8));
+  document.getElementById('resultStars').innerHTML = starString(n);
+  document.getElementById('resultTitle').textContent =
+    n===3 ? 'Champion! Perfect Score!' :
+    n===2 ? 'Great Job!' :
+    n===1 ? 'Good Start!' : 'Keep Practicing!';
+  document.getElementById('resultScore').textContent = `You scored ${quizScore} out of ${total}.`;
+  let ptsLine = `⭐ +${sessionPoints} points this round`;
+  if(bestStreak >= STREAK_BONUS_AT) ptsLine += ` · 🔥 best streak: ${bestStreak} in a row!`;
+  document.getElementById('points-earned').textContent = ptsLine + (window.Recall ? Recall.resultLine() : '');
+  renderMissedReview();
+}
+
+function retryQuiz(){
+  if(currentQuizMeta.id === 'final'){ startFinalExam(); }
+  else { startQuiz(); }
+}
+
+function renderStrategy(){
+  const box = document.getElementById('strategyList');
+  box.innerHTML = STRATEGY.map(t=>`
+    <div class="tip">
+      <div class="kicker">${t.kicker}</div>
+      <h4>${t.title}</h4>
+      <p>${t.body}</p>
+    </div>
+  `).join('');
+}
+
+renderHome();
+renderStrategy();
+</script>

@@ -1,15 +1,14 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const path = require('node:path');
 const vm = require('node:vm');
 
-const dir = path.join(__dirname, '..', 'grade 2');
+const { appFile } = require('./paths.js');
 const FAMILY_B = ['word-train', 'batang-bayani', 'growing-good', 'byte-buddies', 'science-detectives'];
 const FAMILY_A = ['block-bot', 'kuwentista'];
 
 function read(app) {
-  return fs.readFileSync(path.join(dir, app + '.html'), 'utf8');
+  return fs.readFileSync(appFile(app), 'utf8');
 }
 
 function sandbox() {
@@ -88,12 +87,11 @@ for (const app of FAMILY_A) {
   });
 }
 
-const g5 = path.join(__dirname, '..');
 const G5_FIXED = ['rise-shine', 'rally-ready', 'craft-corner', 'life-lab', 'history-explorers', 'page-turners', 'wikaharian'];
 const G5_WITH_ENGLISH = ['history-explorers', 'wikaharian'];
 
 function loadGrade5(app) {
-  const html = fs.readFileSync(path.join(g5, app + '.html'), 'utf8');
+  const html = fs.readFileSync(appFile(app), 'utf8');
   const lessonsAt = html.indexOf('\nconst LESSONS = [');
   const start = html.lastIndexOf('<script>', lessonsAt) + 8;
   const end = html.indexOf('\n];', lessonsAt);
@@ -126,7 +124,7 @@ for (const app of G5_FIXED) {
 }
 
 function loadMath() {
-  const html = fs.readFileSync(path.join(g5, 'math-mastery.html'), 'utf8');
+  const html = fs.readFileSync(appFile('math-mastery'), 'utf8');
   const lessonsAt = html.indexOf('\nconst LESSONS = [');
   const start = html.lastIndexOf('<script>', lessonsAt) + 8;
   const code = html.slice(start, html.indexOf('\n];', lessonsAt) + 3);

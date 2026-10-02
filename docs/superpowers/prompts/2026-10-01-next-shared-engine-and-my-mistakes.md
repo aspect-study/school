@@ -16,8 +16,10 @@ Read first: memory `study-games-repo`, `power-ups`, `fair-points-anti-memorizati
 Problem: the points/streak/round logic is copy-pasted into all 15 games, so every
 feature costs 15 edits (power-ups, recall, fx, wallet badge, explore mode all did).
 
-- Shared file pair, same as the others: `grade 2/study-kit-grade2.js` is the source and
-  gets copied byte-identically to the root `study-kit.js`. Add it to `tests/copies.test.js`.
+- **Updated 2026-10-02 (folder restructure, see `docs/superpowers/specs/2026-10-02-project-structure-design.md`):**
+  there are no Grade 2 copies any more. Create one file, `web/engine/study-kit.js` (this is phase 2 of that spec),
+  add it to `ENGINE_FILES` in `tests/paths.js` and to `PRECACHE` in `web/sw.js`, and load it as `../../../engine/study-kit.js`.
+  Baseline is now 250 unit tests.
   Add it to the `GLOBALS` map in the `<script data-file-check>` snippet (all 17 pages, identical text;
   `tests/pages.test.js`), and to `file-check-e2e.js`.
 - Candidates to move: POINTS_PER_CORRECT / STREAK_BONUS / STREAK_BONUS_AT /

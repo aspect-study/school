@@ -1,41 +1,34 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { GRADE2, makeWorkDir, dumpDom, readOutput, injectDriver } = require('./chrome.js');
-
-const GRADE5 = path.join(__dirname, '..', '..');
+const { stage, makeWorkDir, dumpDom, readOutput, injectDriver } = require('./chrome.js');
+const { ENGINE_FILES, app: appInfo, appFile, engineFile } = require('../paths.js');
 
 const GRADE2_APPS = [
-  { file: 'block-bot.html', slug: 'block-bot', title: 'Block Bot', family: 'a' },
-  { file: 'kuwentista.html', slug: 'kuwentista', title: 'Kuwentista', family: 'a' },
-  { file: 'word-train.html', slug: 'word-train', title: 'Word Train', family: 'b' },
-  { file: 'batang-bayani.html', slug: 'batang-bayani', title: 'Batang Bayani', family: 'b' },
-  { file: 'growing-good.html', slug: 'growing-good', title: 'Growing Good', family: 'b' },
-  { file: 'byte-buddies.html', slug: 'byte-buddies', title: 'Byte Buddies', family: 'b' },
-  { file: 'science-detectives.html', slug: 'science-detectives', title: 'Science Detectives', family: 'b' },
+  { slug: 'block-bot', title: 'Block Bot', family: 'a' },
+  { slug: 'kuwentista', title: 'Kuwentista', family: 'a' },
+  { slug: 'word-train', title: 'Word Train', family: 'b' },
+  { slug: 'batang-bayani', title: 'Batang Bayani', family: 'b' },
+  { slug: 'growing-good', title: 'Growing Good', family: 'b' },
+  { slug: 'byte-buddies', title: 'Byte Buddies', family: 'b' },
+  { slug: 'science-detectives', title: 'Science Detectives', family: 'b' },
 ];
 
 const GRADE5_APPS = [
-  { file: 'history-explorers.html', slug: 'history-explorers', title: 'History Explorers', family: 'c' },
-  { file: 'wikaharian.html', slug: 'wikaharian', title: 'Wikaharian', family: 'c' },
-  { file: 'page-turners.html', slug: 'page-turners', title: 'Page Turners', family: 'c' },
-  { file: 'rise-shine.html', slug: 'rise-shine', title: 'Rise & Shine', family: 'c' },
-  { file: 'rally-ready.html', slug: 'rally-ready', title: 'Rally Ready', family: 'c' },
-  { file: 'craft-corner.html', slug: 'craft-corner', title: 'Craft Corner', family: 'c' },
-  { file: 'life-lab.html', slug: 'life-lab', title: 'Life Lab', family: 'c' },
-  { file: 'math-mastery.html', slug: 'math-mastery', title: 'Math Mastery', family: 'math' },
+  { slug: 'history-explorers', title: 'History Explorers', family: 'c' },
+  { slug: 'wikaharian', title: 'Wikaharian', family: 'c' },
+  { slug: 'page-turners', title: 'Page Turners', family: 'c' },
+  { slug: 'rise-shine', title: 'Rise & Shine', family: 'c' },
+  { slug: 'rally-ready', title: 'Rally Ready', family: 'c' },
+  { slug: 'craft-corner', title: 'Craft Corner', family: 'c' },
+  { slug: 'life-lab', title: 'Life Lab', family: 'c' },
+  { slug: 'math-mastery', title: 'Math Mastery', family: 'math' },
 ];
 
 const grade = process.argv[2] === '5' ? 5 : 2;
-const dir = grade === 5 ? GRADE5 : GRADE2;
 const key = grade === 5 ? 'grade5_history_v1' : 'grade2_history_v1';
 const APPS = grade === 5 ? GRADE5_APPS : GRADE2_APPS;
-const shFile = grade === 5 ? 'study-history.js' : 'study-history-grade2.js';
-const walletFile = grade === 5 ? 'wallet.js' : 'wallet-grade2.js';
-const fxFile = grade === 5 ? 'fx.js' : 'fx-grade2.js';
-const puFile = grade === 5 ? 'powerups.js' : 'powerups-grade2.js';
-
-const { plain } = require(path.join(dir, shFile));
+const { plain } = require(engineFile('study-history.js'));
 
 const read = (name) => fs.readFileSync(path.join(__dirname, name), 'utf8');
 
@@ -259,26 +252,18 @@ function checkRecall(app, out) {
 const work = makeWorkDir('study-history-e2e');
 const withJs = path.join(work, 'with-js');
 const noJs = path.join(work, 'no-js');
-fs.mkdirSync(withJs);
-fs.mkdirSync(noJs);
-fs.copyFileSync(path.join(dir, shFile), path.join(withJs, shFile));
-fs.copyFileSync(path.join(dir, walletFile), path.join(withJs, walletFile));
-fs.copyFileSync(path.join(dir, fxFile), path.join(withJs, fxFile));
-fs.copyFileSync(path.join(dir, puFile), path.join(withJs, puFile));
-const recallFile = grade === 5 ? 'recall.js' : 'recall-grade2.js';
 const withRecall = path.join(work, 'with-recall');
-fs.mkdirSync(withRecall);
-[shFile, walletFile, fxFile, puFile, recallFile].forEach((f) => fs.copyFileSync(path.join(dir, f), path.join(withRecall, f)));
+const WITHOUT_RECALL = ENGINE_FILES.filter((f) => f !== 'recall.js');
 
 const common = "var __E2E_KEY = '" + key + "';\nvar __E2E_WALLET_KEY = 'grade" + grade + "_wallet_v1';\n" + read('driver-common.page.js');
 const failures = [];
 for (const app of APPS) {
   const driver = common + '\n' + read(driverFileFor(app));
-  const html = injectDriver(fs.readFileSync(path.join(dir, app.file), 'utf8'), driver);
-  const file = path.join(withJs, app.file);
-  fs.writeFileSync(file, html);
-  fs.writeFileSync(path.join(noJs, app.file), html);
-  if (app.family !== 'math') fs.writeFileSync(path.join(withRecall, app.file), html);
+  const page = appInfo(app.slug).page;
+  const html = injectDriver(fs.readFileSync(appFile(app.slug), 'utf8'), driver);
+  const file = stage(withJs, page, html, WITHOUT_RECALL);
+  const noJsFile = stage(noJs, page, html, []);
+  const recallFile = app.family !== 'math' && stage(withRecall, page, html, ENGINE_FILES);
   const profile = path.join(work, 'profile-' + app.slug);
   try {
     dumpDom(profile, file, '#e2e=seed');
@@ -288,12 +273,12 @@ for (const app of APPS) {
     checkPowerUps(app, readOutput(dumpDom(profile, file, '#e2e=powerups')));
     checkPowerUps2(app, readOutput(dumpDom(profile, file, '#e2e=powerups2')));
     checkPowerUps3(app, readOutput(dumpDom(profile, file, '#e2e=powerups3')));
-    if (app.family !== 'math') checkRecall(app, readOutput(dumpDom(path.join(work, 'profile-recall-' + app.slug), path.join(withRecall, app.file), '#e2e=recall')));
-    checkNoJs(readOutput(dumpDom(path.join(work, 'profile-nojs-' + app.slug), path.join(noJs, app.file), '#e2e=nojs')));
-    console.log('PASS ' + app.file);
+    if (app.family !== 'math') checkRecall(app, readOutput(dumpDom(path.join(work, 'profile-recall-' + app.slug), recallFile, '#e2e=recall')));
+    checkNoJs(readOutput(dumpDom(path.join(work, 'profile-nojs-' + app.slug), noJsFile, '#e2e=nojs')));
+    console.log('PASS ' + app.slug);
   } catch (err) {
-    failures.push(app.file);
-    console.log('FAIL ' + app.file + ': ' + err.message);
+    failures.push(app.slug);
+    console.log('FAIL ' + app.slug + ': ' + err.message);
   }
 }
 fs.rmSync(work, { recursive: true, force: true });

@@ -1,0 +1,1090 @@
+<html lang="en">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Craft Corner: TLE 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF7EC;
+  --card:#FFFFFF;
+  --ink:#2B2320;
+  --accent:#8A4F7D;
+  --accent-dark:#5C3253;
+  --accent-soft:#F3E8F0;
+  --gold:#FFB627;
+  --coral:#FF6F59;
+  --muted:#8A7F73;
+  --border:#F0E4D2;
+  --good:#2E9E5B;
+  --bad:#E15555;
+  --shadow: 0 10px 28px rgba(43,35,32,0.10);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15201F;
+    --card:#1E2C2A;
+    --ink:#F5EFE3;
+    --accent:#C98BBE;
+    --accent-dark:#EBC9E1;
+    --accent-soft:#322435;
+    --gold:#FFC65C;
+    --coral:#FF8A73;
+    --muted:#B9AE9E;
+    --border:#2C3B39;
+    --good:#4FCB82;
+    --bad:#FF7A7A;
+    --shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15201F;
+  --card:#1E2C2A;
+  --ink:#F5EFE3;
+  --accent:#C98BBE;
+  --accent-dark:#EBC9E1;
+  --accent-soft:#322435;
+  --gold:#FFC65C;
+  --coral:#FF8A73;
+  --muted:#B9AE9E;
+  --border:#2C3B39;
+  --good:#4FCB82;
+  --bad:#FF7A7A;
+  --shadow: 0 10px 28px rgba(0,0,0,0.35);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
+#app{max-width:720px;margin:0 auto;padding:20px 16px 60px;}
+.screen{display:none;}
+.screen.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.hero{
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  color:#fff;
+  border-radius:22px;
+  padding:26px 22px;
+  box-shadow:var(--shadow);
+  margin-bottom:20px;
+}
+/* In dark mode --accent-dark is deliberately LIGHT (it is used as text colour on
+   dark cards). That makes the hero gradient pale, and the hero's white text drops
+   to ~1.4:1 contrast. Darken both stops here so the white text stays readable. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .hero{
+    background:linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 55%, #0C1414),
+      color-mix(in srgb, var(--accent-dark) 35%, #0C1414));
+  }
+}
+:root[data-theme="dark"] .hero{
+  background:linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 55%, #0C1414),
+    color-mix(in srgb, var(--accent-dark) 35%, #0C1414));
+}
+.hero h1{margin:0 0 6px;font-size:1.7rem;}
+.hero p{margin:0;opacity:.92;line-height:1.5;font-size:.95rem;}
+.hero .badge{
+  display:inline-block;background:rgba(255,255,255,.18);
+  padding:4px 12px;border-radius:999px;font-size:.75rem;font-weight:800;
+  letter-spacing:.04em;margin-bottom:10px;
+}
+
+.card-list{display:flex;flex-direction:column;gap:12px;}
+.item-card{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  display:flex;align-items:center;gap:14px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:transform .15s ease, border-color .15s ease;
+}
+.item-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+/* Cards and the flashcard are divs (they contain headings, so they cannot be
+   <button>). They carry role=button + tabindex, so give them a visible focus
+   ring for anyone driving the app from the keyboard. */
+.item-card:focus-visible,
+.flashcard:focus-visible,
+.btn:focus-visible,
+.option:focus-visible,
+.btn-icon:focus-visible{
+  outline:3px solid var(--gold);
+  outline-offset:3px;
+}
+.item-card .icon{
+  width:52px;height:52px;border-radius:14px;
+  background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;
+}
+.item-card .info{flex:1;min-width:0;}
+.item-card .info h3{margin:0 0 3px;font-size:1.05rem;}
+.item-card .info p{margin:0;color:var(--muted);font-size:.82rem;}
+.stars{font-size:.95rem;letter-spacing:1px;color:var(--gold);white-space:nowrap;}
+.stars .off{color:var(--border);}
+
+.final-card{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--accent-soft),var(--card));
+}
+.final-badge{
+  display:inline-block;background:var(--gold);color:#3A2900;
+  font-size:.68rem;font-weight:800;padding:2px 10px;border-radius:999px;
+  margin-bottom:4px;letter-spacing:.03em;
+}
+.strategy-card{border-color:var(--coral);}
+.strategy-card .icon{background:#FFEAE6;}
+
+.topbar{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.btn-icon{
+  background:var(--card);border:2px solid var(--border);border-radius:12px;
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1.1rem;color:var(--ink);flex-shrink:0;
+}
+.topbar h2{margin:0;font-size:1.15rem;flex:1;}
+
+.flash-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;}
+.flashcard{
+  width:100%;min-height:220px;
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:26px 22px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;cursor:pointer;
+  position:relative;
+}
+.flashcard .tag{
+  position:absolute;top:14px;left:16px;font-size:.7rem;font-weight:800;
+  color:var(--accent);text-transform:uppercase;letter-spacing:.05em;
+}
+.flashcard h3{margin:6px 0 10px;font-size:1.3rem;color:var(--accent-dark);}
+.flashcard p{margin:0;font-size:1rem;line-height:1.55;}
+.flashcard .hint{margin-top:14px;font-size:.78rem;color:var(--muted);}
+.flash-nav{display:flex;align-items:center;gap:16px;width:100%;justify-content:space-between;}
+.flash-dots{font-size:.85rem;color:var(--muted);font-weight:700;}
+
+.btn{
+  font-family:'Baloo 2',cursive;
+  border:none;border-radius:14px;
+  padding:13px 22px;font-size:1rem;font-weight:700;
+  cursor:pointer;color:#fff;
+  background:var(--accent);
+  box-shadow:0 6px 0 var(--accent-dark);
+  transition:transform .1s ease;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--accent-dark);}
+.btn.gold{background:var(--gold);box-shadow:0 6px 0 #C98600;color:#3A2900;}
+.btn.gold:active{box-shadow:0 2px 0 #C98600;}
+.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--border);box-shadow:none;}
+.btn.full{width:100%;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.progress-bar{
+  height:10px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:18px;
+}
+.progress-bar .fill{height:100%;background:var(--gold);transition:width .3s ease;}
+
+.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.85rem;color:var(--muted);font-weight:700;}
+.scene-box{
+  background:var(--card);border:2px solid var(--border);border-radius:18px;
+  padding:10px;margin-bottom:16px;box-shadow:var(--shadow);
+}
+.scene-box svg{width:100%;max-width:150px;display:block;margin:0 auto;}
+
+.passage{
+  background:var(--accent-soft);border:2px solid var(--accent);border-radius:16px;
+  padding:16px;margin-bottom:16px;font-size:.95rem;line-height:1.6;
+}
+.passage strong{color:var(--accent-dark);}
+
+.q-card{
+  background:var(--card);border:2px solid var(--border);border-radius:18px;
+  padding:20px;box-shadow:var(--shadow);margin-bottom:16px;
+}
+.q-card h3{margin:0 0 16px;font-size:1.1rem;line-height:1.5;}
+.option{
+  display:block;width:100%;text-align:left;
+  background:var(--bg);border:2px solid var(--border);border-radius:14px;
+  padding:13px 16px;margin-bottom:10px;font-size:.95rem;font-family:'Nunito',sans-serif;
+  cursor:pointer;color:var(--ink);font-weight:700;
+}
+.option:hover{border-color:var(--accent);}
+.option.correct{background:#E5F6EB;border-color:var(--good);color:#1B6B3C;}
+.option.wrong{background:#FCE9E9;border-color:var(--bad);color:#A82F2F;}
+.option:disabled{cursor:default;}
+.option.explorable{border-style:dashed;}
+.option.explored{box-shadow:0 0 0 3px var(--accent-soft);}
+.explore{margin-top:4px;}
+.explore-hint{font-size:.85rem;color:var(--muted);font-weight:700;}
+.explore-card{margin-top:8px;background:var(--card);border:2px solid var(--border);border-left:5px solid var(--bad);border-radius:10px;padding:9px 12px;line-height:1.5;font-size:.88rem;}
+.explore-card.explore-right{border-left-color:var(--good);}
+.explore-card b.learn-label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.explore-card .learn-choice{font-weight:800;}
+.explore-card .learn-why{display:block;margin-top:3px;}
+.explain{
+  margin-top:12px;padding:12px 14px;background:var(--accent-soft);
+  border-radius:12px;font-size:.88rem;line-height:1.5;color:var(--ink);
+}
+
+.results-hero{text-align:center;padding:20px 0;}
+.results-hero .big-stars{font-size:2.2rem;color:var(--gold);letter-spacing:4px;}
+.results-hero h2{margin:8px 0 4px;}
+.results-hero p{color:var(--muted);margin:0 0 16px;}
+.result-actions{display:flex;flex-direction:column;gap:10px;}
+
+.strategy-list{display:flex;flex-direction:column;gap:12px;}
+.tip{
+  background:var(--card);border:2px solid var(--border);border-left:6px solid var(--coral);
+  border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);
+}
+.tip h4{margin:0 0 5px;font-size:.98rem;color:var(--accent-dark);}
+.tip p{margin:0;font-size:.9rem;line-height:1.55;}
+.tip .kicker{font-size:.7rem;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.05em;}
+
+/* 3-up lesson map on wide screens, so every lesson shows at once.
+   Only the lesson list widens -- flashcards, quiz and results stay narrow. */
+@media (min-width:900px){
+  #app{max-width:1120px;}
+  #app .screen:not(#home){max-width:720px; margin-left:auto; margin-right:auto;}
+  #home > *:not(.card-list){max-width:720px; margin-left:auto; margin-right:auto;}
+  #home .card-list{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; align-items:stretch;}
+  #home .item-card{flex-direction:column; align-items:stretch; height:100%;}
+  #home .item-card .icon{align-self:flex-start;}
+  #home .item-card .info{flex:1;}
+}
+
+/* ---- POINTS ---- */
+.points-total{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.18);color:#fff;
+  padding:6px 14px;border-radius:999px;
+  font-size:.82rem;font-weight:800;margin-top:12px;
+}
+.points-live{color:var(--gold);font-weight:800;white-space:nowrap;}
+.points-live .streak{color:var(--coral);margin-left:4px;}
+.points-earned{font-size:1rem;font-weight:800;color:var(--ink);margin:8px 0 0;}
+/* ---- Learn from a wrong answer ---- */
+.learn{display:flex;flex-direction:column;gap:8px;}
+.learn-title{font-weight:800;}
+.learn-row{background:var(--card);border-radius:10px;padding:9px 12px;border-left:5px solid var(--bad);line-height:1.5;}
+.learn-row b.learn-label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.learn-row .learn-choice{font-weight:800;}
+.learn-row .learn-why{display:block;margin-top:3px;}
+.learn-right{border-left-color:var(--good);}
+.learn-tip{border-left-color:var(--gold);}
+.missed-review{text-align:left;margin:0 0 18px;padding-top:14px;border-top:1px solid var(--border);}
+.missed-review h3{text-align:center;margin:0 0 10px;font-size:1rem;}
+.missed-list{max-height:420px;overflow-y:auto;}
+.missed-item{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:.88rem;}
+.missed-item .missed-q{white-space:pre-line;font-weight:700;margin:0 0 8px;}
+</style>
+
+<div id="app">
+
+  <div id="home" class="screen active">
+    <div class="hero">
+      <span class="badge">TLE 5 · First Term</span>
+      <h1>Craft Corner 🧵</h1>
+      <p>Stitch your embroidery hoop one correct answer at a time! Study Home Furnishings, Embroidery Tools, Designs and Stitches, Crochet Tools, Stitches and Abbreviations, plus Hand and Machine Sewing &mdash; then take the Mock Exam and read the Exam Strategy guide so you're ready for your teacher's test.</p>
+      <div class="points-total" id="points-total-badge"></div>
+      <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
+    </div>
+    <div class="card-list" id="homeList"></div>
+  </div>
+
+  <div id="flashScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2 id="flashTitle"></h2>
+    </div>
+    <div class="flash-wrap">
+      <div class="flashcard" id="flashCard" onclick="flipCard()"
+           role="button" tabindex="0" aria-label="Flashcard. Activate to flip between the term and its meaning."
+           onkeydown="cardKey(event)">
+        <span class="tag" id="flashTag">Term</span>
+        <h3 id="flashFront"></h3>
+        <p id="flashBack" style="display:none;"></p>
+        <div class="hint" id="flashHint">Tap the card to flip</div>
+      </div>
+      <div class="flash-nav">
+        <button class="btn ghost" onclick="prevCard()">◀ Prev</button>
+        <span class="flash-dots" id="flashDots"></span>
+        <button class="btn ghost" onclick="nextCard()">Next ▶</button>
+      </div>
+      <button class="btn gold full" onclick="startQuiz()">Start Quiz 🧵</button>
+    </div>
+  </div>
+
+  <div id="quizScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2 id="quizTitle"></h2>
+    </div>
+    <div class="scene-box"><div id="sceneSvg"></div></div>
+    <div class="progress-bar"><div class="fill" id="quizFill" style="width:0%"></div></div>
+    <div class="quiz-head">
+      <span id="quizCounter"></span>
+      <span id="quizScoreLabel"></span>
+      <span class="points-live" id="points-live"></span>
+    </div>
+    <div id="passageBox"></div>
+    <div class="q-card">
+      <h3 id="qText"></h3>
+      <div id="optionsBox"></div>
+      <div class="explore" id="exploreBox" style="display:none;"></div>
+      <div class="explain" id="explainBox" style="display:none;"></div>
+    </div>
+    <button class="btn full" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next ▶</button>
+  </div>
+
+  <div id="resultsScreen" class="screen">
+    <div class="results-hero">
+      <div class="scene-box" style="max-width:180px;margin:0 auto 14px;"><div id="resultScene"></div></div>
+      <div class="big-stars" id="resultStars"></div>
+      <h2 id="resultTitle"></h2>
+      <p id="resultScore"></p>
+      <div class="points-earned" id="points-earned"></div>
+      <div class="coins-have" data-coins="haveNow"></div>
+    </div>
+    <div class="missed-review" id="missedReview" style="display:none;"></div>
+    <div class="result-actions">
+      <button class="btn full" onclick="retryQuiz()">Try Again 🔁</button>
+      <button class="btn ghost full" onclick="goHome()">Back to Home</button>
+    </div>
+  </div>
+
+  <div id="strategyScreen" class="screen">
+    <div class="topbar">
+      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
+      <h2>Exam Strategy 🎯</h2>
+    </div>
+    <div class="hero" style="background:linear-gradient(135deg,var(--coral),#C94B3A);">
+      <span class="badge">Before you take the real test</span>
+      <h1 style="font-size:1.35rem;">How to Ace a TLE Test</h1>
+      <p>These are the exact moves to use on your teacher's TLE exam — not just for this app.</p>
+    </div>
+    <div class="strategy-list" id="strategyList"></div>
+  </div>
+
+</div>
+
+<script src="../../../engine/study-history.js" data-grade="grade5"></script>
+<script src="../../../engine/wallet.js" data-grade="grade5"></script>
+<script src="../../../engine/fx.js" data-grade="grade5"></script>
+<script src="../../../engine/powerups.js" data-grade="grade5"></script>
+<script src="../../../engine/recall.js" data-grade="grade5"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+const LESSONS = [
+  {
+    id:'furnishing',
+    icon:'🏠',
+    title:'Home Furnishing Creations',
+    subtitle:'Decorative, Functional & Organizational',
+    cards:[
+      {front:'What Are Home Furnishing Creations?', back:'Items we make for the home. They can make our homes more beautiful, comfortable, useful, and organized.'},
+      {front:'The 3 Types', back:'1. Decorative Furnishings · 2. Functional Furnishings · 3. Organizational Furnishings. Each type has a different purpose and use.'},
+      {front:'1. Decorative Furnishings', back:'Items made to make the home look BEAUTIFUL and ATTRACTIVE. Examples: wall decorations, decorative pillows, table decorations, and simple fabric ornaments.'},
+      {front:'2. Functional Furnishings', back:'Items made to serve a USEFUL PURPOSE in the home. Examples: curtains, pillowcases, placemats, table runners, and cushion covers.'},
+      {front:'3. Organizational Furnishings', back:'Items that help keep things NEAT, CLEAN, and ORGANIZED. Examples: fabric organizers, small storage bags, hanging organizers, and pockets for storing small items.'},
+      {front:'How to Choose What to Create', back:'Consider 5 things: <b>Purpose</b> (what is it for?), <b>Materials</b> (what is needed?), <b>Design</b> (shape, size, style), <b>Safety</b> (can it be made and used safely?), and <b>Usefulness</b> (will it make the home better or more organized?).'},
+      {front:'Example: A Table Mat', back:'Type: Functional. Purpose: it protects the table from food spills and helps make the dining area neat. Materials: fabric, thread, needle, scissors, and a measuring tool.'},
+      {front:'Remember', back:'A good home furnishing should be useful, attractive, and safe.'}
+    ],
+    quiz:[
+      {q:'True or False: Decorative furnishings are made to make the home look beautiful and attractive.', options:['True','False'], correct:0, explain:'Correct — that is exactly what decorative furnishings are for, like wall decorations and decorative pillows.', why:['', 'Picking False would mean decorative furnishings are not about looks — but making the home look beautiful and attractive is exactly their job.'], tip:'Match the name to the job: DECORATIVE sounds like decorate, which means making something look beautiful.'},
+      {q:'A hanging storage organizer is which type of home furnishing?', options:['Decorative','Functional','Organizational','None of these'], correct:2, explain:'Organizational — it helps keep things neat, clean, and organized.', why:['Decorative furnishings are made to make the home look beautiful, like wall decorations. An organizer is for keeping things in order, not mainly for looks.', 'Functional furnishings serve a useful purpose, like curtains and pillowcases. A hanging organizer is listed under the organizational type instead.', '', 'It does belong to one of the three types — the word “organizer” in its name points right to it.'], tip:'Look for a clue inside the item’s name: organizer → organizational. Items that store things and keep them neat are organizational.'},
+      {q:'True or False: Curtains and pillowcases are examples of organizational furnishings.', options:['True','False'], correct:1, explain:'False — curtains and pillowcases are FUNCTIONAL furnishings, because they serve a useful purpose in the home.', why:['“Organizational” is the swapped word. Organizational furnishings keep things neat, like storage bags; curtains and pillowcases are on the functional list.', ''], tip:'Ask yourself: does this item store things? If not, it is not organizational. Curtains, pillowcases, placemats, table runners and cushion covers make up the functional list.'},
+      {q:'Which of these is a DECORATIVE furnishing?', options:['A table runner','A fabric flower decoration','A small storage bag','A cushion cover'], correct:1, explain:'A fabric flower decoration is decorative — it is made to make the home look beautiful. Table runners and cushion covers are functional, and storage bags are organizational.', why:['A table runner is on the functional list — it serves a useful purpose on the table.', '', 'A small storage bag is organizational — it keeps small things neat and organized.', 'A cushion cover is on the functional list — it serves a useful purpose, not mainly to look pretty.'], tip:'For each choice ask: is its main job to look pretty, to be useful, or to store things? Only “look pretty” is decorative.'},
+      {q:'True or False: Organizational furnishings help keep things neat, clean, and organized.', options:['True','False'], correct:0, explain:'Correct — that is the purpose of organizational furnishings such as fabric organizers and hanging organizers.', why:['', 'Picking False says organizational furnishings do not keep things neat — but that is exactly their job, like fabric organizers and hanging organizers.'], tip:'Organizational comes from organize. If the statement is about keeping things neat and in order, it fits organizational.'},
+      {q:'Before making a home furnishing you should think about purpose, materials, design, and safety. What is the FIFTH thing to consider?', options:['Usefulness','Price','Colour','Weight'], correct:0, explain:'Usefulness — will it help make the home better or more organized? The five are Purpose, Materials, Design, Safety, and Usefulness.', why:['', 'Price is not one of the five things. The five are Purpose, Materials, Design, Safety, and Usefulness.', 'Colour is not one of the five things in the lesson. The missing one asks whether the item will make the home better or more organized.', 'Weight is not one of the five things in the lesson. The missing one asks whether the item will be useful.'], tip:'Memory hook for the five: P-M-D-S-U — Purpose, Materials, Design, Safety, Usefulness. Try saying “Please Make Designs Safe and Useful.”'},
+      {q:'True or False: A table mat is a decorative furnishing, because it makes the table look nice.', options:['True','False'], correct:1, explain:'False — a table mat is FUNCTIONAL. Its purpose is to protect the table from food spills and help make the dining area neat.', why:['The trap is the word “decorative.” The lesson says a table mat is FUNCTIONAL, because its job is to protect the table from food spills.', ''], tip:'Don’t decide by how an item looks. Ask what its main job is: a table mat’s job is protecting the table, so it is functional.'},
+      {q:'A table runner belongs to which type of home furnishing?', options:['Decorative','Functional','Organizational','Structural'], correct:1, explain:'Functional — table runners are listed with curtains, pillowcases, placemats, and cushion covers.', why:['Decorative furnishings are for beauty, like wall decorations and decorative pillows. The table runner is on the functional list instead.', '', 'Organizational furnishings keep things stored and neat, like storage bags. A table runner does not store anything.', '“Structural” is not one of the three types of home furnishings. The three are decorative, functional, and organizational.'], tip:'Know the 3 types: Decorative, Functional, Organizational. Any other type name in the choices can be crossed out right away.'},
+      {q:'True or False: When choosing a home furnishing to create, safety does not matter as long as it looks beautiful.', options:['True','False'], correct:1, explain:'False — safety is one of the five things to consider. A good home furnishing should be useful, attractive, AND safe.', why:['The words “does not matter” make this false. Safety is one of the five things to consider, and a good furnishing must be useful, attractive, AND safe.', ''], tip:'Be careful with statements that say something “does not matter” or can be skipped. Remember the rule: useful, attractive, and safe — all three.'},
+      {q:'According to the lesson, what is the purpose of a table mat?', options:['To decorate the wall','To protect the table from food spills and keep the dining area neat','To store small items','To cover a pillow'], correct:1, explain:'The lesson gives the table mat as its example: it protects the table from food spills and helps make the dining area neat.', why:['Decorating the wall is what wall decorations do, and those are decorative furnishings. A table mat goes on the table.', '', 'Storing small items is the job of organizational furnishings, like small storage bags.', 'Covering a pillow is the job of a pillowcase, not a table mat.'], tip:'Think about where the item is used: a table mat sits on the table, so its purpose must be about the table.'}
+    ]
+  },
+  {
+    id:'embtools',
+    icon:'🪡',
+    title:'Basics of Embroidery',
+    subtitle:'Tools, materials & their uses',
+    cards:[
+      {front:'What Is Embroidery?', back:'Embroidery is the art of decorating fabric by using a needle and thread to create stitches, patterns, and designs.'},
+      {front:'Embroidery Projects', back:'Handkerchiefs, table runners, pillowcases, bags, wall decorations, and clothes.'},
+      {front:'Embroidery Needle', back:'A sharp tool with an EYE, used to pass thread through fabric and create stitches.'},
+      {front:'Embroidery Thread', back:'The COLOURED thread used to create stitches and designs on fabric.'},
+      {front:'Embroidery Hoop', back:'A circular or oval tool that holds the fabric TIGHT and STEADY while you stitch.'},
+      {front:'Safety First', back:'Embroidery tools should be used properly and safely. Each tool has its own specific purpose.'},
+      {front:'Why Prepare First?', back:'Preparing the tools and materials before starting makes embroidery easier, safer, and more organized.'}
+    ],
+    quiz:[
+      {q:'True or False: Embroidery is the art of decorating fabric by using a needle and thread.', options:['True','False'], correct:0, explain:'Correct — embroidery uses a needle and thread to create stitches, patterns, and designs on fabric.', why:['', 'Picking False says embroidery does not use a needle and thread — but that is exactly how the lesson defines it: decorating fabric with a needle and thread.'], tip:'Embroidery = needle + thread. Crochet is the one that uses a hook + yarn. Keep the two pairs apart.'},
+      {q:'Which embroidery tool holds the fabric tight and steady while you stitch?', options:['The needle','The embroidery hoop','The thread','The scissors'], correct:1, explain:'The embroidery hoop — a circular or oval tool that keeps the fabric tight and steady.', why:['The needle is the sharp tool with an eye that passes thread through the fabric. It makes the stitches but does not hold the fabric.', '', 'The thread is the coloured material used to make the stitches and designs. It cannot hold the fabric steady.', 'Scissors are for cutting. They do not hold the fabric tight while you stitch.'], tip:'Picture the hoop: a ring that goes around the fabric like a frame. Something that circles the fabric is holding it.'},
+      {q:'True or False: An embroidery hoop is the tool used to cut the thread.', options:['True','False'], correct:1, explain:'False — the hoop HOLDS the fabric tight and steady. It does not cut anything.', why:['The swapped job is “cut the thread.” The hoop is the circular or oval tool that HOLDS the fabric tight and steady.', ''], tip:'Match each tool to its one job: needle passes the thread, thread makes the designs, hoop holds the fabric. If a statement gives a tool a different job, it is false.'},
+      {q:'What is the EYE of an embroidery needle for?', options:['To make the needle sharp','To pass the thread through the fabric','To measure the fabric','To hold the hoop'], correct:1, explain:'The needle is a sharp tool with an eye, used to pass thread through fabric and create stitches.', why:['The eye is not what makes the needle sharp. The lesson says the needle has an eye so it can pass thread through the fabric.', '', 'No part of the needle measures fabric. In these lessons, measuring is done with a measuring tape.', 'The needle does not hold the hoop. The hoop’s own job is holding the fabric.'], tip:'Think of the eye and the thread together: the eye is where the thread goes, so the eye helps carry the thread through the fabric.'},
+      {q:'True or False: Embroidery thread is always plain white.', options:['True','False'], correct:1, explain:'False — embroidery thread is COLOURED thread, used to create stitches and designs on fabric.', why:['The words “always plain white” make this false. The lesson says embroidery thread is COLOURED thread.', ''], tip:'Watch out for “always” in True/False questions. Remember: embroidery thread is coloured, so you can make colourful designs.'},
+      {q:'Which of these is NOT listed in the lesson as an embroidery project?', options:['Handkerchiefs','Pillowcases','Crocheted hats','Wall decorations'], correct:2, explain:'Crocheted hats are a CROCHET project. The embroidery projects listed are handkerchiefs, table runners, pillowcases, bags, wall decorations, and clothes.', why:['Handkerchiefs ARE on the embroidery project list, so they are not the answer — we need the one that is NOT.', 'Pillowcases ARE an embroidery project in the lesson, so they are not the answer — we need the one that is NOT.', '', 'Wall decorations ARE on the embroidery project list too, so they are not the answer.'], tip:'In a NOT question, look for the choice with a clue word from another lesson. “Crocheted” tells you it belongs to crochet, not embroidery.'},
+      {q:'True or False: An embroidery hoop can be circular or oval in shape.', options:['True','False'], correct:0, explain:'Correct — the lesson describes the hoop as a circular or oval tool.', why:['', 'Picking False says the hoop can only be one shape — but the lesson describes it as a circular OR oval tool.'], tip:'Remember the hoop by its shape: it is round — a circle or an oval.'},
+      {q:'What is embroidery thread used for?', options:['Holding the fabric steady','Creating stitches and designs on fabric','Cutting the cloth','Marking where to stitch'], correct:1, explain:'Embroidery thread is the coloured thread used to create the stitches and designs.', why:['Holding the fabric steady is the job of the embroidery hoop, not the thread.', '', 'Thread cannot cut cloth. Cutting is done with scissors.', 'Marking the design on the cloth is done when you transfer it, like tracing with carbon paper. The thread’s job is to make the stitches.'], tip:'Ask: what does the thread become in the end? It becomes the stitches and the design you can see.'},
+      {q:'True or False: You should prepare your tools and materials before you begin embroidering.', options:['True','False'], correct:0, explain:'Correct — preparing first makes embroidery easier, safer, and more organized.', why:['', 'Picking False means you can skip preparing — but the lesson says preparing first makes embroidery easier, safer, and more organized.'], tip:'Preparing first is a good habit in every craft in this app. Remember the three words: easier, safer, more organized.'},
+      {q:'Which description matches an embroidery NEEDLE?', options:['A circular tool that holds fabric','A sharp tool with an eye','Coloured thread on a spool','A tool for measuring fabric'], correct:1, explain:'An embroidery needle is a sharp tool with an eye, used to pass thread through the fabric.', why:['A circular tool that holds fabric is the embroidery hoop, not the needle.', '', 'Coloured thread is the embroidery thread — the material, not the needle.', 'A tool for measuring fabric is a measuring tape, not a needle.'], tip:'Needle = sharp + eye. Look for those two words in the choices.'}
+    ]
+  },
+  {
+    id:'embdesign',
+    icon:'✏️',
+    title:'Embroidery Designs',
+    subtitle:'6 kinds of designs & transferring them',
+    cards:[
+      {front:'1. Structural Design', back:'The design made by the SIZE, FORM, COLOR, and TEXTURE of an object.'},
+      {front:'2. Decorative Design', back:'Decorative colour is used, so the colours need NOT be realistic — the designer may choose red for an animal and green for the sky. It is the surface enrichment of a structural design.'},
+      {front:'3. Naturalistic Design', back:'Inspired by something existing in NATURE, like a fruit, flower, or animal. It reproduces the line, form, and colour of natural objects.'},
+      {front:'4. Conventional Design', back:'Only representations, which may be geometric or abstract in form. This type is IDEALISTIC — it does not reproduce the natural form of the object it tries to portray.'},
+      {front:'5. Geometric Design', back:'When a design uses geometrical forms, especially the SQUARE and the TRIANGLE.'},
+      {front:'6. Abstract Design', back:'When a design employs the SUGGESTIONS but not the APPEARANCE of a natural object.'},
+      {front:'Transferring: Tracing', back:'The simple method. Use light-coloured carbon paper for light fabrics, placing it FACE DOWN on the cloth.'},
+      {front:'Transferring: Ironing', back:'Place the design on the fabric and press a HOT IRON over the transfer sheet, imprinting the design onto the cloth.'},
+      {front:'Transferring: Stamping', back:'The design is transferred using a PERFORATED PATTERN, indigo, kerosene, and absorbent cotton.'}
+    ],
+    quiz:[
+      {q:'True or False: Naturalistic designs are inspired by something existing in nature, like a fruit, flower, or animal.', options:['True','False'], correct:0, explain:'Correct — naturalistic designs reproduce the line, form, and colour of natural objects.', why:['', 'Picking False says naturalistic designs do not come from nature — but they copy things in nature like fruits, flowers, and animals.'], tip:'Hear the word hiding inside: NATURalistic = NATURE.'},
+      {q:'A design that uses mainly squares and triangles is called a...', options:['Naturalistic design','Geometric design','Structural design','Abstract design'], correct:1, explain:'Geometric design — it uses geometrical forms, especially the square and the triangle.', why:['Naturalistic designs copy the line, form, and colour of things in nature, like a flower. Squares and triangles are shapes, not natural objects.', '', 'Structural design is made by the size, form, colour, and texture of an object — it is not about squares and triangles.', 'Abstract designs use the suggestions but not the appearance of a natural object. They are not about squares and triangles.'], tip:'Geometric sounds like geometry, the study of shapes. When you see square and triangle, think geometric.'},
+      {q:'True or False: In a decorative design, the colours must always be realistic.', options:['True','False'], correct:1, explain:'False — in a decorative design the colours need NOT be realistic. The designer may choose red for an animal and green for the sky.', why:['The words “must always be realistic” make this false. In a decorative design the colours need NOT be realistic, like a red animal and a green sky.', ''], tip:'Remember the lesson’s funny picture: a red animal and a green sky. It tells you decorative colours can be anything.'},
+      {q:'Which design is made by the size, form, colour, and texture of an object?', options:['Structural design','Conventional design','Abstract design','Naturalistic design'], correct:0, explain:'Structural design is the design made by the size, form, colour, and texture of an object.', why:['', 'Conventional designs are only representations and are idealistic — they do not come from the size, form, colour, and texture of the object.', 'Abstract designs use the suggestions but not the appearance of a natural object.', 'Naturalistic designs copy the line, form, and colour of natural objects, like fruits or flowers.'], tip:'Structural is about the structure of the object itself. Memory hook: S for Structural, S for Size — size, form, colour, texture.'},
+      {q:'True or False: Abstract designs employ the suggestions but not the appearance of a natural object.', options:['True','False'], correct:0, explain:'Correct — that is exactly how the lesson defines an abstract design.', why:['', 'Picking False says the definition is wrong — but this is exactly how the lesson defines abstract design: the suggestion, not the appearance.'], tip:'Abstract = only a hint of the real thing. Naturalistic copies the look; abstract only suggests it.'},
+      {q:'Which method of transferring a design uses a HOT IRON pressed over a transfer sheet?', options:['Tracing','Ironing','Stamping','Tapping'], correct:1, explain:'Ironing — the design is placed on the fabric and a hot iron is pressed over the transfer sheet.', why:['Tracing uses light-coloured carbon paper placed face down on the cloth — no iron.', '', 'Stamping uses a perforated pattern, indigo, kerosene, and absorbent cotton — no iron.', 'Tapping is not one of the transfer methods in the lesson. The three are tracing, ironing, and stamping.'], tip:'The method’s name tells you the tool: IRONing uses an IRON. There are only three methods: tracing, ironing, stamping.'},
+      {q:'True or False: Stamping transfers a design using a perforated pattern, indigo, kerosene, and absorbent cotton.', options:['True','False'], correct:0, explain:'Correct — those are exactly the materials the lesson lists for stamping.', why:['', 'Picking False says these are not stamping materials — but the lesson lists exactly these for stamping: perforated pattern, indigo, kerosene, and absorbent cotton.'], tip:'Match the materials to the method: carbon paper = tracing, hot iron = ironing, perforated pattern with indigo and kerosene = stamping.'},
+      {q:'When TRACING a design onto light fabric, what do you use and how do you place it?', options:['Dark carbon paper, face up','Light-coloured carbon paper, face down on the cloth','A hot iron, pressed firmly','A perforated pattern with kerosene'], correct:1, explain:'Tracing uses light-coloured carbon paper for light fabrics, placed FACE DOWN on the cloth.', why:['This choice has the wrong colour and the wrong side. The lesson says light-coloured carbon paper for light fabric, placed face DOWN, not face up.', '', 'A hot iron is used for the ironing method, not tracing.', 'A perforated pattern with kerosene is used for stamping, not tracing.'], tip:'Remember two things for tracing: light carbon paper for light fabric, and face DOWN on the cloth.'},
+      {q:'True or False: Conventional designs copy the exact natural form of the object they portray.', options:['True','False'], correct:1, explain:'False — conventional designs are IDEALISTIC. They are only representations and do NOT reproduce the natural form of the object.', why:['The swapped idea is “copy the exact natural form.” That describes naturalistic design. Conventional designs are idealistic and do NOT reproduce the natural form.', ''], tip:'Don’t mix up this pair: naturalistic copies nature; conventional is only a representation of it.'},
+      {q:'An embroidery design shows a red carabao standing under a green sky. Which kind of design is this?', options:['Naturalistic design','Decorative design','Structural design','Geometric design'], correct:1, explain:'Decorative — in a decorative design the colours need not be realistic, which is why the lesson uses exactly this example of a red animal and a green sky.', why:['A naturalistic design would copy the real colours of things in nature. A red carabao and a green sky are not realistic colours.', '', 'Structural design is about the size, form, colour, and texture of the object itself, not about choosing colours that are not real.', 'Geometric design uses squares and triangles. A carabao under the sky is not made of those shapes.'], tip:'When the colours in a question are strange or not real, think DECORATIVE — its colours need not be realistic.'}
+    ]
+  },
+  {
+    id:'crochettools',
+    icon:'🧶',
+    title:'Getting Started with Crochet',
+    subtitle:'Tools, materials & the project plan',
+    cards:[
+      {front:'What Is Crochet?', back:'A craft that uses a CROCHET HOOK and YARN to create fabric, designs, and useful items by making a series of loops and stitches.'},
+      {front:'Crochet Hook', back:'Used to pull and form loops of yarn into stitches.'},
+      {front:'Yarn', back:'The MAIN MATERIAL used in crochet. It comes in different colours, thicknesses, and types.'},
+      {front:'Scissors', back:'Used to cut the yarn.'},
+      {front:'Tapestry Needle', back:'Used to weave in loose yarn ends.'},
+      {front:'Stitch Marker', back:'Helps mark a specific stitch or position.'},
+      {front:'Measuring Tape', back:'Used to measure the size of the project.'},
+      {front:'Crochet Projects', back:'Bags, coasters, scarves, mats, keychains, hats, and decorations.'},
+      {front:'Why Is Preparation Important?', back:'Preparing your tools and materials before starting helps you work safely, follow the pattern correctly, avoid interruptions, keep your materials organized, and complete your project more easily.'},
+      {front:'The Project Plan: 4 Parts', back:'<b>1. Project overview</b> (name, objectives, tools needed) · <b>2. Cost breakdown</b> (unit costs and total expenses) · <b>3. Timetable</b> (procedure and budget for each phase) · <b>4. Evaluation</b> (scoreboard to track progress and areas for improvement).'}
+    ],
+    quiz:[
+      {q:'True or False: Crochet uses a crochet hook and yarn to make a series of loops and stitches.', options:['True','False'], correct:0, explain:'Correct — crochet is a craft that uses a hook and yarn to create fabric, designs, and useful items.', why:['', 'Picking False says crochet does not use a hook and yarn — but crochet is exactly the craft of making loops and stitches with a hook and yarn.'], tip:'Crochet = hook + yarn. Embroidery = needle + thread. Keep the two pairs apart.'},
+      {q:'Which crochet tool is used to weave in loose yarn ends?', options:['The crochet hook','The tapestry needle','The stitch marker','The measuring tape'], correct:1, explain:'The tapestry needle is used to weave in loose yarn ends when you finish.', why:['The crochet hook pulls and forms loops of yarn into stitches. It does not weave in the ends.', '', 'The stitch marker helps mark a specific stitch or position.', 'The measuring tape measures the size of the project.'], tip:'A needle goes in and out, so it can weave yarn ends in. At the finish, the tapestry NEEDLE tidies the loose ends.'},
+      {q:'True or False: A stitch marker is the tool used to cut the yarn.', options:['True','False'], correct:1, explain:'False — a stitch marker helps MARK a specific stitch or position. SCISSORS are used to cut yarn.', why:['The swapped job is “cut the yarn.” A stitch marker marks a specific stitch or position; scissors are what cut the yarn.', ''], tip:'Read the tool’s name for its job: a stitch MARKER marks. Scissors cut.'},
+      {q:'What is the MAIN material used in crochet?', options:['Fabric','Yarn','Carbon paper','Embroidery thread'], correct:1, explain:'Yarn is the main material used in crochet. It comes in different colours, thicknesses, and types.', why:['Fabric is what embroidery decorates. In crochet, you make the fabric yourself out of yarn.', '', 'Carbon paper is used for tracing embroidery designs, not for crochet.', 'Embroidery thread is the coloured thread for embroidery stitches, not the main material of crochet.'], tip:'Crochet has two basics: the hook and the yarn. The yarn is the material; the hook is the tool.'},
+      {q:'True or False: Yarn comes in different colours, thicknesses, and types.', options:['True','False'], correct:0, explain:'Correct — that is exactly how the lesson describes yarn.', why:['', 'Picking False says all yarn is the same — but the lesson says yarn comes in different colours, thicknesses, and types.'], tip:'Remember yarn with three words: colours, thicknesses, types.'},
+      {q:'Which tool pulls and forms loops of yarn into stitches?', options:['The crochet hook','The tapestry needle','The scissors','The measuring tape'], correct:0, explain:'The crochet hook is used to pull and form the loops of yarn into stitches.', why:['', 'The tapestry needle weaves in loose yarn ends when you finish. It does not form the loops.', 'Scissors cut the yarn.', 'The measuring tape measures the size of the project.'], tip:'The name says what it does: the HOOK hooks the yarn and pulls it into loops.'},
+      {q:'True or False: Preparing your tools before you start helps you avoid interruptions.', options:['True','False'], correct:0, explain:'Correct — preparation helps you work safely, follow the pattern correctly, avoid interruptions, stay organized, and finish more easily.', why:['', 'Picking False says preparing does not help — but avoiding interruptions is one of the reasons the lesson gives for preparing first.'], tip:'When a statement says preparing helps, check it against the list: work safely, follow the pattern, avoid interruptions, stay organized, finish more easily.'},
+      {q:'Which of these is NOT one of the four parts of a crochet project plan?', options:['Project overview','Cost breakdown','Yarn colour chart','Evaluation'], correct:2, explain:'The four parts are Project overview, Cost breakdown, Timetable, and Evaluation. There is no yarn colour chart.', why:['Project overview IS part 1 of the plan (name, objectives, tools needed), so it is not the answer — we need the one that is NOT.', 'Cost breakdown IS part 2 of the plan (unit costs and total expenses), so it is not the answer.', '', 'Evaluation IS part 4 of the plan (a scoreboard to track progress), so it is not the answer.'], tip:'Memory hook for the 4 parts: O-C-T-E — Overview, Cost breakdown, Timetable, Evaluation. Anything else is the odd one out.'},
+      {q:'True or False: A measuring tape is used to mark a specific stitch or position.', options:['True','False'], correct:1, explain:'False — a measuring tape measures the SIZE of the project. A STITCH MARKER marks a specific stitch or position.', why:['The swapped job is “mark a specific stitch.” That is the stitch marker’s job; the measuring tape measures the size of the project.', ''], tip:'The names tell the jobs: the MEASURING tape measures, the stitch MARKER marks.'},
+      {q:'Which of these is an example of a crochet project from the lesson?', options:['A handkerchief','Coasters','A curtain','A placemat'], correct:1, explain:'Coasters are listed with bags, scarves, mats, keychains, hats, and decorations as crochet projects.', why:['A handkerchief is on the embroidery project list, not the crochet list.', '', 'A curtain comes from the home furnishing lesson, where it is a functional furnishing. It is not on the crochet project list.', 'A placemat comes from the home furnishing lesson, where it is a functional furnishing. The crochet list in this lesson names coasters.'], tip:'Learn the crochet project list: bags, coasters, scarves, mats, keychains, hats, and decorations. Handkerchiefs belong to embroidery.'}
+    ]
+  },
+  {
+    id:'crochetstitches',
+    icon:'🪢',
+    title:'Basic Crochet Stitches',
+    subtitle:'From chain stitch to triple treble',
+    cards:[
+      {front:'Each Stitch Builds on the Last', back:'Crochet is fairly easy to learn because each stitch builds on the one before it. Half double crochet is an expanded version of single crochet, and double crochet expands on it even more.'},
+      {front:'A. Chain Stitch', back:'The BASIC stitch in crochet. Make a slip knot, yarn over and draw a loop onto the hook, and repeat until you have as many chains as you need. <b>One loop should always remain on the hook.</b>'},
+      {front:'B. Single Crochet', back:'Insert the hook into the <b>2nd stitch</b> from the hook. Yarn over and draw the thread through the stitch, then yarn over and draw through BOTH loops on the hook.'},
+      {front:'C. Half Double Crochet', back:'Insert the hook into the <b>2nd stitch</b> from the hook, yarn over and draw through the stitch, then yarn over and draw through both loops on the hook.'},
+      {front:'D. Double Crochet', back:'Wind the thread around the hook and insert it in the <b>4th chain</b> from the hook. Draw the thread through, then loop over and draw through two loops at a time.'},
+      {front:'E. Treble Crochet', back:'Yarn over <b>TWICE</b>, then insert the hook in the <b>5th chain</b> from the hook. Draw a loop through (four loops on the hook), then yarn over and draw through two loops at a time.'},
+      {front:'F. Double Treble Crochet', back:'Yarn over <b>THREE times</b>, then insert the hook in the <b>6th chain</b> from the hook (five loops on the hook). The thread is twisted twice around the hook.'},
+      {front:'G. Triple Treble Crochet', back:'Worked the same way as double treble, but the thread is caught over the hook <b>FOUR times</b> at the start instead of three.'},
+      {front:'H. Slip Stitch', back:'A very SHORT stitch, used mainly for JOINING or SEAMING two finished pieces together.'}
+    ],
+    quiz:[
+      {q:'True or False: The chain stitch is the basic stitch in crochet.', options:['True','False'], correct:0, explain:'Correct — every other crochet stitch starts from a row of chain stitches.', why:['', 'Picking False says the chain is not the basic stitch — but the lesson calls the chain stitch the BASIC stitch in crochet.'], tip:'Think of the chain as the starting line: you make chains first, and the other stitches are worked into them.'},
+      {q:'In SINGLE crochet, into which stitch do you insert the hook?', options:['The first stitch from the hook','The second stitch from the hook','The fourth chain from the hook','The fifth chain from the hook'], correct:1, explain:'Single crochet inserts the hook into the SECOND stitch from the hook.', why:['The first stitch from the hook is not used in the lesson’s steps. Single crochet goes into the 2nd stitch.', '', 'The fourth chain from the hook is where double crochet goes.', 'The fifth chain from the hook is where treble crochet goes.'], tip:'Memory ladder: single and half double → 2nd, double → 4th, treble → 5th, double treble → 6th. The taller the stitch, the farther the chain.'},
+      {q:'True or False: In DOUBLE crochet you insert the hook into the second chain from the hook.', options:['True','False'], correct:1, explain:'False — double crochet inserts the hook into the FOURTH chain from the hook. The second stitch is used for single and half double crochet.', why:['“Second chain” is the swapped part. Double crochet goes into the FOURTH chain; the 2nd stitch is for single and half double crochet.', ''], tip:'Use the ladder: 2nd (single, half double), 4th (double), 5th (treble), 6th (double treble).'},
+      {q:'For TREBLE crochet, how many times do you yarn over before inserting the hook?', options:['Once','Twice','Three times','Four times'], correct:1, explain:'Treble crochet: yarn over TWICE, then insert the hook in the fifth chain from the hook.', why:['Winding the thread around the hook once is how double crochet starts, going into the 4th chain.', '', 'Three times is for double treble crochet.', 'Four times is for triple treble crochet.'], tip:'Count up the treble family: treble = 2 yarn overs, double treble = 3, triple treble = 4. Each bigger name adds one more.'},
+      {q:'True or False: A slip stitch is a very tall stitch used to add height to a design.', options:['True','False'], correct:1, explain:'False — a slip stitch is a very SHORT stitch, used mainly for joining or seaming two finished pieces.', why:['The word “tall” is swapped. A slip stitch is very SHORT, and it is used mainly for joining or seaming finished pieces.', ''], tip:'A slip stitch just slips two pieces together, so it stays short and low.'},
+      {q:'In DOUBLE TREBLE crochet, how many times do you yarn over, and which chain do you enter?', options:['Twice, the fifth chain','Three times, the sixth chain','Once, the second chain','Four times, the seventh chain'], correct:1, explain:'Double treble: yarn over THREE times, then insert the hook in the SIXTH chain from the hook, giving five loops on the hook.', why:['Twice and the fifth chain is treble crochet, one step shorter.', '', 'The second stitch is for single and half double crochet, which are much shorter stitches than double treble.', 'Four yarn overs is for triple treble crochet, not double treble.'], tip:'Double treble = 3 yarn overs, 6th chain. It is treble plus one: one more yarn over and one chain farther.'},
+      {q:'True or False: Triple treble crochet is worked like double treble, but the thread is caught over the hook four times at the start.', options:['True','False'], correct:0, explain:'Correct — the only difference is catching the thread four times instead of three.', why:['', 'Picking False says something else is different — but the lesson says triple treble is worked like double treble, except the thread goes over the hook four times instead of three.'], tip:'Treble 2, double treble 3, triple treble 4 — each step up adds one yarn over.'},
+      {q:'What is a slip stitch mainly used for?', options:['Making the first row','Joining or seaming two finished pieces','Adding height to a pattern','Counting your stitches'], correct:1, explain:'The slip stitch is used primarily for joining or seaming two finished pieces together.', why:['The first row is made with chain stitches, the basic stitch.', '', 'The slip stitch is very SHORT, so it does not add height.', 'Counting is not a stitch’s job. A stitch marker is the tool that helps you mark a specific stitch or position.'], tip:'Slip stitch = JOIN. Picture slipping two finished pieces together.'},
+      {q:'True or False: When making chain stitches, no loop should be left on the hook.', options:['True','False'], correct:1, explain:'False — ONE loop should ALWAYS remain on the hook while you chain.', why:['The word “no” makes this false. The lesson says ONE loop should ALWAYS stay on the hook while you chain.', ''], tip:'Watch for “no” and “never” in True/False statements. For chains, remember: one loop always stays on the hook.'},
+      {q:'Which statement about crochet stitches does the lesson make?', options:['Every stitch is completely different from the others','Half double crochet is an expanded version of single crochet','Double crochet is easier than the chain stitch','Treble crochet is the basic stitch'], correct:1, explain:'The lesson says each stitch builds on the one before: half double crochet expands single crochet, and double crochet expands on that.', why:['The lesson says the opposite — each stitch builds on the one before, so the stitches are connected, not completely different.', '', 'The lesson calls the chain stitch the basic stitch. It never says double crochet is easier than the chain.', 'The basic stitch is the chain stitch, not treble crochet.'], tip:'When a choice says “every” or “completely,” check it carefully. The big idea here: each stitch builds on the one before it.'}
+    ]
+  },
+  {
+    id:'embstitches',
+    icon:'🧷',
+    title:'Embroidery Stitches',
+    subtitle:'The 6 stitches & how each is done',
+    cards:[
+      {front:'Running Stitch', back:'Pass the needle in and out of the fabric, making surface stitches of EQUAL length. The stitches underneath should be half the size or less. It is the SIMPLEST of all and the quickest to do, used to outline or as a filling to make texture.'},
+      {front:'Straight Stitch', back:'Worked the same way as the running stitch, but the stitches are LONGER. They may be worked in rows, at angles, or at random.'},
+      {front:'Stem Stitch (Outline Stitch)', back:'Start at the top or bottom guideline, or from left to right, taking regular small stitches along the line of the design. The thread always emerges on the <b>LEFT</b> side of the previous stitch. It is used for lines, outlines, and stems of flowers.'},
+      {front:'Satin Stitch', back:'Work straight stitches closely together side by side across the shape, keeping their direction uniform. It creates a PLUMP, SOLIDLY FILLED figure. Outline the area first with small backstitches to keep the edge even.'},
+      {front:'Lazy Daisy (Detached Chain Stitch)', back:'The thread is formed into a LOOP and held down at the centre. Each loop makes ONE PETAL or one leaf, so it is most often worked in a circle to form the petals of flowers.'},
+      {front:'Overcasting Stitch', back:'A series of whip (overcast) stitches sewn in one direction, then returning with whip stitches in the opposite direction. Both directions go through the <b>SAME HOLE</b>, creating a &ldquo;V&rdquo;. It is good for buttonholes because it is less likely to unravel.'},
+      {front:'What Is a Design?', back:'A sketch that shows an arrangement of lines, forms, colours, and textures. It involves the proper selection and orderly arrangement of materials with two goals: <b>harmony</b> and <b>aesthetic</b>. It should make your article attractive but still functional.'},
+      {front:'Choosing a Design', back:'Start your project with a SIMPLE design, and make sure the design is artistically correct and embodies the principles of design.'}
+    ],
+    quiz:[
+      {q:'True or False: The running stitch is the simplest of all embroidery stitches and the quickest to do.', options:['True','False'], correct:0, explain:'Correct — the lesson calls the running stitch the simplest of all and the quickest to do.', why:['', 'Picking False says the running stitch is not the simplest — but the lesson calls it the simplest of all and the quickest to do.'], tip:'Running is fast — the running stitch is the quickest and simplest stitch.'},
+      {q:'Which stitch is worked the same way as the running stitch, but with LONGER stitches?', options:['Satin stitch','Straight stitch','Stem stitch','Overcasting stitch'], correct:1, explain:'The straight stitch is worked like the running stitch but the stitches are longer. They may be worked in rows, at angles, or at random.', why:['Satin stitch fills a shape with straight stitches worked closely side by side.', '', 'Stem stitch takes small regular stitches along a line, with the thread coming out on the left side.', 'Overcasting stitch is whip stitches going one way and back through the same hole, making a “V.”'], tip:'The straight stitch is the running stitch’s longer cousin — same way of working, longer stitches.'},
+      {q:'True or False: In the stem stitch, the thread always emerges on the RIGHT side of the previous stitch.', options:['True','False'], correct:1, explain:'False — in the stem stitch the thread always emerges on the <b>LEFT</b> side of the previous stitch.', why:['“RIGHT” is the swapped word. In the stem stitch the thread always comes out on the LEFT side of the previous stitch.', ''], tip:'Memory hook: Stem → Left. Say “the stem leans left.”'},
+      {q:'Which stitch is most often worked in a circle to form the petals of a flower?', options:['Running stitch','Lazy daisy (detached chain) stitch','Satin stitch','Overcasting stitch'], correct:1, explain:'The lazy daisy, or detached chain stitch, makes one petal or one leaf per loop, so it is usually worked in a circle to form petals.', why:['Running stitch goes in and out with stitches of equal length, used to outline or to add texture.', '', 'Satin stitch fills a whole shape solidly with stitches side by side.', 'Overcasting stitch makes a “V” and is good for buttonholes.'], tip:'The name gives it away: a DAISY is a flower, so the lazy daisy makes flower petals, one loop per petal.'},
+      {q:'True or False: The overcasting stitch is a good choice for buttonholes because it is less likely to unravel.', options:['True','False'], correct:0, explain:'Correct — that is exactly why the lesson recommends it for buttonholes.', why:['', 'Picking False says it is not good for buttonholes — but the lesson recommends the overcasting stitch for buttonholes because it is less likely to unravel.'], tip:'Link these three together: overcasting → buttonholes → less likely to unravel.'},
+      {q:'Which stitch fills a shape with stitches worked closely side by side, creating a plump, solidly filled figure?', options:['Satin stitch','Running stitch','Straight stitch','Lazy daisy stitch'], correct:0, explain:'The satin stitch works straight stitches closely side by side across the shape, creating a plump, solidly filled figure.', why:['', 'Running stitch goes in and out with short stitches underneath, used to outline or add texture — not a solid fill.', 'Straight stitch is longer stitches worked in rows, at angles, or at random — not packed side by side.', 'Lazy daisy makes separate loops, one petal each — not a solid filled shape.'], tip:'When a question says “filled,” “solid,” or “plump,” think satin stitch.'},
+      {q:'True or False: In the overcasting stitch, the two directions of stitches go through different holes.', options:['True','False'], correct:1, explain:'False — both directions go through the <b>SAME HOLE</b>, which is what creates the &ldquo;V&rdquo; shape.', why:['“Different holes” is the swapped part. Both directions go through the SAME hole, and that is what makes the “V.”', ''], tip:'Picture the letter V: two lines meet at one point. That meeting point is the same hole.'},
+      {q:'The stem stitch is also known by which other name?', options:['The outline stitch','The filling stitch','The chain stitch','The whip stitch'], correct:0, explain:'Stem stitch and outline stitch are two names for the same stitch, used for lines, outlines, and the stems of flowers.', why:['', '“Filling stitch” is not another name for the stem stitch. Filling a shape solidly is what the satin stitch does.', 'The chain stitch is the basic crochet stitch. In embroidery, the lazy daisy is the one called the detached chain stitch.', 'Whip stitches are what the overcasting stitch is made of, not another name for the stem stitch.'], tip:'The stem stitch draws lines and outlines, like the outline of a drawing — so its other name is the outline stitch.'},
+      {q:'True or False: A good embroidery design should make your article attractive but still functional.', options:['True','False'], correct:0, explain:'Correct — the lesson says the design should make the article attractive but still functional.', why:['', 'Picking False disagrees with the lesson, which says a good design makes your article attractive but still functional.'], tip:'A good design does two things at once: it looks nice and it still works. Think “pretty and useful.”'},
+      {q:'What are the two goals of a good embroidery design?', options:['Speed and cost','Harmony and aesthetic','Size and colour','Texture and thickness'], correct:1, explain:'A design involves the proper selection and orderly arrangement of materials with two goals: harmony and aesthetic.', why:['Speed and cost are not the goals of a design in the lesson.', '', 'Colour is one of the things a design arranges, but size and colour are not its two goals.', 'Texture is one of the things a design arranges, but texture and thickness are not its two goals.'], tip:'Memory hook: H and A — Harmony and Aesthetic. Those are the two goals of the orderly arrangement.'}
+    ]
+  },
+  {
+    id:'crochetabbr',
+    icon:'🔤',
+    title:'Crochet Abbreviations',
+    subtitle:'Reading a crochet pattern',
+    cards:[
+      {front:'Why Abbreviations?', back:'Crochet patterns are written in short form so a whole row fits on one line. Once you know the abbreviations, you can read any pattern.'},
+      {front:'The Stitch Abbreviations', back:'<b>ch</b> = chain · <b>sc</b> = single crochet · <b>hdc</b> = half double crochet · <b>dc</b> = double crochet · <b>trc</b> = treble crochet · <b>dtrc</b> = double treble crochet · <b>ttrc</b> = triple treble crochet · <b>sl st</b> = slip stitch · <b>htr</b> = half treble'},
+      {front:'Working the Yarn', back:'<b>yo</b> = yarn over / thread over · <b>lp(s)</b> = loop(s) · <b>st(s)</b> = stitches · <b>stch</b> = starting chain · <b>ch sp</b> = chain space'},
+      {front:'Counting and Changing', back:'<b>inc</b> = increase · <b>dec</b> = decrease · <b>rep</b> or <b>*</b> = repeat · <b>rd</b> = round · <b>rem</b> = remaining · <b>tog</b> = together · <b>sk</b> = skip · <b>sp</b> = space'},
+      {front:'Fancy Stitch Names', back:'<b>p</b> = picot · <b>pc</b> = popcorn · <b>cl</b> = cluster · <b>bl</b> = block · <b>om</b> = open mesh · <b>gr</b> = group · <b>quad tr</b> = quadruple treble · <b>quin tr</b> = quintuple treble'},
+      {front:'Ordinary Words', back:'<b>alt</b> = alternate · <b>approx</b> = approximate(ly) · <b>beg</b> = begin(ning) · <b>cont</b> = continue · <b>foll</b> = follow(s)/following · <b>cm</b> = centimeter(s)'},
+      {front:'Watch These Two!', back:'<b>rep</b> means REPEAT, but <b>rem</b> means REMAINING. And <b>sc</b> is SINGLE crochet, while <b>sl st</b> is SLIP STITCH &mdash; they are easy to mix up in a test.'}
+    ],
+    quiz:[
+      {q:'In a crochet pattern, what does <b>ch</b> mean?', options:['Chain','Change colour','Cluster','Crochet hook'], correct:0, explain:'<b>ch</b> is the abbreviation for chain — the basic crochet stitch.', why:['', '“Change colour” is not in the lesson’s list of abbreviations. ch is the chain stitch.', 'Cluster is written <b>cl</b>, not ch.', 'The crochet hook has no abbreviation in the list. ch stands for the chain stitch.'], tip:'Most abbreviations use the first letters of the word: CHain → ch.'},
+      {q:'True or False: In a crochet pattern, <b>sc</b> stands for "slip crochet".', options:['True','False'], correct:1, explain:'False — <b>sc</b> means SINGLE CROCHET. The slip stitch is written as <b>sl st</b>.', why:['“Slip crochet” is the swapped part. <b>sc</b> means Single Crochet; the slip stitch is written <b>sl st</b>.', ''], tip:'sc = S-ingle C-rochet. Slip stitch always has the letters “sl” for SLip.'},
+      {q:'What does <b>dc</b> stand for?', options:['Detached chain','Double crochet','Double cluster','Decrease count'], correct:1, explain:'<b>dc</b> is double crochet — the stitch that enters the 4th chain from the hook.', why:['Detached chain is the other name for the lazy daisy embroidery stitch, not a crochet abbreviation.', '', 'Double cluster is not in the list. Cluster alone is written <b>cl</b>.', 'Decrease is written <b>dec</b>, not dc.'], tip:'dc = D-ouble C-rochet, just like sc = S-ingle C-rochet. The “c” at the end means crochet.'},
+      {q:'True or False: <b>yo</b> means yarn over, which is also called thread over.', options:['True','False'], correct:0, explain:'Correct — <b>yo</b> is yarn over, also written as thread over.', why:['', 'Picking False disagrees with the lesson: <b>yo</b> is yarn over, also called thread over.'], tip:'yo = Y-arn O-ver — the first letter of each word.'},
+      {q:'Which abbreviation means SLIP STITCH?', options:['ss t','sl st','st sl','s st'], correct:1, explain:'<b>sl st</b> is the slip stitch, the short stitch used for joining or seaming.', why:['“ss t” is not how the lesson writes it. Slip stitch takes two letters from each word: sl + st.', '', '“st sl” has the words backwards — slip comes first, then stitch.', '“s st” is not in the list. Slip is written with two letters: sl.'], tip:'SLip STitch → sl st: two letters from each word, in the same order as the name.'},
+      {q:'True or False: <b>hdc</b> stands for half double crochet.', options:['True','False'], correct:0, explain:'Correct — <b>hdc</b> is half double crochet, the stitch between single and double crochet.', why:['', 'Picking False disagrees with the list: <b>hdc</b> is H-alf D-ouble C-rochet.'], tip:'Read each letter as a word: h = half, d = double, c = crochet.'},
+      {q:'What does <b>dec</b> mean in a crochet pattern?', options:['Decorate','Decrease','Detached chain','Declare'], correct:1, explain:'<b>dec</b> means decrease. Its opposite, <b>inc</b>, means increase.', why:['Decorate is not in the lesson’s list of crochet abbreviations.', '', 'Detached chain is the lazy daisy embroidery stitch; it is not in the crochet abbreviation list.', 'Declare is not in the lesson’s list of crochet abbreviations.'], tip:'dec and inc are a pair: INCrease and DECrease, for making your count of stitches go up or down.'},
+      {q:'True or False: In a crochet pattern, <b>rep</b> means "remaining".', options:['True','False'], correct:1, explain:'False — <b>rep</b> means REPEAT. <b>rem</b> is the one that means remaining. These two are very easy to mix up.', why:['<b>rep</b> means REPEAT. The one that means remaining is <b>rem</b>.', ''], tip:'rep → REPeat, rem → REMaining. Look at the last letter: p for repeat, m for remaining.'},
+      {q:'Which abbreviation means "together"?', options:['tog','tg','tgr','to'], correct:0, explain:'<b>tog</b> means together, as in working two stitches together.', why:['', '“tg” is not in the list. Together is written <b>tog</b>.', '“tgr” is not in the list. Together is written <b>tog</b>.', '“to” is not in the list. Together is written <b>tog</b>, with three letters.'], tip:'tog = the first three letters of TOGether.'},
+      {q:'A pattern tells you to "<b>sk</b> 1 <b>st</b>". What are you being told to do?', options:['Skip one stitch','Sew one stitch','Start one stitch','Shorten one stitch'], correct:0, explain:'<b>sk</b> = skip and <b>st</b> = stitch, so "sk 1 st" means skip one stitch.', why:['', 'Sew is not in the abbreviation list. <b>sk</b> means skip.', 'Start is not sk. Beginning is written <b>beg</b>.', 'Shorten is not in the abbreviation list. <b>sk</b> means skip.'], tip:'Break it into parts: sk = SKip, 1 = one, st = STitch. Then put them together to read the instruction.'}
+    ]
+  },
+  {
+    id:'handsewing',
+    icon:'🪡',
+    title:'Hand Sewing & Sewing Tools',
+    subtitle:'Hand vs machine sewing, running stitch, correct tools',
+    cards:[
+      {front:'Hand Sewing', back:'Sewing with a <b>needle and thread</b>, done <b>without an electric sewing machine</b>.'},
+      {front:'Machine Sewing', back:'Sewing with a <b>sewing machine</b>.'},
+      {front:'Running Stitch in Sewing', back:'The same running stitch from embroidery. In sewing it is commonly used for making <b>strong, temporary stitches</b>. It should have <b>evenly spaced</b> stitches so the work is <b>neat and uniform</b>.'},
+      {front:'Why Use the Correct Tools?', back:'The correct sewing tools and equipment <b>make sewing safer and easier</b>.'},
+      {front:'Check Before You Sew', back:'Check your sewing tools and equipment <b>before using them</b> to make sure they are <b>safe</b> and in <b>good condition</b>.'},
+      {front:'Put Sharp Tools Away', back:'Leaving needles, pins, and scissors anywhere on the sewing table is <b>NOT SAFE</b> (UNSAFE). Put them back after using them.'}
+    ],
+    quiz:[
+      {q:'Which sewing method uses a needle and thread and is done without an electric sewing machine?', options:['hand sewing','weaving','embroidery','machine sewing'], correct:0, explain:'Needle and thread, no machine &rarr; <b>hand sewing</b>.', why:['', 'Weaving is not one of the sewing methods in this lesson. The two methods are hand sewing and machine sewing.', 'Embroidery also uses a needle and thread, but it is the art of decorating fabric with designs, not a sewing method.', 'Machine sewing uses a sewing machine — but the question says WITHOUT one.'], tip:'The question says “without a machine,” so cross out machine sewing. What is left is sewing with your HANDS.'},
+      {q:'Which stitch is commonly used for making strong, temporary stitches?', options:['running stitch','satin stitch','chain stitch','lazy daisy stitch'], correct:0, explain:'The <b>running stitch</b> is the one for strong, temporary stitches.', why:['', 'Satin stitch is the embroidery stitch that fills a shape solidly.', 'Chain stitch is the basic crochet stitch.', 'Lazy daisy is the embroidery stitch that makes flower petals.'], tip:'The running stitch is the one stitch shared by embroidery and sewing. In sewing, link it to “strong, temporary stitches.”'},
+      {q:'Why is it important to use the correct sewing tools and equipment?', options:['to make sewing safer and easier','to use all the tools at once','to avoid finishing the project','to make the fabric feel heavier'], correct:0, explain:'The right tools make sewing <b>safer and easier</b>.', why:['', 'Using all the tools at once is not a reason in the lesson. Each tool has its own purpose.', 'The correct tools help you finish, not avoid finishing.', 'Choosing the correct tools has nothing to do with making fabric heavier.'], tip:'When a “why” question asks about a good habit, pick the answer that helps you. The lesson’s reason is: safer and easier.'},
+      {q:'Why should a running stitch have evenly spaced stitches?', options:['to make the work neat and uniform','to make the fabric heavier','to make the thread longer','to make the needle sharper'], correct:0, explain:'Even spacing makes the work <b>neat and uniform</b>.', why:['', 'Spacing the stitches does not change how heavy the fabric is.', 'Even spacing does not make the thread any longer.', 'The stitches cannot make the needle sharper.'], tip:'Even spacing is about how the finished work looks. “Evenly spaced” goes with “neat and uniform.”'},
+      {q:'True or False: Hand sewing is done with an electric sewing machine.', options:['True','False'], correct:1, explain:'False — hand sewing uses only a <b>needle and thread</b>.', why:['The words “electric sewing machine” make this false. Hand sewing uses only a needle and thread; machine sewing is the one with the machine.', ''], tip:'Hand sewing = your hands + needle + thread. Machine sewing = the machine.'},
+      {q:'True or False: A learner should check the sewing tools and equipment before using them to make sure they are safe and in good condition.', options:['True','False'], correct:0, explain:'Correct — this was TRUE on your test.', why:['', 'Picking False means you could skip checking — but the lesson says to check your tools before using them so they are safe and in good condition.'], tip:'Remember “Check Before You Sew”: safe and in good condition.'},
+      {q:'True or False: It is safe to leave needles, pins, and scissors anywhere on the sewing table after using them.', options:['True','False'], correct:1, explain:'False — it is <b>NOT SAFE</b>. On your test the answer key wanted <b>NOT SAFE</b> or <b>UNSAFE</b>; &ldquo;DANGEROUS&rdquo; was not accepted.', why:['The word “safe” makes this false. Leaving needles, pins, and scissors lying around is NOT SAFE — put them back after using them.', ''], tip:'Sharp tools lying around can hurt someone. If a statement says leaving sharp things anywhere is fine, it is false.'},
+      {q:'On your test you had to change the underlined word to make the statement true: &ldquo;It is <u>safe</u> to leave needles, pins, and scissors anywhere on the sewing table.&rdquo; Which answer did the key accept?', options:['UNSAFE','DANGEROUS','RISKY','CAREFUL'], correct:0, explain:'The key accepted <b>UNSAFE</b> or <b>NOT SAFE</b>, the direct opposite of the underlined word. DANGEROUS means nearly the same thing, but it was marked wrong.', why:['', 'DANGEROUS means almost the same, but the answer key did not accept it. The key wanted the direct opposite of “safe.”', 'RISKY is not the direct opposite of “safe,” so it is not the answer the key accepted.', 'CAREFUL is not the opposite of “safe,” and it does not make the statement true.'], tip:'For “change the underlined word” questions, give the direct opposite of the word: safe → UNSAFE or NOT SAFE.'},
+      {q:'True or False: A running stitch should have evenly spaced stitches.', options:['True','False'], correct:0, explain:'Correct — so the work is neat and uniform.', why:['', 'Picking False disagrees with the lesson: evenly spaced stitches keep the work neat and uniform.'], tip:'Keep this pair together: evenly spaced = neat and uniform.'},
+      {q:'What should you do with pins and scissors after using them?', options:['Put them back where they belong','Leave them anywhere on the table','Keep them in your pocket','Leave them on your chair'], correct:0, explain:'Sharp tools left lying around are <b>unsafe</b>, so put them away.', why:['', 'Leaving sharp tools on the table is NOT SAFE — the lesson says to put them back.', 'Your pocket is not where they belong. The lesson says to put sharp tools back in their place.', 'A chair is not where they belong, and a sharp tool there is not safe. Put them back after using them.'], tip:'Remember “Put Sharp Tools Away”: every tool goes back to its place after you use it.'}
+    ]
+  },
+  {
+    id:'machinesewing',
+    icon:'🧵',
+    title:'Machine Sewing & Safety',
+    subtitle:'Steps, parts and what to do when something goes wrong',
+    cards:[
+      {front:'Preparing to Sew by Machine', back:'<b>A.</b> Prepare the fabric and materials. <b>B.</b> Check the sewing machine and its parts. <b>C.</b> Thread the sewing machine correctly. <b>D.</b> Begin sewing carefully.'},
+      {front:'Presser Foot', back:'The part that <b>holds the fabric firmly against the feed dogs</b> while you sew.'},
+      {front:'Note About Your Test', back:'Your test asked which part holds the fabric against the feed dogs, but <b>presser foot</b> was not one of the choices. The answer key said <b>needle</b>. In real sewing it is the <b>presser foot</b>; the needle carries the thread through the fabric. If the exact same question comes back with no presser foot choice, your teacher&rsquo;s key is <b>needle</b>.'},
+      {front:'Before Pressing the Foot Pedal', back:'<b>Check if the machine is properly threaded and the needle is correctly installed.</b>'},
+      {front:'Fabric Not Moving?', back:'<b>Stop the machine and check the presser foot and fabric placement.</b> Do not keep sewing faster.'},
+      {front:'Changing the Needle', back:'<b>Turn off</b> the sewing machine before changing the needle or making adjustments.'}
+    ],
+    quiz:[
+      {q:'What is the FIRST step in preparing to sew by machine?', options:['Prepare the fabric and materials.','Check the sewing machine and its parts.','Thread the sewing machine correctly.','Begin sewing carefully.'], correct:0, explain:'Order: prepare the fabric &rarr; check the machine &rarr; thread it &rarr; begin sewing.', why:['', 'Checking the machine is step B, the second step.', 'Threading the machine is step C, after checking it.', 'Beginning to sew is step D, the last step.'], tip:'Order hook: Prepare → Check → Thread → Sew. Try “Please Check The Seam.”'},
+      {q:'Which step comes right AFTER checking the sewing machine and its parts?', options:['Thread the sewing machine correctly.','Prepare the fabric and materials.','Begin sewing carefully.','Turn off the sewing machine.'], correct:0, explain:'Check the machine, then <b>thread it</b>, then begin sewing.', why:['', 'Preparing the fabric comes BEFORE checking the machine — it is the very first step.', 'Beginning to sew is the last step, after threading.', 'Turning off the machine is not one of the four preparing steps. It is what you do before changing the needle.'], tip:'Say the order out loud: prepare, check, THREAD, sew. Find the word right after “check.”'},
+      {q:'What is the LAST step in preparing to sew by machine?', options:['Begin sewing carefully.','Thread the sewing machine correctly.','Check the sewing machine and its parts.','Prepare the fabric and materials.'], correct:0, explain:'You only <b>begin sewing</b> once everything else is ready.', why:['', 'Threading is step C — sewing still comes after it.', 'Checking the machine is step B, near the start.', 'Preparing the fabric is step A, the very first step.'], tip:'You can only sew once everything is ready, so “begin sewing” is always last.'},
+      {q:'Which part of the sewing machine holds the fabric firmly against the feed dogs?', options:['presser foot','bobbin','spool of thread','foot pedal'], correct:0, explain:'The <b>presser foot</b>. On your test this choice was missing and the key said needle.', why:['', 'The bobbin is not the part the lesson names. The part that holds the fabric against the feed dogs is the presser foot.', 'A spool of thread gives the thread. It does not press on the fabric.', 'The foot pedal is what you press to start sewing. It does not hold the fabric.'], tip:'The presser foot PRESSES the fabric down against the feed dogs. (If presser foot is missing from the choices, your teacher’s key said needle.)'},
+      {q:'Lewis is ready to use the sewing machine. What should he do before pressing the foot pedal?', options:['Check if the machine is properly threaded and the needle is correctly installed','Continue sewing faster','Turn off the sewing machine','Stop the machine and check the presser foot and fabric placement'], correct:0, explain:'Before starting, make sure it is <b>threaded</b> and the <b>needle is installed</b> correctly.', why:['', 'Sewing faster makes no sense here — Lewis has not even started.', 'Turning off the machine is for changing the needle or making adjustments. Lewis wants to start sewing.', 'Stopping to check the presser foot is for when the fabric will not move while sewing. Lewis has not begun yet.'], tip:'Look for the time clue: BEFORE starting → check threading and needle. DURING sewing → stop and check. CHANGING a part → turn off.'},
+      {q:'While sewing, Cynthia notices that the fabric is not moving properly under the presser foot. What should she do?', options:['Stop the machine and check the presser foot and fabric placement','Continue sewing faster','Turn off the sewing machine','Check if the machine is properly threaded and the needle is correctly installed'], correct:0, explain:'Something went wrong <b>while</b> sewing, so stop and check the <b>presser foot and fabric</b>.', why:['', 'Sewing faster when the fabric is not moving is exactly what the lesson says NOT to do.', 'Turning off is for changing the needle or making adjustments. For fabric that will not move, the lesson says stop and check the presser foot and fabric.', 'Checking the threading and needle is what you do BEFORE pressing the foot pedal. Cynthia is already sewing.'], tip:'Clue words “while sewing” and “not moving” → stop and check the presser foot and fabric placement.'},
+      {q:'Bryan needs to change the needle of the sewing machine. What should he do first?', options:['Turn off the sewing machine','Continue sewing faster','Stop the machine and check the presser foot and fabric placement','Check if the machine is properly threaded and the needle is correctly installed'], correct:0, explain:'Changing a part means <b>turning off</b> the machine first, so it cannot start while your fingers are near the needle.', why:['', 'Sewing faster has nothing to do with changing a needle.', 'Stopping to check the presser foot is for when the fabric will not move.', 'Checking the threading and needle is what you do before pressing the foot pedal. To change a part, you must turn the machine off first.'], tip:'Changing or adjusting any part → TURN OFF first, so the machine cannot start while your fingers are near the needle.'},
+      {q:'True or False: A learner should turn off the sewing machine before changing the needle or making adjustments.', options:['True','False'], correct:0, explain:'Correct — this was TRUE on your test.', why:['', 'Picking False means you could change the needle with the machine on — but the lesson says to turn it off first.'], tip:'Changing the needle or making adjustments = turn off first. It keeps your fingers safe.'},
+      {q:'True or False: If the fabric is not moving properly, you should keep sewing faster.', options:['True','False'], correct:1, explain:'False — <b>stop</b> and check the presser foot and fabric placement.', why:['“Keep sewing faster” makes this false. When the fabric is not moving, stop the machine and check the presser foot and fabric placement.', ''], tip:'When something goes wrong while sewing, the right answer is STOP and check — never go faster.'},
+      {q:'True or False: You should thread the sewing machine before checking the machine and its parts.', options:['True','False'], correct:1, explain:'False — <b>check</b> the machine first, then thread it.', why:['The order is swapped. You check the machine first (step B), then thread it (step C).', ''], tip:'Prepare → Check → Thread → Sew. If a statement puts them in another order, it is false.'},
+      {q:'Lewis and Cynthia both need to check something. What is the difference?', options:['Lewis checks before starting; Cynthia stops to check during sewing.','Both of them should just sew faster so they can finish the project.','Lewis should stop in the middle of a seam, and Cynthia never starts.','Neither of them needs to check anything before or while sewing.'], correct:0, explain:'<b>Before</b> sewing: check threading and needle. <b>During</b> sewing, if the fabric will not move: stop and check the presser foot and fabric.', why:['', 'Sewing faster is never the lesson’s answer. Both of them need to check something.', 'This mixes them up: Lewis checks BEFORE starting, and Cynthia stops DURING sewing.', 'Both of them do need to check — the lesson gives each one a check to do.'], tip:'Sort by time: Lewis = BEFORE, Cynthia = DURING. Before → check threading and needle; during → stop and check the presser foot and fabric.'}
+    ]
+  }
+];
+
+// Questions she may answer by typing first (+5 bonus). Value: other accepted answers.
+const TYPE_IT = {
+  "Before making a home furnishing you should think about purpose, materials, design, and safety. What is the FIFTH thing to consider?": [],
+  "Which embroidery tool holds the fabric tight and steady while you stitch?": ["embroidery hoop", "hoop"],
+  "A design that uses mainly squares and triangles is called a...": ["geometric"],
+  "Which design is made by the size, form, colour, and texture of an object?": ["structural"],
+  "Which crochet tool is used to weave in loose yarn ends?": ["tapestry needle"],
+  "What is the MAIN material used in crochet?": [],
+  "Which tool pulls and forms loops of yarn into stitches?": ["crochet hook", "hook"],
+  "For TREBLE crochet, how many times do you yarn over before inserting the hook?": ["two", "2", "two times", "2 times"],
+  "Which stitch is worked the same way as the running stitch, but with LONGER stitches?": ["straight"],
+  "Which stitch fills a shape with stitches worked closely side by side, creating a plump, solidly filled figure?": ["satin"],
+  "The stem stitch is also known by which other name?": ["outline stitch", "outline"],
+  "In a crochet pattern, what does <b>ch</b> mean?": ["chain stitch"],
+  "What does <b>dc</b> stand for?": [],
+  "Which abbreviation means SLIP STITCH?": ["slst"],
+  "What does <b>dec</b> mean in a crochet pattern?": [],
+  "Which sewing method uses a needle and thread and is done without an electric sewing machine?": [],
+  "Which part of the sewing machine holds the fabric firmly against the feed dogs?": [],
+};
+const FINAL_EXAM_PER_LESSON = 3;
+const SH = window.StudyHistory, SH_APP = 'craft-corner', SH_TITLE = 'Craft Corner';
+let historyLessonId = null, historyQuizId = null;
+const STORAGE_KEY = 'craftcorner_progress_v1';
+/* Points are cumulative and deliberately survive ?reset=1 — stars reset each visit, points never do. */
+const POINTS_KEY = 'craftcorner_points_v1';
+const POINTS_PER_CORRECT = 10, EXAM_POINTS_PER_CORRECT = 20, STREAK_BONUS = 5, STREAK_BONUS_AT = 3;
+function loadTotalPoints(){ try{ return parseInt(localStorage.getItem(POINTS_KEY), 10) || 0; }catch(e){ return 0; } }
+function saveTotalPoints(n){ try{ localStorage.setItem(POINTS_KEY, String(n)); }catch(e){} if(window.Wallet && Wallet.renderCoins) Wallet.renderCoins(); }
+let totalPoints = loadTotalPoints();
+
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveProgress(p){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }catch(e){}
+}
+let progress = loadProgress();
+/* Opened from the lobby with ?reset=1 -> start a completely fresh run. */
+const STARS_DAY_KEY = STORAGE_KEY + '_day';
+const starsToday = (function(d){ return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); })(new Date());
+let starsDay = null;
+try{ starsDay = localStorage.getItem(STARS_DAY_KEY); }catch(e){}
+if (starsDay !== starsToday){
+  progress = {};
+  saveProgress(progress);
+  try{ localStorage.setItem(STARS_DAY_KEY, starsToday); }catch(e){}
+}
+if (/(^|[?&])reset=1(&|$)/.test(location.search)){
+  SH && SH.appOpened(SH_APP, SH_TITLE);
+  if (window.history && window.history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+// Recall decides whether this question pays, shows a typing box, and offers power-ups.
+function offerQuestion(pu){
+  if (window.Recall) Recall.ask(pu, SH_APP, typeof TYPE_IT === 'undefined' ? null : TYPE_IT);
+  else if (window.PowerUps) PowerUps.offer(pu);
+}
+function prepareQuestion(q){
+  const order = shuffle(q.options.map((_,i)=>i));
+  const options = order.map(i=>q.options[i]);
+  const correct = order.indexOf(q.correct);
+  const why = q.why ? order.map(i=>q.why[i]) : [];
+  const whyEn = q.whyEn ? order.map(i=>q.whyEn[i]) : [];
+  return {q:q.q, options, correct, explain:q.explain, why, whyEn, tip:q.tip, tipEn:q.tipEn};
+}
+function starsFor(pct){
+  if(pct >= 1) return 3;
+  if(pct >= 0.8) return 2;
+  if(pct >= 0.5) return 1;
+  return 0;
+}
+function starString(n){
+  let s='';
+  for(let i=0;i<3;i++) s += i<n ? '★' : '<span class="off">★</span>';
+  return s;
+}
+
+function hoopMarkup(n){
+  const show = i => n>=i ? 1 : 0.06;
+  return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="104" r="62" fill="#FBF7EF" opacity="${show(1)}"/>
+    <circle cx="100" cy="104" r="62" fill="none" stroke="var(--accent-dark)" stroke-width="5" opacity="${show(2)}"/>
+    <g opacity="${show(3)}">
+      <circle cx="100" cy="104" r="69" fill="none" stroke="var(--accent)" stroke-width="7"/>
+      <rect x="92" y="26" width="16" height="14" rx="4" fill="var(--accent-dark)"/>
+      <circle cx="100" cy="33" r="3" fill="var(--gold)"/>
+    </g>
+    <path d="M100 148 q-3 -26 0 -44" stroke="#3E8E5A" stroke-width="4" fill="none" stroke-linecap="round" opacity="${show(4)}"/>
+    <g opacity="${show(5)}" fill="#3E8E5A">
+      <path d="M100 126 q-20 -6 -24 -20 q18 -2 24 20"/>
+      <path d="M100 116 q20 -6 24 -20 q-18 -2 -24 20"/>
+    </g>
+    <g opacity="${show(6)}" fill="var(--coral)">
+      <circle cx="100" cy="86" r="11"/>
+      <circle cx="86" cy="96" r="11"/>
+      <circle cx="114" cy="96" r="11"/>
+      <circle cx="91" cy="74" r="11"/>
+      <circle cx="109" cy="74" r="11"/>
+    </g>
+    <circle cx="100" cy="86" r="8" fill="var(--gold)" opacity="${show(7)}"/>
+    <g opacity="${show(8)}">
+      <line x1="150" y1="52" x2="178" y2="30" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="178" cy="30" r="3.5" fill="none" stroke="var(--ink)" stroke-width="2"/>
+      <path d="M150 52 q-14 10 -8 24" stroke="var(--coral)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-dasharray="4 4"/>
+      <text x="100" y="205" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent-dark)" font-family="Baloo 2, cursive">CRAFTED!</text>
+    </g>
+  </svg>`;
+}
+
+const STRATEGY = [
+  {kicker:'True or False Tip #1', title:'Watch for absolute words', body:'Words like "always," "never," "only," and "must" often make a statement FALSE. "Embroidery thread is ALWAYS white" is false &mdash; it is coloured thread.'},
+  {kicker:'True or False Tip #2', title:'One false part = the whole thing is False', body:'If any single part of the sentence is wrong, mark the WHOLE sentence False &mdash; even if the rest sounds right.'},
+  {kicker:'TLE Tip #1', title:'Sort furnishings by what they DO, not how they look', body:'Ask "what is this FOR?" &mdash; to look beautiful (<b>decorative</b>), to be useful (<b>functional</b>), or to keep things tidy (<b>organizational</b>). A table mat looks nice, but its job is protecting the table, so it is functional.'},
+  {kicker:'TLE Tip #2', title:'One tool, one job', body:'Every tool question is really "which tool does this job?" Hoop = holds fabric steady. Needle = passes thread. Hook = forms loops. Tapestry needle = weaves in ends. Stitch marker = marks a spot. Measuring tape = measures. Scissors = cut.'},
+  {kicker:'TLE Tip #3', title:'Learn the crochet numbers', body:'Which chain you enter is the classic test item: single and half double = <b>2nd</b>, double = <b>4th</b>, treble = <b>5th</b>, double treble = <b>6th</b>. Yarn-overs go up too: treble <b>2</b>, double treble <b>3</b>, triple treble <b>4</b>.'},
+  {kicker:'TLE Tip #4', title:'Do not mix up embroidery and crochet', body:'Embroidery = needle + <b>thread</b> on fabric. Crochet = hook + <b>yarn</b>. If a question lists a handkerchief or pillowcase it is embroidery; coasters, scarves and keychains are crochet.'},
+  {kicker:'TLE Tip #5', title:'Design names have giveaway words', body:'"Size, form, colour and texture" &rarr; <b>structural</b>. "Colours need not be real" &rarr; <b>decorative</b>. "From nature" &rarr; <b>naturalistic</b>. "Square and triangle" &rarr; <b>geometric</b>. "Suggestion, not appearance" &rarr; <b>abstract</b>. "Idealistic, not the natural form" &rarr; <b>conventional</b>.'},
+  {kicker:'TLE Tip #6', title:'Embroidery stitches have giveaway words', body:'"Simplest and quickest" &rarr; <b>running</b>. "Like running but longer" &rarr; <b>straight</b>. "Thread emerges on the left" &rarr; <b>stem/outline</b>. "Plump, solidly filled" &rarr; <b>satin</b>. "One petal per loop" &rarr; <b>lazy daisy</b>. "Same hole, good for buttonholes" &rarr; <b>overcasting</b>.'},
+  {kicker:'TLE Tip #7', title:'The two abbreviation traps', body:'<b>rep</b> is REPEAT but <b>rem</b> is REMAINING. <b>sc</b> is SINGLE CROCHET but <b>sl st</b> is SLIP STITCH. Examiners love both of these pairs &mdash; read the last letter carefully.'},
+  {kicker:'Lost Mark', title:'Change the word to its exact opposite', body:'When a TRUE/FALSE item says to change the underlined word, write its <b>direct opposite</b>: SAFE &rarr; <b>UNSAFE</b> or <b>NOT SAFE</b>. On your test DANGEROUS was marked wrong even though it means almost the same.'},
+  {kicker:'Sewing Tip', title:'Before vs during', body:'<b>Before</b> you press the foot pedal: check the threading and the needle. <b>During</b> sewing, if the fabric will not move: stop and check the presser foot and fabric placement.'},
+  {kicker:'General Tip', title:'Reread before you finalize', body:'Read the question once more with your answer in mind. If it still matches what the lesson actually said, you have got it.'}
+];
+
+let currentLessonIdx = null;
+let flashIdx = 0;
+let currentQuizSet = [];
+let currentQuizMeta = null;
+let quizIdx = 0;
+let missedQuestions = [];
+function learnEn(text){
+  return text ? '<div class="fb-en"><b>Sa English:</b> ' + text + '</div>' : '';
+}
+function learnHtml(m){
+  return '<div class="learn">' +
+    '<div class="learn-title">Not quite &mdash; let&rsquo;s learn from this!</div>' +
+    '<div class="learn-row learn-picked"><b class="learn-label">You picked</b><span class="learn-choice">' + m.picked + '</span>' +
+      (m.why ? '<span class="learn-why">Why that&rsquo;s not right: ' + m.why + '</span>' + learnEn(m.whyEn) : '') + '</div>' +
+    '<div class="learn-row learn-right"><b class="learn-label">The right answer</b><span class="learn-choice">' + m.answer + '</span>' +
+      '<span class="learn-why">' + m.explain + '</span></div>' +
+    (m.tip ? '<div class="learn-row learn-tip"><b class="learn-label">&#128161; Tip for next time</b>' + m.tip + learnEn(m.tipEn) + '</div>' : '') +
+  '</div>';
+}
+function renderMissedReview(){
+  const el = document.getElementById('missedReview');
+  el.style.display = missedQuestions.length ? 'block' : 'none';
+  el.innerHTML = missedQuestions.length
+    ? '<h3>Questions to Review</h3><div class="missed-list">' +
+      missedQuestions.map(m => '<div class="missed-item"><p class="missed-q">' + m.q + '</p>' + learnHtml(m) + '</div>').join('') + '</div>'
+    : '';
+}
+let quizScore = 0;
+let sessionPoints = 0, streak = 0, bestStreak = 0;
+
+function updatePointsLive(){
+  const el = document.getElementById('points-live');
+  if(!el) return;
+  el.innerHTML = '⭐ ' + sessionPoints + ' pts' + (streak >= 2 ? ' <span class="streak">🔥 x' + streak + '</span>' : '') + (window.Wallet && Wallet.liveHtml ? Wallet.liveHtml() : '');
+}
+
+function cardKey(e){
+  if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){
+    e.preventDefault();
+    e.currentTarget.click();
+  }
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){ renderHome(); showScreen('home'); }
+
+function renderHome(){
+  document.getElementById('points-total-badge').textContent = '⭐ ' + totalPoints + ' points earned';
+  const list = document.getElementById('homeList');
+  const finalTotal = LESSONS.length * FINAL_EXAM_PER_LESSON;
+  const finalBest = progress['final'] || 0;
+  let html = '';
+
+  html += `<div class="item-card final-card" role="button" tabindex="0" onclick="startFinalExam()" onkeydown="cardKey(event)">
+    <div class="icon">🏆</div>
+    <div class="info">
+      <span class="final-badge">Mock Exam</span>
+      <h3>Full Mock Exam</h3>
+      <p>${finalTotal} mixed questions from all ${LESSONS.length} lessons</p>
+    </div>
+    <div class="stars">${starString(starsFor(finalBest/finalTotal))}</div>
+  </div>`;
+
+  html += `<div class="item-card strategy-card" role="button" tabindex="0" onclick="showScreen('strategyScreen')" onkeydown="cardKey(event)">
+    <div class="icon">🎯</div>
+    <div class="info">
+      <h3>Exam Strategy</h3>
+      <p>How to ace True/False & situational questions</p>
+    </div>
+  </div>`;
+
+  LESSONS.forEach((l,i)=>{
+    const best = progress[l.id] || 0;
+    html += `<div class="item-card" role="button" tabindex="0" onclick="openLesson(${i})" onkeydown="cardKey(event)">
+      <div class="icon">${l.icon}</div>
+      <div class="info">
+        <h3>${l.title}</h3>
+        <p>${l.subtitle}</p>
+      </div>
+      <div class="stars">${starString(starsFor(best/l.quiz.length))}</div>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+}
+
+function openLesson(i){
+  currentLessonIdx = i;
+  flashIdx = 0;
+  historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].cards.length) : null;
+  document.getElementById('flashTitle').textContent = LESSONS[i].title;
+  renderFlash();
+  showScreen('flashScreen');
+}
+/* Card and question text may contain simple markup (<b>, entities) written by
+   the lesson author, so these render as HTML, not literal text. Content is
+   author-supplied only — never user input. */
+function renderFlash(){
+  const l = LESSONS[currentLessonIdx];
+  const c = l.cards[flashIdx];
+  SH && SH.cardViewed(historyLessonId, flashIdx + 1);
+  document.getElementById('flashFront').innerHTML = c.front;
+  document.getElementById('flashBack').innerHTML = c.back;
+  document.getElementById('flashBack').style.display = 'none';
+  document.getElementById('flashFront').style.display = 'block';
+  document.getElementById('flashTag').textContent = 'Term';
+  document.getElementById('flashHint').textContent = 'Tap the card to flip';
+  document.getElementById('flashDots').textContent = `${flashIdx+1} / ${l.cards.length}`;
+}
+function flipCard(){
+  const front = document.getElementById('flashFront');
+  const back = document.getElementById('flashBack');
+  const flipped = back.style.display !== 'none';
+  front.style.display = flipped ? 'block' : 'none';
+  back.style.display = flipped ? 'none' : 'block';
+  document.getElementById('flashTag').textContent = flipped ? 'Term' : 'Meaning';
+}
+function nextCard(){
+  const l = LESSONS[currentLessonIdx];
+  flashIdx = (flashIdx+1) % l.cards.length;
+  renderFlash();
+}
+function prevCard(){
+  const l = LESSONS[currentLessonIdx];
+  flashIdx = (flashIdx-1+l.cards.length) % l.cards.length;
+  renderFlash();
+}
+
+function startQuiz(){
+  const l = LESSONS[currentLessonIdx];
+  currentQuizSet = shuffle(l.quiz).map(prepareQuestion);
+  currentQuizMeta = {id:l.id, title:l.title};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  sessionPoints = 0; streak = 0; bestStreak = 0;
+  document.getElementById('quizTitle').textContent = l.title;
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+
+function startFinalExam(){
+  let qs = [];
+  LESSONS.forEach(l=>{
+    qs = qs.concat(shuffle(l.quiz).slice(0, FINAL_EXAM_PER_LESSON));
+  });
+  currentQuizSet = shuffle(qs).map(prepareQuestion);
+  currentQuizMeta = {id:'final', title:'Full Mock Exam'};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  sessionPoints = 0; streak = 0; bestStreak = 0;
+  document.getElementById('quizTitle').textContent = 'Full Mock Exam';
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+
+function renderQuestion(){
+  const total = currentQuizSet.length;
+  const q = currentQuizSet[quizIdx];
+  document.getElementById('quizCounter').textContent = `Question ${quizIdx+1} of ${total}`;
+  document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
+  updatePointsLive();
+  document.getElementById('quizFill').style.width = `${(quizIdx/total)*100}%`;
+  document.getElementById('sceneSvg').innerHTML = hoopMarkup(Math.round((quizScore/total)*8));
+  document.getElementById('qText').innerHTML = q.q;
+  document.getElementById('explainBox').style.display = 'none';
+  document.getElementById('exploreBox').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  q.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = opt;
+    btn.onclick = ()=>selectOption(i);
+    box.appendChild(btn);
+  });
+  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:box, options:box.children, correct:q.correct, tip:q.tip, tipEn:q.tipEn, q:q.q, historyId:historyQuizId, streak:streak, index:quizIdx, rerender:renderQuestion });
+}
+
+function selectOption(i){
+  const q = currentQuizSet[quizIdx];
+  const buttons = document.querySelectorAll('#optionsBox .option');
+  SH && SH.quizAnswered(historyQuizId, i === q.correct, q.art ? q.q + ' [' + q.options[q.correct] + ']' : q.q, q.options[i], q.options[q.correct], window.Recall ? Recall.typed() : false);
+  buttons.forEach((b,idx)=>{
+    if(idx === q.correct) b.classList.add('correct');
+    else if(idx === i) b.classList.add('wrong');
+    if(idx === i){ b.disabled = true; return; }
+    b.classList.add('explorable');
+    b.onclick = ()=>exploreOption(idx);
+  });
+  const helped = !!(window.PowerUps && PowerUps.answered());
+  if(i === q.correct){
+    quizScore++;
+    if(!helped) streak++;
+    if(streak > bestStreak) bestStreak = streak;
+    const ptsBase = currentQuizMeta.id === 'final' ? EXAM_POINTS_PER_CORRECT : POINTS_PER_CORRECT, ptsBonus = streak >= STREAK_BONUS_AT ? STREAK_BONUS : 0;
+    const pts = window.Recall ? Recall.points(helped, ptsBase, ptsBonus) : helped ? ptsBase / 2 : ptsBase + ptsBonus;
+    sessionPoints += pts;
+    totalPoints += pts;
+    saveTotalPoints(totalPoints);
+    window.Fx && Fx.correct(helped ? 0 : streak);
+  } else {
+    if(!(window.PowerUps && PowerUps.shield())) streak = 0;
+    window.Fx && Fx.wrong();
+  }
+  updatePointsLive();
+  document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
+  document.getElementById('sceneSvg').innerHTML = hoopMarkup(Math.round((quizScore/currentQuizSet.length)*8));
+  const explainHtml = q.explain;
+  const miss = i === q.correct ? null : { q:q.q, picked:q.options[i], why:(q.why||[])[i] || '', whyEn:(q.whyEn||[])[i] || '', answer:q.options[q.correct], explain:explainHtml, tip:q.tip || '', tipEn:q.tipEn || '' };
+  if(miss) missedQuestions.push(miss);
+  document.getElementById('explainBox').innerHTML = miss ? learnHtml(miss) : explainHtml;
+  document.getElementById('explainBox').style.display = 'block';
+  document.getElementById('exploreBox').innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>';
+  document.getElementById('exploreBox').style.display = 'block';
+  document.getElementById('nextBtn').style.display = 'block';
+  document.getElementById('nextBtn').textContent = quizIdx < currentQuizSet.length-1 ? 'Next ▶' : 'See Results 🏆';
+}
+
+function exploreOption(i){
+  const q = currentQuizSet[quizIdx];
+  document.querySelectorAll('#optionsBox .option').forEach((b,idx)=>b.classList.toggle('explored', idx === i));
+  const explainHtml = q.explain;
+  const right = i === q.correct;
+  const card = right
+    ? '<div class="explore-card explore-right"><b class="learn-label">This is the right answer</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + explainHtml + '</span></div>'
+    : '<div class="explore-card"><b class="learn-label">Why not this one?</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + ((q.why||[])[i] || 'This is not the right answer.') + '</span>' + learnEn((q.whyEn||[])[i]) + '</div>';
+  document.getElementById('exploreBox').innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>' + card;
+}
+
+function nextQuestion(){
+  if(quizIdx < currentQuizSet.length-1){
+    quizIdx++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz(){
+  const total = currentQuizSet.length;
+  const best = progress[currentQuizMeta.id] || 0;
+  if(quizScore > best) progress[currentQuizMeta.id] = quizScore;
+  saveProgress(progress);
+  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / total), sessionPoints, bestStreak);
+  window.Fx && Fx.finish(starsFor(quizScore / total));
+  renderResults(total);
+  showScreen('resultsScreen');
+}
+
+function renderResults(total){
+  const pct = quizScore/total;
+  const n = starsFor(pct);
+  document.getElementById('resultScene').innerHTML = hoopMarkup(Math.round(pct*8));
+  document.getElementById('resultStars').innerHTML = starString(n);
+  document.getElementById('resultTitle').textContent =
+    n===3 ? 'Masterpiece! Perfect Score!' :
+    n===2 ? 'Beautiful Work!' :
+    n===1 ? 'Good Start!' : 'Keep Practicing!';
+  document.getElementById('resultScore').textContent = `You scored ${quizScore} out of ${total}.`;
+  let ptsLine = `⭐ +${sessionPoints} points this round`;
+  if(bestStreak >= STREAK_BONUS_AT) ptsLine += ` · 🔥 best streak: ${bestStreak} in a row!`;
+  document.getElementById('points-earned').textContent = ptsLine + (window.Recall ? Recall.resultLine() : '');
+  renderMissedReview();
+}
+
+function retryQuiz(){
+  if(currentQuizMeta.id === 'final'){ startFinalExam(); }
+  else { startQuiz(); }
+}
+
+function renderStrategy(){
+  const box = document.getElementById('strategyList');
+  box.innerHTML = STRATEGY.map(t=>`
+    <div class="tip">
+      <div class="kicker">${t.kicker}</div>
+      <h4>${t.title}</h4>
+      <p>${t.body}</p>
+    </div>
+  `).join('');
+}
+
+renderHome();
+renderStrategy();
+</script>

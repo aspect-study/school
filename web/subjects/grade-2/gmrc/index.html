@@ -1,0 +1,1176 @@
+<html lang="en">
+<meta charset="utf-8">
+<title>Growing Good</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700&family=Quicksand:wght@400;500;700&display=swap">
+<style>
+  :root{
+    --bg:#F3F1E4;
+    --bg-alt:#EAE6D2;
+    --card:#FFFEF8;
+    --ink:#2A2E22;
+    --ink-soft:#6E7360;
+    --accent:#D9667B;
+    --accent-ink:#8A3348;
+    --accent-soft:#F6DCE1;
+    --green:#6B9071;
+    --green-deep:#3F5D42;
+    --green-soft:#DCEADD;
+    --lav:#8E86C9;
+    --lav-deep:#5B54A0;
+    --lav-soft:#E7E4F5;
+    --good:#5B8C5A;
+    --good-soft:#E1EEE0;
+    --bad:#C1584A;
+    --bad-soft:#F5DED9;
+    --border:rgba(42,46,34,0.14);
+    --shadow:rgba(42,46,34,0.18);
+    --soil:#8B6A4A;
+    --soil-dark:#6B4E33;
+    --petal:#E8879B;
+    --petal-deep:#C15571;
+    --leaf:#7FAE7C;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1C1F17;
+      --bg-alt:#252A1E;
+      --card:#20241B;
+      --ink:#EDE9D6;
+      --ink-soft:#A8A691;
+      --accent:#EE8A9C;
+      --accent-ink:#FFD3DC;
+      --accent-soft:#3A2429;
+      --green:#8DBB8A;
+      --green-deep:#B7DCB2;
+      --green-soft:#233A26;
+      --lav:#ADA6E6;
+      --lav-deep:#CFC9F5;
+      --lav-soft:#2A2745;
+      --good:#8FCB8A;
+      --good-soft:#233524;
+      --bad:#E2917F;
+      --bad-soft:#3A241F;
+      --border:rgba(237,233,214,0.16);
+      --shadow:rgba(0,0,0,0.45);
+      --soil:#9C7952;
+      --soil-dark:#7A5B3B;
+      --petal:#F1A0B0;
+      --petal-deep:#E17E92;
+      --leaf:#9AC896;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1C1F17;
+    --bg-alt:#252A1E;
+    --card:#20241B;
+    --ink:#EDE9D6;
+    --ink-soft:#A8A691;
+    --accent:#EE8A9C;
+    --accent-ink:#FFD3DC;
+    --accent-soft:#3A2429;
+    --green:#8DBB8A;
+    --green-deep:#B7DCB2;
+    --green-soft:#233A26;
+    --lav:#ADA6E6;
+    --lav-deep:#CFC9F5;
+    --lav-soft:#2A2745;
+    --good:#8FCB8A;
+    --good-soft:#233524;
+    --bad:#E2917F;
+    --bad-soft:#3A241F;
+    --border:rgba(237,233,214,0.16);
+    --shadow:rgba(0,0,0,0.45);
+    --soil:#9C7952;
+    --soil-dark:#7A5B3B;
+    --petal:#F1A0B0;
+    --petal-deep:#E17E92;
+    --leaf:#9AC896;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% 8%, rgba(217,102,123,0.06), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(107,144,113,0.08), transparent 40%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Quicksand', system-ui, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:clamp(16px,4vw,40px) 16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) body{
+      background:
+        radial-gradient(circle at 12% 8%, rgba(238,138,156,0.08), transparent 40%),
+        radial-gradient(circle at 88% 92%, rgba(141,187,138,0.08), transparent 40%),
+        var(--bg);
+    }
+  }
+  :root[data-theme="dark"] body{
+    background:
+      radial-gradient(circle at 12% 8%, rgba(238,138,156,0.08), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(141,187,138,0.08), transparent 40%),
+      var(--bg);
+  }
+
+  .app{ width:100%; max-width:560px; }
+
+  .eyebrow{
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:0.78rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--green-deep);
+    text-align:center;
+    margin:0 0 6px;
+  }
+
+  h1,h2,h3{font-family:'Baloo 2', system-ui, sans-serif; text-wrap:balance; margin:0;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:26px;
+    box-shadow:0 18px 40px -18px var(--shadow), 0 2px 0 var(--border);
+    padding:clamp(22px,5vw,36px);
+  }
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:rise 0.4s ease both;}
+  @media (prefers-reduced-motion: reduce){ .screen.active{animation:none;} }
+  @keyframes rise{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---- Home ---- */
+  .hero{text-align:center; margin-bottom:20px;}
+  .hero-title{font-size:clamp(2rem,7vw,2.5rem); font-weight:700; color:var(--accent-ink); line-height:1.05;}
+  .hero-sub{font-size:1.02rem; color:var(--ink-soft); font-weight:700; margin-top:8px;}
+  .hero-scene{width:min(280px,72%); margin:16px auto 4px;}
+
+  .back-link{
+    background:none; border:none; cursor:pointer; padding:0 0 14px;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:0.85rem;
+    color:var(--green-deep); display:inline-flex; align-items:center; gap:6px;
+  }
+  .back-link:focus-visible{outline:2px solid var(--green-deep); outline-offset:3px;}
+  .back-link svg{width:16px; height:16px;}
+
+  .lesson-card{padding:16px 18px; margin-bottom:12px;}
+  .lesson-top{display:flex; align-items:center; gap:14px;}
+  .lesson-icon{width:52px; height:52px; flex:none;}
+  .lesson-info{flex:1; min-width:0;}
+  .lesson-tag-label{font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--green-deep);}
+  .lesson-title{font-family:'Baloo 2',sans-serif; font-weight:600; font-size:1.05rem; margin-top:2px; line-height:1.25;}
+  .mini-stars{display:flex; gap:2px; margin-top:6px;}
+  .mini-stars svg{width:15px; height:15px;}
+  .lesson-card .btn{margin-top:14px; padding:12px 16px; font-size:0.98rem; box-shadow:0 4px 0 var(--accent-ink), 0 7px 12px -6px var(--shadow);}
+  .final-card{border:2px solid var(--lav); background:linear-gradient(135deg, var(--lav-soft), var(--card));}
+  .final-badge{color:var(--lav-deep);}
+
+  /* ---- Buttons ---- */
+  .btn{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size:1.1rem;
+    border:none;
+    border-radius:18px;
+    padding:16px 20px;
+    cursor:pointer;
+    color:#3A1420;
+    background:var(--accent);
+    box-shadow:0 6px 0 var(--accent-ink), 0 10px 18px -8px var(--shadow);
+    transition:transform 0.12s ease, box-shadow 0.12s ease;
+    width:100%;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn:active{transform:translateY(3px); box-shadow:0 3px 0 var(--accent-ink), 0 6px 12px -8px var(--shadow);}
+  .btn:focus-visible{outline:3px solid var(--green-deep); outline-offset:3px;}
+  .btn.secondary{
+    background:transparent;
+    color:var(--green-deep);
+    box-shadow:none;
+    border:2px solid var(--green);
+  }
+  .btn.secondary:active{transform:translateY(1px);}
+  .btn-row{display:flex; gap:12px; margin-top:18px;}
+  .btn-row .btn{width:auto; flex:1;}
+
+  /* ---- Flashcards ---- */
+  .flash-dots{display:flex; justify-content:center; gap:8px; margin-bottom:18px;}
+  .flash-dots span{width:8px; height:8px; border-radius:50%; background:var(--border);}
+  .flash-dots span.on{background:var(--green);}
+  .flash-icon{width:76px; height:76px; margin:0 auto 14px; display:block;}
+  .flash-lesson-label{text-align:center; font-size:0.78rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:14px;}
+  .flash-title{font-size:1.3rem; font-weight:700; color:var(--green-deep); text-align:center;}
+  .flash-text{font-size:1.12rem; line-height:1.55; text-align:center; margin-top:12px; color:var(--ink);}
+
+  /* ---- Quiz header ---- */
+  .quiz-head{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .quiz-plant-mini{width:52px; height:52px; flex:none;}
+  .quiz-progress{flex:1;}
+  .quiz-progress-label{font-size:0.82rem; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em;}
+  .track{height:10px; border-radius:6px; background:var(--bg-alt); overflow:hidden; margin-top:6px; border:1px solid var(--border);}
+  .track-fill{height:100%; background:linear-gradient(90deg, var(--green), var(--accent)); border-radius:6px; transition:width 0.4s ease;}
+
+  .q-kicker{font-size:0.78rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--green-deep); margin-bottom:8px;}
+  .q-text{font-size:1.35rem; font-weight:700; font-family:'Baloo 2',sans-serif; line-height:1.3; margin-bottom:18px;}
+
+  .opt{
+    display:flex; align-items:center; gap:12px;
+    width:100%; text-align:left;
+    background:var(--bg-alt);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:14px 16px;
+    font-family:'Quicksand',sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    color:var(--ink);
+    cursor:pointer;
+    margin-bottom:10px;
+    transition:border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+  }
+  .opt:hover{border-color:var(--green);}
+  .opt:active{transform:scale(0.99);}
+  .opt:focus-visible{outline:3px solid var(--green-deep); outline-offset:2px;}
+  .opt .bullet{width:22px; height:22px; flex:none; border-radius:50%; border:2px solid var(--ink-soft); opacity:0.55;}
+  .opt.correct{background:var(--good-soft); border-color:var(--good); color:var(--ink);}
+  .opt.correct .bullet{border-color:var(--good); background:var(--good);}
+  .opt.wrong{background:var(--bad-soft); border-color:var(--bad);}
+  .opt.wrong .bullet{border-color:var(--bad); background:var(--bad);}
+  .opt[disabled]{cursor:default;}
+
+  .tf-row{display:flex; gap:14px;}
+  .tf-btn{
+    flex:1; padding:26px 10px; border-radius:18px; border:2px solid var(--border);
+    background:var(--bg-alt); font-family:'Baloo 2',sans-serif; font-weight:600; font-size:1.15rem;
+    display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; color:var(--ink);
+    transition:border-color 0.15s ease, transform 0.1s ease;
+  }
+  .tf-btn svg{width:34px; height:34px;}
+  .tf-btn:hover{border-color:var(--green);}
+  .tf-btn:active{transform:scale(0.98);}
+  .tf-btn:focus-visible{outline:3px solid var(--green-deep); outline-offset:2px;}
+  .tf-btn.correct{background:var(--good-soft); border-color:var(--good);}
+  .tf-btn.wrong{background:var(--bad-soft); border-color:var(--bad);}
+  .tf-btn[disabled]{cursor:default;}
+  .opt.explorable, .tf-btn.explorable{border-style:dashed;}
+  .opt.explored, .tf-btn.explored{box-shadow:0 0 0 3px var(--bg-alt);}
+  .explore{margin-top:4px;}
+  .explore-hint{font-size:0.9rem; color:var(--ink-soft); font-weight:700;}
+  .explore-card{margin-top:8px; background:var(--card); border:2px solid var(--border); border-left:5px solid var(--bad); border-radius:12px; padding:9px 12px; font-weight:600; line-height:1.45;}
+  .explore-card.explore-right{border-left-color:var(--good);}
+  .explore-card b{display:block; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft);}
+  .explore-card .learn-choice{font-weight:800;}
+  .explore-card .learn-why{display:block; margin-top:3px; font-weight:500;}
+
+  .feedback{
+    margin-top:16px; padding:14px 16px; border-radius:16px; font-weight:700; font-size:1rem;
+    display:none; align-items:flex-start; gap:10px; line-height:1.45;
+  }
+  .feedback.show{display:flex; animation:pop 0.3s ease both;}
+  @media (prefers-reduced-motion: reduce){ .feedback.show{animation:none;} }
+  @keyframes pop{ from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:none;} }
+  .feedback.good{background:var(--good-soft); color:var(--ink);}
+  .feedback.bad{background:var(--bad-soft); color:var(--ink);}
+  .feedback svg{width:22px; height:22px; flex:none; margin-top:1px;}
+
+  .next-wrap{margin-top:18px; display:none;}
+  .next-wrap.show{display:block;}
+
+  /* ---- Results ---- */
+  #screen-results .card{text-align:center;}
+  .result-plant{width:min(200px,56%); margin:6px auto 8px;}
+  .stars{display:flex; justify-content:center; gap:6px; margin:10px 0 4px;}
+  .stars svg{width:38px; height:38px;}
+  .result-score{font-size:1.5rem; font-weight:700; font-family:'Baloo 2',sans-serif; color:var(--accent-ink); margin-top:6px;}
+  .result-msg{font-size:1.08rem; color:var(--ink-soft); font-weight:700; margin-top:8px; line-height:1.5;}
+
+  /* ---- Missed questions review ---- */
+  .missed-review{display:none; text-align:left; margin-top:18px; padding-top:16px; border-top:1px solid var(--border);}
+  .missed-review.show{display:block;}
+  .missed-review h3{font-size:1rem; font-family:'Baloo 2',sans-serif; color:var(--ink); margin:0 0 10px; text-align:center;}
+  .missed-list{max-height:340px; overflow-y:auto; padding-right:2px;}
+  .missed-item{display:flex; gap:10px; align-items:flex-start; background:var(--bg-alt); border-radius:12px; padding:12px 14px; margin-bottom:10px;}
+  .missed-item svg{width:18px; height:18px; flex:none; margin-top:2px; color:var(--bad);}
+  .missed-item .missed-q{white-space:pre-line; font-weight:700; color:var(--ink); margin:0 0 4px; line-height:1.4; font-size:0.96rem;}
+  .missed-item .missed-explain{color:var(--ink-soft); margin:0; line-height:1.4; font-size:0.9rem; font-weight:500;}
+
+  /* ---- Points & streak ---- */
+  .points-total{display:inline-flex; align-items:center; gap:6px; background:var(--lav-soft); color:var(--lav-deep); font-weight:800; font-size:0.85rem; padding:6px 14px; border-radius:999px; margin-top:10px;}
+  .quiz-progress-label-row{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .points-live{font-size:0.78rem; font-weight:800; color:var(--lav-deep); white-space:nowrap;}
+  .points-live .streak{color:var(--accent-ink); margin-left:4px;}
+  .points-earned{font-size:1rem; font-weight:800; color:var(--lav-deep); margin-top:6px;}
+
+  /* ---- Plant SVG piece reveal ---- */
+  .piece{opacity:0; transform:scale(0.4); transform-box:fill-box; transform-origin:center; transition:opacity 0.35s ease, transform 0.35s cubic-bezier(.34,1.56,.64,1);}
+  .piece.revealed{opacity:1; transform:scale(1);}
+  @media (prefers-reduced-motion: reduce){ .piece{transition:opacity 0.2s ease;} .piece.revealed{transform:none;} }
+  .piece.base{opacity:1; transform:none; transition:none;}
+
+/* 3-up lesson map on wide screens, so every lesson shows at once.
+   Only the lesson list widens -- flashcards, quiz and results stay narrow. */
+@media (min-width:900px){
+  .app{max-width:1120px;}
+  .app section:not(#screen-home){max-width:560px; margin-left:auto; margin-right:auto;}
+  #screen-home > *:not(#home-list){max-width:560px; margin-left:auto; margin-right:auto;}
+  #home-list{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; align-items:stretch;}
+  #home-list .lesson-card{margin-bottom:0; height:100%; display:flex; flex-direction:column;}
+  #home-list .lesson-top{flex:1; align-items:flex-start;}
+}
+  .q-sentence{background:transparent; border:2px dashed color-mix(in srgb, var(--ink) 35%, transparent); border-radius:14px; padding:14px 16px; font-size:1.2rem; font-weight:700; line-height:1.5; text-align:center; margin:-4px 0 16px; color:var(--ink);}
+  /* ---- Learn from a wrong answer ---- */
+  .learn{display:flex; flex-direction:column; gap:8px; width:100%;}
+  .learn-title{font-weight:800;}
+  .learn-row{background:var(--card); border-radius:12px; padding:9px 12px; border-left:5px solid var(--bad); font-weight:600; line-height:1.45;}
+  .learn-row b{display:block; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft);}
+  .learn-row .learn-choice{font-weight:800;}
+  .learn-row .learn-why{display:block; margin-top:3px; font-weight:500;}
+  .learn-right{border-left-color:var(--good);}
+  .learn-tip{border-left-color:#E0A526;}
+  .missed-item .learn{margin-top:6px; font-size:0.9rem;}
+</style>
+
+<div class="app">
+  <p class="eyebrow">GMRC 2 &middot; Growing Good</p>
+
+  <!-- HOME / LESSON MAP -->
+  <section id="screen-home" class="screen active">
+    <div class="hero">
+      <h1 class="hero-title">Growing Good</h1>
+      <p class="hero-sub">Pick a lesson and watch yourself grow! Question and answer order shuffle every time, so you really have to know each answer — not just remember the order. Try the Final Mock Exam once you've grown every lesson!</p>
+      <div class="points-total" id="points-total-badge"></div>
+      <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
+      <svg class="hero-scene" viewBox="0 0 300 120" role="img" aria-label="A row of small growing plants">
+        <circle cx="255" cy="26" r="16" fill="var(--accent)" opacity="0.85"/>
+        <rect x="0" y="98" width="300" height="10" fill="var(--soil)"/>
+        <g>
+          <rect x="58" y="70" width="4" height="28" fill="var(--green-deep)"/>
+          <circle cx="60" cy="66" r="8" fill="var(--petal)"/>
+        </g>
+        <g>
+          <rect x="148" y="58" width="4" height="40" fill="var(--green-deep)"/>
+          <path d="M150 74c-10-6-20 0-18 8 8 4 18-2 18-8z" fill="var(--leaf)"/>
+          <path d="M150 66c10-6 20 0 18 8-8 4-18-2-18-8z" fill="var(--green)"/>
+          <circle cx="150" cy="54" r="9" fill="var(--accent)"/>
+        </g>
+        <g>
+          <rect x="228" y="80" width="4" height="18" fill="var(--green-deep)"/>
+          <circle cx="230" cy="78" r="5" fill="var(--leaf)"/>
+        </g>
+      </svg>
+    </div>
+    <div id="home-list"></div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="screen-flash" class="screen">
+    <div class="card">
+      <button class="back-link" id="back-from-flash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,5 8,12 15,19"/></svg>Lesson List</button>
+      <p class="flash-lesson-label" id="flash-lesson-label"></p>
+      <div class="flash-dots" id="flash-dots"></div>
+      <div id="flash-body"></div>
+      <div class="btn-row">
+        <button class="btn secondary" id="btn-flash-prev">Back</button>
+        <button class="btn" id="btn-flash-next">Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="screen">
+    <div class="card">
+      <button class="back-link" id="back-from-quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,5 8,12 15,19"/></svg>Lesson List</button>
+      <div class="quiz-head">
+        <svg class="quiz-plant-mini" viewBox="0 0 120 100" role="img" aria-label="A plant growing as you answer">
+          <g id="plant-mini"></g>
+        </svg>
+        <div class="quiz-progress">
+          <div class="quiz-progress-label-row">
+            <div class="quiz-progress-label" id="q-count">Question 1 of 8</div>
+            <div class="points-live" id="points-live"></div>
+          </div>
+          <div class="track"><div class="track-fill" id="track-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="q-kicker" id="q-kicker">Choose the correct answer</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-sentence" id="q-sentence" style="display:none"></div>
+      <div id="q-options"></div>
+      <div class="explore" id="q-explore" style="display:none;"></div>
+      <div class="feedback" id="q-feedback"></div>
+      <div class="next-wrap" id="next-wrap">
+        <button class="btn" id="btn-next">Next &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="screen-results" class="screen">
+    <div class="card">
+      <h2 style="font-size:1.5rem;color:var(--green-deep);">Quiz Complete!</h2>
+      <svg class="result-plant" viewBox="0 0 120 100" role="img" aria-label="Your fully grown plant">
+        <g id="plant-final"></g>
+      </svg>
+      <div class="stars" id="stars"></div>
+      <div class="result-score" id="result-score"></div>
+      <div class="points-earned" id="points-earned"></div>
+      <div class="coins-have" data-coins="haveNow"></div>
+      <p class="result-msg" id="result-msg"></p>
+      <div class="missed-review" id="missed-review"></div>
+      <div class="btn-row">
+        <button class="btn secondary" id="btn-retry">Retry Lesson</button>
+        <button class="btn" id="btn-go-home">Lesson List</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="../../../engine/study-history.js" data-grade="grade2"></script>
+<script src="../../../engine/wallet.js" data-grade="grade2"></script>
+<script src="../../../engine/fx.js" data-grade="grade2"></script>
+<script src="../../../engine/powerups.js" data-grade="grade2"></script>
+<script src="../../../engine/recall.js" data-grade="grade2"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+
+  var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,13 9,18 20,6"/></svg>';
+  var X_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>';
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function mc(q, opts, good, bad, more){
+    more = more || {};
+    return { type:'mc', q:q, options: opts.map(function(o){ return {text:o[0], correct:o[1], why:o[2]}; }), good:good, bad:bad, tip:more.tip };
+  }
+  function tf(q, answer, good, bad, more){
+    more = more || {};
+    return { type:'tf', q:q, answer:answer, good:good, bad:bad, why:more.why, tip:more.tip };
+  }
+  // Recall decides whether this question pays, shows a typing box, and offers power-ups.
+  function offerQuestion(pu){
+    if (window.Recall) Recall.ask(pu, SH_APP, typeof TYPE_IT === 'undefined' ? null : TYPE_IT);
+    else if (window.PowerUps) PowerUps.offer(pu);
+  }
+  function prepareQuestion(item){
+    if (item.type === 'mc') return { type:'mc', q:item.q, options: shuffle(item.options), good:item.good, bad:item.bad, tip:item.tip };
+    return item;
+  }
+  function buildQuizSet(lesson){
+    return shuffle(lesson.quiz).map(prepareQuestion);
+  }
+
+  var SH = window.StudyHistory, SH_APP = 'growing-good', SH_TITLE = 'Growing Good', SH_TRUE = 'True', SH_FALSE = 'False';
+  var historyLessonId = null, historyQuizId = null;
+  var STORAGE_KEY = 'growinggood_progress_v1';
+  function loadProgress(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; } }
+  function saveProgress(p){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }catch(e){} }
+  var progress = loadProgress();
+  var STARS_DAY_KEY = STORAGE_KEY + '_day';
+  var starsToday = (function(d){ return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); })(new Date());
+  var starsDay = null;
+  try{ starsDay = localStorage.getItem(STARS_DAY_KEY); }catch(e){}
+  if (starsDay !== starsToday){
+    progress = {};
+    saveProgress(progress);
+    try{ localStorage.setItem(STARS_DAY_KEY, starsToday); }catch(e){}
+  }
+  if (/(^|[?&])reset=1(&|$)/.test(location.search)){
+    SH && SH.appOpened(SH_APP, SH_TITLE);
+    if (window.history && window.history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+  }
+
+  var FINAL_EXAM_PER_LESSON = 3;
+
+  var POINTS_KEY = 'growinggood_points_v1';
+  function loadTotalPoints(){ try{ return parseInt(localStorage.getItem(POINTS_KEY), 10) || 0; }catch(e){ return 0; } }
+  function saveTotalPoints(n){ try{ localStorage.setItem(POINTS_KEY, String(n)); }catch(e){} if(window.Wallet && Wallet.renderCoins) Wallet.renderCoins(); }
+  var totalPoints = loadTotalPoints();
+
+  function starsFor(pct){
+    if (pct >= 1) return 3;
+    if (pct >= 0.8) return 2;
+    if (pct >= 0.5) return 1;
+    return 0;
+  }
+
+  /* ================= LESSONS ================= */
+  var lessons = [
+    {
+      tag: 'Lesson 1',
+      title: 'I Know Who I Am',
+      stars: 0,
+      icon: '<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><circle cx="38" cy="28" r="10" fill="var(--accent)"/><path d="M18 58c2-14 12-20 20-20s18 6 20 20" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>',
+      flashcards: [
+        { title:'WHO AM I?', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="38" cy="28" r="10" fill="var(--lav)"/><path d="M18 58c2-14 12-20 20-20s18 6 20 20" fill="none" stroke="var(--lav)" stroke-width="4" stroke-linecap="round"/>', text:'&ldquo;Who am I?&rdquo; is a question that helps you learn more about yourself. It includes your name, the things you like, your talents, your feelings, and the good qualities that make you special. Knowing who you are helps you appreciate yourself and become more confident.' },
+        { title:'MY NAME &amp; BIRTHDAY', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><circle cx="38" cy="28" r="10" fill="var(--accent)"/><rect x="24" y="46" width="28" height="10" rx="3" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/><line x1="30" y1="51" x2="46" y2="51" stroke="var(--accent)" stroke-width="2"/>', text:'Knowing your name, birthday, and the names of your family members helps you understand who you are.' },
+        { title:'WHAT IS A FAMILY?', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="26" cy="28" r="7" fill="var(--lav)"/><circle cx="50" cy="28" r="7" fill="var(--lav-deep)"/><circle cx="38" cy="44" r="5" fill="var(--accent)"/><path d="M14 58c2-10 9-14 12-14M62 58c-2-10-9-14-12-14" fill="none" stroke="var(--lav)" stroke-width="3" stroke-linecap="round"/>', text:'A family is a group of people related to each other by birth, marriage, or adoption, especially parents and their children. A family loves, cares for, and supports one another. Family members help each other, spend time together, and make each other feel safe and happy.' },
+        { title:'FAMILIES ARE DIFFERENT', icon:'<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><circle cx="24" cy="42" r="8" fill="var(--green)"/><circle cx="42" cy="34" r="11" fill="var(--green)"/><circle cx="56" cy="44" r="6" fill="var(--green)"/>', text:'Families come in different forms, sizes, and types, but all families are equally important.' },
+        { title:'WHY FAMILY IS IMPORTANT', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><polygon points="38,16 60,34 54,34 54,58 22,58 22,34 16,34" fill="var(--accent)"/><path d="M38 52c-6-5-10-8-10-12a5 5 0 0 1 10-2 5 5 0 0 1 10 2c0 4-4 7-10 12z" fill="var(--card)"/>', text:'Family loves and cares for us.<br>Family makes us feel safe.<br>Family helps and supports us.<br>Family teaches us good values.<br>Family helps us grow and learn.' },
+        { title:'BASIC FAMILY INFORMATION', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><rect x="22" y="16" width="32" height="42" rx="4" fill="var(--card)" stroke="var(--good)" stroke-width="3"/><line x1="28" y1="28" x2="48" y2="28" stroke="var(--good)" stroke-width="3"/><line x1="28" y1="37" x2="48" y2="37" stroke="var(--good)" stroke-width="3"/><line x1="28" y1="46" x2="42" y2="46" stroke="var(--good)" stroke-width="3"/>', text:'<b>Family Name (Surname)</b> &ndash; the name shared by your family.<br><b>Names of Family Members</b> &ndash; the names of your parents, siblings, and other family members.<br><b>Family Members&rsquo; Roles</b> &ndash; who is the mother, father, brother, sister, grandparent, and so on.<br><b>Home Address</b> &ndash; where your family lives.' },
+        { title:'MORE FAMILY INFORMATION', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><rect x="28" y="14" width="20" height="40" rx="4" fill="var(--good)"/><rect x="31" y="19" width="14" height="26" fill="var(--card)"/><circle cx="38" cy="49" r="2" fill="var(--card)"/>', text:'<b>Contact Information</b> &ndash; the important phone numbers of your parents or guardians.<br><b>Family Values</b> &ndash; the good values your family practices, such as love, respect, honesty, and responsibility.<br><b>Family Traditions and Celebrations</b> &ndash; the special activities your family does together.' },
+        { title:'SHARE WITH CARE', icon:'<circle cx="38" cy="38" r="34" fill="var(--bad-soft)"/><rect x="24" y="36" width="28" height="22" rx="4" fill="var(--bad)"/><path d="M29 36v-6a9 9 0 0 1 18 0v6" fill="none" stroke="var(--bad)" stroke-width="4"/>', text:'Knowing basic information about your family is important. It helps you understand who you are, your beliefs, and your traits. When you share it, others learn who you are. But sharing personal information about your family, especially with strangers, needs caution. Knowing when to share or keep it to yourself keeps your family safe and secure.' },
+        { title:'A TRUE FAMILY', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><path d="M38 56c-12-10-22-18-22-29a12 12 0 0 1 22-7 12 12 0 0 1 22 7c0 11-10 19-22 29z" fill="var(--accent)"/><circle cx="31" cy="32" r="4" fill="var(--card)"/><circle cx="45" cy="32" r="4" fill="var(--card)"/>', text:'A True Family is one filled with love, where every member helps and protects one another. They care for each other and stick together.' },
+        { title:'MY FAMILY BACKGROUND', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="26" cy="28" r="7" fill="var(--lav)"/><circle cx="50" cy="28" r="7" fill="var(--lav-deep)"/><path d="M14 56c2-10 9-14 12-14s10 4 12 14M40 56c2-10 9-14 12-14s6 2 8 6" fill="none" stroke="var(--lav)" stroke-width="3" stroke-linecap="round"/>', text:'Learning about your family background and your own characteristics helps you understand your identity and appreciate your family.' },
+        { title:'VALUE WHO YOU ARE', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><path d="M38 54c-11-9-20-17-20-27a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 10-9 18-20 27z" fill="var(--accent)"/>', text:'You should value your name, your family, and your characteristics, because they are all part of your identity. Having a clear and strong knowledge of who you are is a sign of valuing yourself.' }
+      ],
+      quiz: [
+        mc('Why is it important for Kassie to know these things?\nKassie knows her name, birthday, and the names of her family members.', [['They help her understand who she is',true],['They help her buy things',false,'Buying things is about money and shopping. Knowing your name and family is not for buying things.'],['They make her the most popular',false,'Being popular means many people like you. Knowing your name and family is not about being popular.'],['They make her different from everyone',false,'This is not the reason. Knowing her name and family helps Kassie know who she is, not make her different from everyone.']], 'That&rsquo;s right! Knowing these things helps her understand who she is.', 'The correct answer is They help her understand who she is.', { tip:'Think about what your name, birthday, and family tell you. They tell you about you &mdash; who you are!' }),
+        mc('Why is it important to know your family background and your own characteristics?', [['To understand your identity and appreciate your family',true],['To hide your differences',false,'Hiding means keeping something secret. We learn about our family to value it, not to hide it.'],['To become better than others',false,'Trying to be better than others is not the reason. We learn about our family to understand ourselves.'],['To compete with other people',false,'Competing means trying to beat other people. Knowing your family is about you and your family, not beating others.']], 'Yes! It helps you understand your identity and appreciate your family.', 'The correct answer is To understand your identity and appreciate your family.', { tip:'Good reasons are kind reasons. Pick the answer about understanding yourself and loving your family, not about beating others.' }),
+        tf('Families come in different forms, sizes, and types, but all are equally important.', true, 'That&rsquo;s right! Every family is equally important.', 'The answer should be True &mdash; families come in different forms, sizes, and types, but all are equally important.', { why:'You said False, but this is true. Look at the words equally important &mdash; every family matters, big or small.', tip:'Remember: families can look different, but every family is important. A sentence that says all families matter is true.' }),
+        tf('I should value my name, family, and characteristics because they are part of my identity.', true, 'Correct! They are all part of who you are.', 'The answer should be True &mdash; you should value your name, family, and characteristics because they are part of your identity.', { why:'You said False, but this is true. Your name, family, and characteristics are part of who you are, so you should value them.', tip:'Ask yourself: Is this part of me? If it is part of who you are, it is good to value it.' }),
+        mc('What helps you understand who you are?', [['Your name, birthday, and family',true],['The weather outside today',false,'The weather is about the sky, not about you. Your name, birthday, and family help you know who you are.'],['The name of your neighbor’s pet',false,'A neighbor&rsquo;s pet is not part of your family. Your name, birthday, and family help you know who you are.']], 'Yes! Your name, birthday, and family help you understand who you are.', 'Your name, birthday, and family help you understand who you are.', { tip:'Look for the answer that matches the lesson: name, birthday, and family. These are the things that tell who you are.' }),
+        tf('Every family must look and act exactly the same to be a real family.', false, 'That&rsquo;s right! Families can be different and still be real, important families.', 'The answer should be False &mdash; families come in different forms, sizes, and types, but all are equally important.', { why:'You said True, but this is false. The words exactly the same make it wrong &mdash; families come in different forms, sizes, and types.', tip:'Watch for strong words like must and exactly. Families can be different and still be real families.' }),
+        mc('What should you do with your name, family, and characteristics?', [['Value them, because they are part of your identity',true],['Hide them from others, because they make you different',false,'Hiding them means you are not proud of them. Being different is okay &mdash; they are part of who you are.'],['Wish they were different',false,'Wishing they were different means you do not value them. We should be happy with who we are.']], 'Correct! You should value them.', 'You should value your name, family, and characteristics because they are part of your identity.', { tip:'Ask: Does this answer show that I love and value myself? Pick the one that does.' }),
+        tf('Knowing about your family background has nothing to do with your identity.', false, 'That&rsquo;s right! It actually helps you understand your identity.', 'The answer should be False &mdash; learning about your family background helps you understand your identity.', { why:'You said True, but this is false. The words nothing to do make it wrong &mdash; your family background helps you understand who you are.', tip:'When a sentence says nothing to do with, check the lesson. Family and identity go together.' }),
+        mc('What is a family?', [['A group of people related by birth, marriage, or adoption',true],['A group of classmates who sit together in the same classroom',false,'Classmates learn together at school, but they are not your family. A family is related by birth, marriage, or adoption.'],['All the people who live on the same street as you',false,'Neighbors live near you, but they are not your family. A family is related by birth, marriage, or adoption.']], 'That&rsquo;s right! A family is related by birth, marriage, or adoption.', 'A family is a group of people related by birth, marriage, or adoption, especially parents and their children.', { tip:'Remember the three ways people become a family: birth, marriage, or adoption.' }),
+        mc('What is another name for your family name?', [['Surname',true],['Nickname',false,'A nickname is a short or fun name people call you. The name shared by your family is your surname.'],['First name',false,'Your first name is your own name. The family name that your whole family shares is the surname.']], 'Yes! Your family name is your surname.', 'Your family name is also called your Surname &mdash; the name shared by your family.', { tip:'Family Name (Surname) &mdash; the flashcard puts the two words side by side. They mean the same thing.' }),
+        mc('What does your home address tell?', [['Where your family lives',true],['The important phone numbers of your parents or guardians',false,'Phone numbers of your parents or guardians are your contact information, not your home address.'],['The special activities your family does together',false,'Special activities your family does together are family traditions and celebrations, not your home address.']], 'Correct! Your home address is where your family lives.', 'Your Home Address tells where your family lives.', { tip:'Address goes with a place. Ask: Does this tell me WHERE? Then it is the address.' }),
+        mc('Which of these is a family value?', [['Honesty',true],['The name of your street and your barangay',false,'The name of your street is part of your home address. A family value is a good value, like honesty.'],['Your mother&rsquo;s phone number',false,'A phone number is contact information. A family value is a good value, like love, respect, honesty, or responsibility.']], 'Yes! Honesty is a family value.', 'Honesty is a family value, just like love, respect, and responsibility.', { tip:'Family values are good ways your family acts: love, respect, honesty, and responsibility.' }),
+        mc('What do we call the special activities your family does together?', [['Family traditions and celebrations',true],['Family members&rsquo; roles, like who is the mother or father',false,'Roles tell who is the mother, father, brother, sister, or grandparent. They are not special activities.'],['Contact information, like the phone numbers of your parents',false,'Contact information is phone numbers. Special activities your family does together are traditions and celebrations.']], 'That&rsquo;s right! Those are family traditions and celebrations.', 'The special activities your family does together are Family Traditions and Celebrations.', { tip:'Celebrations are things you do together, like a birthday party. Look for the answer about doing things together.' }),
+        tf('It is okay to tell a stranger your home address and your parents’ phone numbers.', false, 'That&rsquo;s right! Sharing family information with strangers needs caution.', 'The answer should be False &mdash; sharing personal information about your family, especially with strangers, needs caution.', { why:'You said True, but this is false. A stranger is someone you do not know. Sharing your family&rsquo;s information with strangers needs caution to keep your family safe.', tip:'Think about safety. Knowing when to share or keep your family&rsquo;s information to yourself keeps your family safe and secure.' }),
+        tf('A true family is filled with love, and every member helps and protects one another.', true, 'Correct! A true family loves, helps, and protects one another.', 'The answer should be True &mdash; a true family is filled with love, and every member helps and protects one another.', { why:'You said False, but this is true. The lesson says a true family is filled with love and every member helps and protects one another.', tip:'Remember the True Family flashcard: love, help, protect, care, and stick together.' }),
+        mc('Which of these tells why family is important?', [['Family teaches us good values',true],['Family makes us feel scared and alone',false,'This is the opposite of the lesson. Family makes us feel safe, not scared and alone.'],['Family never helps us with anything we need',false,'This is the opposite of the lesson. Family helps and supports us.']], 'Yes! Family teaches us good values.', 'Family is important because it teaches us good values. It also loves us, keeps us safe, supports us, and helps us grow.', { tip:'Family is important for good reasons: love, safety, help, good values, and growing. Pick the good one.' }),
+        tf('Knowing who you are helps you appreciate yourself and become more confident.', true, 'That&rsquo;s right! Knowing yourself builds confidence.', 'The answer should be True &mdash; knowing who you are helps you appreciate yourself and become more confident.', { why:'You said False, but this is true. The &ldquo;Who am I?&rdquo; flashcard says knowing who you are helps you appreciate yourself and become more confident.', tip:'Knowing yourself is a good thing. It helps you like yourself and feel confident.' }),
+        tf('Having a clear and strong knowledge of who you are is a sign of valuing yourself.', true, 'That&rsquo;s right! Knowing who you are shows you value yourself.', 'The answer should be True &mdash; having a clear and strong knowledge of who you are is a sign of valuing yourself.', { why:'You said False, but this is true. The Value Who You Are flashcard says knowing who you are is a sign of valuing yourself.', tip:'Knowing yourself and valuing yourself go together.' })
+      ]
+    },
+    {
+      tag: 'Lesson 3',
+      title: 'I Got This Feeling',
+      stars: 0,
+      icon: '<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><path d="M38 54c-11-9-20-17-20-27a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 10-9 18-20 27z" fill="var(--accent)"/><path d="M38 54c-11-9-20-17-20-27a12 12 0 0 1 6-10c2 10 8 20 14 37z" fill="var(--lav)" opacity="0.6"/>',
+      flashcards: [
+        { title:'EMOTIONS', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><path d="M38 54c-11-9-20-17-20-27a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 10-9 18-20 27z" fill="var(--accent)"/>', text:'Emotions are the feelings we have inside. They help us understand how we feel and how we react to different situations.' },
+        { title:'HAPPINESS', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><circle cx="38" cy="36" r="16" fill="var(--good)"/><path d="M30 40c3 4 15 4 18 0" fill="none" stroke="var(--card)" stroke-width="3" stroke-linecap="round"/>', text:'A feeling of joy. It is related to cheerfulness, excitement, and enjoyment.' },
+        { title:'SADNESS', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="38" cy="36" r="16" fill="var(--lav)"/><path d="M30 44c3-4 15-4 18 0" fill="none" stroke="var(--card)" stroke-width="3" stroke-linecap="round"/>', text:'The opposite of happiness. It is normal and okay to feel sad sometimes.' },
+        { title:'ANGER', icon:'<circle cx="38" cy="38" r="34" fill="var(--bad-soft)"/><circle cx="38" cy="36" r="16" fill="var(--bad)"/><path d="M28 30l8 4M48 30l-8 4" fill="none" stroke="var(--card)" stroke-width="3" stroke-linecap="round"/>', text:'A feeling often related to irritability, tension, and anxiety.' },
+        { title:'FEAR &amp; DISGUST', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="30" cy="38" r="10" fill="var(--lav)"/><circle cx="50" cy="38" r="10" fill="var(--green)"/>', text:'Fear is being scared of danger. Disgust is a strong dislike of something unpleasant.' },
+        { title:'CATCH YOUR FEELINGS', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><path d="M38 16l16 6v12c0 12-7 20-16 24-9-4-16-12-16-24V22z" fill="var(--good)"/><polyline points="30,38 36,44 47,31" fill="none" stroke="var(--card)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>', text:'Be Calm (C), Accept your feelings (A), Try doing something (T), and Call for Help (C &amp; H) &mdash; CATCH helps you handle strong feelings the right way.' },
+        { title:'SELF-DISCIPLINE &amp; SELF-CONTROL', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><path d="M38 16l16 6v12c0 12-7 20-16 24-9-4-16-12-16-24V22z" fill="var(--good)"/><path d="M28 36c4 4 12 4 16 0" fill="none" stroke="var(--card)" stroke-width="3" stroke-linecap="round"/>', text:'Calming down and talking politely instead of shouting shows self-discipline and self-control. Children who learn to manage their emotions well develop self-discipline.' }
+      ],
+      quiz: [
+        mc('What do we call the feelings we have inside that help us understand how we react to situations?', [['Emotions',true],['Opinions',false,'An opinion is what you think about something. The question asks about the feelings we have inside.'],['Rules',false,'Rules tell us what we should or should not do. They are not the feelings inside us.']], 'That’s right! Those are our emotions.', 'The correct answer is Emotions &mdash; the feelings we have inside.', { tip:'Look for the word feelings in the question. The feelings inside us are called emotions.' }),
+        mc('Which emotion is a feeling of joy and excitement?', [['Happiness',true],['Anger',false,'Anger is linked to irritability and tension. It is not a feeling of joy.'],['Fear',false,'Fear is being scared of danger. It is not a feeling of joy.']], 'Yes! Happiness is a feeling of joy.', 'Happiness is the feeling of joy, excitement, and enjoyment.', { tip:'Match the clue word joy to the feeling. When you feel joy, you smile &mdash; that is happiness.' }),
+        tf('It is normal and okay to feel sad sometimes.', true, 'That’s right! Everyone feels sad sometimes, and that’s okay.', 'The answer should be True &mdash; it is normal and okay to feel sad sometimes.', { why:'You said False, but this is true. The lesson says it is normal and okay to feel sad sometimes.', tip:'Remember: everyone feels sad sometimes. The word sometimes is a clue that this is okay.' }),
+        mc('Which emotion is often related to irritability and tension?', [['Anger',true],['Happiness',false,'Happiness is a feeling of joy. It is not linked to irritability and tension.'],['Disgust',false,'Disgust is a strong dislike of something unpleasant, like a bad smell. It is not the one linked to irritability.']], 'Correct! Anger is linked to irritability and tension.', 'Anger is the emotion related to irritability, tension, and anxiety.', { tip:'Match the clue words to the flashcard. Irritability, tension, and anxiety go with anger.' }),
+        tf('Fear is a natural response to danger or threat.', true, 'That’s right! Fear helps us respond to danger.', 'The answer should be True &mdash; fear is a natural response to danger or threat.', { why:'You said False, but this is true. Fear is being scared of danger &mdash; it is how we respond to danger.', tip:'Link fear with danger. If a sentence says fear is about danger, it is true.' }),
+        mc('What is disgust usually triggered by?', [['Something unpleasant, like a bad smell or taste',true],['Something fun, like a party or a game with friends',false,'A party or a game with friends is fun. Fun things make us happy, not disgusted.'],['Something exciting',false,'Exciting things make us feel happy. Disgust comes from something unpleasant.']], 'Yes! Disgust is triggered by something unpleasant.', 'Disgust is triggered by something unpleasant, like a bad smell or taste.', { tip:'Disgust means a strong dislike. Pick the thing you would NOT like, such as a bad smell or taste.' }),
+        mc('In the CATCH plan, what does the &ldquo;C&rdquo; stand for?', [['Be Calm',true],['Cry loudly',false,'Crying loudly is not a calm way to handle feelings. The first C tells us to Be Calm.'],['Complain',false,'Complaining does not help us calm down. In CATCH, C stands for Be Calm.']], 'That’s right! C stands for Be Calm.', 'In CATCH, the &ldquo;C&rdquo; stands for Be Calm.', { tip:'Say CATCH slowly: C is Be Calm, A is Accept your feelings, T is Try doing something, and C and H are Call for Help.' }),
+        tf('The CATCH plan reminds us to call for help when we need it.', true, 'Correct! Calling for help is part of the CATCH plan.', 'The answer should be True &mdash; CATCH reminds us to call for help when we need it.', { why:'You said False, but this is true. The last part of CATCH, C and H, means Call for Help.', tip:'Spell CATCH on your fingers and say what each letter means. The C and H at the end are Call for Help.' }),
+        mc('Which emotion is the opposite of happiness?', [['Sadness',true],['Excitement',false,'Excitement goes with happiness. It is not the opposite.'],['Joy',false,'Joy is happiness. Something cannot be the opposite of itself.']], 'That’s right! Sadness is the opposite of happiness.', 'Sadness is the emotion that is the opposite of happiness.', { tip:'Opposite means very different. The opposite of feeling happy is feeling sad.' }),
+        tf('Fear and disgust are the same emotion.', false, 'That’s right! Fear and disgust are two different emotions.', 'The answer should be False &mdash; fear is being scared of danger, while disgust is a strong dislike of something unpleasant.', { why:'You said True, but this is false. Fear is being scared of danger. Disgust is a strong dislike of something unpleasant. They are two different emotions.', tip:'Think of what each feeling means by itself. If they mean different things, they are not the same emotion.' }),
+        mc('In the CATCH plan, what does the &ldquo;A&rdquo; stand for?', [['Accept your feelings',true],['Argue with others until you win',false,'Arguing does not help us handle strong feelings. In CATCH, A stands for Accept your feelings.'],['Avoid everyone',false,'Avoiding everyone does not help. A stands for Accept your feelings &mdash; it is okay to feel them.']], 'Yes! A stands for Accept your feelings.', 'In CATCH, the &ldquo;A&rdquo; stands for Accept your feelings.', { tip:'CATCH is a plan to handle feelings the right way. Each letter is a good, calm step, never a fighting one.' }),
+        tf('Emotions help us understand how we feel and react to situations.', true, 'Correct! That is exactly what emotions do.', 'The answer should be True &mdash; emotions help us understand how we feel and react to situations.', { why:'You said False, but this is true. That is what emotions do &mdash; they help us understand how we feel and react.', tip:'Remember the flashcard: emotions are the feelings inside us. When a sentence matches the flashcard, it is true.' }),
+        mc('What should Sammy do to show self-discipline?\nSammy feels angry because his friend accidentally broke his pencil.', [['Calm down and talk politely with his friend',true],['Shout at his friend',false,'Shouting shows he is not controlling his anger. Self-discipline means calming down first.'],['Break his friend&rsquo;s things',false,'Breaking his friend&rsquo;s things is unkind and shows no self-control. Remember, the pencil broke by accident.'],['Stop talking to everyone',false,'Not talking to anyone does not fix the problem. He should calm down and talk politely.']], 'That&rsquo;s right! Calming down and talking politely shows self-discipline.', 'The correct answer is Calm down and talk politely with his friend.', { tip:'Ask: What would a calm, polite child do? Remember his friend broke the pencil by accident.' }),
+        mc('What does Dannie&rsquo;s choice show?\nDannie is angry but chooses to talk politely instead.', [['Self-control',true],['Disrespect',false,'Disrespect means being rude to others. Dannie talked politely, so that is not disrespect.'],['Carelessness',false,'Carelessness means not thinking about what you do. Dannie carefully chose to stay polite.']], 'Yes! Choosing to stay calm and polite shows self-control.', 'Choosing to talk politely while angry shows Self-control.', { tip:'Look at what Dannie did: angry, but still polite. Holding back your anger is self-control.' }),
+        tf('Children who learn to manage their emotions effectively develop self-discipline.', true, 'That&rsquo;s right! Managing your emotions well builds self-discipline.', 'The answer should be True &mdash; managing your emotions effectively helps you develop self-discipline.', { why:'You said False, but this is true. When children learn to manage their emotions well, they build self-discipline.', tip:'Self-discipline and managing emotions go together. Calming down is how you practice self-discipline.' }),
+        tf('Shouting at your friend is a good way to show self-discipline.', false, 'That&rsquo;s right! Shouting is not self-discipline &mdash; calming down and talking politely is.', 'The answer should be False &mdash; self-discipline means calming down and talking politely, not shouting.', { why:'You said True, but this is false. Shouting shows you are not in control. Self-discipline is calming down and talking politely.', tip:'Ask: Is this calm and polite? If it is not, it is not self-discipline.' }),
+        tf('Breaking or damaging things when you are angry shows self-control.', false, 'Correct! Breaking things shows a lack of self-control, not self-control.', 'The answer should be False &mdash; breaking or damaging things when angry shows a lack of self-control.', { why:'You said True, but this is false. Breaking things when angry shows a lack of self-control.', tip:'Self-control means stopping yourself before you hurt people or things. Breaking things is the opposite.' })
+      ]
+    },
+    {
+      tag: 'Lesson 4',
+      title: 'I Pray',
+      stars: 0,
+      icon: '<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><rect x="26" y="38" width="24" height="20" fill="var(--card)" stroke="var(--lav)" stroke-width="2"/><polygon points="20,38 38,22 56,38" fill="var(--lav)"/><rect x="36" y="10" width="4" height="10" fill="var(--lav)"/><rect x="33" y="13" width="10" height="3" fill="var(--lav)"/>',
+      flashcards: [
+        { title:'PRAYER', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="28" cy="34" r="7" fill="var(--lav)"/><circle cx="48" cy="34" r="7" fill="var(--lav-deep)"/><path d="M14 56c2-9 9-13 24-13s22 4 24 13" fill="none" stroke="var(--lav)" stroke-width="3" stroke-linecap="round"/>', text:'Prayer is our way of talking to God &mdash; anytime, anywhere.' },
+        { title:'CHURCH', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><rect x="26" y="38" width="24" height="20" fill="var(--card)" stroke="var(--lav)" stroke-width="2"/><polygon points="20,38 38,22 56,38" fill="var(--lav)"/><rect x="36" y="10" width="4" height="10" fill="var(--lav)"/><rect x="33" y="13" width="10" height="3" fill="var(--lav)"/>', text:'A special place where people go to pray, worship God, and learn about His love.' },
+        { title:'RELIGION', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><path d="M38 52c-10-8-18-15-18-24a11 11 0 0 1 18-8 11 11 0 0 1 18 8c0 9-8 16-18 24z" fill="var(--good)"/>', text:'What people believe about God and how they worship Him. It teaches us to pray, be kind, and do what is right.' },
+        { title:'GIVE THANKS &amp; ASK', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><path d="M22 46c0-14 32-14 32 0" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/><circle cx="38" cy="24" r="7" fill="var(--accent)"/>', text:'We pray to thank God for our blessings, and to ask Him for help with our needs.' },
+        { title:'PRAISE &amp; BE SORRY', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><polygon points="38,18 44,32 59,33 47,42 51,57 38,48 25,57 29,42 17,33 32,32" fill="var(--lav)"/>', text:'We pray to praise God’s goodness, and to say sorry and ask for forgiveness.' }
+      ],
+      quiz: [
+        mc('What is prayer?', [['Our way of talking to God',true],['A kind of song',false,'A song is music we sing. The question asks what prayer is &mdash; it is talking to God.'],['A type of game we play at recess',false,'A game at recess is for playing. Prayer is not a game; it is talking to God.']], 'Yes! Prayer is our way of talking to God.', 'Prayer is our way of talking to God, anytime and anywhere.', { tip:'Remember the flashcard: prayer is talking to God, anytime, anywhere. Look for the words talking to God.' }),
+        mc('Where do people go to pray, worship God, and learn about His love?', [['Church',true],['Market',false,'A market is where people buy and sell things. It is not the special place for worship.'],['Playground',false,'A playground is where children play. The special place to worship God is the church.']], 'That’s right! Church is a special place for that.', 'Church is where people go to pray, worship God, and learn about His love.', { tip:'Look for the clue words pray and worship God. The special place for that is the church.' }),
+        tf('Religion teaches people how to pray, be kind, and do what is right.', true, 'Correct! That is what religion teaches us.', 'The answer should be True &mdash; religion teaches us to pray, be kind, and do what is right.', { why:'You said False, but this is true. The lesson says religion teaches us to pray, be kind, and do what is right.', tip:'Religion is about good things: praying, being kind, and doing right. A sentence that matches this is true.' }),
+        mc('Which of these is a reason why we pray?', [['To give thanks to God',true],['To ignore others',false,'Ignoring others is not kind. We pray to thank God, not to ignore people.'],['To avoid doing chores for our family',false,'Prayer is not a way to skip chores. We pray to thank God for our blessings.']], 'Yes! We pray to give thanks to God.', 'One reason we pray is To give thanks to God for our blessings.', { tip:'The reasons we pray are to thank, to ask, to praise, and to say sorry. Look for one of these.' }),
+        tf('We only pray when we need to ask God for something.', false, 'That’s right! We also pray to give thanks, praise God, and say sorry.', 'The answer should be False &mdash; we also pray to give thanks, praise God, and say sorry.', { why:'You said True, but this is false. The word only makes it wrong &mdash; we also pray to give thanks, praise God, and say sorry.', tip:'Watch out for the word only. Remember there are many reasons to pray, not just one.' }),
+        mc('When we say sorry to God and promise not to do it again, what are we doing?', [['Asking for forgiveness',true],['Showing off to our friends at school',false,'Showing off means trying to look better than others. Saying sorry to God is not showing off.'],['Complaining',false,'Complaining is saying you are unhappy about something. Saying sorry is asking for forgiveness.']], 'Correct! That is asking for forgiveness.', 'Saying sorry and promising not to do it again is asking for forgiveness.', { tip:'Saying sorry goes with forgiveness. When you say sorry, you ask to be forgiven.' }),
+        tf('We can talk to God anytime and anywhere through prayer.', true, 'That’s right! Prayer lets us talk to God anytime, anywhere.', 'The answer should be True &mdash; we can talk to God anytime and anywhere through prayer.', { why:'You said False, but this is true. Prayer lets us talk to God anytime and anywhere.', tip:'Remember the flashcard words: anytime, anywhere. There is no wrong time or place to pray.' }),
+        mc('What do we do when we &ldquo;praise and adore&rdquo; God in prayer?', [['Appreciate God’s goodness',true],['Ask Him for new toys and nothing else',false,'Asking only for toys is not praising. Praising is telling God how good He is.'],['Argue with Him',false,'Arguing with God is not praise. To praise and adore means to appreciate God&rsquo;s goodness.']], 'Yes! We appreciate God’s goodness.', 'To praise and adore means we appreciate God’s goodness.', { tip:'Praise means saying how good someone is. Praising God means appreciating His goodness.' }),
+        mc('What does religion teach us to do?', [['Pray, be kind, and do what is right',true],['Ignore others and only think of yourself',false,'Ignoring others and thinking only of yourself is not kind. Religion teaches us to be kind.'],['Avoid praying',false,'Religion teaches us to pray, so avoiding prayer is the opposite.']], 'That’s right! Religion teaches us to pray, be kind, and do what is right.', 'Religion teaches us to pray, be kind, and do what is right.', { tip:'Religion teaches good things. Pick the answer that is kind and right.' }),
+        tf('We only pray inside a church.', false, 'Correct! We can pray anytime and anywhere.', 'The answer should be False &mdash; we can pray anytime and anywhere, not only inside a church.', { why:'You said True, but this is false. The word only makes it wrong &mdash; we can pray anytime and anywhere.', tip:'The word only is a clue. Remember: we can pray anywhere, not just in church.' }),
+        mc('Which of these is a reason we pray, besides giving thanks?', [['To praise God’s goodness',true],['To avoid God',false,'Avoiding God is the opposite of praying. When we pray, we talk to God.'],['To ignore our blessings and complain',false,'Complaining and ignoring our blessings is not a reason to pray. We pray to thank and praise God.']], 'Yes! We also pray to praise God’s goodness.', 'One reason we pray is To praise God’s goodness.', { tip:'Remember the four reasons: give thanks, ask for help, praise God, and say sorry. Praise is on the list!' }),
+        tf('Church is a special place where people worship God and learn about His love.', true, 'That’s right! Church is a place of worship and learning.', 'The answer should be True &mdash; church is where people worship God and learn about His love.', { why:'You said False, but this is true. Church is a special place where people pray, worship God, and learn about His love.', tip:'Check the sentence against the church flashcard. If it matches, it is true.' }),
+        tf('God provides us with all our needs even though we do not know how or why.', true, 'That&rsquo;s right! We can trust God to provide for us.', 'The answer should be True &mdash; God provides us with all our needs even though we do not know how or why.', { why:'You said False, but this is true. The lesson says God provides all our needs, even when we do not know how or why.', tip:'Remember that we pray to ask God for help with our needs. We can trust Him to provide.' })
+      ]
+    },
+    {
+      tag: 'Week 2',
+      title: 'I Take Care of Myself',
+      stars: 0,
+      icon: '<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><path d="M38 16c8 12 14 20 14 28a14 14 0 1 1-28 0c0-8 6-16 14-28z" fill="var(--green)"/><circle cx="30" cy="52" r="4" fill="var(--card)" opacity="0.7"/>',
+      flashcards: [
+        { title:'HAND-WASHING', icon:'<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><path d="M38 16c8 12 14 20 14 28a14 14 0 1 1-28 0c0-8 6-16 14-28z" fill="var(--green)"/><circle cx="30" cy="52" r="4" fill="var(--card)" opacity="0.7"/>', text:'One of the best ways to keep germs away &mdash; wash your hands after playing and before you eat.' },
+        { title:'IMMUNE SYSTEM', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><path d="M38 16l16 6v12c0 12-7 20-16 24-9-4-16-12-16-24V22z" fill="var(--good)"/><polyline points="30,38 36,44 47,31" fill="none" stroke="var(--card)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>', text:'A network of tissues and organs that work together to protect your body from germs and sickness.' },
+        { title:'ADEQUATE NUTRITION', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><circle cx="38" cy="38" r="16" fill="var(--accent)"/><path d="M38 22v8M30 30l6 4M46 30l-6 4" fill="none" stroke="var(--card)" stroke-width="2" stroke-linecap="round"/>', text:'Eating healthy, nutritious food instead of junk food helps you feel strong and well.' },
+        { title:'PHYSICAL FITNESS', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="38" cy="24" r="7" fill="var(--lav)"/><path d="M38 31v16M28 40h20M30 56l8-9 8 9" fill="none" stroke="var(--lav)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>', text:'Exercise strengthens your heart and body. Try to be active for at least one hour every day.' },
+        { title:'QUALITY SLEEP', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><path d="M46 20a16 16 0 1 0 12 26 16 16 0 0 1-12-26z" fill="var(--lav-deep)"/>', text:'Children need 10 to 11 hours of sleep to stay healthy and grow properly.' },
+        { title:'HYGIENE &amp; MENTAL HEALTH', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><path d="M38 54c-10-8-18-15-18-24a11 11 0 0 1 18-8 11 11 0 0 1 18 8c0 9-8 16-18 24z" fill="var(--good)"/>', text:'Keeping clean keeps you healthy, and taking care of your feelings keeps your mind healthy too.' }
+      ],
+      quiz: [
+        mc('What helps keep your body safe from germs and sickness by working together inside you?', [['Immune System',true],['Backbone',false,'The backbone is a bone in your back. It is not the part that protects you from germs and sickness.'],['Fingernails and toenails',false,'Fingernails and toenails do not protect you from germs. The immune system works inside you to protect your body.']], 'Yes! The immune system protects your body.', 'The Immune System works together to protect your body from germs and sickness.', { tip:'Look for the words protect your body from germs and sickness. That is the job of the immune system.' }),
+        tf('Washing your hands is one of the best ways to keep germs away.', true, 'That’s right! Hand-washing keeps germs away.', 'The answer should be True &mdash; washing your hands is one of the best ways to keep germs away.', { why:'You said False, but this is true. Washing your hands is one of the best ways to keep germs away.', tip:'Think of the hand-washing flashcard: wash after playing and before you eat to keep germs away.' }),
+        mc('What should you use to cover your mouth when you cough or sneeze, instead of your hand?', [['A tissue or your elbow',true],['The sleeve of a friend’s shirt',false,'Using a friend&rsquo;s shirt is not kind or clean. Your germs would go onto your friend.'],['Nothing',false,'Covering with nothing lets your germs go out to others. We should always cover our mouth.']], 'Correct! Use a tissue or your elbow.', 'You should use a tissue or your elbow, not your hand.', { tip:'Ask: Will this keep my germs away from others? A tissue or your elbow does.' }),
+        tf('Eating junk food all the time will help you feel strong and healthy.', false, 'That’s right! Junk food can make you feel weak and tired.', 'The answer should be False &mdash; junk food can make you feel weak and tired, not strong.', { why:'You said True, but this is false. Junk food can make you feel weak and tired. Healthy food helps you feel strong.', tip:'Watch for the words junk food all the time. Healthy food, not junk food, keeps you strong.' }),
+        mc('How many hours of sleep do children need to stay healthy?', [['10 to 11 hours',true],['2 to 3 hours',false,'2 to 3 hours is much too little. Children need 10 to 11 hours to stay healthy and grow.'],['20 hours every day',false,'20 hours is too much &mdash; that would leave only 4 hours in the whole day to be awake! Children need 10 to 11 hours.']], 'Yes! Children need 10 to 11 hours of sleep.', 'Children need 10 to 11 hours of sleep to stay healthy.', { tip:'Remember the number on the sleep flashcard: 10 to 11 hours. Not too little, and not too much.' }),
+        tf('Exercise helps strengthen your heart and other body organs.', true, 'That’s right! Exercise strengthens your heart and organs.', 'The answer should be True &mdash; exercise strengthens your heart and other body organs.', { why:'You said False, but this is true. Exercise strengthens your heart and other body organs.', tip:'Remember: exercise makes your body strong. Your heart is part of your body too.' }),
+        mc('What do we call taking care of yourself and your surroundings to stay clean?', [['Hygiene',true],['Homework',false,'Homework is school work you do at home. It is not about keeping yourself clean.'],['Chores',false,'Chores are jobs we help with at home. The word for keeping yourself and your surroundings clean is hygiene.']], 'Correct! That is hygiene.', 'Hygiene means taking care of yourself and your surroundings to stay clean.', { tip:'Look for the word clean in the question. Keeping clean is called hygiene.' }),
+        tf('Taking care of your feelings is also part of staying healthy.', true, 'That’s right! Mental health matters too.', 'The answer should be True &mdash; taking care of your feelings is also part of staying healthy.', { why:'You said False, but this is true. Taking care of your feelings keeps your mind healthy too.', tip:'Staying healthy is for your body and your mind. Your feelings matter too.' }),
+        mc('When should you wash your hands?', [['After playing and before you eat',true],['Only once a week, on Sunday morning',false,'Once a week is not enough. Our hands get germs every time we play.'],['Only before sleeping',false,'Only before sleeping is not enough. We should wash after playing and before we eat.']], 'That’s right! Wash your hands after playing and before you eat.', 'You should wash your hands After playing and before you eat.', { tip:'Think of when your hands get dirty (after playing) and when germs could get into your food (before eating).' }),
+        tf('Physical fitness only means playing sports competitively.', false, 'Correct! Physical fitness means being active, like exercise and play.', 'The answer should be False &mdash; physical fitness means being active for at least an hour a day, not just competitive sports.', { why:'You said True, but this is false. The word only makes it wrong &mdash; physical fitness means being active, like exercise and play.', tip:'Watch for the word only. Being active for at least an hour a day, in any way, helps you stay fit.' }),
+        mc('What do we call eating healthy, nutritious food instead of junk food?', [['Adequate Nutrition',true],['Physical Fitness',false,'Physical Fitness is about exercise and being active. It is not about food.'],['Quality Sleep',false,'Quality Sleep is about getting 10 to 11 hours of sleep. It is not about food.']], 'Yes! That is Adequate Nutrition.', 'Eating healthy food instead of junk food is called Adequate Nutrition.', { tip:'Look for the clue word food. The healthy habit about food is Adequate Nutrition.' }),
+        tf('Taking care of your feelings has nothing to do with staying healthy.', false, 'That’s right! Taking care of your feelings is part of staying healthy too.', 'The answer should be False &mdash; taking care of your feelings (mental health) is also part of staying healthy.', { why:'You said True, but this is false. The words nothing to do make it wrong &mdash; taking care of your feelings is part of staying healthy.', tip:'Remember: healthy means body and mind. A sentence saying feelings do not matter for health is false.' }),
+        mc('Why should Carlo take a bath every day?\nCarlo&rsquo;s daddy teaches him to take a bath every day.', [['To keep his body clean and feel confident',true],['To avoid helping at home',false,'Taking a bath is not a way to skip helping at home. It keeps his body clean.'],['To make others do his tasks',false,'Bathing is something Carlo does for himself. It does not make others do his tasks.'],['To become better than his friends',false,'Bathing is not about being better than friends. It keeps him clean and confident.']], 'That&rsquo;s right! Bathing daily keeps you clean and confident.', 'The correct answer is To keep his body clean and feel confident.', { tip:'Ask: What does a bath do for my body? It keeps me clean, and being clean helps me feel confident.' }),
+        mc('What should Ben do?\nBen forgot to wash his hands before eating, and his mother reminds him about proper hygiene.', [['Wash his hands and remember the reminder next time',true],['Blame someone else',false,'Ben is the one who forgot, so it is not someone else&rsquo;s fault. A responsible child does not blame others.'],['Get angry at his mother',false,'His mother is helping him by reminding him. Getting angry at her is not respectful.'],['Continue eating without washing',false,'Eating without washing leaves the germs on his hands. He should wash first.']], 'Yes! Ben should wash his hands and remember for next time.', 'The correct answer is Ben should wash his hands and remember the reminder next time.', { tip:'When someone kindly reminds you, ask: What would a responsible child do? Listen, fix it, and remember next time.' }),
+        mc('What should Mark understand about handwashing?\nMark washes his hands only when they look dirty.', [['Hands should be washed regularly to remove germs',true],['Hands do not carry germs',false,'Hands do carry germs, even when they do not look dirty. That is why we wash them regularly.'],['Handwashing is only needed at school',false,'We wash after playing and before we eat, wherever we are &mdash; not only at school.'],['Soap is not needed when washing hands',false,'Soap helps us wash germs off. Washing without soap is not proper hand-washing.']], 'That&rsquo;s right! Hands should be washed regularly, not just when they look dirty.', 'The correct answer is Hands should be washed regularly to remove germs.', { tip:'Do not judge by how your hands look. Wash them regularly, like after playing and before eating.' }),
+        tf('Taking care of yourself makes you weak.', false, 'That&rsquo;s right! Taking care of yourself keeps you strong and healthy, not weak.', 'The answer should be False &mdash; taking care of yourself keeps you strong and healthy.', { why:'You said True, but this is false. The word weak makes it wrong &mdash; taking care of yourself keeps you strong and healthy.', tip:'Think about the lesson: washing, eating well, exercise, and sleep all help you stay healthy. None of them make you weak.' })
+      ]
+    },
+    {
+      tag: 'Lesson 5',
+      title: 'I Spend Wisely',
+      stars: 0,
+      icon: '<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><rect x="18" y="30" width="40" height="26" rx="6" fill="var(--accent)"/><rect x="30" y="22" width="16" height="10" rx="3" fill="var(--accent-ink)"/><circle cx="38" cy="43" r="6" fill="var(--card)"/>',
+      flashcards: [
+        { title:'NEEDS', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><polygon points="38,16 60,34 54,34 54,58 22,58 22,34 16,34" fill="var(--good)"/><rect x="33" y="44" width="10" height="14" fill="var(--card)"/>', text:'Needs are the things that are most important and must be prioritized (put first).<br>Examples: food, water, shelter, and the love and support of your parents.' },
+        { title:'WANTS', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="38" cy="28" r="10" fill="var(--lav)"/><path d="M38 38v18" stroke="var(--lav-deep)" stroke-width="2"/><rect x="28" y="50" width="20" height="8" rx="2" fill="var(--lav-deep)"/>', text:'Wants are things we think we need but can live without.<br>Examples: mobile phones, accessories, trendy toys, and gadgets. They give us joy for a short time, but life goes on even without them.' },
+        { title:'NEED OR WANT?', icon:'<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><rect x="16" y="24" width="18" height="30" rx="4" fill="var(--good)"/><rect x="42" y="24" width="18" height="30" rx="4" fill="var(--lav)"/>', text:'<b>NEEDS:</b> water, bread, rice, a pencil for school, a notebook.<br><b>WANTS:</b> candy, chocolate, toys.<br>Best saving habit: buy needs first, then save before wants.' },
+        { title:'WHY SAVE MONEY?', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><ellipse cx="38" cy="42" rx="20" ry="15" fill="var(--accent)"/><rect x="32" y="24" width="12" height="4" rx="2" fill="var(--accent-ink)"/><circle cx="46" cy="38" r="2" fill="var(--card)"/>', text:'We save some of our money so we have money for future needs. Saving helps us reach our goals.' },
+        { title:'SAVING IS NOT ONLY MONEY', icon:'<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><path d="M38 16c8 12 14 20 14 28a14 14 0 1 1-28 0c0-8 6-16 14-28z" fill="var(--green)"/>', text:'Saving is not only about money. We can also save water, electricity, food, paper, and other resources.' },
+        { title:'BE WISE WITH MONEY', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><path d="M38 16l16 6v12c0 12-7 20-16 24-9-4-16-12-16-24V22z" fill="var(--good)"/><polyline points="30,38 36,44 47,31" fill="none" stroke="var(--card)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>', text:'<b>Responsibility</b> &ndash; use money carefully.<br><b>Self-control</b> &ndash; we do not need to buy everything we want.<br><b>Patience</b> &ndash; we can wait and save for a goal.<br><b>Wise decision-making</b> &ndash; think before spending.<br><b>Good habit</b> &ndash; save a part of the money we receive.' },
+        { title:'BUDGET MARKET DAY', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><path d="M16 30h44l-6 24H22z" fill="var(--lav)"/><path d="M26 30l6-12M50 30l-6-12" stroke="var(--lav-deep)" stroke-width="3" stroke-linecap="round"/>', text:'Imagine you have ₱100. The total cost of all the items you buy must not go over ₱100. Compare the prices, decide which items are more important, and spend wisely. If you do not spend all your money, save what is left for future needs.<br>Prices: Notebook ₱30, Chocolate ₱30, Toy ₱30, Bread ₱20, Pencil ₱20, Milk ₱20, Water ₱15.' }
+      ],
+      quiz: [
+        mc('What should you do?\nYou have ₱50. You want to buy a toy worth ₱40, but you need a notebook worth ₱20.', [['buy the notebook',true],['buy both',false,'The toy and the notebook cost ₱40 + ₱20 = ₱60. You only have ₱50, so you cannot buy both.'],['buy the toy',false,'The toy is a want. The notebook is a need, and needs come first.'],['spend the money on candy',false,'Candy is a want. You need a notebook, so spending on candy is not wise.']], 'That&rsquo;s right! The notebook is a need, so buy it first.', 'The correct answer is buy the notebook &mdash; it is a need, and needs come first.', { tip:'Ask: Which one do I NEED? Buy the need first. Then add the prices to see if you have enough money.' }),
+        mc('Why should we save some of our money?', [['So we have money for future needs.',true],['So we can waste it later.',false,'Wasting money is not wise. We save so we have money for future needs.'],['So we can show others our money.',false,'Saving is not for showing off. We save so we have money for future needs.'],['So we can buy everything we want.',false,'Self-control means we do not need to buy everything we want. We save for future needs.']], 'Yes! We save so we have money for future needs.', 'The correct answer is So we have money for future needs.', { tip:'Saving is about later. Look for the answer about needs in the future.' }),
+        mc('What are needs?', [['Things that are most important and must be prioritized',true],['Things we think we need but can really live without',false,'That is what wants are. Needs are the most important things that must come first.'],['Things that give us joy for only a short time, like gadgets',false,'Gadgets that give joy for a short time are wants. Needs are the most important things.']], 'Correct! Needs are the most important things and must come first.', 'Needs are the things that are most important and must be prioritized.', { tip:'Needs = must have, like food, water, and shelter. Wants = nice to have.' }),
+        tf('Wants are things we think we need but can live without.', true, 'That&rsquo;s right! We can live without our wants.', 'The answer should be True &mdash; wants are things we think we need but can live without.', { why:'You said False, but this is true. The lesson says wants are things we think we need but can live without, like trendy toys and gadgets.', tip:'Ask: Can I live without it? If yes, it is a want.' }),
+        mc('Which of these is a NEED?', [['Water',true],['Candy',false,'Candy is a want. We can live without candy.'],['Chocolate',false,'Chocolate is a want. It is a treat we can live without.'],['Toys',false,'Toys are wants. They are fun, but we can live without them.']], 'Yes! Water is a need.', 'Water is a need. Candy, chocolate, and toys are wants.', { tip:'Needs keep us alive and healthy, like water and food. Treats and toys are wants.' }),
+        mc('Which of these is a WANT?', [['Toys',true],['Bread',false,'Bread is food, and food is a need.'],['A pencil for school',false,'A pencil for school is a need. We use it to learn.'],['Rice',false,'Rice is food, and food is a need.']], 'Correct! Toys are a want.', 'Toys are a want. Bread, rice, and a pencil for school are needs.', { tip:'Ask: Can I live without it? You can live without toys, so toys are a want.' }),
+        tf('Mobile phones and trendy toys are needs because we cannot live without them.', false, 'That&rsquo;s right! Mobile phones and trendy toys are wants.', 'The answer should be False &mdash; mobile phones and trendy toys are wants. Life goes on even without them.', { why:'You said True, but this is false. Mobile phones and trendy toys give joy for a short time, but life goes on without them. They are wants.', tip:'Gadgets and trendy toys are the lesson&rsquo;s examples of wants. Food, water, and shelter are needs.' }),
+        mc('What is the wiser choice?\nYou have ₱20. Your friend wants a toy that costs ₱20. You have no savings yet.', [['Save ₱10 and keep ₱10 for a need',true],['Spend all ₱20 on the toy right now',false,'Spending all ₱20 on a toy leaves nothing to save and nothing for a need.']], 'That&rsquo;s right! Saving ₱10 and keeping ₱10 for a need is the saving choice.', 'The wiser choice is Save ₱10 and keep ₱10 for a need.', { tip:'Pick the plan that saves some money and still keeps money for a need.' }),
+        mc('What is the wise choice?\nYou have ₱10. You want a ₱10 snack, but you are saving for a school project.', [['Save the ₱10 for the project',true],['Buy the snack and save nothing',false,'The snack is a want. If you buy it, you save nothing for your school project.']], 'Yes! Saving helps us reach our goals.', 'The wise choice is Save the ₱10 for the project. Saving helps us reach our goals.', { tip:'Remember your goal. When you are saving for something important, wait and do not spend on a want.' }),
+        mc('Which plan is BEST?\nYou have ₱20.', [['Save ₱15 and spend ₱5 on a need',true],['Spend all ₱20 today',false,'Spending everything today leaves nothing saved for later.'],['Give away all ₱20',false,'Giving away all your money leaves nothing for your needs or your savings.']], 'That&rsquo;s right! You planned, saved, and made a responsible choice.', 'The best plan is Save ₱15 and spend ₱5 on a need.', { tip:'The best plan does two things: it saves money and it pays for a need.' }),
+        mc('What is the best saving habit?', [['Buy needs first, then save before wants',true],['Buy wants first, then buy needs if money is left',false,'This is backwards. Needs are the most important, so they come first.'],['Spend all your money on the same day you get it',false,'Spending everything at once leaves nothing to save. Save a part of the money you receive.']], 'Correct! Buy needs first, then save before wants.', 'The best saving habit is Buy needs first, then save before wants.', { tip:'Think of the order: needs, then saving, then wants last.' }),
+        tf('Saving is only about money.', false, 'That&rsquo;s right! We can also save water, electricity, food, and paper.', 'The answer should be False &mdash; saving is not only about money. We can also save water, electricity, food, paper, and other resources.', { why:'You said True, but this is false. The word only makes it wrong &mdash; we can also save water, electricity, food, paper, and other resources.', tip:'Watch for the word only. Remember all the things we can save, not just money.' }),
+        mc('Which value means &ldquo;We do not need to buy everything we want&rdquo;?', [['Self-control',true],['Patience',false,'Patience means we can wait and save for a goal. Not buying everything we want is self-control.'],['Responsibility',false,'Responsibility means using money carefully. Not buying everything we want is self-control.']], 'Yes! That is self-control.', 'Self-control means we do not need to buy everything we want.', { tip:'Self-control means stopping yourself. When you stop yourself from buying a want, that is self-control.' }),
+        tf('Patience means we can wait and save for a goal.', true, 'Correct! Patience helps us wait and save.', 'The answer should be True &mdash; patience means we can wait and save for a goal.', { why:'You said False, but this is true. The lesson says patience means we can wait and save for a goal.', tip:'Patience is about waiting. When you wait and save for something, you are being patient.' }),
+        mc('Which set of items stays within ₱100?\nPrices: Notebook ₱30, Pencil ₱20, Bread ₱20, Water ₱15, Toy ₱30, Chocolate ₱30.', [['Notebook, pencil, bread, and water',true],['Notebook, toy, chocolate, bread, and pencil',false,'Add them: ₱30 + ₱30 + ₱30 + ₱20 + ₱20 = ₱130. That is more than ₱100.'],['Toy, chocolate, notebook, bread, and water',false,'Add them: ₱30 + ₱30 + ₱30 + ₱20 + ₱15 = ₱125. That is more than ₱100.']], 'That&rsquo;s right! ₱30 + ₱20 + ₱20 + ₱15 = ₱85. That is within ₱100, and they are all needs.', 'Notebook, pencil, bread, and water cost ₱30 + ₱20 + ₱20 + ₱15 = ₱85, which is within ₱100.', { tip:'Add the prices one at a time. If the total is more than ₱100, you cannot buy that set.' }),
+        mc('What should you do with the ₱15 left?\nYou have ₱100 at Budget Market Day. You spend ₱85 on your needs.', [['Save it for future needs',true],['Buy candy right away so that no money is left over',false,'Candy is a want. Money that is left should be saved for future needs.'],['Throw the coins away because they are too small',false,'Throwing money away is wasting it. Every peso can be saved for future needs.']], 'Yes! Save what is left for future needs.', 'If you do not spend all your money, save the rest for future needs.', { tip:'Money left over is not for spending on wants. Save it for later.' })
+      ]
+    },
+    {
+      tag: 'Lesson 5',
+      title: 'Thrifty Ways',
+      stars: 0,
+      icon: '<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><path d="M38 18a20 20 0 1 1-18 12" fill="none" stroke="var(--green)" stroke-width="5" stroke-linecap="round"/><polygon points="14,26 26,26 20,36" fill="var(--green)"/>',
+      flashcards: [
+        { title:'THRIFTINESS &amp; FRUGALITY', icon:'<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><path d="M38 16c8 12 14 20 14 28a14 14 0 1 1-28 0c0-8 6-16 14-28z" fill="var(--green)"/>', text:'Thriftiness and frugality are the habits of spending time, money, and resources wisely to save and conserve the environment. The THRIFTS are seven ways to practice them.' },
+        { title:'1. BE THRIFTY', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><rect x="34" y="14" width="8" height="38" fill="var(--accent)"/><polygon points="34,52 42,52 38,62" fill="var(--accent-ink)"/>', text:'Buy and use only what you need. Avoid mistakes so you can save paper, pencils, and time.' },
+        { title:'2. HANDLE THINGS WITH CARE', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><path d="M18 44c6-10 14-4 20-4s14-6 20 4c-6 8-34 8-40 0z" fill="var(--lav)"/><rect x="28" y="24" width="20" height="14" rx="3" fill="var(--lav-deep)"/>', text:'Take care of your school supplies, toys, and gadgets so they will last, and there will be no need to buy them too often.' },
+        { title:'3. RECYCLE AND REUSE', icon:'<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><path d="M38 18a20 20 0 1 1-18 12" fill="none" stroke="var(--green)" stroke-width="5" stroke-linecap="round"/><polygon points="14,26 26,26 20,36" fill="var(--green)"/>', text:'Do not throw away the things that can still be used in other ways.' },
+        { title:'4. INVEST', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><circle cx="38" cy="38" r="18" fill="var(--card)" stroke="var(--accent)" stroke-width="4"/><path d="M38 28v10l7 5" fill="none" stroke="var(--accent-ink)" stroke-width="3" stroke-linecap="round"/>', text:'Use your time to finish your school work. Instead of playing online games, go out and play with your neighbors and friends.' },
+        { title:'5. FINISH YOUR FOOD', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><ellipse cx="38" cy="44" rx="22" ry="10" fill="var(--card)" stroke="var(--good)" stroke-width="3"/><ellipse cx="38" cy="42" rx="12" ry="4" fill="var(--good)"/>', text:'Finish your food and do not waste any. Get only what you can eat so that nothing will be wasted.' },
+        { title:'6. TRADE', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><path d="M18 30h36l-8-8M58 46H22l8 8" fill="none" stroke="var(--lav-deep)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>', text:'Trade the things you no longer use but are still in good condition.' },
+        { title:'7. SAVE', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><ellipse cx="38" cy="42" rx="20" ry="15" fill="var(--accent)"/><rect x="32" y="24" width="12" height="4" rx="2" fill="var(--accent-ink)"/>', text:'Save means using things wisely and not wasting them.' }
+      ],
+      quiz: [
+        mc('What are thriftiness and frugality?', [['Habits of spending time, money, and resources wisely',true],['Habits of buying new things every week, even if the old ones still work',false,'Buying new things when the old ones still work is wasteful. Thriftiness means spending wisely.'],['Habits of throwing away things we do not like anymore',false,'Throwing away things that can still be used is wasteful. Thrifty people recycle and reuse.']], 'That&rsquo;s right! They are habits of spending time, money, and resources wisely.', 'Thriftiness and frugality are the habits of spending time, money, and resources wisely to save and conserve the environment.', { tip:'Thrifty means wise and careful. Pick the answer about using things wisely, not wasting them.' }),
+        mc('Which thrifty way is Ana doing?\nAna gets only the food she can eat so that nothing will be wasted.', [['Finish your food and do not waste any',true],['Trade',false,'Trading means giving things you no longer use for other things. Ana is careful with her food.'],['Invest',false,'Invest is about using your time well, like finishing school work. Ana is careful with her food.']], 'Yes! Ana finishes her food and does not waste any.', 'Ana is doing Finish your food and do not waste any.', { tip:'Look for the clue word food in the story. The thrifty way about food is Finish your food.' }),
+        mc('Which thrifty way is Lito doing?\nLito takes care of his crayons and toys so they will last a long time.', [['Handle things with care',true],['Recycle and reuse',false,'Recycle and reuse means using things in other ways instead of throwing them away. Lito is taking care of his things.'],['Trade',false,'Trading means giving things you no longer use for other things. Lito is keeping and caring for his things.']], 'Correct! Lito handles his things with care.', 'Lito is doing Handle things with care, so his things will last.', { tip:'Look for the clue words takes care and last. That is Handle things with care.' }),
+        mc('Which thrifty way is Mia doing?\nMia uses an empty box as a pencil holder instead of throwing it away.', [['Recycle and reuse',true],['Finish your food and do not waste any',false,'This thrifty way is about food. Mia is using an old box in a new way.'],['Invest',false,'Invest is about using your time well. Mia is using an old box in a new way.']], 'That&rsquo;s right! Mia recycles and reuses.', 'Mia is doing Recycle and reuse &mdash; she did not throw away a box that can still be used.', { tip:'If something old is used in a new way instead of being thrown away, that is recycle and reuse.' }),
+        mc('Which thrifty way is Paolo doing?\nInstead of playing online games, Paolo finishes his school work and then plays outside with his friends.', [['Invest',true],['Trade',false,'Trading means giving things you no longer use for other things. Paolo is using his time well.'],['Finish your food and do not waste any',false,'This thrifty way is about food. Paolo is using his time well.']], 'Yes! Paolo invests his time.', 'Paolo is doing Invest &mdash; using his time to finish school work and play with friends.', { tip:'Invest is the thrifty way about time. Finishing school work instead of online games is using time well.' }),
+        mc('Which thrifty way is Jo doing?\nJo gives her old books, which are still in good condition, to a friend in exchange for puzzles.', [['Trade',true],['Handle things with care',false,'Handling things with care is about making your things last. Jo is exchanging things she no longer uses.'],['Finish your food and do not waste any',false,'This thrifty way is about food. Jo is exchanging books for puzzles.']], 'Correct! Jo trades books that are still in good condition.', 'Jo is doing Trade &mdash; trading things that you no longer use but that are still in good condition.', { tip:'Look for the words in exchange. Giving something and getting something back is trading.' }),
+        tf('Being thrifty means buying and using only what you need.', true, 'That&rsquo;s right! Being thrifty means buying and using only what you need.', 'The answer should be True &mdash; being thrifty means buying and using only what you need.', { why:'You said False, but this is true. The first thrifty way says to buy and use only what you need.', tip:'Thrifty people do not waste. They buy and use only what they need.' }),
+        tf('Handling things with care means we will need to buy them more often.', false, 'That&rsquo;s right! Taking care of things makes them last, so we buy them less often.', 'The answer should be False &mdash; handling things with care makes them last, so there is no need to buy them too often.', { why:'You said True, but this is false. When we take care of things, they last longer, so we do not need to buy them often.', tip:'Think: If I take good care of my toy, will it break soon? No &mdash; it will last!' }),
+        tf('We should throw away things that can still be used in other ways.', false, 'Correct! We should recycle and reuse them instead.', 'The answer should be False &mdash; do not throw away things that can still be used in other ways.', { why:'You said True, but this is false. The lesson says do not throw away the things that can still be used in other ways.', tip:'Before throwing something away, ask: Can I still use it in another way? If yes, reuse it.' }),
+        tf('Avoiding mistakes helps us save paper, pencils, and time.', true, 'That&rsquo;s right! Avoiding mistakes saves paper, pencils, and time.', 'The answer should be True &mdash; avoiding mistakes helps us save paper, pencils, and time.', { why:'You said False, but this is true. The Be Thrifty flashcard says to avoid mistakes so you can save paper, pencils, and time.', tip:'Every mistake uses more paper, more pencil, and more time. Careful work saves them.' }),
+        mc('Why should we take care of our school supplies?', [['So they will last and we do not need to buy them too often',true],['So we can throw them away sooner and buy shiny new ones at the store',false,'That is wasteful. We take care of things so they will last.'],['So our classmates will give us their school supplies',false,'Taking care of our things is for us to use them longer, not to get other people&rsquo;s things.']], 'Yes! Taking care of them makes them last.', 'We take care of our school supplies so they will last and we do not need to buy them too often.', { tip:'Taking care of things and making them last go together.' }),
+        tf('When we trade, we give things that are already broken and cannot be used.', false, 'That&rsquo;s right! We trade things that are still in good condition.', 'The answer should be False &mdash; we trade things we no longer use but are still in good condition.', { why:'You said True, but this is false. The lesson says we trade things we no longer use but are still in good condition, not broken things.', tip:'Remember the words still in good condition. Only good things can be traded.' }),
+        mc('Which thrifty way is Leo doing?\nLeo writes carefully to avoid mistakes, so he does not waste paper and pencils.', [['Be Thrifty',true],['Trade',false,'Trading means giving things you no longer use for other things. Leo is avoiding mistakes so he does not waste paper.'],['Invest',false,'Invest is about using your time for school work instead of online games. Leo is avoiding mistakes so he saves paper and pencils.']], 'Yes! Leo is being thrifty.', 'Leo is doing Be Thrifty &mdash; avoiding mistakes so he can save paper, pencils, and time.', { tip:'Look for the words avoid mistakes and paper. That is the first thrifty way, Be Thrifty.' }),
+        mc('Which thrifty way means using things wisely and not wasting them?', [['Save',true],['Trade',false,'Trade means giving away things you no longer use that are still in good condition. Using things wisely and not wasting them is Save.'],['Invest',false,'Invest is about using your time well for school work. Using things wisely and not wasting them is Save.']], 'That&rsquo;s right! That is Save.', 'Save means using things wisely and not wasting them.', { tip:'Remember the seventh thrifty way: Save &mdash; use things wisely and do not waste them.' })
+      ]
+    },
+    {
+      tag: 'Lesson 6',
+      title: 'I Obey',
+      stars: 0,
+      icon: '<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="30" cy="28" r="9" fill="var(--lav-deep)"/><circle cx="48" cy="36" r="6" fill="var(--lav)"/><path d="M16 60c2-14 8-20 14-20s12 6 14 20M40 60c1-8 4-12 8-12s7 4 8 12" fill="none" stroke="var(--lav-deep)" stroke-width="3" stroke-linecap="round"/>',
+      flashcards: [
+        { title:'OBEDIENCE', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><path d="M38 16l16 6v12c0 12-7 20-16 24-9-4-16-12-16-24V22z" fill="var(--lav)"/><polyline points="30,38 36,44 47,31" fill="none" stroke="var(--card)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>', text:'Obedience is following the words and advice of our parents, teachers, elders, and those in charge of us. It is doing what we ought to do as instructed by parents, people in charge, and the law. It is respect and obedience in action.' },
+        { title:'WHY SHOULD YOU OBEY?', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><circle cx="38" cy="38" r="18" fill="var(--good)"/><text x="38" y="46" text-anchor="middle" font-size="24" font-weight="700" fill="var(--card)">?</text>', text:'Children should obey because:<br>it is for their safety and well-being;<br>it builds better relationships between elders and children;<br>it is good training to make good decisions;<br>it leads to a peaceful family and community; and<br>it is our duty to our family, community, and country.' },
+        { title:'RIGHTS', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><path d="M38 54c-11-9-20-17-20-27a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 10-9 18-20 27z" fill="var(--accent)"/>', text:'Rights are the things that every person should have and enjoy.<br>Example: the right to learn, play, and be treated with respect.' },
+        { title:'DUTIES', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><rect x="22" y="18" width="32" height="40" rx="4" fill="var(--card)" stroke="var(--lav)" stroke-width="3"/><polyline points="28,32 32,36 38,28" fill="none" stroke="var(--lav-deep)" stroke-width="3"/><line x1="28" y1="46" x2="48" y2="46" stroke="var(--lav)" stroke-width="3"/>', text:'Duties are the things that we are expected to do.<br>Example: a learner&rsquo;s duty is to listen to the teacher and follow school rules.' },
+        { title:'RESPONSIBILITIES', icon:'<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><path d="M22 58l6-22h20l6 22z" fill="var(--green)"/><rect x="34" y="16" width="8" height="22" fill="var(--green-deep)"/>', text:'Responsibilities are the things we should do properly and responsibly.<br>Example: taking care of school things, helping at home, and keeping the surroundings clean.' },
+        { title:'EVERY CHILD HAS A DUTY TO', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><circle cx="38" cy="28" r="10" fill="var(--good)"/><path d="M18 58c2-14 12-20 20-20s18 6 20 20" fill="none" stroke="var(--good)" stroke-width="4" stroke-linecap="round"/>', text:'love and respect their parents, family, and community;<br>help the community and cooperate with them;<br>obey community laws and rules;<br>take care of himself or herself and stay away from harm and danger;<br>study diligently and improve his or her talents and skills; and<br>love and respect the country and all its symbols, and take care of government properties.' },
+        { title:'LOVE FOR THE COUNTRY', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><rect x="24" y="16" width="4" height="44" fill="var(--accent-ink)"/><path d="M28 18h28l-8 10 8 10H28z" fill="var(--accent)"/>', text:'Being an obedient child is being responsible in doing your duties to your family and community. By being a responsible member of the family and community, you develop and show love for the country.' }
+      ],
+      quiz: [
+        mc('What is obedience?', [['Following the words of our parents, teachers, and elders',true],['Doing only what you like, even when your parents and elders say no',false,'Doing only what you like is not obeying. Obedience is following the words of those in charge of us.'],['Asking other people to do all of your tasks for you',false,'Asking others to do your tasks is not obedience. Obedience is following the words of parents, teachers, and elders.']], 'That&rsquo;s right! Obedience is following the words of our parents, teachers, and elders.', 'Obedience is following the words and advice of our parents, teachers, elders, and those in charge of us.', { tip:'Obey means to listen and follow. Pick the answer about following your elders.' }),
+        mc('Whose words and advice should children follow?', [['Parents, teachers, and elders in charge of us',true],['Only the friends who are the very same age as we are',false,'Friends are not in charge of us. We follow our parents, teachers, and elders.'],['Anyone at all who shouts the loudest',false,'Shouting does not put someone in charge of us. We follow our parents, teachers, and elders.']], 'Yes! We follow our parents, teachers, and elders in charge of us.', 'Children follow the words of their parents, teachers, and elders in charge of them.', { tip:'Think of the grown-ups who take care of you at home and at school.' }),
+        mc('Why should Rico obey?\nMama tells Rico to hold her hand while crossing the street.', [['It is for his safety and well-being',true],['So Mama will buy him a new toy later',false,'We do not obey to get toys. Holding Mama&rsquo;s hand keeps Rico safe.'],['So he can show off to other children',false,'Obeying is not for showing off. Holding Mama&rsquo;s hand keeps Rico safe.']], 'That&rsquo;s right! Obeying keeps Rico safe.', 'Rico should obey because it is for his safety and well-being.', { tip:'Crossing the street can be dangerous. Obeying keeps us safe.' }),
+        mc('Which is a reason why children should obey?', [['It builds better relationships between elders and children',true],['It lets children skip all of their chores and homework at home',false,'Obeying does not mean skipping chores or homework. It builds better relationships with our elders.'],['It makes children forget the rules',false,'Obeying means following the rules, not forgetting them.']], 'Yes! Obeying builds better relationships with our elders.', 'One reason to obey is that it builds better relationships between elders and children.', { tip:'Remember the reasons: safety, better relationships, good decisions, peace, and duty.' }),
+        tf('Obeying leads to a peaceful family and community.', true, 'That&rsquo;s right! Obeying brings peace to our family and community.', 'The answer should be True &mdash; obeying leads to a peaceful family and community.', { why:'You said False, but this is true. One reason we obey is that it leads to a peaceful family and community.', tip:'When everyone follows the rules, there is less fighting. That is peace.' }),
+        tf('Obeying our elders makes our relationships with them worse.', false, 'Correct! Obeying makes our relationships with our elders better.', 'The answer should be False &mdash; obeying builds better relationships between elders and children.', { why:'You said True, but this is false. The word worse makes it wrong &mdash; obeying builds better relationships.', tip:'Watch for the word worse. The lesson says obeying makes relationships better.' }),
+        mc('What are rights?', [['Things that every person should have and enjoy',true],['Things that we are expected to do at home and at school',false,'Things we are expected to do are duties, not rights.'],['Things we should do properly and responsibly',false,'Things we should do properly and responsibly are responsibilities, not rights.']], 'That&rsquo;s right! Rights are things every person should have and enjoy.', 'Rights are the things that every person should have and enjoy.', { tip:'Rights = have and enjoy. Duties = expected to do. Responsibilities = do properly.' }),
+        mc('Learning, playing, and being treated with respect are examples of ___.', [['Rights',true],['Duties',false,'Duties are things we are expected to do, like following school rules. Learning and playing are things we should have and enjoy.'],['Responsibilities',false,'Responsibilities are things we should do properly, like helping at home. Learning and playing are rights.']], 'Yes! Those are rights.', 'Learning, playing, and being treated with respect are Rights &mdash; things every person should have and enjoy.', { tip:'Ask: Is this something I get to have and enjoy? Then it is a right.' }),
+        mc('Listening to the teacher and following school rules is a learner’s ___.', [['Duty',true],['Right',false,'A right is something we have and enjoy, like playing. Following school rules is something we are expected to do.'],['Tradition',false,'A tradition is a special activity a family does together. Following school rules is a duty.']], 'Correct! That is a learner&rsquo;s duty.', 'Listening to the teacher and following school rules is a learner&rsquo;s Duty.', { tip:'A duty is what we are expected to do. At school, we are expected to listen and follow rules.' }),
+        mc('Taking care of school things, helping at home, and keeping the surroundings clean are examples of ___.', [['Responsibilities',true],['Rights',false,'Rights are things we have and enjoy, like playing. These are things we should do properly.'],['Wants',false,'Wants are things we can live without, like toys. These are things we should do properly.']], 'That&rsquo;s right! Those are responsibilities.', 'Taking care of school things, helping at home, and keeping the surroundings clean are Responsibilities.', { tip:'Responsibilities are jobs we should do properly, like keeping things clean and helping at home.' }),
+        mc('Which of these is a duty of every child?', [['Obey community laws and rules',true],['Break the rules when no one is looking',false,'Breaking rules is the opposite of obeying. Every child has a duty to obey community laws and rules.'],['Stop studying once school is over for the day',false,'Every child has a duty to study diligently. Stopping is not a duty.']], 'Yes! Every child has a duty to obey community laws and rules.', 'Every child has a duty to obey community laws and rules.', { tip:'A child&rsquo;s duties are good things: love, help, obey, stay safe, study, and love the country.' }),
+        tf('Every child has a duty to love and respect the country and its symbols, and to take care of government properties.', true, 'That&rsquo;s right! That is one of every child&rsquo;s duties.', 'The answer should be True &mdash; every child has a duty to love and respect the country and its symbols, and take care of government properties.', { why:'You said False, but this is true. It is on the list of duties of every child.', tip:'Loving our country is one of our duties. Taking care of its symbols and properties shows that love.' }),
+        tf('Taking care of yourself and staying away from harm and danger is not a child’s duty.', false, 'Correct! It is a child&rsquo;s duty to take care of himself or herself.', 'The answer should be False &mdash; every child has a duty to take care of himself or herself and stay away from harm and danger.', { why:'You said True, but this is false. The word not makes it wrong &mdash; taking care of yourself and staying safe is a child&rsquo;s duty.', tip:'Watch for the word not. Staying safe is on the list of every child&rsquo;s duties.' }),
+        mc('By being a responsible member of the family and community, what do you develop and show?', [['Love for the country',true],['Fear of other people',false,'Being responsible does not make us afraid of others. It shows love for the country.'],['Laziness at home and at school',false,'Being responsible is the opposite of being lazy. It shows love for the country.']], 'That&rsquo;s right! You develop and show love for the country.', 'By being a responsible member of the family and community, you develop and show love for the country.', { tip:'Remember the last flashcard: responsible family and community members show love for the country.' }),
+        tf('Being obedient is being responsible in doing your duties to your family and community.', true, 'Correct! Obedient children are responsible in doing their duties.', 'The answer should be True &mdash; being obedient is being responsible in doing your duties and obligations to your family and community.', { why:'You said False, but this is true. The lesson says being an obedient child is being responsible in doing your duties to your family and community.', tip:'Obeying and doing your duties go together.' }),
+        mc('Obedience is doing what we ought to do as instructed by parents, people in charge, and ___.', [['the law',true],['our favorite cartoon characters',false,'Cartoon characters are not in charge of us. Obedience also means following the law.'],['anyone who gives us candy',false,'Giving candy does not put someone in charge of us. Obedience means following parents, people in charge, and the law.']], 'That&rsquo;s right! We also obey the law.', 'Obedience is doing what we ought to do as instructed by parents, people in charge, and the law.', { tip:'Parents at home, people in charge, and the rules of the country &mdash; the law.' })
+      ]
+    },
+    {
+      tag: 'Lesson 7',
+      title: 'I Can',
+      stars: 0,
+      icon: '<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><polygon points="38,14 44,30 61,31 47,41 52,58 38,48 24,58 29,41 15,31 32,30" fill="var(--accent)"/>',
+      flashcards: [
+        { title:'CONFIDENCE', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><polygon points="38,14 44,30 61,31 47,41 52,58 38,48 24,58 29,41 15,31 32,30" fill="var(--accent)"/>', text:'Confidence is the belief that you can succeed, even if you make mistakes along the way. It is about focusing on your strengths and trying your best. Confidence grows with practice.' },
+        { title:'FINGERPRINTS', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><ellipse cx="38" cy="38" rx="16" ry="20" fill="none" stroke="var(--lav-deep)" stroke-width="3"/><ellipse cx="38" cy="38" rx="10" ry="13" fill="none" stroke="var(--lav)" stroke-width="3"/><ellipse cx="38" cy="38" rx="4" ry="6" fill="none" stroke="var(--lav-deep)" stroke-width="3"/>', text:'Your fingerprints are one of a kind. There is no one else who has the same fingerprints as you. This makes you unique.' },
+        { title:'YOU ARE UNIQUE AND SPECIAL', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><path d="M38 54c-11-9-20-17-20-27a12 12 0 0 1 20-9 12 12 0 0 1 20 9c0 10-9 18-20 27z" fill="var(--accent)"/>', text:'Just like your fingerprints, all the rest of your body parts, behaviors, and characteristics are unique. Every child is unique and special.' },
+        { title:'YOU ARE GIFTED', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><rect x="20" y="32" width="36" height="24" rx="3" fill="var(--good)"/><rect x="16" y="26" width="44" height="8" rx="2" fill="var(--green-deep)"/><rect x="35" y="26" width="6" height="30" fill="var(--card)"/>', text:'You can do many things as a little child, and much more when you grow up. Your talents and skills boost your self-confidence.' },
+        { title:'ABILITY &amp; TALENT', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><path d="M26 54V26l24-6v28" fill="none" stroke="var(--lav-deep)" stroke-width="4"/><circle cx="22" cy="54" r="6" fill="var(--lav)"/><circle cx="46" cy="48" r="6" fill="var(--lav)"/>', text:'An <b>ability</b> is something you can do well or learn to do well.<br>A <b>talent</b> is a natural skill or strength that you may develop through practice.<br>Examples: playing sports, helping others, speaking, building or creating things, drawing, singing, dancing, reading, and writing.' },
+        { title:'1. ACKNOWLEDGE YOUR GIFTS', icon:'<circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><path d="M22 46c0-14 32-14 32 0" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/><circle cx="38" cy="24" r="7" fill="var(--accent)"/>', text:'Acknowledge your gifts and be proud of what you can do. You have talents because God gave them to you. Being proud of your gifts does not mean being boastful. It simply means owning your talents and skills and being responsible for them.' },
+        { title:'2. PRACTICE TO IMPROVE', icon:'<circle cx="38" cy="38" r="34" fill="var(--good-soft)"/><polyline points="18,52 30,40 40,46 58,24" fill="none" stroke="var(--good)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>', text:'When you practice, you learn new ways of doing things better. You also learn from your mistakes and avoid repeating them.' },
+        { title:'3. USE YOUR TALENTS PROPERLY', icon:'<circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><circle cx="26" cy="32" r="8" fill="var(--lav)"/><circle cx="50" cy="32" r="8" fill="var(--lav-deep)"/><path d="M30 50c4 4 12 4 16 0" fill="none" stroke="var(--lav-deep)" stroke-width="3" stroke-linecap="round"/>', text:'Talents and skills are given to you by God so that you enjoy your life better when you use them properly. The best way to use your gifts properly is to share them with others joyfully.' },
+        { title:'MY FAMILY HELPS ME', icon:'<circle cx="38" cy="38" r="34" fill="var(--green-soft)"/><circle cx="26" cy="28" r="7" fill="var(--green)"/><circle cx="50" cy="28" r="7" fill="var(--green-deep)"/><circle cx="38" cy="40" r="5" fill="var(--accent)"/>', text:'Our family helps us discover our abilities and talents by: encouraging us to try new things, supporting our interests, giving helpful advice, praising our efforts, and giving us opportunities to practice.<br>Listening to our parents and following their advice helps us improve what we do.' }
+      ],
+      quiz: [
+        mc('What is confidence?', [['Believing you can succeed, even if you make mistakes',true],['Believing that you must never make any mistakes at all',false,'Confidence does not mean never making mistakes. It is believing you can succeed even when you make mistakes.'],['Thinking that you are better than everyone else',false,'That is being boastful. Confidence is believing you can succeed and trying your best.']], 'That&rsquo;s right! Confidence is believing you can succeed, even with mistakes.', 'Confidence is the belief that you can succeed, even if you make mistakes along the way.', { tip:'Everyone makes mistakes. Confidence means you still believe you can do it.' }),
+        tf('Confidence grows with practice.', true, 'Correct! The more you practice, the more confident you become.', 'The answer should be True &mdash; confidence grows with practice.', { why:'You said False, but this is true. The lesson says confidence grows with practice.', tip:'Think of riding a bike: the more you practice, the braver you feel. Confidence grows the same way.' }),
+        mc('Why do your fingerprints make you unique?', [['No one else has the same fingerprints as you',true],['Everyone in your family has the very same fingerprints',false,'This is not true. Your fingerprints are one of a kind &mdash; no one else has the same ones.'],['Your fingerprints change into new ones every day',false,'Your fingerprints do not change every day. They are one of a kind, and that makes you unique.']], 'Yes! No one else has your fingerprints.', 'Your fingerprints make you unique because no one else has the same fingerprints as you.', { tip:'Unique means one of a kind. Your fingerprints are yours alone.' }),
+        mc('What is an ability?', [['Something you can do well or learn to do well',true],['Something that only grown-ups are allowed to do',false,'Children have abilities too. An ability is something you can do well or learn to do well.'],['Something that you can never learn, no matter what',false,'An ability can be learned. It is something you can do well or learn to do well.']], 'That&rsquo;s right! An ability is something you can do well or learn to do well.', 'An ability is something you can do well or learn to do well.', { tip:'Ability sounds like able. If you are able to do it well, it is an ability.' }),
+        mc('What is a talent?', [['A natural skill that you may develop through practice',true],['Something you can buy at a store when you have money',false,'Talents cannot be bought. A talent is a natural skill you develop through practice.'],['Something that only famous people on TV have',false,'Every child has talents, not only famous people. A talent is a natural skill you develop through practice.']], 'Yes! A talent is a natural skill you may develop through practice.', 'A talent is a natural skill or strength that you may develop through practice.', { tip:'A talent is already inside you. Practice helps it grow.' }),
+        mc('Which of these is an example of an ability or talent?', [['Singing',true],['Shouting at others',false,'Shouting at others is unkind. It is not a talent or ability we should grow.'],['Breaking your toys',false,'Breaking toys is not a talent. Talents are things like singing, drawing, and dancing.']], 'Correct! Singing is a talent.', 'Singing is an example of an ability or talent, like drawing, dancing, reading, and writing.', { tip:'Talents are good things you can do well: sports, helping, speaking, building, drawing, singing, dancing, reading, writing.' }),
+        mc('Who gave us our talents?', [['God',true],['The store where we buy our school supplies',false,'Talents cannot be bought at a store. The lesson says God gave us our talents.'],['Our classmates when we copy them',false,'Copying classmates does not give us talents. God gave each of us our own talents.']], 'That&rsquo;s right! God gave us our talents.', 'You have talents because God gave them to you.', { tip:'Remember: talents and skills are given to you by God.' }),
+        tf('Being proud of your gifts means being boastful.', false, 'That&rsquo;s right! Being proud of your gifts is not being boastful.', 'The answer should be False &mdash; being proud of your gifts does not mean being boastful. It means owning your talents and being responsible for them.', { why:'You said True, but this is false. The lesson says being proud of your gifts does not mean being boastful &mdash; it means owning your talents and being responsible for them.', tip:'Boastful means showing off. Being proud means you are happy with your gift and take care of it.' }),
+        mc('Which is a way to enrich your gifts and talents?', [['Practice to improve',true],['Stop trying after your very first mistake',false,'Mistakes help us learn. When you practice, you learn from your mistakes.'],['Hide your talents so no one can see them',false,'Hiding talents does not help them grow. The best way to use them is to share them.']], 'Yes! Practice helps you improve.', 'Practice to improve is one way to enrich your gifts and talents.', { tip:'The three ways: acknowledge your gifts, practice to improve, and use your talents properly.' }),
+        mc('What is the best way to use your gifts properly?', [['Share them with others joyfully',true],['Keep them only to yourself and never share',false,'Keeping them only to yourself is not the best way. We should share our gifts with others joyfully.'],['Use them to show off to your classmates',false,'Showing off is being boastful. The best way is to share your gifts joyfully.']], 'That&rsquo;s right! Share your gifts with others joyfully.', 'The best way to use your gifts properly is to share them with others joyfully.', { tip:'Gifts are for sharing. Think of singing for your family or helping a friend draw.' }),
+        tf('When you practice, you learn from your mistakes and avoid repeating them.', true, 'Correct! Practice helps you learn from your mistakes.', 'The answer should be True &mdash; when you practice, you learn from your mistakes and avoid repeating them.', { why:'You said False, but this is true. The Practice to Improve flashcard says you learn from your mistakes and avoid repeating them.', tip:'Practice is how we get better. Each mistake teaches us something.' }),
+        mc('How can our family help us discover our abilities and talents?', [['By encouraging us to try new things',true],['By telling us to stop trying new things',false,'This is the opposite. Our family helps by encouraging us to try new things.'],['By never letting us practice at home',false,'This is the opposite. Our family gives us opportunities to practice.']], 'Yes! Our family encourages us to try new things.', 'Our family helps us by encouraging us to try new things, supporting our interests, giving advice, praising our efforts, and letting us practice.', { tip:'Families help in kind ways: encourage, support, advise, praise, and give chances to practice.' }),
+        tf('Listening to our parents and following their advice will help us improve what we do.', true, 'That&rsquo;s right! Our parents&rsquo; advice helps us improve.', 'The answer should be True &mdash; listening to our parents and following their advice helps us improve what we do.', { why:'You said False, but this is true. The lesson says listening to our parents and following their advice helps us improve.', tip:'Our parents want us to grow. Their advice helps us get better.' }),
+        tf('Only some children are unique and special.', false, 'Correct! Every child is unique and special.', 'The answer should be False &mdash; every child is unique and special.', { why:'You said True, but this is false. The word only makes it wrong &mdash; every child is unique and special.', tip:'Watch for the word only. Remember: every child is unique and special.' }),
+        mc('What is the best way to enrich your talents?', [['Share them',true],['Keep them a secret',false,'Keeping talents a secret does not help them grow. The best way to enrich your talents is to share them.'],['Stop using them',false,'Talents grow when we use them. The best way to enrich your talents is to share them.']], 'Yes! The best way to enrich your talents is to share them.', 'The best way to enrich your talents is to share them.', { tip:'Remember the recap: the best way to enrich your talents is to share them.' }),
+        tf('Your talents and skills boost your self-confidence.', true, 'That&rsquo;s right! Your talents and skills make you more confident.', 'The answer should be True &mdash; your talents and skills boost your self-confidence.', { why:'You said False, but this is true. The You Are Gifted flashcard says your talents and skills boost your self-confidence.', tip:'When you know you can do something well, you feel confident.' }),
+        tf('You should hide your gifts and talents instead of being proud of them.', false, 'Correct! You should accept, enrich, and be proud of your gifts.', 'The answer should be False &mdash; you should accept, enrich, and be proud of your gifts and talents.', { why:'You said True, but this is false. The lesson says you should accept, enrich, and be proud of your gifts and talents.', tip:'Gifts come from God. Be proud of them and share them, do not hide them.' })
+      ]
+    }
+  ];
+
+  var TYPE_IT = {
+    "What is another name for your family name?": [],
+    "What do we call the feelings we have inside that help us understand how we react to situations?": ["emotion"],
+    "Which emotion is often related to irritability and tension?": ["angry"],
+    "Which emotion is the opposite of happiness?": ["sad"],
+    "In the CATCH plan, what does the &ldquo;C&rdquo; stand for?": ["calm"],
+    "Where do people go to pray, worship God, and learn about His love?": [],
+    "What helps keep your body safe from germs and sickness by working together inside you?": [],
+    "What do we call taking care of yourself and your surroundings to stay clean?": [],
+    "Which thrifty way is Jo doing?\nJo gives her old books, which are still in good condition, to a friend in exchange for puzzles.": ["trading"],
+    "Learning, playing, and being treated with respect are examples of ___.": [],
+    "Obedience is doing what we ought to do as instructed by parents, people in charge, and ___.": ["law"],
+    "Who gave us our talents?": [],
+  };
+
+  /* ================= Plant SVG ================= */
+  function plantMarkup(){
+    return ''
+      + '<ellipse class="piece base" data-piece="0" cx="60" cy="90" rx="50" ry="8" fill="var(--soil)"/>'
+      + '<ellipse class="piece" data-piece="1" cx="60" cy="84" rx="5" ry="4" fill="var(--soil-dark)"/>'
+      + '<g class="piece" data-piece="2"><rect x="58" y="74" width="4" height="12" fill="var(--green-deep)"/><path d="M60 76c4-4 10-2 10 2-6 2-10-1-10-2z" fill="var(--leaf)"/></g>'
+      + '<g class="piece" data-piece="3"><rect x="58" y="60" width="4" height="14" fill="var(--green-deep)"/></g>'
+      + '<g class="piece" data-piece="4"><path d="M60 66c-10-6-22 0-20 8 10 4 20-2 20-8z" fill="var(--leaf)"/></g>'
+      + '<g class="piece" data-piece="5"><path d="M60 60c10-6 22 0 20 8-10 4-20-2-20-8z" fill="var(--green)"/></g>'
+      + '<g class="piece" data-piece="6"><rect x="58" y="46" width="4" height="14" fill="var(--green-deep)"/></g>'
+      + '<g class="piece" data-piece="7"><circle cx="60" cy="42" r="7" fill="var(--petal-deep)"/></g>'
+      + '<g class="piece" data-piece="8"><circle cx="52" cy="36" r="6" fill="var(--petal)"/><circle cx="68" cy="36" r="6" fill="var(--petal)"/><circle cx="60" cy="26" r="6" fill="var(--petal)"/><circle cx="60" cy="44" r="6" fill="var(--petal)"/><circle cx="60" cy="35" r="5" fill="var(--accent)"/></g>';
+  }
+  document.getElementById('plant-mini').innerHTML = plantMarkup();
+  document.getElementById('plant-final').innerHTML = plantMarkup();
+
+  function resetPlant(){
+    document.querySelectorAll('.piece[data-piece]:not([data-piece="0"])').forEach(function(el){ el.classList.remove('revealed'); });
+  }
+  function starsMarkup(filledCount, total){
+    var out = '';
+    for (var i = 1; i <= total; i++){
+      var filled = i <= filledCount;
+      out += '<svg viewBox="0 0 24 24" fill="' + (filled ? 'var(--accent)' : 'none') + '" stroke="var(--accent)" stroke-width="' + (total > 3 ? '2' : '1.6') + '"><polygon points="12,2 15,9 22,9.5 16.5,14.2 18.5,21.5 12,17.5 5.5,21.5 7.5,14.2 2,9.5 9,9"/></svg>';
+    }
+    return out;
+  }
+
+  /* ================= Screens ================= */
+  var screens = ['home','flash','quiz','results'];
+  function showScreen(name){
+    screens.forEach(function(s){
+      document.getElementById('screen-'+s).classList.toggle('active', s === name);
+    });
+  }
+
+  /* ================= Home ================= */
+  function renderHome(){
+    document.getElementById('points-total-badge').textContent = '⭐ ' + totalPoints + ' points earned';
+    var list = document.getElementById('home-list');
+    var finalTotal = lessons.length * FINAL_EXAM_PER_LESSON;
+    var finalBest = progress['final'] || 0;
+    var finalStars = starsFor(finalBest / finalTotal);
+    var finalCard = '<div class="card lesson-card final-card">' +
+      '<div class="lesson-top">' +
+        '<svg class="lesson-icon" viewBox="0 0 76 76"><circle cx="38" cy="38" r="34" fill="var(--lav-soft)"/><polygon points="38,14 44,30 61,31 47,41 52,58 38,48 24,58 29,41 15,31 32,30" fill="var(--lav)"/></svg>' +
+        '<div class="lesson-info">' +
+          '<div class="lesson-tag-label final-badge">Final Mock Exam</div>' +
+          '<div class="lesson-title">Growing Good Review</div>' +
+          '<div class="mini-stars">' + starsMarkup(finalStars, 3) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<button class="btn" id="btn-final-exam">' + (finalBest > 0 ? 'Retry Exam' : 'Start') + '</button>' +
+    '</div>';
+
+    var lessonCards = lessons.map(function(l, i){
+      var total = l.quiz.length;
+      var best = progress[i] || 0;
+      var stars = starsFor(best / total);
+      return '<div class="card lesson-card">' +
+        '<div class="lesson-top">' +
+          '<svg class="lesson-icon" viewBox="0 0 76 76">' + l.icon + '</svg>' +
+          '<div class="lesson-info">' +
+            '<div class="lesson-tag-label">' + l.tag + '</div>' +
+            '<div class="lesson-title">' + l.title + '</div>' +
+            '<div class="mini-stars">' + starsMarkup(stars, 3) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<button class="btn" data-lesson="' + i + '">' + (best > 0 ? 'Retry Lesson' : 'Start') + '</button>' +
+      '</div>';
+    }).join('');
+
+    list.innerHTML = finalCard + lessonCards;
+
+    document.getElementById('btn-final-exam').addEventListener('click', function(){
+      startFinalExam();
+    });
+    list.querySelectorAll('button[data-lesson]').forEach(function(b){
+      b.addEventListener('click', function(){
+        currentLesson = parseInt(b.getAttribute('data-lesson'), 10);
+        flashIdx = 0;
+        historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, currentLesson, lessons[currentLesson].title, lessons[currentLesson].flashcards.length) : null;
+        renderFlash();
+        showScreen('flash');
+      });
+    });
+  }
+  function goHome(){ renderHome(); showScreen('home'); }
+  document.getElementById('back-from-flash').addEventListener('click', goHome);
+  document.getElementById('back-from-quiz').addEventListener('click', goHome);
+  document.getElementById('btn-go-home').addEventListener('click', goHome);
+
+  /* ================= Flashcards ================= */
+  var currentLesson = 0;
+  var flashIdx = 0;
+  function renderFlash(){
+    var lesson = lessons[currentLesson];
+    var f = lesson.flashcards[flashIdx];
+    SH && SH.cardViewed(historyLessonId, flashIdx + 1);
+    document.getElementById('flash-lesson-label').textContent = lesson.title;
+    document.getElementById('flash-body').innerHTML =
+      '<svg class="flash-icon" viewBox="0 0 76 76">' + f.icon + '</svg>' +
+      '<h3 class="flash-title">' + f.title + '</h3>' +
+      '<p class="flash-text">' + f.text + '</p>';
+    document.getElementById('flash-dots').innerHTML = lesson.flashcards.map(function(_, i){
+      return '<span class="' + (i === flashIdx ? 'on' : '') + '"></span>';
+    }).join('');
+    document.getElementById('btn-flash-prev').style.visibility = flashIdx === 0 ? 'hidden' : 'visible';
+    document.getElementById('btn-flash-next').textContent = flashIdx === lesson.flashcards.length - 1 ? 'Start Quiz' : 'Next';
+  }
+  document.getElementById('btn-flash-prev').addEventListener('click', function(){
+    if (flashIdx > 0){ flashIdx--; renderFlash(); }
+  });
+  document.getElementById('btn-flash-next').addEventListener('click', function(){
+    var lesson = lessons[currentLesson];
+    if (flashIdx < lesson.flashcards.length - 1){ flashIdx++; renderFlash(); }
+    else { startQuiz(); }
+  });
+
+  /* ================= Quiz ================= */
+  var qIdx = 0, score = 0, answered = false;
+  var currentQuizSet = [];
+  var currentQuizMeta = null;
+  var missedQuestions = [];
+  var sessionPoints = 0, streak = 0, bestStreak = 0;
+  var POINTS_PER_CORRECT = 10, EXAM_POINTS_PER_CORRECT = 20, STREAK_BONUS = 5, STREAK_BONUS_AT = 3;
+
+  function updatePointsLive(){
+    var el = document.getElementById('points-live');
+    if (!el) return;
+    el.innerHTML = '⭐ ' + sessionPoints + ' pts' + (streak >= 2 ? ' <span class="streak">🔥 x' + streak + '</span>' : '') + (window.Wallet && Wallet.liveHtml ? Wallet.liveHtml() : '');
+  }
+
+  function revealProgress(){
+    var n = Math.round((score / currentQuizSet.length) * 8);
+    for (var p = 1; p <= 8; p++){
+      document.querySelectorAll('[data-piece="' + p + '"]').forEach(function(el){
+        el.classList.toggle('revealed', p <= n);
+      });
+    }
+  }
+
+  function startQuiz(){
+    var lesson = lessons[currentLesson];
+    currentQuizSet = buildQuizSet(lesson);
+    currentQuizMeta = { id: currentLesson, title: lesson.title };
+    historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
+    qIdx = 0; score = 0; missedQuestions = []; sessionPoints = 0; streak = 0; bestStreak = 0; resetPlant();
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function startFinalExam(){
+    var qs = [];
+    lessons.forEach(function(l){
+      qs = qs.concat(shuffle(l.quiz).slice(0, FINAL_EXAM_PER_LESSON).map(prepareQuestion));
+    });
+    currentQuizSet = shuffle(qs);
+    currentQuizMeta = { id: 'final', title: 'Growing Good Review' };
+    historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+    qIdx = 0; score = 0; missedQuestions = []; sessionPoints = 0; streak = 0; bestStreak = 0; resetPlant();
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function decode(str){
+    return str
+      .replace(/&ldquo;/g,'“').replace(/&rdquo;/g,'”')
+      .replace(/&rsquo;/g,'’').replace(/&mdash;/g,'—');
+  }
+
+  function renderQuestion(){
+    answered = false;
+    var item = currentQuizSet[qIdx];
+    document.getElementById('q-count').textContent = 'Question ' + (qIdx + 1) + ' of ' + currentQuizSet.length + (currentQuizMeta.id === 'final' ? ' — ' + decode(currentQuizMeta.title) : '');
+    document.getElementById('track-fill').style.width = Math.round((qIdx / currentQuizSet.length) * 100) + '%';
+    updatePointsLive();
+    document.getElementById('q-kicker').textContent = item.type === 'tf' ? 'True or False?' : 'Choose the correct answer';
+    var parts = decode(item.q).split('\n');
+    document.getElementById('q-text').textContent = parts[0];
+    var sentenceEl = document.getElementById('q-sentence');
+    sentenceEl.textContent = parts[1] || '';
+    sentenceEl.style.display = parts[1] ? '' : 'none';
+    var fb = document.getElementById('q-feedback');
+    fb.className = 'feedback'; fb.innerHTML = '';
+    document.getElementById('q-explore').style.display = 'none';
+    document.getElementById('next-wrap').classList.remove('show');
+
+    var optWrap = document.getElementById('q-options');
+    optWrap.innerHTML = '';
+
+    if (item.type === 'tf'){
+      var row = document.createElement('div');
+      row.className = 'tf-row';
+      var trueBtn = document.createElement('button');
+      trueBtn.className = 'tf-btn'; trueBtn.innerHTML = CHECK_ICON + '<span>True</span>';
+      var falseBtn = document.createElement('button');
+      falseBtn.className = 'tf-btn'; falseBtn.innerHTML = X_ICON + '<span>False</span>';
+      trueBtn.addEventListener('click', function(){ handleTF(true, trueBtn); });
+      falseBtn.addEventListener('click', function(){ handleTF(false, falseBtn); });
+      row.appendChild(trueBtn); row.appendChild(falseBtn);
+      optWrap.appendChild(row);
+    } else {
+      item.options.forEach(function(opt){
+        var b = document.createElement('button');
+        b.className = 'opt';
+        b.innerHTML = '<span class="bullet"></span><span>' + decode(opt.text) + '</span>';
+        b.addEventListener('click', function(){ handleMC(opt, b, optWrap); });
+        optWrap.appendChild(b);
+      });
+    }
+    offerQuestion({ quiz: currentQuizSet, exam: currentQuizMeta.id === 'final', before: optWrap,
+      options: item.type === 'tf' ? [] : optWrap.querySelectorAll('.opt'), correct: item.type === 'tf' ? -1 : item.options.findIndex(function(o){ return o.correct; }),
+      tip: item.tip, tipEn: item.tipEn, q: item.q, historyId: historyQuizId, streak: streak, index: qIdx, rerender: renderQuestion });
+  }
+
+  function lockOptions(chosen){
+    document.querySelectorAll('.opt, .tf-btn').forEach(function(el){
+      if (el === chosen) el.disabled = true;
+      else el.classList.add('explorable');
+    });
+    showExploreHint('');
+  }
+
+  var EXPLORE = { hint:'&#128269; Curious? Tap the other answers to see why.', right:'This is the right answer', wrong:'Why not this one?', fallback:'This is not the right answer.' };
+  function exploreWhy(text){
+    return text.replace(/^(?:You said (?:True|False), but |Pinili mo ang (?:Tama|Mali), pero )(.)/, function(m, c){ return c.toUpperCase(); });
+  }
+  function showExploreHint(card){
+    var el = document.getElementById('q-explore');
+    el.innerHTML = '<div class="explore-hint">' + EXPLORE.hint + '</div>' + card;
+    el.style.display = 'block';
+  }
+  function exploreCard(btnEl, isRight, choice, text){
+    document.querySelectorAll('.opt, .tf-btn').forEach(function(el){ el.classList.toggle('explored', el === btnEl); });
+    showExploreHint('<div class="explore-card' + (isRight ? ' explore-right' : '') + '"><b>' + (isRight ? EXPLORE.right : EXPLORE.wrong) + '</b>' +
+      '<span class="learn-choice">' + choice + '</span><span class="learn-why">' + text + '</span></div>');
+  }
+  function exploreMC(opt, btnEl){
+    var item = currentQuizSet[qIdx];
+    exploreCard(btnEl, opt.correct, decode(opt.text), decode(opt.correct ? item.bad : (exploreWhy(opt.why || '') || EXPLORE.fallback)));
+  }
+  function exploreTF(choice, btnEl){
+    var item = currentQuizSet[qIdx];
+    var isRight = choice === item.answer;
+    exploreCard(btnEl, isRight, choice ? SH_TRUE : SH_FALSE, decode(isRight ? item.bad : (exploreWhy(item.why || '') || EXPLORE.fallback)));
+  }
+
+  var LEARN = { title:'Not quite &mdash; let&rsquo;s learn from this!', picked:'You picked', why:'Why that&rsquo;s not right', right:'The right answer', tip:'Tip for next time' };
+  function learnHtml(m){
+    return '<div class="learn">' +
+      '<div class="learn-title">' + LEARN.title + '</div>' +
+      '<div class="learn-row learn-picked"><b>' + LEARN.picked + '</b><span class="learn-choice">' + m.picked + '</span>' +
+        (m.why ? '<span class="learn-why">' + LEARN.why + ': ' + m.why + '</span>' : '') + '</div>' +
+      '<div class="learn-row learn-right"><b>' + LEARN.right + '</b><span class="learn-choice">' + m.answer + '</span>' +
+        '<span class="learn-why">' + m.explain + '</span></div>' +
+      (m.tip ? '<div class="learn-row learn-tip"><b>&#128161; ' + LEARN.tip + '</b>' + m.tip + '</div>' : '') +
+    '</div>';
+  }
+
+  function showFeedback(isCorrect, picked, answer, pickedWhy){
+    var item = currentQuizSet[qIdx];
+    SH && SH.quizAnswered(historyQuizId, isCorrect, item.q, picked, answer, window.Recall ? Recall.typed() : false);
+    var fb = document.getElementById('q-feedback');
+    fb.className = 'feedback show ' + (isCorrect ? 'good' : 'bad');
+    var miss = isCorrect ? null : { q: decode(item.q), picked: decode(picked), why: pickedWhy ? decode(pickedWhy) : '', answer: decode(answer), explain: decode(item.bad), tip: item.tip ? decode(item.tip) : '' };
+    fb.innerHTML = isCorrect ? CHECK_ICON + '<span>' + decode(item.good) + '</span>' : X_ICON + learnHtml(miss);
+    document.getElementById('next-wrap').classList.add('show');
+    var helped = !!(window.PowerUps && PowerUps.answered());
+    if (isCorrect){
+      score++;
+      if (!helped) streak++;
+      if (streak > bestStreak) bestStreak = streak;
+      var ptsBase = currentQuizMeta.id === 'final' ? EXAM_POINTS_PER_CORRECT : POINTS_PER_CORRECT, ptsBonus = streak >= STREAK_BONUS_AT ? STREAK_BONUS : 0;
+      var pts = window.Recall ? Recall.points(helped, ptsBase, ptsBonus) : helped ? ptsBase / 2 : ptsBase + ptsBonus;
+      sessionPoints += pts;
+      totalPoints += pts;
+      saveTotalPoints(totalPoints);
+      window.Fx && Fx.correct(helped ? 0 : streak);
+    } else {
+      if (!(window.PowerUps && PowerUps.shield())) streak = 0;
+      window.Fx && Fx.wrong();
+      missedQuestions.push(miss);
+    }
+    updatePointsLive();
+    revealProgress();
+  }
+
+  function handleMC(opt, btnEl, optWrap){
+    if (answered) return exploreMC(opt, btnEl);
+    answered = true;
+    lockOptions(btnEl);
+    var item = currentQuizSet[qIdx];
+    optWrap.querySelectorAll('.opt').forEach(function(el, i){
+      var thisOpt = item.options[i];
+      if (thisOpt.correct) el.classList.add('correct');
+      else if (el === btnEl) el.classList.add('wrong');
+    });
+    showFeedback(opt.correct, opt.text, (item.options.filter(function(o){ return o.correct; })[0] || {}).text, opt.why);
+  }
+
+  function handleTF(choice, chosenBtn){
+    if (answered) return exploreTF(choice, chosenBtn);
+    answered = true;
+    lockOptions(chosenBtn);
+    var correct = currentQuizSet[qIdx].answer;
+    var isRight = (choice === correct);
+    chosenBtn.classList.add(isRight ? 'correct' : 'wrong');
+    if (!isRight){
+      var rightBtn = (correct === true) ? chosenBtn.parentElement.children[0] : chosenBtn.parentElement.children[1];
+      rightBtn.classList.add('correct');
+    }
+    showFeedback(isRight, choice ? SH_TRUE : SH_FALSE, correct ? SH_TRUE : SH_FALSE, currentQuizSet[qIdx].why);
+  }
+
+  document.getElementById('btn-next').addEventListener('click', function(){
+    if (qIdx < currentQuizSet.length - 1){ qIdx++; renderQuestion(); }
+    else { finishQuiz(); }
+  });
+
+  function finishQuiz(){
+    document.getElementById('track-fill').style.width = '100%';
+    var total = currentQuizSet.length;
+    var starCount = starsFor(score / total);
+    SH && SH.quizFinished(historyQuizId, starCount, sessionPoints, bestStreak);
+    window.Fx && Fx.finish(starCount);
+    var best = Math.max(progress[currentQuizMeta.id] || 0, score);
+    progress[currentQuizMeta.id] = best;
+    saveProgress(progress);
+    document.getElementById('stars').innerHTML = starsMarkup(starCount, 3);
+    document.getElementById('result-score').textContent = 'You got ' + score + ' out of ' + total + ' questions right on ' + decode(currentQuizMeta.title) + '!';
+    var ptsLine = '⭐ +' + sessionPoints + ' points this round';
+    if (bestStreak >= STREAK_BONUS_AT) ptsLine += ' · 🔥 best streak: ' + bestStreak + ' in a row!';
+    document.getElementById('points-earned').textContent = ptsLine + (window.Recall ? Recall.resultLine() : '');
+    var msg;
+    if (starCount === 3) msg = 'Amazing! Your plant is in full bloom — you’re growing beautifully!';
+    else if (starCount === 2) msg = 'Great job! Your plant is almost in bloom — try again to help it flower!';
+    else msg = 'Good start! Let’s review the lesson and try again — you can do it!';
+    document.getElementById('result-msg').textContent = msg;
+    var reviewEl = document.getElementById('missed-review');
+    if (missedQuestions.length){
+      reviewEl.innerHTML = '<h3>Questions to Review</h3><div class="missed-list">' +
+        missedQuestions.map(function(m){
+          return '<div class="missed-item">' + X_ICON + '<div><p class="missed-q">' + m.q + '</p>' + learnHtml(m) + '</div></div>';
+        }).join('') +
+        '</div>';
+    } else {
+      reviewEl.innerHTML = '';
+    }
+    reviewEl.classList.toggle('show', missedQuestions.length > 0);
+    showScreen('results');
+  }
+
+  document.getElementById('btn-retry').addEventListener('click', function(){
+    if (currentQuizMeta.id === 'final') startFinalExam();
+    else startQuiz();
+  });
+
+  renderHome();
+})();
+</script>

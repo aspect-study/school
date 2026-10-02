@@ -2,8 +2,8 @@ process.env.TZ = 'Asia/Manila';
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
-const { create, matches, normalize, questionKey, REST_DAYS, TYPED_BONUS, TEXT } = require(path.join(__dirname, '..', 'grade 2', 'recall-grade2.js'));
+const { APPS, engineFile, appFile } = require('./paths.js');
+const { create, matches, normalize, questionKey, REST_DAYS, TYPED_BONUS, TEXT } = require(engineFile('recall.js'));
 
 function memory(initial) {
   const data = Object.assign({}, initial);
@@ -192,11 +192,10 @@ test('Grade 2 text pairs Filipino with English; buttons are English only', () =>
 });
 
 const fs = require('node:fs');
-const root = path.join(__dirname, '..');
-const G5 = ['craft-corner', 'history-explorers', 'life-lab', 'page-turners', 'rally-ready', 'rise-shine', 'wikaharian'];
-const G2 = ['batang-bayani', 'block-bot', 'byte-buddies', 'growing-good', 'kuwentista', 'science-detectives', 'word-train'];
-const games = G5.map((a) => ({ a, file: path.join(root, a + '.html'), tag: '<script src="recall.js" data-grade="grade5"></script>', pu: 'powerups.js' }))
-  .concat(G2.map((a) => ({ a, file: path.join(root, 'grade 2', a + '.html'), tag: '<script src="recall-grade2.js" data-grade="grade2"></script>', pu: 'powerups-grade2.js' })));
+// Math Mastery has its own exam scoring and never rests questions; it is checked below.
+const games = APPS.filter((app) => app.id !== 'math-mastery').map((app) => ({
+  a: app.id, file: appFile(app.id), tag: '<script src="../../../engine/recall.js" data-grade="grade' + app.grade + '"></script>', pu: '../../../engine/powerups.js',
+}));
 const count = (html, s) => html.split(s).length - 1;
 
 for (const g of games) {
@@ -214,7 +213,7 @@ for (const g of games) {
 }
 
 test('Math Mastery pays double in the mock exam but never rests questions', () => {
-  const html = fs.readFileSync(path.join(root, 'math-mastery.html'), 'utf8');
+  const html = fs.readFileSync(appFile('math-mastery'), 'utf8');
   assert.match(html, /EXAM_POINTS_PER_CORRECT = 20/);
   assert.match(html, /function awardPoint\(correct, helped, shielded, exam\)/);
   assert.match(html, /awardPoint\(correct, helped, [^\n]*, currentQuizMeta\.id === 'final'\);/);

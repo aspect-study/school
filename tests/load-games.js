@@ -1,9 +1,9 @@
 // Reads every question and the TYPE_IT map out of a game file, for tests and tools.
 const fs = require('node:fs');
-const path = require('node:path');
 const vm = require('node:vm');
+const { appFile } = require('./paths.js');
 
-const root = path.join(__dirname, '..');
+// Math Mastery is built differently and is not read by this loader.
 const GRADE5 = ['craft-corner', 'history-explorers', 'life-lab', 'page-turners', 'rally-ready', 'rise-shine', 'wikaharian'];
 const GRADE2 = ['batang-bayani', 'block-bot', 'byte-buddies', 'growing-good', 'kuwentista', 'science-detectives', 'word-train'];
 const FAMILY_B = ['batang-bayani', 'byte-buddies', 'growing-good', 'science-detectives', 'word-train'];
@@ -17,10 +17,6 @@ function sandbox() {
     history: {},
     genNumberlineSet() { return []; },
   };
-}
-
-function fileOf(app) {
-  return GRADE5.includes(app) ? path.join(root, app + '.html') : path.join(root, 'grade 2', app + '.html');
 }
 
 function loadLessons(app, html) {
@@ -48,7 +44,7 @@ function loadTypeIt(app, html) {
 
 // Every fixed quiz question as { lesson, q, answer, wrong, tf }.
 function loadGame(app) {
-  const html = fs.readFileSync(fileOf(app), 'utf8');
+  const html = fs.readFileSync(appFile(app), 'utf8');
   const questions = [];
   loadLessons(app, html).forEach((lesson, li) => {
     (lesson.quiz || []).forEach((item) => {

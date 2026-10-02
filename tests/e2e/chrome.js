@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-const GRADE2 = path.join(__dirname, '..', '..', 'grade 2');
+const { engineFile } = require('../paths.js');
 
 const CHROME = [
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -12,6 +12,17 @@ const CHROME = [
 ].find((p) => fs.existsSync(p));
 
 const ERROR_TRAP = '<script>window.__e2eErrors=[];addEventListener("error",function(e){__e2eErrors.push(String(e.message));});</script>';
+
+// Writes a page into a temp site at its real relative path (e.g. subjects/grade-5/math/index.html),
+// with the chosen engine files beside it, so its relative script paths resolve as on the live site.
+function stage(siteDir, page, html, engineFiles) {
+  const file = path.join(siteDir, page);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, html);
+  fs.mkdirSync(path.join(siteDir, 'engine'), { recursive: true });
+  for (const name of engineFiles) fs.copyFileSync(engineFile(name), path.join(siteDir, 'engine', name));
+  return file;
+}
 
 function makeWorkDir(name) {
   return fs.mkdtempSync(path.join(os.tmpdir(), name + '-'));
@@ -51,4 +62,4 @@ function appendDriver(html, driver) {
   return withErrorTrap(html) + '\n<script>\n' + driver + '\n</script>\n';
 }
 
-module.exports = { GRADE2, makeWorkDir, dumpDom, readOutput, injectDriver, appendDriver };
+module.exports = { stage, makeWorkDir, dumpDom, readOutput, injectDriver, appendDriver };

@@ -1,0 +1,1314 @@
+<html lang="en">
+<meta charset="utf-8">
+<title>Study Games Lobby &mdash; Grade 5</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="grade-5.webmanifest">
+<meta name="theme-color" content="#1B7A79">
+<link rel="icon" type="image/png" href="../assets/icons/grade5-192.png">
+<link rel="apple-touch-icon" href="../assets/icons/grade5-180.png">
+<meta name="apple-mobile-web-app-title" content="Grade 5">
+<meta name="mobile-web-app-capable" content="yes">
+<script data-pwa>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  addEventListener('load', function(){ navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(function(){}); });
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F1E9;
+    --bg-alt:#EBE6D6;
+    --card:#FFFFFF;
+    --ink:#2B2A22;
+    --ink-soft:#6B6656;
+    --border:rgba(43,42,34,0.12);
+    --shadow:rgba(43,42,34,0.16);
+    --header-accent:#1B7A79;
+    --gold-deep:#8A5E14;
+    --gold-soft:#FBE9C9;
+    --good:#1E7A46; --bad:#B03A2E;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#181712;
+      --bg-alt:#201F19;
+      --card:#221F1A;
+      --ink:#F1EDE0;
+      --ink-soft:#B2AC97;
+      --border:rgba(241,237,224,0.14);
+      --shadow:rgba(0,0,0,0.5);
+      --header-accent:#3FBDBA;
+      --gold-deep:#FCE3B4;
+      --gold-soft:#3A2E15;
+      --good:#7DCEA0; --bad:#F1948A;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#181712;
+    --bg-alt:#201F19;
+    --card:#221F1A;
+    --ink:#F1EDE0;
+    --ink-soft:#B2AC97;
+    --border:rgba(241,237,224,0.14);
+    --shadow:rgba(0,0,0,0.5);
+    --header-accent:#3FBDBA;
+    --gold-deep:#FCE3B4;
+    --gold-soft:#3A2E15;
+    --good:#7DCEA0; --bad:#F1948A;
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 8% 4%, rgba(27,122,121,0.09), transparent 42%),
+      radial-gradient(circle at 94% 90%, rgba(255,182,39,0.10), transparent 42%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', system-ui, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:clamp(20px,5vw,48px) 16px 60px;
+  }
+
+  .wrap{ width:100%; max-width:1120px; }
+
+  .hero{ text-align:center; margin-bottom:clamp(24px,5vw,40px); }
+  .hero-emoji{ font-size:clamp(2.4rem,8vw,3.2rem); line-height:1; margin-bottom:6px; }
+  .hero h1{
+    font-family:'Baloo 2', system-ui, sans-serif;
+    font-weight:700;
+    font-size:clamp(1.9rem,6vw,2.6rem);
+    margin:0;
+    color:var(--header-accent);
+    text-wrap:balance;
+  }
+  .hero p{
+    margin:8px 0 0;
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--ink-soft);
+  }
+  .points-combined{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:var(--gold-soft);
+    color:var(--gold-deep);
+    font-weight:800;
+    font-size:0.92rem;
+    padding:7px 16px;
+    border-radius:999px;
+    margin-top:12px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  @media (min-width:560px){
+    .grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  }
+  @media (min-width:900px){
+    .grid{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+    .subject-card{ gap:12px; padding:16px; }
+    .subject-emoji{ width:52px; height:52px; font-size:1.9rem; }
+  }
+
+  .subject-card{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:18px 20px;
+    text-decoration:none;
+    color:var(--ink);
+    box-shadow:0 14px 32px -16px var(--shadow), 0 2px 0 var(--border);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    border-top:5px solid var(--card-accent);
+  }
+  .subject-card:hover{ transform:translateY(-3px); }
+  .subject-card:active{ transform:translateY(0px) scale(0.99); }
+  .subject-card:focus-visible{ outline:3px solid var(--card-accent); outline-offset:3px; }
+
+  .subject-emoji{
+    font-size:2.2rem;
+    flex:none;
+    width:60px;
+    height:60px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--card-accent-soft);
+  }
+
+  .subject-info{ flex:1; min-width:0; }
+  .subject-tag{
+    font-size:0.72rem;
+    font-weight:800;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .subject-title{
+    font-family:'Baloo 2', system-ui, sans-serif;
+    font-weight:700;
+    font-size:1.3rem;
+    margin-top:2px;
+    line-height:1.2;
+  }
+  .subject-app{
+    font-size:0.82rem;
+    font-weight:800;
+    color:var(--card-accent-ink);
+    margin-top:2px;
+  }
+  .subject-desc{
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin-top:4px;
+    line-height:1.4;
+  }
+  .subject-points{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:0.76rem;
+    font-weight:800;
+    color:var(--gold-deep);
+    margin-top:6px;
+  }
+
+  .go-arrow{
+    flex:none;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:var(--card-accent);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .go-arrow svg{ width:18px; height:18px; }
+
+  .fresh-note{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:14px 16px;
+    margin-top:clamp(20px,4vw,28px);
+    font-size:0.88rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .fresh-note .fresh-icon{ font-size:1.2rem; line-height:1.2; flex:none; }
+  .fresh-note b{ color:var(--ink); }
+
+  .footer-note{
+    text-align:center;
+    margin-top:clamp(18px,4vw,26px);
+    font-size:0.85rem;
+    font-weight:700;
+    color:var(--ink-soft);
+  }
+
+  .parent-link{
+    display:block; margin:14px auto 0; padding:6px 10px;
+    background:none; border:0; cursor:pointer;
+    font:inherit; font-size:0.78rem; font-weight:700; color:var(--ink-soft); opacity:0.6;
+  }
+  .parent-overlay{
+    position:fixed; inset:0; z-index:50; overflow-y:auto;
+    background:var(--bg); padding:clamp(16px,4vw,32px) 16px 48px;
+  }
+  .parent-overlay[hidden], .parent-overlay [hidden]{ display:none; }
+  .parent-box{ max-width:760px; margin:0 auto; }
+  .parent-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .parent-head h2{ margin:0; font-family:'Baloo 2', system-ui, sans-serif; font-size:1.5rem; color:var(--header-accent); }
+  .p-btn{
+    font:inherit; font-size:0.9rem; font-weight:800; cursor:pointer;
+    padding:9px 14px; border-radius:12px; border:1px solid var(--border);
+    background:var(--card); color:var(--ink);
+  }
+  .p-btn.on{ background:var(--ink); color:var(--bg); }
+  .p-btn.danger{ background:var(--bad); border-color:var(--bad); color:var(--card); }
+  .pin-hint{ text-align:center; font-weight:700; color:var(--ink-soft); }
+  .pin-dots{ display:flex; justify-content:center; gap:14px; margin:24px 0; }
+  .pin-dots span{ width:18px; height:18px; border-radius:50%; border:2px solid var(--ink-soft); }
+  .pin-dots span.fill{ background:var(--ink); border-color:var(--ink); }
+  .pin-dots.shake{ animation:pin-shake 0.35s; }
+  @keyframes pin-shake{ 25%{ transform:translateX(-8px); } 75%{ transform:translateX(8px); } }
+  .pin-pad{ display:grid; grid-template-columns:repeat(3, 72px); gap:12px; justify-content:center; }
+  .pin-pad button{
+    height:64px; cursor:pointer; font:inherit; font-size:1.5rem; font-weight:800;
+    border-radius:16px; border:1px solid var(--border); background:var(--card); color:var(--ink);
+  }
+  .p-section{ background:var(--card); border:1px solid var(--border); border-radius:18px; padding:14px 16px; margin-bottom:14px; }
+  .p-section h3{ margin:0 0 10px; font-size:1rem; }
+  .p-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .p-row + .p-row{ margin-top:10px; }
+  .p-row label{ font-weight:700; }
+  .p-row input, .p-row select{
+    font:inherit; padding:8px; border-radius:10px;
+    border:1px solid var(--border); background:var(--bg); color:var(--ink);
+  }
+  .p-note{ margin:8px 0 0; font-size:0.85rem; font-weight:700; color:var(--ink-soft); }
+  .p-warn{ margin-bottom:14px; padding:10px 14px; border-radius:12px; font-weight:800; background:var(--gold-soft); color:var(--gold-deep); }
+  .h-summary{ display:flex; flex-wrap:wrap; gap:8px 18px; font-weight:800; }
+  .h-summary span{ min-width:0; overflow-wrap:anywhere; }
+  .h-summary .missed{ flex-basis:100%; font-weight:700; color:var(--ink-soft); }
+  .weak-list{ margin:6px 0 0; padding-left:22px; }
+  .weak-list li{ margin:4px 0; overflow-wrap:anywhere; }
+  #paste-text{ width:100%; box-sizing:border-box; font:13px/1.4 monospace; }
+  .h-day{ margin:16px 0 6px; font-family:'Baloo 2', system-ui, sans-serif; font-weight:700; font-size:1.05rem; }
+  .h-day:first-child{ margin-top:0; }
+  .h-item{ display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--border); }
+  .h-time{ flex:none; width:72px; padding-top:2px; font-size:0.85rem; font-weight:800; color:var(--ink-soft); }
+  .h-body{ flex:1; min-width:0; overflow-wrap:anywhere; }
+  .h-body details{ margin-top:6px; }
+  .h-body summary{ cursor:pointer; font-weight:800; color:var(--header-accent); }
+  .h-wrong{ margin:8px 0 0; padding:0; list-style:none; }
+  .h-wrong li{ margin-bottom:8px; font-size:0.9rem; }
+  .h-wrong .pick{ color:var(--bad); }
+  .h-wrong .ans{ color:var(--good); }
+
+  .coin-row{ display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; margin-top:10px; }
+  .coin-row[hidden]{ display:none; }
+  .coin-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--card); border:2px solid var(--gold-soft); color:var(--gold-deep);
+    font-weight:800; font-size:0.92rem; padding:5px 14px; border-radius:999px;
+  }
+  .shop-open{
+    font:inherit; font-size:0.92rem; font-weight:800; cursor:pointer;
+    padding:7px 16px; border-radius:999px; border:0;
+    background:var(--header-accent); color:var(--card);
+  }
+  .shop-open:focus-visible, .shop-buy:focus-visible, .guide-open:focus-visible{ outline:3px solid var(--gold-deep); outline-offset:2px; }
+  .guide-open{
+    font:inherit; font-size:0.92rem; font-weight:800; cursor:pointer;
+    padding:5px 14px; border-radius:999px;
+    background:var(--card); color:var(--header-accent); border:2px solid var(--header-accent);
+  }
+  .shop-box{ max-width:640px; margin:0 auto; }
+  .shop-coins{ margin:0; text-align:center; font-family:'Baloo 2', system-ui, sans-serif; font-size:1.7rem; font-weight:800; color:var(--gold-deep); }
+  .shop-goal{ margin:2px 0 0; text-align:center; font-weight:800; }
+  .shop-intro{ text-align:center; }
+  .shop-items{ display:grid; gap:10px; margin-top:16px; }
+  .shop-item{
+    display:flex; flex-wrap:wrap; align-items:center; gap:12px;
+    background:var(--card); border:1px solid var(--border); border-radius:18px; padding:12px 14px;
+  }
+  .shop-emoji{
+    flex:none; width:48px; height:48px; border-radius:14px; background:var(--gold-soft);
+    display:flex; align-items:center; justify-content:center; font-size:1.7rem;
+  }
+  .shop-info{ flex:1 1 140px; min-width:0; overflow-wrap:anywhere; }
+  .shop-name{ font-weight:800; line-height:1.25; }
+  .shop-price{ margin-top:2px; font-size:0.85rem; font-weight:800; color:var(--gold-deep); }
+  .shop-note{ margin-top:4px; font-size:0.82rem; font-weight:600; line-height:1.4; color:var(--ink-soft); }
+  .shop-buy{
+    flex:none; margin-left:auto; font:inherit; font-weight:800; cursor:pointer;
+    padding:9px 18px; border-radius:12px; border:0; background:var(--good); color:var(--card);
+  }
+  .shop-need{ flex:none; margin-left:auto; max-width:120px; text-align:right; font-size:0.82rem; font-weight:800; color:var(--ink-soft); }
+  .shop-ask{ margin:0 0 4px; text-align:center; font-weight:800; font-size:1.05rem; }
+  .shop-done{ margin:28px 0; text-align:center; font-weight:800; font-size:1.2rem; line-height:1.4; }
+  .shop-actions{ display:flex; justify-content:center; margin-top:18px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .subject-card{ transition:none; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-emoji">🎒</div>
+    <h1>Study Games</h1>
+    <p>Pick a subject and start a fresh run!</p>
+    <div class="points-combined" id="points-combined-badge"></div>
+    <div class="coin-row" id="coin-row" hidden>
+      <span class="coin-badge" id="coin-badge"></span>
+      <button class="shop-open" id="shop-open" type="button"></button>
+      <button class="guide-open" id="coin-guide-open" type="button" data-coins-guide></button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <a class="subject-card" data-app="history-explorers" href="../subjects/grade-5/araling-panlipunan/index.html?reset=1" style="--card-accent:#A8451F; --card-accent-soft:#F9E8E0; --card-accent-ink:#6E2A10;">
+      <div class="subject-emoji">⛵</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 14 lessons</div>
+        <div class="subject-title">Araling Panlipunan</div>
+        <div class="subject-app">History Explorers</div>
+        <div class="subject-desc">Origins of the Philippines, history and its sources, barangay, leaders and classes, livelihood and trade, plus beliefs, omens, burial traditions and marriage</div>
+        <div class="subject-points" data-points-key="historyexplorers_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="wikaharian" href="../subjects/grade-5/filipino/index.html?reset=1" style="--card-accent:#B3262E; --card-accent-soft:#F8E1E2; --card-accent-ink:#7A1219;">
+      <div class="subject-emoji">👑</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 5 lessons</div>
+        <div class="subject-title">Filipino</div>
+        <div class="subject-app">Wikaharian</div>
+        <div class="subject-desc">Elements of poetry, fiction stories, informative text patterns, actor focus, and linkers</div>
+        <div class="subject-points" data-points-key="wikaharian_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="math-mastery" href="../subjects/grade-5/math/index.html?reset=1" style="--card-accent:#1B7A79; --card-accent-soft:#D8EEED; --card-accent-ink:#0E4F4E;">
+      <div class="subject-emoji">🧮</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 11 lessons</div>
+        <div class="subject-title">Math</div>
+        <div class="subject-app">Math Mastery</div>
+        <div class="subject-desc">Divisibility, GEMDAS, adding to dividing fractions, ordering decimals, UPAC word problems, and 10 case studies</div>
+        <div class="subject-points" data-points-key="mathmastery_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="page-turners" href="../subjects/grade-5/english/index.html?reset=1" style="--card-accent:#4B4FA8; --card-accent-soft:#E6E7F7; --card-accent-ink:#2D3070;">
+      <div class="subject-emoji">📖</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 23 lessons</div>
+        <div class="subject-title">English</div>
+        <div class="subject-app">Page Turners</div>
+        <div class="subject-desc">Story elements and plot, character traits, conclusions, figurative language, sound devices, predicting, main idea, summarizing, outlining, author&rsquo;s purpose, tone and mood, generalizations, connotation, dictionary skills, nouns and pronouns, fact vs opinion, visual elements</div>
+        <div class="subject-points" data-points-key="pageturners_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="rise-shine" href="../subjects/grade-5/gmrc/index.html?reset=1" style="--card-accent:#C98600; --card-accent-soft:#FBF0D8; --card-accent-ink:#8A5A00;">
+      <div class="subject-emoji">🏅</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 13 lessons</div>
+        <div class="subject-title">GMRC</div>
+        <div class="subject-app">Rise &amp; Shine</div>
+        <div class="subject-desc">Knowing yourself, saving, human dignity, faith, traffic signs &amp; rules, good manners, sacred books, gratitude, e&#8209;waste and devices</div>
+        <div class="subject-points" data-points-key="riseshine_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="rally-ready" href="../subjects/grade-5/pe-health/index.html?reset=1" style="--card-accent:#1F7A5C; --card-accent-soft:#DFF1E8; --card-accent-ink:#0D4A36;">
+      <div class="subject-emoji">🏓</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 7 lessons</div>
+        <div class="subject-title">P.E. &amp; Health</div>
+        <div class="subject-app">Rally Ready</div>
+        <div class="subject-desc">Net and wall games, the ABC skills, the pickleball kitchen rule, and managing stress</div>
+        <div class="subject-points" data-points-key="rallyready_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="craft-corner" href="../subjects/grade-5/tle/index.html?reset=1" style="--card-accent:#8A4F7D; --card-accent-soft:#F3E8F0; --card-accent-ink:#5C3253;">
+      <div class="subject-emoji">🧵</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 9 lessons</div>
+        <div class="subject-title">TLE</div>
+        <div class="subject-app">Craft Corner</div>
+        <div class="subject-desc">Home furnishings, embroidery, crochet, and hand and machine sewing</div>
+        <div class="subject-points" data-points-key="craftcorner_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="life-lab" href="../subjects/grade-5/science/index.html?reset=1" style="--card-accent:#2E6F9E; --card-accent-soft:#DDEBF5; --card-accent-ink:#1B4668;">
+      <div class="subject-emoji">🔬</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 18 lessons</div>
+        <div class="subject-title">Science</div>
+        <div class="subject-app">Life Lab</div>
+        <div class="subject-desc">Matter and its changes, measuring, the scientific method, microorganisms, plant and animal groups, and plant adaptations</div>
+        <div class="subject-points" data-points-key="lifelab_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+  </div>
+
+  <div class="fresh-note">
+    <span class="fresh-icon">⭐</span>
+    <span>Every time you pick a subject here, your <b>stars start empty again</b> &mdash; so you get to earn them all over, not just look at yesterday's score. Your <b>points keep adding up forever</b>, so every correct answer counts.</span>
+  </div>
+
+  <p class="footer-note">Review the lessons first, then take the quiz! 🌟</p>
+  <button class="parent-link" id="parent-open" type="button">🔒 Parent</button>
+</div>
+
+<div class="parent-overlay" id="parent-overlay" role="dialog" aria-modal="true" aria-label="Study History" hidden>
+  <div class="parent-box">
+    <div class="parent-head">
+      <h2>Study History</h2>
+      <button class="p-btn" id="parent-close" type="button">✕ Close</button>
+    </div>
+
+    <div id="pin-view">
+      <p class="pin-hint" id="pin-hint">Enter the parent PIN</p>
+      <div class="pin-dots" id="pin-dots"><span></span><span></span><span></span><span></span></div>
+      <div class="pin-pad" id="pin-pad">
+        <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+        <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+        <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+        <button type="button" data-key="clear" aria-label="Delete digit">⌫</button><button type="button">0</button><span></span>
+      </div>
+    </div>
+
+    <div id="history-view" hidden>
+      <div class="p-warn" id="history-missing" hidden>History file missing — copy study-history.js into the same folder as this lobby.</div>
+      <div id="history-body">
+        <div class="p-warn" id="history-full" hidden>History storage is full — export a backup, then delete old entries.</div>
+
+        <div class="p-section">
+          <div class="p-row" id="range-buttons">
+            <button class="p-btn" type="button" data-range="today">Today</button>
+            <button class="p-btn on" type="button" data-range="7">Last 7 days</button>
+            <button class="p-btn" type="button" data-range="30">Last 30 days</button>
+            <button class="p-btn" type="button" data-range="all">All</button>
+            <button class="p-btn" type="button" data-range="custom">Custom</button>
+          </div>
+          <div class="p-row" id="custom-range" hidden>
+            <label>From <input type="date" id="range-from"></label>
+            <label>To <input type="date" id="range-to"></label>
+          </div>
+          <p class="p-note" id="range-msg"></p>
+          <div class="p-row">
+            <label>Subject <select id="subject-filter"><option value="">All subjects</option></select></label>
+          </div>
+        </div>
+
+        <div class="p-section"><div class="h-summary" id="hist-summary"></div></div>
+        <div class="p-section" id="weak-spots"></div>
+        <div class="p-section" id="hist-list"></div>
+
+        <div class="p-section" id="test-score">
+          <h3>📝 Real test score</h3>
+          <div class="p-row">
+            <label>Subject <select id="ts-subject"></select></label>
+            <label>Test <input type="text" id="ts-name" maxlength="60" placeholder="e.g. Science ST1"></label>
+          </div>
+          <div class="p-row">
+            <label>Score <input type="number" id="ts-score" min="0" step="1" inputmode="numeric"></label>
+            <label>out of <input type="number" id="ts-total" min="1" step="1" inputmode="numeric"></label>
+            <button class="p-btn" type="button" id="ts-add" disabled>Add coins</button>
+          </div>
+          <p class="p-note">100% = 50 coins · 90% or more = 40 · 80% or more = 30 · below 80% = 10 for trying.</p>
+          <p class="p-note" id="ts-msg"></p>
+        </div>
+
+        <div class="p-section">
+          <h3>Backup</h3>
+          <div class="p-row">
+            <button class="p-btn" type="button" id="export-json">Export full backup (.json)</button>
+            <button class="p-btn" type="button" id="export-csv">Export spreadsheet (.csv)</button>
+            <button class="p-btn" type="button" id="copy-backup">Copy full backup</button>
+            <button class="p-btn" type="button" id="import-btn">Import backup</button>
+            <button class="p-btn" type="button" id="paste-btn">Paste backup</button>
+            <button class="p-btn" type="button" id="export-shop">Download shop history (.csv)</button>
+            <input type="file" id="import-file" hidden>
+          </div>
+          <div id="paste-box" hidden>
+            <p class="p-note" id="paste-hint"></p>
+            <textarea id="paste-text" rows="5" spellcheck="false"></textarea>
+            <div class="p-row"><button class="p-btn" type="button" id="paste-import">Import pasted backup</button></div>
+          </div>
+          <p class="p-note" id="backup-age"></p>
+          <p class="p-note">If Export only shows text (for example inside Messenger), use Copy full backup, keep the copied text, then open the new link and use Paste backup.</p>
+          <p class="p-note">The full backup holds the study history, points and coins. Keep a copy off the tablet (for example, email it to yourself).</p>
+          <p class="p-note">Shop purchases older than 7 days are deleted automatically. Download the shop history every week to keep a record.</p>
+          <p class="p-note" id="backup-msg"></p>
+        </div>
+
+        <div class="p-section">
+          <h3>Delete history</h3>
+          <div class="p-row">
+            <label>From <input type="date" id="del-from"></label>
+            <label>To <input type="date" id="del-to"></label>
+            <button class="p-btn" type="button" id="delete-range">Delete this range</button>
+          </div>
+          <div class="p-row">
+            <button class="p-btn danger" type="button" id="delete-all">Delete everything</button>
+          </div>
+          <p class="p-note" id="delete-msg"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="parent-overlay" id="shop-overlay" role="dialog" aria-modal="true" aria-labelledby="shop-title" hidden>
+  <div class="shop-box">
+    <div class="parent-head">
+      <h2 id="shop-title"></h2>
+      <button class="p-btn" id="shop-close" type="button"></button>
+    </div>
+
+    <div id="shop-list-view">
+      <p class="shop-coins" id="shop-coins"></p>
+      <p class="shop-goal" id="shop-goal"></p>
+      <p class="p-note shop-intro" id="shop-earned"></p>
+      <p class="p-note shop-intro" id="shop-intro"></p>
+      <div class="shop-items" id="shop-items"></div>
+    </div>
+
+    <div id="shop-pin-view" hidden>
+      <p class="shop-ask" id="shop-ask"></p>
+      <p class="pin-hint" id="shop-pin-hint"></p>
+      <div class="pin-dots" id="shop-pin-dots"><span></span><span></span><span></span><span></span></div>
+      <div class="pin-pad" id="shop-pin-pad">
+        <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+        <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+        <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+        <button type="button" data-key="clear" aria-label="Delete digit">⌫</button><button type="button">0</button><span></span>
+      </div>
+      <div class="shop-actions"><button class="p-btn" id="shop-cancel" type="button"></button></div>
+    </div>
+
+    <div id="shop-done-view" hidden>
+      <p class="shop-done" id="shop-done"></p>
+      <div class="shop-actions"><button class="p-btn" id="shop-back" type="button"></button></div>
+    </div>
+  </div>
+</div>
+
+<script src="../engine/study-history.js" data-grade="grade5"></script>
+<script src="../engine/wallet.js" data-grade="grade5"></script>
+<script src="../engine/fx.js" data-grade="grade5"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+(function(){
+  function getPoints(key){
+    try{ return parseInt(localStorage.getItem(key), 10) || 0; }catch(e){ return 0; }
+  }
+  var total = 0;
+  document.querySelectorAll('[data-points-key]').forEach(function(el){
+    var pts = getPoints(el.getAttribute('data-points-key'));
+    total += pts;
+    el.textContent = '⭐ ' + pts + ' pts';
+  });
+  document.getElementById('points-combined-badge').textContent = '⭐ ' + total + ' points earned across all subjects';
+})();
+window.SHOP_TEXT = {
+  coins: function(n){ return '🪙 ' + n + (n === 1 ? ' coin' : ' coins'); },
+  shopButton: '🛒 Shop',
+  guideButton: '❓ How it works',
+  title: 'Reward Shop',
+  close: '✕ Close',
+  intro: 'Every 10 points you earn gives you 1 coin. Pick a reward, then ask a parent to approve it.',
+  goal: function(n, goal){ return n + ' more ' + (n === 1 ? 'coin' : 'coins') + ' to ' + goal + '!'; },
+  earned: function(pts, coins, welcome, spent, bonus){ return '⭐ ' + pts + ' new points → 🪙 ' + coins + ' coins · 🎁 ' + welcome + ' welcome' + (bonus ? ' · 📝 ' + bonus + ' test bonus' : '') + ' · 🛒 ' + spent + ' spent'; },
+  allGoals: 'You can get any reward! 🎉',
+  need: function(n){ return n + ' more ' + (n === 1 ? 'coin' : 'coins'); },
+  tomorrow: 'Come back tomorrow',
+  buy: 'Buy',
+  notes: { ml: 'One match, win or lose. Only after studying. Play time is extra, on top of your normal time.' },
+  ask: function(item, coins){ return 'Ask a parent to enter the PIN to approve: ' + item + ' for ' + coins + ' coins'; },
+  pinHint: 'Parent PIN',
+  wrongPin: 'Wrong PIN',
+  cancel: 'Cancel',
+  done: function(item, left){ return '🎉 Approved! Enjoy your reward: ' + item + '. You have ' + left + (left === 1 ? ' coin' : ' coins') + ' left.'; },
+  saveFail: 'Could not save, so nothing was spent. Please try again.',
+  back: 'Back to the shop'
+};
+</script>
+<script data-shop>
+(function(){
+  var PIN = '0108';
+  var KEEP_DAYS = 7;
+  var W = window.Wallet, SH = window.StudyHistory, T = window.SHOP_TEXT;
+  if (SH) SH.prunePurchases(KEEP_DAYS);
+  if (!W || !T) return;
+  W.prune(KEEP_DAYS);
+  var $ = function(id){ return document.getElementById(id); };
+  var overlay = $('shop-overlay'), dots = $('shop-pin-dots'), wrap = document.querySelector('.wrap');
+  var pending = null, entered = '', shakeT = null;
+
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function readPoints(){
+    var points = {};
+    document.querySelectorAll('[data-points-key]').forEach(function(card){
+      var key = card.getAttribute('data-points-key');
+      try { points[key] = parseInt(localStorage.getItem(key), 10) || 0; } catch (e) { points[key] = 0; }
+    });
+    W.track(points);
+    return points;
+  }
+  function itemById(id){ return W.catalog.filter(function(i){ return i.id === id; })[0]; }
+  function label(item){ return item.emoji + ' ' + item.name; }
+
+  function nextGoal(points){
+    var best = null, bestNeed = 0;
+    W.catalog.forEach(function(item){
+      var c = W.canBuy(item.id, points);
+      if (c.need > 0 && (!best || c.need < bestNeed)){ best = item; bestNeed = c.need; }
+    });
+    return best ? T.goal(bestNeed, best.goal) : T.allGoals;
+  }
+
+  function renderList(){
+    var points = readPoints(), coins = W.balance(points);
+    $('coin-badge').textContent = T.coins(coins);
+    $('shop-coins').textContent = T.coins(coins);
+    $('shop-goal').textContent = nextGoal(points);
+    var e = W.earned(points);
+    $('shop-earned').textContent = T.earned(e.points, e.coins, e.welcome, e.spent, e.bonus);
+    var box = $('shop-items');
+    box.textContent = '';
+    W.catalog.forEach(function(item){
+      var c = W.canBuy(item.id, points);
+      var row = el('div', 'shop-item');
+      row.setAttribute('data-item', item.id);
+      row.appendChild(el('div', 'shop-emoji', item.emoji));
+      var info = el('div', 'shop-info');
+      info.appendChild(el('div', 'shop-name', item.name));
+      info.appendChild(el('div', 'shop-price', T.coins(item.coins)));
+      if (T.notes[item.id]) info.appendChild(el('div', 'shop-note', T.notes[item.id]));
+      row.appendChild(info);
+      if (c.ok){
+        var buy = el('button', 'shop-buy', T.buy);
+        buy.type = 'button';
+        buy.setAttribute('data-buy', item.id);
+        row.appendChild(buy);
+      } else {
+        row.appendChild(el('div', 'shop-need', c.daily ? T.tomorrow : T.need(c.need)));
+      }
+      box.appendChild(row);
+    });
+  }
+
+  function show(view){
+    ['shop-list-view', 'shop-pin-view', 'shop-done-view'].forEach(function(id){ $(id).hidden = id !== view; });
+  }
+  function backToList(){
+    pending = null;
+    renderList();
+    show('shop-list-view');
+  }
+  function openShop(){
+    backToList();
+    overlay.hidden = false;
+    wrap.inert = true;
+    $('shop-close').focus();
+  }
+  function closeShop(){
+    if (overlay.hidden) return;
+    pending = null;
+    entered = '';
+    overlay.hidden = true;
+    wrap.inert = false;
+    renderList();
+    $('shop-open').focus();
+  }
+
+  function drawDots(){
+    Array.prototype.forEach.call(dots.children, function(d, i){ d.classList.toggle('fill', i < entered.length); });
+  }
+  function askParent(item){
+    pending = item;
+    entered = '';
+    drawDots();
+    $('shop-ask').textContent = T.ask(label(item), item.coins);
+    $('shop-pin-hint').textContent = T.pinHint;
+    show('shop-pin-view');
+    $('shop-cancel').focus();
+  }
+  function approve(){
+    var item = pending;
+    pending = null;
+    var points = readPoints();
+    if (!W.canBuy(item.id, points).ok){ backToList(); return; }
+    var bought = W.buy(item.id, points);
+    if (bought && SH) SH.purchased(item.id, item.name, item.coins);
+    if (bought && window.Fx) Fx.purchase();
+    var left = W.balance(points);
+    $('coin-badge').textContent = T.coins(left);
+    $('shop-done').textContent = bought ? T.done(label(item), left) : T.saveFail;
+    show('shop-done-view');
+    $('shop-back').focus();
+  }
+  function pressKey(key){
+    if (!pending) return;
+    if (key === 'clear'){ entered = entered.slice(0, -1); drawDots(); return; }
+    if (entered.length >= 4) return;
+    entered += key;
+    drawDots();
+    if (entered.length < 4) return;
+    if (entered === PIN){ entered = ''; approve(); return; }
+    entered = '';
+    clearTimeout(shakeT);
+    dots.classList.remove('shake');
+    void dots.offsetWidth;
+    dots.classList.add('shake');
+    $('shop-pin-hint').textContent = T.wrongPin;
+    shakeT = setTimeout(function(){
+      dots.classList.remove('shake');
+      drawDots();
+      $('shop-pin-hint').textContent = T.pinHint;
+    }, 1500);
+  }
+
+  $('shop-open').textContent = T.shopButton;
+  $('coin-guide-open').textContent = T.guideButton;
+  $('shop-title').textContent = T.title;
+  $('shop-close').textContent = T.close;
+  $('shop-intro').textContent = T.intro;
+  $('shop-cancel').textContent = T.cancel;
+  $('shop-back').textContent = T.back;
+  renderList();
+  W.refreshShop = renderList;
+  $('coin-row').hidden = false;
+
+  var GUIDE_SEEN = W.grade + '_coin_guide_seen_v1', seen = null;
+  try { seen = localStorage.getItem(GUIDE_SEEN); } catch (e) {}
+  if (!seen && W.showGuide){
+    W.showGuide();
+    try { localStorage.setItem(GUIDE_SEEN, '1'); } catch (e) {}
+  }
+
+  $('shop-open').addEventListener('click', openShop);
+  $('shop-close').addEventListener('click', closeShop);
+  $('shop-cancel').addEventListener('click', backToList);
+  $('shop-back').addEventListener('click', backToList);
+  $('shop-items').addEventListener('click', function(ev){
+    var b = ev.target.closest('button[data-buy]');
+    if (b) askParent(itemById(b.getAttribute('data-buy')));
+  });
+  $('shop-pin-pad').addEventListener('click', function(ev){
+    var b = ev.target.closest('button');
+    if (b) pressKey(b.getAttribute('data-key') || b.textContent);
+  });
+  document.addEventListener('keydown', function(ev){
+    if (overlay.hidden) return;
+    if (ev.key === 'Escape') closeShop();
+    else if (pending && /^[0-9]$/.test(ev.key)) pressKey(ev.key);
+    else if (pending && ev.key === 'Backspace') pressKey('clear');
+  });
+  window.addEventListener('pagehide', closeShop);
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) closeShop(); });
+})();
+</script>
+<script>
+(function(){
+  var PIN = '0108';
+  var SH = window.StudyHistory;
+  var $ = function(id){ return document.getElementById(id); };
+  var overlay = $('parent-overlay'), pinView = $('pin-view'), historyView = $('history-view'), dots = $('pin-dots');
+  var entered = '';
+  var range = '7';
+  var picking = false;
+  var shakeT = null;
+
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function plural(n, word){ return n + ' ' + word + (n === 1 ? '' : 's'); }
+  function entriesWord(n){ return n + (n === 1 ? ' entry' : ' entries'); }
+
+  function drawDots(){
+    Array.prototype.forEach.call(dots.children, function(d, i){ d.classList.toggle('fill', i < entered.length); });
+  }
+  function lock(){
+    entered = '';
+    drawDots();
+    pinView.hidden = false;
+    historyView.hidden = true;
+  }
+  function openParent(){
+    lock();
+    overlay.hidden = false;
+    document.querySelector('.wrap').inert = true;
+    $('parent-close').focus();
+  }
+  function closeParent(){
+    lock();
+    overlay.hidden = true;
+    document.querySelector('.wrap').inert = false;
+    $('parent-open').focus();
+  }
+  function unlock(){
+    pinView.hidden = true;
+    historyView.hidden = false;
+    $('history-missing').hidden = !!SH;
+    $('history-body').hidden = !SH;
+    if (SH){ renderHistory(); renderBackupAge(); }
+  }
+  function pressKey(key){
+    if (key === 'clear'){ entered = entered.slice(0, -1); drawDots(); return; }
+    if (entered.length >= 4) return;
+    entered += key;
+    drawDots();
+    if (entered.length < 4) return;
+    if (entered === PIN){ entered = ''; unlock(); return; }
+    entered = '';
+    clearTimeout(shakeT);
+    dots.classList.remove('shake');
+    void dots.offsetWidth;
+    dots.classList.add('shake');
+    $('pin-hint').textContent = 'Wrong PIN';
+    shakeT = setTimeout(function(){
+      dots.classList.remove('shake');
+      drawDots();
+      $('pin-hint').textContent = 'Enter the parent PIN';
+    }, 1500);
+  }
+
+  function today(){ return SH.dateKey(Date.now()); }
+  function daysAgo(n){ var d = new Date(); d.setDate(d.getDate() - n); return SH.dateKey(d.getTime()); }
+  function currentRange(){
+    if (range === 'all') return [null, null];
+    if (range === 'custom') return [$('range-from').value || null, $('range-to').value || null];
+    if (range === 'today') return [today(), today()];
+    return [daysAgo(parseInt(range, 10) - 1), today()];
+  }
+  function rangeDatesFor(r){
+    if (r === 'all' || r === 'today') return [today(), today()];
+    if (r === 'custom') return [$('range-from').value || today(), $('range-to').value || today()];
+    return [daysAgo(parseInt(r, 10) - 1), today()];
+  }
+  function prefillCustomFrom(oldRange){
+    var d = rangeDatesFor(oldRange);
+    if (!$('range-from').value) $('range-from').value = d[0];
+    if (!$('range-to').value) $('range-to').value = d[1];
+  }
+
+  function formatDuration(ms){
+    var mins = Math.round(ms / 60000);
+    if (mins < 1) return 'under 1 min';
+    if (mins < 60) return mins + ' min';
+    return Math.floor(mins / 60) + ' h ' + (mins % 60) + ' min';
+  }
+
+  function wrongList(e){ return Array.isArray(e.wrong) ? e.wrong.filter(Boolean) : []; }
+
+  var subjectByApp = {};
+  function subjectOf(app, appTitle){ return subjectByApp[app] || appTitle; }
+
+  function describe(e){
+    var subject = subjectOf(e.app, e.appTitle);
+    if (e.type === 'open') return '📂 Opened ' + subject;
+    if (e.type === 'purchase') return '🛒 Bought ' + e.itemName + ' — ' + e.coins + ' coins';
+    if (e.type === 'test') return '📝 Real test · ' + subject + ' · ' + e.testName + ' — ' + e.score + '/' + e.total + ' · +' + e.coins + ' coins';
+    if (e.type === 'lesson') return '📖 ' + subject + ' · ' + e.lessonTitle + ' — viewed ' + e.cardsViewed + ' of ' + e.cardsTotal + ' cards';
+    var icon = '✏️', name;
+    if (e.kind === 'walkthrough') { icon = '🧩'; name = subject + ' · UPAC Walkthrough: ' + e.lessonTitle; }
+    else if (e.kind === 'case') { icon = '📋'; name = subject + ' · Case Study: ' + e.lessonTitle; }
+    else name = subject + ' · ' + (e.final ? 'Final Mock Exam' : e.lessonTitle + ' quiz');
+    if (!e.finished) return icon + ' ' + name + ' — stopped at ' + e.answered + ' of ' + e.total + ', ' + e.correct + ' correct' + helpsText(e) + typedText(e);
+    var starCount = Math.min(3, Math.max(0, e.stars | 0));
+    var stars = starCount > 0 ? ' ' + '⭐'.repeat(starCount) : '';
+    var updatedAt = typeof e.updatedAt === 'number' ? e.updatedAt : e.t;
+    var scoreText = e.kind === 'walkthrough' ? e.correct + '/' + e.total + ' steps' : e.correct + '/' + e.total;
+    return icon + ' ' + name + ' — ' + scoreText + stars + ' +' + e.points + ' pts · ' + formatDuration(updatedAt - e.t) + helpsText(e) + typedText(e);
+  }
+
+  function helpsText(e){
+    var text = SH.powerUpsText ? SH.powerUpsText(e) : '';
+    return text ? ' · ⚡ ' + text : '';
+  }
+
+  function typedText(e){ return e.typed ? ' · ✏️ ' + e.typed + ' typed' : ''; }
+
+  function wrongDetails(e){
+    var wrong = wrongList(e);
+    var d = el('details');
+    d.appendChild(el('summary', '', plural(wrong.length, 'wrong answer')));
+    var ul = el('ul', 'h-wrong');
+    wrong.forEach(function(w){
+      var li = el('li');
+      li.appendChild(el('div', '', w.q));
+      li.appendChild(el('div', 'pick', '❌ ' + w.picked));
+      li.appendChild(el('div', 'ans', '✅ ' + w.answer));
+      ul.appendChild(li);
+    });
+    d.appendChild(ul);
+    return d;
+  }
+
+  function renderSummary(s){
+    var box = $('hist-summary');
+    box.textContent = '';
+    box.appendChild(el('span', '', '⏱️ Study time: ' + formatDuration(s.studyMs)));
+    box.appendChild(el('span', '', '✏️ Quizzes: ' + s.quizzes));
+    box.appendChild(el('span', '', '🎯 Average: ' + (s.averagePct === null ? '—' : s.averagePct + '%')));
+    if (s.mostMissed) {
+      box.appendChild(el('span', 'missed', 'Most missed: ' + subjectOf(s.mostMissed.app, s.mostMissed.appTitle) +' · “' + s.mostMissed.q + '” (' + s.mostMissed.count + '×)'));
+    }
+  }
+
+  var WEAK_BELOW = 80;
+  function renderWeakSpots(entries){
+    var box = $('weak-spots');
+    box.textContent = '';
+    if (!SH.weakSpots) return;
+    box.appendChild(el('h3', '', '📉 Needs practice'));
+    var all = SH.weakSpots(entries, 50);
+    var spots = all.filter(function(s){ return s.pct < WEAK_BELOW; }).slice(0, 5);
+    if (!spots.length){
+      box.appendChild(el('p', 'p-note', all.length ? 'Every lesson is at ' + WEAK_BELOW + '% or more in this range. 🎉' : 'Not enough quiz answers in this range yet.'));
+      return;
+    }
+    box.appendChild(el('p', 'p-note', 'Lessons under ' + WEAK_BELOW + '% right, weakest first (at least 5 answers).'));
+    var ol = el('ol', 'weak-list');
+    spots.forEach(function(s){
+      ol.appendChild(el('li', '', subjectOf(s.app, s.appTitle) + ' · ' + s.lesson + ' — ' + s.pct + '% right (' +
+        s.correct + ' of ' + s.answered + ', ' + (s.quizzes === 1 ? '1 quiz' : s.quizzes + ' quizzes') + ')'));
+    });
+    box.appendChild(ol);
+  }
+
+  function renderList(entries){
+    var box = $('hist-list');
+    box.textContent = '';
+    if (!entries.length){ box.appendChild(el('p', 'p-note', 'No activity in this range yet.')); return; }
+    var lastDay = '';
+    entries.forEach(function(e){
+      try {
+        var when = new Date(e.t);
+        var day = when.toLocaleDateString(undefined, { weekday:'long', month:'short', day:'numeric', year:'numeric' });
+        if (day !== lastDay){ box.appendChild(el('div', 'h-day', day)); lastDay = day; }
+        var row = el('div', 'h-item');
+        row.appendChild(el('div', 'h-time', when.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' })));
+        var body = el('div', 'h-body', describe(e));
+        if (e.type === 'quiz' && wrongList(e).length) body.appendChild(wrongDetails(e));
+        row.appendChild(body);
+        box.appendChild(row);
+      } catch (err) {
+        var fallback = el('div', 'h-item');
+        fallback.appendChild(el('div', 'h-time', new Date(e.t).toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' })));
+        fallback.appendChild(el('div', 'h-body', subjectOf(e.app, e.appTitle) || 'Unknown'));
+        box.appendChild(fallback);
+      }
+    });
+  }
+
+  function renderHistory(){
+    $('history-full').hidden = !SH.storageError();
+    var r = currentRange();
+    if (range === 'custom' && r[0] && r[1] && r[0] > r[1]) {
+      $('range-msg').textContent = 'From must be on or before To.';
+      $('hist-summary').textContent = '';
+      $('weak-spots').textContent = '';
+      $('hist-list').textContent = '';
+      return;
+    }
+    $('range-msg').textContent = '';
+    var entries = SH.list(r[0], r[1], $('subject-filter').value || null);
+    renderSummary(SH.summary(entries));
+    renderWeakSpots(entries);
+    renderList(entries);
+  }
+
+  function download(name, text, type){
+    var url = URL.createObjectURL(new Blob([text], { type: type }));
+    var a = el('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+    $('backup-msg').textContent = 'Saved ' + name + ' to your Downloads folder.';
+  }
+
+  function fmtDate(key){
+    var p = key.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  var BACKUP_DUE_DAYS = 7;
+  function savedState(){
+    var state = {};
+    var keys = [SH.grade + '_wallet_v1', SH.grade + '_recall_v1'];
+    document.querySelectorAll('[data-points-key]').forEach(function(c){ keys.push(c.getAttribute('data-points-key')); });
+    keys.forEach(function(k){
+      var v = null;
+      try { v = localStorage.getItem(k); } catch (e) {}
+      if (v !== null) state[k] = v;
+    });
+    return state;
+  }
+  function pointsIn(state){
+    var total = 0;
+    Object.keys(state).forEach(function(k){ if (/_points_v1$/.test(k)) total += parseInt(state[k], 10) || 0; });
+    return total;
+  }
+  function daysSinceBackup(){
+    var last = SH.lastBackup();
+    if (last === null) return null;
+    return Math.round((new Date(today()) - new Date(SH.dateKey(last))) / 86400000);
+  }
+  function renderBackupAge(){
+    if (!SH || !SH.lastBackup) return;
+    var days = daysSinceBackup();
+    var late = days !== null && days > BACKUP_DUE_DAYS;
+    var due = days === null ? pointsIn(savedState()) > 0 : late;
+    $('parent-open').textContent = due ? '🔒 Parent · 💾 backup due' : '🔒 Parent';
+    $('backup-age').textContent = days === null ? '⚠️ No full backup from this device yet.' :
+      (late ? '⚠️ ' : '✅ ') + 'Last full backup: ' + (days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago') + (late ? '. Time to export a new one.' : '.');
+  }
+  function totalsText(state){ return '⭐ ' + pointsIn(state) + ' points' + coinsText(state); }
+  function noStateReason(text){
+    var data = null;
+    try { data = JSON.parse(text); } catch (e) {}
+    if (data && data.state && typeof data.state === 'object') {
+      return 'This backup has 0 points and no coins: the page it was copied from had nothing saved. Make the backup where she can see her points (the same app and the same link), then try again.';
+    }
+    return 'This backup has no points or coins in it (it was made with the old Export button).';
+  }
+  function coinsText(state){ return W && W.savedBalance ? ' and 🪙 ' + W.savedBalance(state) + ' coins' : ''; }
+  function restoreState(b){
+    var current = savedState();
+    var same = Object.keys(b.state).every(function(k){ return current[k] === b.state[k]; });
+    if (same) return 'Points and coins already match this backup.';
+    var when = b.exportedAt ? ' from ' + fmtDate(SH.dateKey(b.exportedAt)) : '';
+    if (!confirm('This backup' + when + ' has ⭐ ' + pointsIn(b.state) + ' points' + coinsText(b.state) + '.\n' +
+      'This device has ⭐ ' + pointsIn(current) + ' points' + coinsText(current) + '.\n\n' +
+      'Replace the points and coins on this device with the ones in the backup?')) return 'Points and coins were left as they are.';
+    try {
+      Object.keys(b.state).forEach(function(k){ localStorage.setItem(k, b.state[k]); });
+    } catch (e) {
+      return 'Could not restore points and coins: storage is full or unavailable.';
+    }
+    setTimeout(function(){ location.reload(); }, 1500);
+    return 'Restored points and coins. Reloading…';
+  }
+
+  var W = window.Wallet, tsRepeat = null;
+  function tsValues(){
+    var name = $('ts-name').value.trim(), scoreText = $('ts-score').value, totalText = $('ts-total').value;
+    var score = Number(scoreText), total = Number(totalText);
+    if (!name || scoreText === '' || totalText === '' || !Number.isInteger(score) || !Number.isInteger(total) || total < 1 || score < 0 || score > total) return null;
+    return { app: $('ts-subject').value, name: name, score: score, total: total, coins: W.testBonus(score, total) };
+  }
+  function tsPreview(){
+    tsRepeat = null;
+    var v = tsValues();
+    $('ts-add').disabled = !v;
+    $('ts-add').textContent = v ? 'Add ' + v.coins + ' coins' : 'Add coins';
+    $('ts-msg').textContent = v ? Math.floor(v.score * 100 / v.total) + '% → 🪙 ' + v.coins + ' coins' : '';
+  }
+  function tsAdd(){
+    var v = tsValues();
+    if (!v) return;
+    var earlier = SH.findTest(v.app, v.name);
+    if (earlier && tsRepeat !== earlier.id){
+      tsRepeat = earlier.id;
+      $('ts-msg').textContent = 'Already added on ' + fmtDate(SH.dateKey(earlier.t)) + '. Tap Add again to add it again.';
+      return;
+    }
+    if (!W.addBonus(v.coins)){ $('ts-msg').textContent = 'Could not save. Storage may be full.'; return; }
+    SH.testScore(v.app, subjectOf(v.app), v.name, v.score, v.total, v.coins);
+    if (W.refreshShop) W.refreshShop();
+    if (W.renderCoins) W.renderCoins();
+    $('ts-name').value = '';
+    $('ts-score').value = '';
+    $('ts-total').value = '';
+    tsPreview();
+    $('ts-msg').textContent = '✅ Added 🪙 ' + v.coins + ' coins for ' + v.name + '.';
+    renderHistory();
+  }
+
+  document.querySelectorAll('.subject-card').forEach(function(card){
+    var app = card.getAttribute('data-app');
+    subjectByApp[app] = card.querySelector('.subject-title').textContent;
+    var opt = el('option', '', subjectByApp[app]);
+    opt.value = app;
+    $('subject-filter').appendChild(opt);
+    var tsOpt = el('option', '', subjectByApp[app]);
+    tsOpt.value = app;
+    $('ts-subject').appendChild(tsOpt);
+  });
+
+  $('parent-open').addEventListener('click', openParent);
+  renderBackupAge();
+  $('test-score').hidden = !(SH && W && W.addBonus && W.testBonus);
+  ['ts-name', 'ts-score', 'ts-total'].forEach(function(id){ $(id).addEventListener('input', tsPreview); });
+  $('ts-subject').addEventListener('change', tsPreview);
+  $('ts-add').addEventListener('click', tsAdd);
+  $('parent-close').addEventListener('click', closeParent);
+  window.addEventListener('pagehide', closeParent);
+  window.addEventListener('focus', function(){ picking = false; });
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden && !picking) closeParent();
+  });
+  $('pin-pad').addEventListener('click', function(ev){
+    var b = ev.target.closest('button');
+    if (b) pressKey(b.getAttribute('data-key') || b.textContent);
+  });
+  document.addEventListener('keydown', function(ev){
+    if (overlay.hidden) return;
+    if (ev.key === 'Escape') closeParent();
+    else if (!pinView.hidden && /^[0-9]$/.test(ev.key)) pressKey(ev.key);
+    else if (!pinView.hidden && ev.key === 'Backspace') pressKey('clear');
+  });
+
+  $('range-buttons').addEventListener('click', function(ev){
+    var b = ev.target.closest('button[data-range]');
+    if (!b) return;
+    var newRange = b.getAttribute('data-range');
+    if (newRange === 'custom' && range !== 'custom') prefillCustomFrom(range);
+    range = newRange;
+    Array.prototype.forEach.call(this.children, function(c){ c.classList.toggle('on', c === b); });
+    $('custom-range').hidden = range !== 'custom';
+    renderHistory();
+  });
+  ['range-from', 'range-to', 'subject-filter'].forEach(function(id){
+    $(id).addEventListener('change', renderHistory);
+  });
+
+  $('export-json').addEventListener('click', function(){
+    download('study-backup-' + SH.grade + '-' + today() + '.json', SH.exportJson(savedState()), 'application/json');
+    $('backup-msg').textContent += ' It holds ' + totalsText(savedState()) + '.';
+    SH.markBackedUp();
+    renderBackupAge();
+  });
+  $('export-csv').addEventListener('click', function(){
+    download('study-history-' + SH.grade + '-' + today() + '.csv', SH.exportCsv(subjectOf), 'text/csv;charset=utf-8');
+  });
+  $('export-shop').addEventListener('click', function(){
+    download('shop-history-' + SH.grade + '-' + today() + '.csv', SH.exportPurchasesCsv(), 'text/csv;charset=utf-8');
+  });
+  function importResult(msg){
+    $('backup-msg').textContent = msg;
+    alert(msg);
+  }
+  function importText(text){
+    try {
+      var r = SH.importJson(text);
+      var b = SH.backupState(text);
+      var history = 'Study history: added ' + entriesWord(r.added) + ', skipped ' + plural(r.skipped, 'duplicate') + '.';
+      renderHistory();
+      importResult(history + ' ' + (b ? restoreState(b) : noStateReason(text) + ' Only the history was added.'));
+    } catch (err) {
+      importResult(err.message);
+    }
+  }
+  function showPasteBox(hint, text){
+    $('paste-box').hidden = false;
+    $('paste-hint').textContent = hint;
+    $('paste-text').value = text;
+    $('paste-text').focus();
+    if (text) $('paste-text').select();
+  }
+  function copyText(text){
+    var ta = el('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) {}
+    ta.remove();
+    return ok;
+  }
+  $('copy-backup').addEventListener('click', function(){
+    var text = SH.exportJson(savedState());
+    if (copyText(text)) {
+      SH.markBackedUp();
+      renderBackupAge();
+      importResult('Full backup copied: ' + totalsText(savedState()) + '. Paste it somewhere safe (a note, or a message to yourself). To restore, open the lobby, then Parent, Paste backup.');
+      return;
+    }
+    showPasteBox('Copying did not work here. Select all of the text below and copy it yourself.', text);
+    SH.markBackedUp();
+    renderBackupAge();
+  });
+  $('paste-btn').addEventListener('click', function(){
+    showPasteBox('Paste the full backup text here, then tap Import pasted backup.', '');
+  });
+  $('paste-import').addEventListener('click', function(){
+    var text = $('paste-text').value.trim();
+    if (!text){ importResult('Paste the backup text first.'); return; }
+    importText(text);
+  });
+  $('import-btn').addEventListener('click', function(){ picking = true; $('import-file').click(); });
+  $('import-file').addEventListener('change', function(){
+    picking = false;
+    var input = this, file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      importText(String(reader.result));
+      input.value = '';
+    };
+    reader.onerror = function(){
+      importResult('Could not read that file.');
+      input.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  $('delete-range').addEventListener('click', function(){
+    var from = $('del-from').value, to = $('del-to').value;
+    if (!from || !to || from > to){
+      $('delete-msg').textContent = 'Pick a From date and a To date (From must be on or before To).';
+      return;
+    }
+    var n = SH.list(from, to).length;
+    if (!n){ $('delete-msg').textContent = 'Nothing to delete in that range.'; return; }
+    if (!confirm('Delete ' + entriesWord(n) + ' from ' + fmtDate(from) + ' to ' + fmtDate(to) + '? This cannot be undone. Export a backup first if you might want them.')) return;
+    var removed = SH.deleteRange(from, to);
+    $('delete-msg').textContent = removed === 0 ? 'Could not delete — browser storage is unavailable.' : 'Deleted ' + entriesWord(removed) + '.';
+    renderHistory();
+  });
+  $('delete-all').addEventListener('click', function(){
+    var n = SH.list(null, null).length;
+    if (!n){ $('delete-msg').textContent = 'History is already empty.'; return; }
+    if (!confirm('Delete ALL ' + entriesWord(n) + ' on this device? This cannot be undone.')) return;
+    var removed = SH.deleteAll();
+    $('delete-msg').textContent = removed === 0 ? 'Could not delete — browser storage is unavailable.' : 'Deleted ' + entriesWord(removed) + '.';
+    renderHistory();
+  });
+})();
+</script>

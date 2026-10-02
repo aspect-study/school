@@ -9,7 +9,7 @@
 **/drive-download-*/
 
 # Saved Google Forms score pages
-grade5-score-released/
+sources/grade-5/summative-tests/
 
 # Tool output
 .gstack/
@@ -19,4 +19,4 @@ node_modules/
 .claude/settings.local.json
 
 # App icons for the installable lobbies are generated art, not scans
-!icons/*.png
+!web/assets/icons/*.png

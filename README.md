@@ -8,8 +8,10 @@ Everything is plain HTML and JavaScript: no build step, no server, no install. O
 
 | Grade | Lobby |
 |---|---|
-| Grade 5 | <https://aspect-study.github.io/school/lobby-grade5.html> |
-| Grade 2 | <https://aspect-study.github.io/school/grade%202/lobby.html> |
+| Grade 5 | <https://aspect-study.github.io/school/lobby/grade-5.html> |
+| Grade 2 | <https://aspect-study.github.io/school/lobby/grade-2.html> |
+
+<https://aspect-study.github.io/school/> asks which grade is studying. Old links (`lobby-grade5.html`, `grade%202/lobby.html` and the old game addresses) still work: they forward to the new ones, so home-screen icons installed before the move keep working.
 
 ### Install as an app (works offline)
 
@@ -22,7 +24,7 @@ After that first visit, every game in that grade plays offline. When the tablet 
 
 **Before replacing an existing iPad home-screen icon**, make a backup (🔒 Parent → Full backup, or copy the backup text) and import it in the new app. On iOS each home-screen app has its own storage, so a new icon starts with no points or coins. Android shares storage with Chrome, so nothing needs to be moved there. An existing icon keeps working and also gets offline play, so there is no need to replace it.
 
-The offline cache list is in `sw.js`. `tests/pwa.test.js` fails if a game page or shared script is left out of it.
+The offline cache list is in `web/sw.js`. `tests/pwa.test.js` fails if any file in `web/` is left out of it.
 
 ## Subjects
 
@@ -30,28 +32,28 @@ The offline cache list is in `sw.js`. `tests/pwa.test.js` fails if a game page o
 
 | Game | Subject | Lessons | Covers |
 |---|---|---|---|
-| `math-mastery.html` | Math | 11 | Divisibility, GEMDAS, fraction operations, ordering decimals, UPAC word problems, 10 case studies |
-| `page-turners.html` | English | 23 | Story elements, figurative language, main idea, summarizing, author's purpose, nouns and pronouns, fact vs opinion and more |
-| `wikaharian.html` | Filipino | 5 | Poetry, fiction, informative text patterns, actor focus, linkers |
-| `history-explorers.html` | Araling Panlipunan | 14 | Origins of the Philippines, barangay, leaders and classes, trade, beliefs and traditions |
-| `life-lab.html` | Science | 18 | Matter, measurement, scientific method, microorganisms, plant and animal groups |
-| `rise-shine.html` | GMRC | 13 | Self, saving, dignity, faith, traffic rules, manners, gratitude, e-waste |
-| `rally-ready.html` | P.E. & Health | 7 | Net and wall games, ABC skills, pickleball, managing stress |
-| `craft-corner.html` | TLE | 9 | Home furnishings, embroidery, crochet, sewing |
+| Math Mastery (`math/`) | Math | 11 | Divisibility, GEMDAS, fraction operations, ordering decimals, UPAC word problems, 10 case studies |
+| Page Turners (`english/`) | English | 23 | Story elements, figurative language, main idea, summarizing, author's purpose, nouns and pronouns, fact vs opinion and more |
+| Wikaharian (`filipino/`) | Filipino | 5 | Poetry, fiction, informative text patterns, actor focus, linkers |
+| History Explorers (`araling-panlipunan/`) | Araling Panlipunan | 14 | Origins of the Philippines, barangay, leaders and classes, trade, beliefs and traditions |
+| Life Lab (`science/`) | Science | 18 | Matter, measurement, scientific method, microorganisms, plant and animal groups |
+| Rise & Shine (`gmrc/`) | GMRC | 13 | Self, saving, dignity, faith, traffic rules, manners, gratitude, e-waste |
+| Rally Ready (`pe-health/`) | P.E. & Health | 7 | Net and wall games, ABC skills, pickleball, managing stress |
+| Craft Corner (`tle/`) | TLE | 9 | Home furnishings, embroidery, crochet, sewing |
 
 The Filipino and Araling Panlipunan games keep the textbook's Filipino wording and add optional English help: card translations, a "Hindi maintindihan?" button on questions, and "Paano Sagutin?" tip cards.
 
-### Grade 2 (Taglish interface, in `grade 2/`)
+### Grade 2 (Taglish interface)
 
 | Game | Subject | Covers |
 |---|---|---|
-| `block-bot.html` | Math | Numbers, place value, number lines, Philippine money (drawn in SVG) |
-| `kuwentista.html` | Filipino | Alpabeto, pang-uri, kongkreto at di-kongkreto, pangungusap at parirala, sight words |
-| `word-train.html` | English | Alphabet, onset and rime, CVC words, nouns, pronouns, verbs, adjectives, sentences, intonation, sequencing |
-| `batang-bayani.html` | Makabansa | Komunidad, klima, mapa, mga tungkulin |
-| `growing-good.html` | GMRC | Family, feelings, prayer, saving, obeying, talents |
-| `byte-buddies.html` | Computer | Computer care, parts, the desktop, the Internet |
-| `science-detectives.html` | Science | Body, senses, objects, animals, habitats |
+| Block Bot (`math/`) | Math | Numbers, place value, number lines, Philippine money (drawn in SVG) |
+| Kuwentista (`filipino/`) | Filipino | Alpabeto, pang-uri, kongkreto at di-kongkreto, pangungusap at parirala, sight words |
+| Word Train (`english/`) | English | Alphabet, onset and rime, CVC words, nouns, pronouns, verbs, adjectives, sentences, intonation, sequencing |
+| Batang Bayani (`makabansa/`) | Makabansa | Komunidad, klima, mapa, mga tungkulin |
+| Growing Good (`gmrc/`) | GMRC | Family, feelings, prayer, saving, obeying, talents |
+| Byte Buddies (`computer/`) | Computer | Computer care, parts, the desktop, the Internet |
+| Science Detectives (`science/`) | Science | Body, senses, objects, animals, habitats |
 
 ## How a game works
 
@@ -73,7 +75,7 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 | Coins 🪙 | 1 coin per 10 new points, plus a 40-coin welcome gift |
 | Real test bonus 📝 | A parent enters a school test score: 50 / 40 / 30 / 10 coins for 100% / ≥90% / ≥80% / below |
 
-**Shop:** the lobby has a reward shop for real-life rewards (the catalog is in `wallet.js`). A parent approves each purchase with a PIN.
+**Shop:** the lobby has a reward shop for real-life rewards (the catalog is in `web/engine/wallet.js`). A parent approves each purchase with a PIN.
 
 **Power-ups:** inside a quiz, coins buy Hint, 50/50, Second Chance, Shield, Later and Ask Family.
 
@@ -100,28 +102,40 @@ All progress lives in the browser's `localStorage` on each device. There's no ac
 ## Project layout
 
 ```
-lobby-grade5.html        Grade 5 lobby (subject cards, shop, parent panel)
-*.html                   Grade 5 games
-study-history.js         shared: study history + backup
-wallet.js                shared: points → coins, shop catalog, coin guide
-powerups.js              shared: in-quiz power-ups
-recall.js                shared: question rest + type-it-first
-fx.js                    shared: sound effects + streak call-outs (Web Audio)
-grade 2/                 Grade 2 lobby, games and *-grade2.js copies of the shared files
-tests/                   unit tests (node:test) and headless-Chrome end-to-end tests
-docs/superpowers/        design specs, plans and handoff notes
-*/md/                    text extracted from the lesson decks the games were built from
+web/                         the published site (the only folder GitHub Pages serves)
+  index.html                 "Who's studying?" grade picker
+  lobby/grade-5.html         Grade 5 lobby (subject cards, shop, parent panel) + its .webmanifest
+  lobby/grade-2.html         Grade 2 lobby + its .webmanifest
+  subjects/<grade>/<subject>/index.html   one game per subject, e.g. subjects/grade-5/math/
+  engine/                    shared by every page, one copy each:
+    study-history.js           study history + backup
+    wallet.js                  points → coins, shop catalog, coin guide
+    powerups.js                in-quiz power-ups
+    recall.js                  question rest + type-it-first
+    fx.js                      sound effects + streak call-outs (Web Audio)
+  assets/icons/              home-screen icons
+  sw.js                      offline cache (service worker)
+  *.html, grade 2/*.html     redirects from the old addresses
+sources/<grade>/<subject>/   text extracted from the lesson decks the games were built from
+tests/                       unit tests (node:test) and headless-Chrome end-to-end tests
+  paths.js                   the one map of where every page lives; tests read paths from here
+docs/                        design specs, plans and handoff notes
+.github/workflows/pages.yml  runs the unit tests, then publishes web/
 ```
 
-Each shared file has a Grade 2 copy (for example `grade 2/wallet-grade2.js`), and the two must stay byte-identical. **Edit the Grade 2 copy, then copy it over the root file.** `tests/copies.test.js` fails if they differ.
+The engine files serve both grades. Each page says which grade it is with `data-grade` on the script tag (`<script src="../../../engine/wallet.js" data-grade="grade5">`), and every grade keeps its own storage keys.
 
-Every page checks that its shared files loaded and shows a red **Missing or broken file** bar if one didn't.
+Every page checks that its engine files loaded and shows a red **Missing or broken file** bar if one didn't.
 
-The source lesson decks (PDF/PPTX), photos and scans are deliberately not in the repo; see `.gitignore`.
+Subject folders are named after the subject (`math`, `english`, `araling-panlipunan`…), not the game, and grades are `grade-2` … `grade-12`. Each game's internal ID (`math-mastery`, `block-bot`…) is saved in study history and must never change; `tests/paths.js` maps each ID to its folder.
+
+The source lesson decks (PDF/PPTX), photos and scans are deliberately not in the repo; see `.gitignore`. They go in `sources/<grade>/<subject>/` next to their `.md` extractions.
+
+The long-term plan (shared engine, lessons as data, learner profiles, database) is in `docs/superpowers/specs/2026-10-02-project-structure-design.md`.
 
 ## Running locally
 
-Open `lobby-grade5.html` or `grade 2/lobby.html` directly in a browser. No server is needed.
+Open `web/lobby/grade-5.html` or `web/lobby/grade-2.html` directly in a browser. No server is needed.
 
 ## Tests
 
@@ -133,7 +147,7 @@ node tests/e2e/apps-e2e.js           # play every Grade 2 game in headless Chrom
 node tests/e2e/apps-e2e.js 5         # play every Grade 5 game
 node tests/e2e/lobby-e2e.js [5]      # lobby, parent panel and shop
 node tests/e2e/backup-e2e.js [5]     # export → wipe → import → restore
-node tests/e2e/file-check-e2e.js     # missing shared-file banner
+node tests/e2e/file-check-e2e.js     # missing engine-file banner
 ```
 
 The end-to-end tests inject a driver into a copy of each page. The driver plays every lesson perfectly and all-wrong, uses power-ups, and checks points, streaks, history and coins.
@@ -146,6 +160,16 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 - Keep the correct answer from usually being the longest option, and keep true/false answers roughly half and half.
 - Follow the class deck's wording and facts, even where an outside source says something different.
 
+**A new subject or grade** (for example Grade 6 Math):
+
+1. Put the game at `web/subjects/grade-6/math/index.html`, loading the engine as `../../../engine/<file>.js` with `data-grade="grade6"`.
+2. Add it to `APPS` in `tests/paths.js` with a new, permanent ID.
+3. Add a subject card to the lobby: `<a class="subject-card" data-app="<id>" href="../subjects/grade-6/math/index.html?reset=1">`.
+4. Add the page to `PRECACHE` in `web/sw.js`. `node --test` lists anything you missed.
+5. Put the source decks in `sources/grade-6/math/`.
+
 ## Deployment
 
-The site is published with GitHub Pages from the `main` branch, root folder. Pushing to `main` updates both lobbies within a minute or two.
+Pushing to `main` runs `.github/workflows/pages.yml`: it runs the unit tests and, if they pass, publishes the `web/` folder to GitHub Pages. Both lobbies update within a minute or two. A failing test blocks the publish, so the live site keeps its last good version.
+
+One-time setup: GitHub → repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.

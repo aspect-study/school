@@ -1,18 +1,12 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { GRADE2, makeWorkDir, dumpDom, readOutput, appendDriver } = require('./chrome.js');
-
-const GRADE5 = path.join(__dirname, '..', '..');
+const { stage, makeWorkDir, dumpDom, readOutput, appendDriver } = require('./chrome.js');
+const { LOBBIES, lobbyFile } = require('../paths.js');
 
 const CONFIGS = {
   2: {
-    dir: GRADE2,
-    lobbyFile: 'lobby.html',
-    shFile: 'study-history-grade2.js',
     key: 'grade2_history_v1',
-    walletFile: 'wallet-grade2.js',
-    fxFile: 'fx-grade2.js',
     wallet: 'grade2_wallet_v1',
     otherWallet: 'grade5_wallet_v1',
     shop: { goal: '160 coins pa para sa Movie night!\n160 more coins to Movie night!', movieNeed: '160 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 1000 new points → 🪙 100 coins · 🎁 40 welcome · 🛒 40 spent' },
@@ -21,12 +15,7 @@ const CONFIGS = {
     subjectOptions: 8,
   },
   5: {
-    dir: GRADE5,
-    lobbyFile: 'lobby-grade5.html',
-    shFile: 'study-history.js',
     key: 'grade5_history_v1',
-    walletFile: 'wallet.js',
-    fxFile: 'fx.js',
     wallet: 'grade5_wallet_v1',
     otherWallet: 'grade2_wallet_v1',
     shop: { goal: '160 more coins to Movie night!', movieNeed: '160 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 1000 new points → 🪙 100 coins · 🎁 40 welcome · 🛒 40 spent' },
@@ -42,21 +31,16 @@ const cfg = CONFIGS[grade];
 const work = makeWorkDir('study-history-lobby');
 const withJs = path.join(work, 'with-js');
 const noJs = path.join(work, 'no-js');
-fs.mkdirSync(withJs);
-fs.mkdirSync(noJs);
-fs.copyFileSync(path.join(cfg.dir, cfg.shFile), path.join(withJs, cfg.shFile));
-fs.copyFileSync(path.join(cfg.dir, cfg.walletFile), path.join(withJs, cfg.walletFile));
-fs.copyFileSync(path.join(cfg.dir, cfg.fxFile), path.join(withJs, cfg.fxFile));
 
 const driverSource = 'var __E2E_KEY = ' + JSON.stringify(cfg.key) + ', __E2E_APPS = ' + JSON.stringify(cfg.apps) +
   ', __E2E_WALLET = ' + JSON.stringify(cfg.wallet) + ', __E2E_OTHER_WALLET = ' + JSON.stringify(cfg.otherWallet) + ';\n' +
   fs.readFileSync(path.join(__dirname, 'lobby-driver.page.js'), 'utf8');
-const html = appendDriver(fs.readFileSync(path.join(cfg.dir, cfg.lobbyFile), 'utf8'), driverSource);
-fs.writeFileSync(path.join(withJs, 'lobby.html'), html);
-fs.writeFileSync(path.join(noJs, 'lobby.html'), html);
+const html = appendDriver(fs.readFileSync(lobbyFile(grade), 'utf8'), driverSource);
+const withJsLobby = stage(withJs, LOBBIES[grade].page, html, ['study-history.js', 'wallet.js', 'fx.js']);
+const noJsLobby = stage(noJs, LOBBIES[grade].page, html, []);
 
 try {
-  const r = readOutput(dumpDom(path.join(work, 'profile'), path.join(withJs, 'lobby.html'), '#e2e=lobby'));
+  const r = readOutput(dumpDom(path.join(work, 'profile'), withJsLobby, '#e2e=lobby'));
   assert.deepEqual(r.errors, [], 'page errors');
   assert.equal(r.overlayOpen, true, 'Parent link opens the panel');
   assert.equal(r.wrongPinLocked, true, 'wrong PIN stays locked');
@@ -91,7 +75,7 @@ try {
   assert.equal(r.closed, true);
   assert.equal(r.relocked, true, 'reopening asks for the PIN again');
 
-  const pointsKeys = [...fs.readFileSync(path.join(cfg.dir, cfg.lobbyFile), 'utf8').matchAll(/data-points-key="([^"]+)"/g)].map((m) => m[1]).sort();
+  const pointsKeys = [...fs.readFileSync(lobbyFile(grade), 'utf8').matchAll(/data-points-key="([^"]+)"/g)].map((m) => m[1]).sort();
   assert.equal(r.coinRowShown, true, 'coin badge and Shop button show when the wallet loads');
   assert.equal(r.coinBadge0, '🪙 40 coins', 'first load: welcome gift only');
   assert.deepEqual(r.baselineKeys, pointsKeys, 'first load baselines exactly this lobby\'s points keys');
@@ -121,7 +105,7 @@ try {
   assert.equal(r.shopDownload, 'shop-history-grade' + grade + '-' + r.today + '.csv');
   assert.match(r.parentList, /🛒 Bought Rest: play 1 ML \(Mobile Legends\) game — 40 coins/);
 
-  const t = readOutput(dumpDom(path.join(work, 'profile-testscore'), path.join(withJs, 'lobby.html'), '#e2e=testscore'));
+  const t = readOutput(dumpDom(path.join(work, 'profile-testscore'), withJsLobby, '#e2e=testscore'));
   assert.deepEqual(t.errors, [], 'test score: page errors');
   assert.equal(t.shown, true, 'the test score form shows when the wallet is there');
   assert.ok(t.subjects > 0, 'subjects come from the lobby cards');
@@ -134,7 +118,7 @@ try {
   assert.equal(t.badDisabled, true, 'a score above the total cannot be added');
   assert.equal(t.entries, 2);
   assert.match(t.shopEarned, /📝 90 test bonus/, 'the shop shows the bonus');
-  const n = readOutput(dumpDom(path.join(work, 'profile-nojs'), path.join(noJs, 'lobby.html'), '#e2e=nojs'));
+  const n = readOutput(dumpDom(path.join(work, 'profile-nojs'), noJsLobby, '#e2e=nojs'));
   assert.deepEqual(n.errors, [], 'no errors without study-history.js');
   assert.equal(n.missingShown, true, 'missing-file message shown');
   assert.equal(n.bodyHidden, true, 'history controls hidden');

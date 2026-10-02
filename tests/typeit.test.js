@@ -1,8 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
+const { engineFile } = require('./paths.js');
 const { loadGame, GRADE5, GRADE2 } = require('./load-games.js');
-const { normalize, matches } = require(path.join(__dirname, '..', 'grade 2', 'recall-grade2.js'));
+const { normalize, matches } = require(engineFile('recall.js'));
 
 const plain = (s) => String(s).replace(/<[^>]*>/g, ' ').replace(/&[a-z]+;|&#\d+;/gi, ' ');
 

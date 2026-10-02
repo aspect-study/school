@@ -2,11 +2,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { tierFor, SUBTITLE } = require(path.join(__dirname, '..', 'grade 2', 'fx-grade2.js'));
+const { APPS, engineFile, appFile, lobbyFile } = require('./paths.js');
+const { tierFor, SUBTITLE } = require(engineFile('fx.js'));
 
-const root = path.join(__dirname, '..');
-const GRADE5 = ['craft-corner', 'history-explorers', 'life-lab', 'math-mastery', 'page-turners', 'rally-ready', 'rise-shine', 'wikaharian'];
-const GRADE2 = ['batang-bayani', 'block-bot', 'byte-buddies', 'growing-good', 'kuwentista', 'science-detectives', 'word-train'];
 
 test('the streak announcer climbs one tier per answer in a row and stays legendary', () => {
   assert.equal(tierFor(0), null);
@@ -20,12 +18,7 @@ test('the call-out subtitle speaks each lobby\'s language', () => {
   assert.equal(SUBTITLE.grade2(5), '🔥 5 sunod-sunod na tama! · 5 in a row!');
 });
 
-function games() {
-  return GRADE5.map((a) => ({ a, file: path.join(root, a + '.html'), wallet: 'wallet.js', fx: 'fx.js', grade: 'grade5' }))
-    .concat(GRADE2.map((a) => ({ a, file: path.join(root, 'grade 2', a + '.html'), wallet: 'wallet-grade2.js', fx: 'fx-grade2.js', grade: 'grade2' })));
-}
-
-for (const g of games()) {
+for (const g of APPS.map((app) => ({ a: app.id, file: appFile(app.id), fx: '../../../engine/fx.js', grade: 'grade' + app.grade }))) {
   test(g.a + ' loads the effects and plays them on every answer and result', () => {
     const html = fs.readFileSync(g.file, 'utf8');
     assert.ok(html.includes('<script src="' + g.fx + '" data-grade="' + g.grade + '"></script>'), 'missing fx script tag');
@@ -38,8 +31,8 @@ for (const g of games()) {
 }
 
 for (const lobby of [
-  { file: path.join(root, 'lobby-grade5.html'), fx: 'fx.js', grade: 'grade5' },
-  { file: path.join(root, 'grade 2', 'lobby.html'), fx: 'fx-grade2.js', grade: 'grade2' },
+  { file: lobbyFile(5), fx: '../engine/fx.js', grade: 'grade5' },
+  { file: lobbyFile(2), fx: '../engine/fx.js', grade: 'grade2' },
 ]) {
   test(path.basename(path.dirname(lobby.file)) + '/' + path.basename(lobby.file) + ' plays the cha-ching only after a purchase is saved', () => {
     const html = fs.readFileSync(lobby.file, 'utf8');

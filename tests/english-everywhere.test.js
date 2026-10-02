@@ -1,9 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const path = require('node:path');
+const { engineFile, lobbyFile, appFile, appsOf } = require('./paths.js');
 
-const root = path.join(__dirname, '..');
 // Common Filipino words: text with any of them must also carry English (parent's rule, 2026-10-01).
 const FILIPINO = /\b(ang|mo|na|sa|ng|pa|ka|kay|ni|si|mong|lang|kapag|para|wala|ulit|tama|mali)\b/i;
 const ENGLISH = /\b(the|you|your|to|for|of|and|is|or|in|a|it|not|that|try|again|can|more|go|ask|just|yours)\b/i;
@@ -14,7 +13,7 @@ function hasEnglishWhereFilipino(text, where) {
 }
 
 test('every Grade 2 power-up message has English', () => {
-  const { TEXT } = require(path.join(root, 'grade 2', 'powerups-grade2.js'));
+  const { TEXT } = require(engineFile('powerups.js'));
   for (const [key, value] of Object.entries(TEXT.grade2)) {
     if (key === 'helpers') continue;
     const v = typeof value === 'function' ? value(key === 'left' || key === 'confirm' ? 2 : 'Mommy') : value;
@@ -25,7 +24,7 @@ test('every Grade 2 power-up message has English', () => {
 });
 
 test('every Grade 2 coin badge and guide line has English', () => {
-  const { GUIDE_TEXT } = require(path.join(root, 'grade 2', 'wallet-grade2.js'));
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
   const g = GUIDE_TEXT.grade2;
   for (const key of ['have', 'goal', 'badge', 'haveNow']) hasEnglishWhereFilipino(g[key](5), 'guide ' + key);
   hasEnglishWhereFilipino(g.goal(0), 'guide goal reached');
@@ -39,7 +38,7 @@ test('every Grade 2 coin badge and guide line has English', () => {
 });
 
 test('every Grade 2 shop line has English', () => {
-  const html = fs.readFileSync(path.join(root, 'grade 2', 'lobby.html'), 'utf8');
+  const html = fs.readFileSync(lobbyFile(2), 'utf8');
   const start = html.indexOf('window.SHOP_TEXT = {');
   const body = html.slice(start, html.indexOf('};', start));
   // A literal \n in the source separates the Filipino and English lines.
@@ -47,8 +46,8 @@ test('every Grade 2 shop line has English', () => {
 });
 
 test('Grade 2 games show "points" with every "puntos"', () => {
-  for (const file of fs.readdirSync(path.join(root, 'grade 2')).filter((f) => f.endsWith('.html'))) {
-    const lines = fs.readFileSync(path.join(root, 'grade 2', file), 'utf8').split('\n');
+  for (const file of [lobbyFile(2), ...appsOf(2).map((a) => appFile(a.id))]) {
+    const lines = fs.readFileSync(file, 'utf8').split('\n');
     lines.forEach((line, i) => {
       if (!/puntos|(?<![-\w])sunod-sunod/.test(line)) return;
       const near = lines.slice(i, i + 5).join(' ');
@@ -59,7 +58,7 @@ test('Grade 2 games show "points" with every "puntos"', () => {
 });
 
 test('the Grade 2 streak call-out has English', () => {
-  const { SUBTITLE } = require(path.join(root, 'grade 2', 'fx-grade2.js'));
+  const { SUBTITLE } = require(engineFile('fx.js'));
   hasEnglishWhereFilipino(SUBTITLE.grade2(3), 'streak subtitle');
   assert.match(SUBTITLE.grade2(3), /3 in a row/);
 });

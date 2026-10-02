@@ -2,8 +2,8 @@ process.env.TZ = 'Asia/Manila';
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
-const { create, CATALOG } = require(path.join(__dirname, '..', 'grade 2', 'wallet-grade2.js'));
+const { engineFile } = require('./paths.js');
+const { create, CATALOG } = require(engineFile('wallet.js'));
 
 function memStorage() {
   const data = {};
@@ -277,7 +277,7 @@ test('prune keeps today\'s ML purchase so the daily limit still holds', () => {
 });
 
 test('both guides explain the same topics, quote the real ML price and the 10-points-per-coin rate', () => {
-  const { GUIDE_TEXT } = require(path.join(__dirname, '..', 'grade 2', 'wallet-grade2.js'));
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
   const ml = CATALOG.find((i) => i.id === 'ml').coins;
   const g2 = GUIDE_TEXT.grade2.sections(ml), g5 = GUIDE_TEXT.grade5.sections(ml);
   assert.deepEqual(Object.keys(GUIDE_TEXT.grade2).sort(), Object.keys(GUIDE_TEXT.grade5).sort());
@@ -291,7 +291,7 @@ test('both guides explain the same topics, quote the real ML price and the 10-po
 });
 
 test('the Grade 2 guide gives every section an English line with the same numbers', () => {
-  const { GUIDE_TEXT } = require(path.join(__dirname, '..', 'grade 2', 'wallet-grade2.js'));
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
   const ml = CATALOG.find((i) => i.id === 'ml').coins;
   const sections = GUIDE_TEXT.grade2.sections(ml);
   assert.ok(GUIDE_TEXT.grade2.titleEn, 'English title');
@@ -317,7 +317,7 @@ test('spend takes in-quiz power-up coins from the stored balance, never below ze
 });
 
 test('test-score coins follow the tiers, compared without rounding', () => {
-  const { testBonus, TEST_BONUS_TIERS } = require(path.join(__dirname, '..', 'grade 2', 'wallet-grade2.js'));
+  const { testBonus, TEST_BONUS_TIERS } = require(engineFile('wallet.js'));
   assert.deepEqual(TEST_BONUS_TIERS.map((t) => [t.pct, t.coins]), [[100, 50], [90, 40], [80, 30], [0, 10]]);
   assert.equal(testBonus(15, 15), 50);
   assert.equal(testBonus(14, 15), 40, '93.3%');
@@ -354,7 +354,7 @@ test('an old wallet without a bonus field reads it as 0', () => {
 });
 
 test('the coin guide explains resting, typing, the exam and the test bonus in both grades', () => {
-  const { GUIDE_TEXT } = require(path.join(__dirname, '..', 'grade 2', 'wallet-grade2.js'));
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
   for (const grade of ['grade2', 'grade5']) {
     const icons = GUIDE_TEXT[grade].sections(40).map((s) => s[0]);
     for (const icon of ['⏳', '✏️', '🏆', '📝']) assert.ok(icons.includes(icon), grade + ' has ' + icon);

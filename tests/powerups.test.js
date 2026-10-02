@@ -1,8 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
-const { pickOut, createCore, TEXT, MAX_PER_QUIZ } = require(path.join(__dirname, '..', 'grade 2', 'powerups-grade2.js'));
-const { POWER_UPS } = require(path.join(__dirname, '..', 'grade 2', 'wallet-grade2.js'));
+const { APPS, engineFile, appFile } = require('./paths.js');
+const { pickOut, createCore, TEXT, MAX_PER_QUIZ } = require(engineFile('powerups.js'));
+const { POWER_UPS } = require(engineFile('wallet.js'));
 
 function fakeWallet(balance) {
   return {
@@ -197,16 +197,12 @@ test('Save for Later is off once any help was used on the question, so help cann
 });
 
 const fs = require('node:fs');
-const root = path.join(__dirname, '..');
-const GRADE5 = ['craft-corner', 'history-explorers', 'life-lab', 'math-mastery', 'page-turners', 'rally-ready', 'rise-shine', 'wikaharian'];
-const GRADE2 = ['batang-bayani', 'block-bot', 'byte-buddies', 'growing-good', 'kuwentista', 'science-detectives', 'word-train'];
-const games = GRADE5.map((a) => ({ a, file: path.join(root, a + '.html'), tag: '<script src="powerups.js" data-grade="grade5"></script>' }))
-  .concat(GRADE2.map((a) => ({ a, file: path.join(root, 'grade 2', a + '.html'), tag: '<script src="powerups-grade2.js" data-grade="grade2"></script>' })));
+const games = APPS.map((app) => ({ a: app.id, file: appFile(app.id), tag: '<script src="../../../engine/powerups.js" data-grade="grade' + app.grade + '"></script>' }));
 
 for (const g of games) {
   test(g.a + ' offers power-ups on every question and halves points for a helped answer', () => {
     const html = fs.readFileSync(g.file, 'utf8');
-    assert.ok(html.indexOf(g.tag) > html.indexOf('<script src="' + (g.tag.includes('grade2') ? 'wallet-grade2.js' : 'wallet.js')), 'after the wallet file');
+    assert.ok(html.indexOf(g.tag) > html.indexOf('<script src="../../../engine/wallet.js"'), 'after the wallet file');
     const answers = html.split('PowerUps.answered()').length - 1;
     assert.ok(answers > 0);
     const offers = html.split('PowerUps.offer({').length - 1 + html.split('offerQuestion({').length - 1;
@@ -220,6 +216,6 @@ for (const g of games) {
 }
 
 test('power-ups can be skipped for a question (resting or waiting for a typed answer)', () => {
-  const src = fs.readFileSync(path.join(root, 'grade 2', 'powerups-grade2.js'), 'utf8');
+  const src = fs.readFileSync(engineFile('powerups.js'), 'utf8');
   assert.match(src, /skip: function \(\) \{\n\s+disarm\(\);\n\s+info = null;\n\s+if \(bar && bar\.parentNode\) bar\.parentNode\.removeChild\(bar\);/);
 });

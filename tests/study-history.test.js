@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const path = require('node:path');
-const { create, plain, KEY } = require(path.join(__dirname, '..', 'grade 2', 'study-history-grade2.js'));
+const { engineFile } = require('./paths.js');
+const { create, plain, KEY } = require(engineFile('study-history.js'));
 
 function memStorage() {
   const data = {};
@@ -555,7 +555,7 @@ test('exportPurchasesCsv lists only shop purchases, oldest first', () => {
 });
 
 test('the study-history file stays ASCII-only, since app pages load it without a charset', () => {
-  const src = require('node:fs').readFileSync(path.join(__dirname, '..', 'grade 2', 'study-history-grade2.js'), 'utf8');
+  const src = require('node:fs').readFileSync(engineFile('study-history.js'), 'utf8');
   assert.doesNotMatch(src, /[^\x00-\x7f]/);
 });
 

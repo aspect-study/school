@@ -1,35 +1,32 @@
-// A page with a shared file missing shows a red bar naming it; a complete folder shows nothing.
+// A page with an engine file missing shows a red bar naming it; a complete engine folder shows nothing.
 // Run: node tests/e2e/file-check-e2e.js
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { GRADE2, makeWorkDir, dumpDom } = require('./chrome.js');
+const { stage, makeWorkDir, dumpDom } = require('./chrome.js');
+const { ENGINE_FILES, app, appFile, LOBBIES, lobbyFile } = require('../paths.js');
 
-const GRADE5 = path.join(__dirname, '..', '..');
-const SHARED5 = ['study-history.js', 'wallet.js', 'fx.js', 'powerups.js', 'recall.js'];
-const SHARED2 = ['study-history-grade2.js', 'wallet-grade2.js', 'fx-grade2.js', 'powerups-grade2.js', 'recall-grade2.js'];
-
-function barText(dir, page, shared, leaveOut) {
+function barText(page, file, leaveOut) {
   const work = makeWorkDir('file-check');
-  fs.copyFileSync(path.join(dir, page), path.join(work, page));
-  for (const f of shared) if (!leaveOut.includes(f)) fs.copyFileSync(path.join(dir, f), path.join(work, f));
-  const html = dumpDom(path.join(work, 'profile'), path.join(work, page), '');
+  const staged = stage(path.join(work, 'site'), page, fs.readFileSync(file, 'utf8'), ENGINE_FILES.filter((f) => !leaveOut.includes(f)));
+  const html = dumpDom(path.join(work, 'profile'), staged, '');
   const m = html.match(/<div id="file-check"[^>]*>([\s\S]*?)<\/div>/);
   return m ? m[1] : null;
 }
 
+const missing = (files) => '⚠️ Missing or broken file: ' + files + '. Check that the engine folder is complete.';
 const cases = [
-  [GRADE5, 'rise-shine.html', SHARED5, [], null],
-  [GRADE5, 'rise-shine.html', SHARED5, ['recall.js'], '⚠️ Missing or broken file: recall.js. Copy it into the same folder as this page.'],
-  [GRADE5, 'lobby-grade5.html', SHARED5, ['wallet.js'], '⚠️ Missing or broken file: wallet.js. Copy it into the same folder as this page.'],
-  [GRADE2, 'kuwentista.html', SHARED2, [], null],
-  [GRADE2, 'kuwentista.html', SHARED2, ['fx-grade2.js', 'study-history-grade2.js'], '⚠️ Missing or broken file: study-history-grade2.js, fx-grade2.js. Copy it into the same folder as this page.'],
+  [app('rise-shine').page, appFile('rise-shine'), [], null],
+  [app('rise-shine').page, appFile('rise-shine'), ['recall.js'], missing('recall.js')],
+  [LOBBIES[5].page, lobbyFile(5), ['wallet.js'], missing('wallet.js')],
+  [app('kuwentista').page, appFile('kuwentista'), [], null],
+  [app('kuwentista').page, appFile('kuwentista'), ['fx.js', 'study-history.js'], missing('study-history.js, fx.js')],
 ];
 
 let failed = false;
-for (const [dir, page, shared, leaveOut, want] of cases) {
+for (const [page, file, leaveOut, want] of cases) {
   try {
-    assert.equal(barText(dir, page, shared, leaveOut), want);
+    assert.equal(barText(page, file, leaveOut), want);
   } catch (e) {
     failed = true;
     console.error('FAIL file check:', page, 'without', leaveOut.join(', ') || 'nothing', '\n', e.message);

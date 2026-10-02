@@ -3,11 +3,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const root = path.join(__dirname, '..');
-const pages = [
-  ...fs.readdirSync(root).filter((f) => f.endsWith('.html')).map((f) => path.join(root, f)),
-  ...fs.readdirSync(path.join(root, 'grade 2')).filter((f) => f.endsWith('.html')).map((f) => path.join(root, 'grade 2', f)),
-];
+const { ROOT: root, APPS, appFile, lobbyFile } = require('./paths.js');
+
+const pages = [lobbyFile(5), lobbyFile(2), ...APPS.map((a) => appFile(a.id))];
 
 function fileCheck(html) {
   const start = html.indexOf('<script data-file-check>');

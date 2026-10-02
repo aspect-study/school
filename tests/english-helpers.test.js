@@ -1,11 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const path = require('node:path');
 const vm = require('node:vm');
 
-const root = path.join(__dirname, '..');
-const APPS = ['history-explorers.html', 'wikaharian.html'];
+const { appFile } = require('./paths.js');
+const APPS = ['history-explorers', 'wikaharian'];
 
 function extractArray(html, name) {
   const marker = `const ${name} = [`;
@@ -18,7 +17,7 @@ function extractArray(html, name) {
 }
 
 function loadApp(file) {
-  const html = fs.readFileSync(path.join(root, file), 'utf8');
+  const html = fs.readFileSync(appFile(file), 'utf8');
   const lessonsText = extractArray(html, 'LESSONS');
   const strategyText = extractArray(html, 'STRATEGY');
   const LESSONS = vm.runInNewContext('(' + lessonsText + ')');
