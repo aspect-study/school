@@ -301,7 +301,8 @@ function withoutSearch(url) {
 function fromNetwork(request) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(reject, NETWORK_TIMEOUT_MS);
-    fetch(request).then((response) => {
+    // no-cache: check with the server every time, so an update shows at once instead of after the browser's 10 minutes.
+    fetch(request, { cache: 'no-cache' }).then((response) => {
       clearTimeout(timer);
       if (response.ok) {
         const copy = response.clone();

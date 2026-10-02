@@ -316,6 +316,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   .shop-ask{ margin:0 0 4px; text-align:center; font-weight:800; font-size:1.05rem; }
   .shop-done{ margin:28px 0; text-align:center; font-weight:800; font-size:1.2rem; line-height:1.4; }
   .shop-actions{ display:flex; justify-content:center; margin-top:18px; }
+  .shop-phone-row{ margin-top:12px; }
+  .shop-phone-row .shop-buy{ margin:0; padding:14px 24px; font-size:1.1rem; }
 
   @media (prefers-reduced-motion: reduce){
     .subject-card{ transition:none; }
@@ -557,6 +559,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
     <div id="shop-pin-view" hidden>
       <p class="shop-ask" id="shop-ask"></p>
+      <div class="shop-actions shop-phone-row"><button class="shop-buy" id="shop-phone" type="button" hidden></button></div>
+      <p class="p-note shop-intro" id="shop-phone-msg" aria-live="polite"></p>
       <p class="pin-hint" id="shop-pin-hint"></p>
       <div class="pin-dots" id="shop-pin-dots"><span></span><span></span><span></span><span></span></div>
       <div class="pin-pad" id="shop-pin-pad">
@@ -565,8 +569,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         <button type="button">7</button><button type="button">8</button><button type="button">9</button>
         <button type="button" data-key="clear" aria-label="Delete digit">⌫</button><button type="button">0</button><span></span>
       </div>
-      <p class="p-note shop-intro" id="shop-phone-msg" aria-live="polite"></p>
-      <div class="shop-actions"><button class="p-btn" id="shop-phone" type="button" hidden></button> <button class="p-btn" id="shop-cancel" type="button"></button></div>
+      <div class="shop-actions"><button class="p-btn" id="shop-cancel" type="button"></button></div>
     </div>
 
     <div id="shop-done-view" hidden>
@@ -636,6 +639,7 @@ window.SHOP_TEXT = {
   buy: 'Buy',
   notes: { ml: 'Isang match lang, panalo man o talo. Pagkatapos lang mag-aral. Dagdag ito sa normal mong oras ng laro.\nOne match, win or lose. Only after studying. It is extra, on top of your normal play time.' },
   ask: function(item, coins){ return 'Ipa-type kay Mommy o Tatay ang PIN para sa: ' + item + ' (' + coins + ' coins)\nAsk Mommy or Tatay to type the PIN for: ' + item + ' (' + coins + ' coins)'; },
+  askPhone: function(item, coins){ return 'Ipa-approve kay Mommy o Tatay: ' + item + ' (' + coins + ' coins). Pindutin ang berdeng button para maipadala sa phone nila, o ipa-type ang PIN dito.\nAsk Mommy or Tatay to approve: ' + item + ' (' + coins + ' coins). Tap the green button to send it to their phone, or they can type the PIN here.'; },
   pinHint: 'PIN of Mommy or Tatay',
   wrongPin: 'Wrong PIN',
   cancel: 'Cancel',
@@ -759,7 +763,9 @@ window.SHOP_TEXT = {
     $('shop-ask').textContent = T.ask(label(item), item.coins);
     $('shop-pin-hint').textContent = T.pinHint;
     $('shop-phone-msg').textContent = '';
-    $('shop-phone').hidden = !(R && C && C.signedIn());
+    var phone = !!(R && C && C.signedIn());
+    $('shop-phone').hidden = !phone;
+    if (phone && T.askPhone) $('shop-ask').textContent = T.askPhone(label(item), item.coins);
     var waiting = R ? R.waiting().filter(function(r){ return r.item === item.id; })[0] : null;
     if (waiting){
       asked = waiting.id;
