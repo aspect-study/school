@@ -17,6 +17,19 @@
 
   var me = L.current();
   var space = L.storage;
+  var device = root.StudyStore.raw;
+
+  // The Firebase login belongs to the whole device, so one sign-in covers both lobbies.
+  // Before 2026-10-02 the flag was saved in a child's own space, so any child's copy still counts.
+  function signedIn() {
+    return device.getItem(SIGNED_IN) === '1' || root.StudyStore.spaces().some(function (id) {
+      return root.StudyStore.space(id).getItem(SIGNED_IN) === '1';
+    });
+  }
+  function markSignedIn(on) {
+    try { if (on) device.setItem(SIGNED_IN, '1'); else device.removeItem(SIGNED_IN); } catch (e) {}
+    root.StudyStore.spaces().forEach(function (id) { root.StudyStore.space(id).put(SIGNED_IN, null); });
+  }
   var fb = null, user = null, busy = false, choice = null, timer = null, typedEmail = '', signingIn = false;
   var status = { text: '', error: false };
 
@@ -133,11 +146,11 @@
     var changed = (u && u.uid) !== (user && user.uid);
     user = u;
     if (u) {
-      space.put(SIGNED_IN, '1');
+      markSignedIn(true);
       if (!timer) timer = setInterval(runSync, EVERY_MS);
       runSync();
     } else {
-      space.put(SIGNED_IN, null);
+      markSignedIn(false);
       if (timer) { clearInterval(timer); timer = null; }
     }
     if (changed) { status = { text: '', error: false }; render(); }
@@ -239,8 +252,8 @@
   root.Cloud.sync = runSync;
   function init() {
     render();
-    if (space.getItem(SIGNED_IN) === '1') connect().catch(function () { setStatus('☁️ Waiting for internet. Everything is saved on this tablet.'); });
-    root.addEventListener('online', function () { if (user) runSync(); else if (space.getItem(SIGNED_IN) === '1' && !fb) connect().catch(function () {}); });
+    if (signedIn()) connect().catch(function () { setStatus('☁️ Waiting for internet. Everything is saved on this tablet.'); });
+    root.addEventListener('online', function () { if (user) runSync(); else if (signedIn() && !fb) connect().catch(function () {}); });
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') runSync(); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
