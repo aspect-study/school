@@ -118,6 +118,7 @@
       box.appendChild(el('p', { class: 'p-note', id: 'cloud-msg' }, status.text));
       go.addEventListener('click', function () {
         typedEmail = email.value.trim();
+        if (!typedEmail || !pass.value) { setStatus('Type the family email and the password first.', true); return; }
         signingIn = true;
         setStatus('Signing in…');
         connect()
@@ -135,6 +136,10 @@
     actions.appendChild(now); actions.appendChild(out);
     box.appendChild(actions);
     box.appendChild(el('p', { class: 'p-note' }, 'Signing out stops syncing. It does not delete anything on this tablet or in the cloud.'));
+    var page = new URL('../parent/', root.location.href).href;
+    var tip = el('p', { class: 'p-note' }, '📱 Parent page for your phone: ');
+    tip.appendChild(el('a', { href: page }, page));
+    box.appendChild(tip);
     now.addEventListener('click', function () { setStatus('☁️ Syncing…'); runSync(); });
     out.addEventListener('click', function () { FR.signOut(); });
   }

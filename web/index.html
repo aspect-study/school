@@ -33,6 +33,10 @@ if (window.Learner && Learner.current()) location.replace(Learner.lobby());
   a:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--accent); }
   a:focus-visible{ outline:3px solid var(--accent); outline-offset:3px; }
   img{ width:56px; height:56px; border-radius:14px; }
+  a.parent-page{
+    padding:8px 14px; border:0; box-shadow:none; background:none; color:var(--muted);
+    font-family:'Nunito',system-ui,sans-serif; font-size:15px; font-weight:700; text-decoration:underline;
+  }
 </style>
 </head>
 <body>
@@ -42,5 +46,6 @@ if (window.Learner && Learner.current()) location.replace(Learner.lobby());
     <a href="lobby/grade-5.html" style="--accent:#1B7A79"><img src="assets/icons/grade5-192.png" alt="">Grade 5</a>
     <a href="lobby/grade-2.html" style="--accent:#D9667B"><img src="assets/icons/grade2-192.png" alt="">Grade 2</a>
   </div>
+  <a class="parent-page" href="parent/">🔒 Parent page (for a parent's phone)</a>
 </body>
 </html>

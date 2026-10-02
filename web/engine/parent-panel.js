@@ -140,7 +140,7 @@
     function renderSummary(s) {
       var box = $('hist-summary');
       box.textContent = '';
-      box.appendChild(el('span', '', '⏱️ Study time: ' + formatDuration(s.studyMs)));
+      box.appendChild(el('span', '', '⏱️ Study time: ' + (s.studyMs > 0 ? formatDuration(s.studyMs) : 'none yet')));
       box.appendChild(el('span', '', '✏️ Quizzes: ' + s.quizzes));
       box.appendChild(el('span', '', '🎯 Average: ' + (s.averagePct === null ? '—' : s.averagePct + '%')));
       if (s.mostMissed) {

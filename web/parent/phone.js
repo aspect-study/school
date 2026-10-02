@@ -213,6 +213,7 @@
   // ---- buttons and lifecycle ----
   $('signin-go').addEventListener('click', function () {
     var email = $('signin-email').value.trim(), pass = $('signin-pass').value;
+    if (!email || !pass) { $('signin-msg').textContent = 'Type the family email and the password first.'; return; }
     $('signin-msg').textContent = 'Signing in…';
     FR.signIn(email, pass).then(function () { $('signin-msg').textContent = ''; }, function (e) { $('signin-msg').textContent = FR.signInError(e); });
   });
