@@ -431,6 +431,7 @@
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
 <script src="../../../engine/powerups.js" data-grade="grade2"></script>
 <script src="../../../engine/recall.js" data-grade="grade2"></script>
+<script src="../../../engine/mastery.js" data-grade="grade2"></script>
 <script src="../../../engine/study-kit.js" data-grade="grade2"></script>
 <script src="lessons/01-review-of-the-alphabet.js"></script>
 <script src="lessons/02-onset-and-rime.js"></script>
@@ -492,6 +493,38 @@
   }
   function buildQuizSet(lesson){
     return shuffle(lesson.quiz).map(prepareQuestion);
+  }
+
+  // The same fields offerQuestion and SH.quizAnswered use, so the review key and history text match.
+  function reviewInfo(item){
+    var right = item.type === 'tf' ? null : item.options.filter(function(o){ return o.correct; })[0];
+    var answer = item.type === 'tf' ? (item.answer ? SH_TRUE : SH_FALSE) : (right || {}).text;
+    return { q: item.q, art: undefined, answer: right ? Recall.textOf(decode(right.text)) : '',
+      historyQ: item.q, historyAnswer: answer };
+  }
+  function reviewPool(){
+    return [].concat.apply([], lessons.map(function(l){ return l.quiz.map(prepareQuestion); }));
+  }
+  function medalLessons(){
+    return lessons.map(function(l){
+      var id = Recall.textOf(l.title);
+      return { id: id, title: id, icon: '', keys: l.quiz.map(prepareQuestion).map(function(q){ return Recall.keyOf(SH_APP, reviewInfo(q)); }) };
+    });
+  }
+  var medals = null;
+  function updateMedals(){
+    if (!window.Mastery || !window.Recall) return null;
+    medals = Mastery.update(SH_APP, medalLessons());
+    if (medals.points) kit.award(medals.points);
+    return medals;
+  }
+  function showMedals(el){
+    var m = updateMedals();
+    if (m) Mastery.showNew(el, m.newly);
+  }
+  function medalBadge(l){
+    var id = window.Recall ? Recall.textOf(l.title) : '';
+    return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
   }
 
   var SH = window.StudyHistory, SH_APP = 'word-train', SH_TITLE = 'Word Train', SH_TRUE = 'True', SH_FALSE = 'False';
@@ -585,6 +618,7 @@
   /* ================= Home ================= */
   function renderHome(){
     document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' points earned';
+    if (window.Mastery && medals) Mastery.renderChip(medals);
     var list = document.getElementById('home-list');
     var finalTotal = lessons.length * FINAL_EXAM_PER_LESSON;
     var finalBest = progress['final'] || 0;
@@ -611,14 +645,27 @@
           '<div class="lesson-info">' +
             '<div class="lesson-tag-label">' + l.tag + '</div>' +
             '<div class="lesson-title">' + l.title + '</div>' +
-            '<div class="mini-stars">' + starsMarkup(stars, 3) + '</div>' +
+            '<div class="mini-stars">' + starsMarkup(stars, 3) + medalBadge(l) + '</div>' +
           '</div>' +
         '</div>' +
         '<button class="btn" data-lesson="' + i + '">' + (best > 0 ? 'Retry Lesson' : 'Start') + '</button>' +
       '</div>';
     }).join('');
 
-    list.innerHTML = finalCard + lessonCards;
+    var rc = window.Recall ? Recall.homeCard(SH_APP) : null;
+    var reviewCard = rc ? '<div class="card lesson-card' + (rc.ready ? '' : ' review-empty') + '">' +
+      '<div class="lesson-top">' +
+        '<svg class="lesson-icon" viewBox="0 0 76 76"><circle cx="38" cy="38" r="34" fill="var(--yellow-soft)"/><text x="38" y="50" font-size="34" text-anchor="middle">🔁</text></svg>' +
+        '<div class="lesson-info">' +
+          '<div class="lesson-tag-label">' + rc.line + '</div>' +
+          '<div class="lesson-title">' + rc.title + '</div>' +
+        '</div>' +
+      '</div>' +
+      (rc.ready ? '<button class="btn" id="btn-review">Start</button>' : '') +
+    '</div>' : '';
+    list.innerHTML = finalCard + reviewCard + lessonCards;
+    var reviewBtn = document.getElementById('btn-review');
+    if (reviewBtn) reviewBtn.addEventListener('click', startReview);
 
     document.getElementById('btn-final-exam').addEventListener('click', function(){
       startFinalExam();
@@ -698,6 +745,17 @@
     currentQuizSet = shuffle(qs);
     currentQuizMeta = { id: 'final', title: 'Word Train Review' };
     historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+    qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetTrain();
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function startReview(){
+    if (!window.Recall) return;
+    currentQuizSet = Recall.pickDue(SH_APP, reviewPool(), reviewInfo);
+    if (!currentQuizSet.length){ goHome(); return; }
+    currentQuizMeta = { id: 'review', title: Recall.text.reviewTitle };
+    historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, 'review', Recall.text.reviewTitle, false, currentQuizSet.length, 'review') : null;
     qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetTrain();
     showScreen('quiz');
     renderQuestion();
@@ -860,6 +918,7 @@
     document.getElementById('stars').innerHTML = starsMarkup(starCount, 3);
     document.getElementById('result-score').textContent = 'You got ' + score + ' out of ' + total + ' questions right on ' + decode(currentQuizMeta.title) + '!';
     document.getElementById('points-earned').textContent = kit.resultLine();
+    showMedals(document.getElementById('points-earned'));
     var msg;
     if (starCount === 3) msg = 'Choo choo! Your train is complete — you’re a Word Train champion!';
     else if (starCount === 2) msg = 'Great job! Your train is almost finished — try again to add the last cars!';
@@ -880,10 +939,14 @@
   }
 
   document.getElementById('btn-retry').addEventListener('click', function(){
+    if (currentQuizMeta.id === 'review') return startReview();
     if (currentQuizMeta.id === 'final') startFinalExam();
     else startQuiz();
   });
 
+  if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
+  showMedals(document.getElementById('points-total-badge'));
   renderHome();
+  if (window.Recall && Recall.wantsReview) startReview();
 })();
 </script>

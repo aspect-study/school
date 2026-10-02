@@ -23,6 +23,8 @@ function __e2eRun() {
   if (mode === 'powerups2') return __e2ePowerUps2(function () { currentLessonIdx = 0; startQuiz(); }, nextQuestion);
   if (mode === 'powerups3') return __e2ePowerUps3(function () { currentLessonIdx = 0; startQuiz(); }, startFinalExam);
   if (mode === 'recall') return __e2eRecall(function () { currentLessonIdx = __e2eTypedLesson(LESSONS); startQuiz(); }, nextQuestion, startFinalExam);
+  if (mode === 'review') return __e2eReview(function () { currentLessonIdx = 0; startQuiz(); }, nextQuestion);
+  if (mode === 'medal') return __e2eMedal(function () { currentLessonIdx = 0; startQuiz(); });
   if (mode !== 'play') return;
 
   var expect = { cardsTotal: LESSONS[0].cards.length, lessonTitle: LESSONS[0].title, wrapLesson: true };

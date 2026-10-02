@@ -56,6 +56,22 @@ function __e2eRun() {
   if (mode === 'powerups') return __e2ePowerUps(function () { currentLessonIdx = 0; startQuiz(); }, nextQuestion, startFinalExam);
   if (mode === 'powerups2') return __e2ePowerUps2(function () { currentLessonIdx = 0; startQuiz(); }, nextQuestion);
   if (mode === 'powerups3') return __e2ePowerUps3(function () { currentLessonIdx = 0; startQuiz(); }, startFinalExam);
+  if (mode === 'medal') return __e2eMedal(function () { currentLessonIdx = 0; startQuiz(); });
+  if (mode === 'review') {
+    currentLessonIdx = 0; startQuiz();
+    var n = currentQuizSet.length;
+    for (var k = 0; k < n; k++) { selectOption(currentQuizSet[quizIdx].correct); nextQuestion(); }
+    var skill = SH_APP + '|skill:' + LESSONS[0].id;
+    var before = JSON.parse(__store.getItem('review_v1')).items[skill];
+    __e2eAllDueToday();
+    startReview();
+    var total = currentQuizSet.length;
+    for (var j = 0; j < total; j++) { selectOption(currentQuizSet[quizIdx].correct); nextQuestion(); }
+    var after = JSON.parse(__store.getItem('review_v1')).items[skill];
+    var mathQuizzes = __e2eHistory().filter(function (e) { return e.type === 'quiz'; });
+    return __e2eOut({ review: { before: before.box, after: after.box, total: total, points: kit.sessionPoints(), kind: mathQuizzes[mathQuizzes.length - 1].kind,
+      resultText: document.getElementById('points-earned').textContent } });
+  }
   if (mode !== 'play') return;
 
   var expect = { cardsTotal: LESSONS[0].flashcards.length, lessonTitle: LESSONS[0].title };

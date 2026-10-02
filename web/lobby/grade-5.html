@@ -376,6 +376,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     </div>
   </div>
 
+  <div class="review-due" id="review-due" hidden></div>
+  <button class="map-open" id="map-open" type="button" aria-expanded="false" aria-controls="map-view" hidden></button>
+  <div class="map-view" id="map-view" hidden></div>
   <div class="grid">
     <a class="subject-card" data-app="history-explorers" href="../subjects/grade-5/araling-panlipunan/index.html?reset=1" style="--card-accent:#A8451F; --card-accent-soft:#F9E8E0; --card-accent-ink:#6E2A10;">
       <div class="subject-emoji">⛵</div>
@@ -641,6 +644,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <script src="../engine/storage.js" data-grade="grade5"></script>
 <script src="../engine/learner.js" data-grade="grade5"></script>
 <script src="../engine/study-history.js" data-grade="grade5"></script>
+<script src="../engine/recall.js" data-grade="grade5"></script>
+<script src="../engine/mastery.js" data-grade="grade5"></script>
 <script src="../engine/wallet.js" data-grade="grade5"></script>
 <script src="../engine/shop-requests.js" data-grade="grade5"></script>
 <script src="../engine/fx.js" data-grade="grade5"></script>
@@ -671,6 +676,23 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 </script>
 <script>
 (function(){
+  function showReview(){ if (window.Recall && Recall.renderLobby) Recall.renderLobby(document.getElementById('review-due'), document.querySelectorAll('.subject-card[data-app]')); }
+  showReview();
+  document.addEventListener('cloud-synced', showReview);
+  function showMap(){ Mastery.renderMap(document.getElementById('map-view'), document.querySelectorAll('.subject-card[data-app]')); }
+  (function(){
+    var btn = document.getElementById('map-open'), view = document.getElementById('map-view');
+    if (!btn || !view || !window.Mastery || !Mastery.renderMap) return;
+    btn.textContent = Mastery.text.mapButton;
+    btn.hidden = false;
+    btn.addEventListener('click', function(){
+      var open = view.hidden;
+      if (open) showMap();
+      view.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('cloud-synced', function(){ if (!view.hidden) showMap(); });
+  })();
   var STORE = window.Learner ? Learner.storage : localStorage;
   function getPoints(key){
     try{ return parseInt(STORE.getItem(key), 10) || 0; }catch(e){ return 0; }

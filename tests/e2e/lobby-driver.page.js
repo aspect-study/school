@@ -62,6 +62,56 @@
     return out(r);
   }
 
+  if (mode === 'review') {
+    var box = $('review-due');
+    __store.removeItem('review_v1');
+    box.hidden = false;
+    Recall.renderLobby(box, document.querySelectorAll('.subject-card[data-app]'));
+    r.newLearnerHidden = box.hidden;
+    var card = document.querySelector('.subject-card[data-app]');
+    var app = card.getAttribute('data-app');
+    var key = function (x) { return x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-' + ('0' + x.getDate()).slice(-2); };
+    var later = new Date();
+    later.setDate(later.getDate() + 2);
+    var items = {};
+    items[app + '|aa'] = { box: 1, due: key(new Date()), t: 1 };
+    items[app + '|bb'] = { box: 2, due: key(later), t: 1 };
+    __store.setItem('review_v1', JSON.stringify({ v: 1, items: items }));
+    Recall.renderLobby(box, document.querySelectorAll('.subject-card[data-app]'));
+    var chip = box.querySelector('.review-chip');
+    r.first = { hidden: box.hidden, text: box.textContent, chips: box.querySelectorAll('.review-chip').length, href: chip && chip.getAttribute('href') };
+    delete items[app + '|aa'];
+    __store.setItem('review_v1', JSON.stringify({ v: 1, items: items }));
+    Recall.renderLobby(box, document.querySelectorAll('.subject-card[data-app]'));
+    r.caughtUp = { hidden: box.hidden, text: box.textContent };
+    __store.setItem('review_v1', JSON.stringify({ v: 1, items: {} }));
+    Recall.renderLobby(box, document.querySelectorAll('.subject-card[data-app]'));
+    r.emptyHidden = box.hidden;
+    r.cardHref = card.getAttribute('href');
+    return out(r);
+  }
+
+  if (mode === 'map') {
+    var mcard = document.querySelector('.subject-card[data-app]'), mapp = mcard.getAttribute('data-app'), apps = {};
+    apps[mapp] = { t: 1, order: ['x', 'y'], lessons: {
+      x: { title: 'Lesson X', icon: '', now: 3, best: 3, paid: 3 },
+      y: { title: 'Lesson Y', icon: '', now: 1, best: 2, paid: 2 } } };
+    __store.setItem('mastery_v1', JSON.stringify({ v: 1, apps: apps }));
+    r.buttonHidden = $('map-open').hidden;
+    $('map-open').click();
+    var view = $('map-view'), mrow = view.querySelector('.map-row[data-app="' + mapp + '"]');
+    r.viewHidden = view.hidden;
+    r.expanded = $('map-open').getAttribute('aria-expanded');
+    r.tiles = Array.prototype.map.call(mrow.querySelectorAll('.map-tile'), function (t) { return { text: t.textContent, href: t.getAttribute('href') }; });
+    r.count = mrow.querySelector('.map-count').textContent;
+    r.empty = view.querySelectorAll('.map-empty').length;
+    r.rows = view.querySelectorAll('.map-row').length;
+    r.cards = document.querySelectorAll('.subject-card[data-app]').length;
+    r.cardHref = mcard.getAttribute('href');
+    $('map-open').click();
+    r.closed = view.hidden;
+    return out(r);
+  }
   if (mode === 'nojs') {
     $('parent-open').click();
     press('0108');

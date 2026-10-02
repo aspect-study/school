@@ -393,6 +393,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 <script src="../../../engine/fx.js" data-grade="grade5"></script>
 <script src="../../../engine/powerups.js" data-grade="grade5"></script>
 <script src="../../../engine/recall.js" data-grade="grade5"></script>
+<script src="../../../engine/mastery.js" data-grade="grade5"></script>
 <script src="../../../engine/study-kit.js" data-grade="grade5"></script>
 <script src="lessons/01-myself.js"></script>
 <script src="lessons/02-saving.js"></script>
@@ -463,6 +464,31 @@ function prepareQuestion(q){
   const why = q.why ? order.map(i=>q.why[i]) : [];
   const whyEn = q.whyEn ? order.map(i=>q.whyEn[i]) : [];
   return {q:q.q, art:q.art, options, correct, explain:q.explain, why, whyEn, tip:q.tip, tipEn:q.tipEn};
+}
+// The same fields offerQuestion and SH.quizAnswered use, so the review key and history text match.
+function reviewInfo(q){
+  const answer = q.options[q.correct];
+  return { q:q.q, art:q.art, answer:Recall.textOf(answer), historyQ: q.art ? q.q + ' [' + answer + ']' : q.q, historyAnswer:answer };
+}
+function reviewPool(){
+  return LESSONS.flatMap(l => l.quiz.map(prepareQuestion));
+}
+function medalLessons(){
+  return LESSONS.map(l => ({ id: l.id, title: Recall.textOf(l.title), icon: l.icon, keys: l.quiz.map(prepareQuestion).map(q => Recall.keyOf(SH_APP, reviewInfo(q))) }));
+}
+let medals = null;
+function updateMedals(){
+  if (!window.Mastery || !window.Recall) return null;
+  medals = Mastery.update(SH_APP, medalLessons());
+  if (medals.points) kit.award(medals.points);
+  return medals;
+}
+function showMedals(el){
+  const m = updateMedals();
+  if (m) Mastery.showNew(el, m.newly);
+}
+function medalBadge(id){
+  return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
 }
 function starsFor(pct){
   if(pct >= 1) return 3;
@@ -541,6 +567,7 @@ function goHome(){ renderHome(); showScreen('home'); }
 
 function renderHome(){
   document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' points earned';
+  if (window.Mastery && medals) Mastery.renderChip(medals);
   const list = document.getElementById('homeList');
   const finalTotal = LESSONS.length * FINAL_EXAM_PER_LESSON;
   const finalBest = progress['final'] || 0;
@@ -554,6 +581,14 @@ function renderHome(){
       <p>${finalTotal} mixed questions from all ${LESSONS.length} lessons</p>
     </div>
     <div class="stars">${starString(starsFor(finalBest/finalTotal))}</div>
+  </div>`;
+  const rc = window.Recall ? Recall.homeCard(SH_APP) : null;
+  if(rc) html += `<div class="item-card${rc.ready ? '' : ' review-empty'}" role="button" tabindex="0" ${rc.ready ? 'onclick="startReview()" onkeydown="cardKey(event)"' : 'aria-disabled="true"'}>
+    <div class="icon">🔁</div>
+    <div class="info">
+      <h3>${rc.title}</h3>
+      <p>${rc.line}</p>
+    </div>
   </div>`;
 
   html += `<div class="item-card strategy-card" role="button" tabindex="0" onclick="showScreen('strategyScreen')" onkeydown="cardKey(event)">
@@ -572,7 +607,7 @@ function renderHome(){
         <h3>${l.title}</h3>
         <p>${l.subtitle}</p>
       </div>
-      <div class="stars">${starString(starsFor(best/l.quiz.length))}</div>
+      <div class="stars">${starString(starsFor(best/l.quiz.length))}${medalBadge(l.id)}</div>
     </div>`;
   });
 
@@ -649,6 +684,21 @@ function startFinalExam(){
   missedQuestions = [];
   kit.startRound();
   document.getElementById('quizTitle').textContent = 'Full Mock Exam';
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+function startReview(){
+  if(!window.Recall) return;
+  currentQuizSet = Recall.pickDue(SH_APP, reviewPool(), reviewInfo);
+  if(!currentQuizSet.length){ goHome(); return; }
+  currentQuizMeta = {id:'review', title:Recall.text.reviewTitle};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, 'review', Recall.text.reviewTitle, false, currentQuizSet.length, 'review') : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  document.getElementById('quizTitle').textContent = Recall.text.reviewTitle;
   document.getElementById('passageBox').innerHTML = '';
   renderQuestion();
   showScreen('quizScreen');
@@ -753,10 +803,12 @@ function renderResults(total){
     n===1 ? 'Good Start!' : 'Keep Practicing!';
   document.getElementById('resultScore').textContent = `You scored ${quizScore} out of ${total}.`;
   document.getElementById('points-earned').textContent = kit.resultLine();
+  showMedals(document.getElementById('points-earned'));
   renderMissedReview();
 }
 
 function retryQuiz(){
+  if (currentQuizMeta.id === 'review') return startReview();
   if(currentQuizMeta.id === 'final'){ startFinalExam(); }
   else { startQuiz(); }
 }
@@ -772,6 +824,9 @@ function renderStrategy(){
   `).join('');
 }
 
+if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
+showMedals(document.getElementById('points-total-badge'));
 renderHome();
 renderStrategy();
+if (window.Recall && Recall.wantsReview) startReview();
 </script>

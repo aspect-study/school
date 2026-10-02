@@ -166,7 +166,7 @@
         final: !!isFinal, total: total, answered: 0, correct: 0, wrong: [],
         finished: false, stars: 0, points: 0, bestStreak: 0
       };
-      if (kind === 'walkthrough' || kind === 'case') fields.kind = kind;
+      if (kind === 'walkthrough' || kind === 'case' || kind === 'review') fields.kind = kind;
       return add(fields);
     };
 
@@ -274,7 +274,7 @@
     api.weakSpots = function (entries, limit) {
       var groups = {}, list = [];
       entries.forEach(function (e) {
-        if (e.type !== 'quiz' || !(e.answered > 0)) return;
+        if (e.type !== 'quiz' || !(e.answered > 0) || e.kind === 'review') return;
         var lesson = e.final ? 'Final Mock Exam' : e.kind === 'walkthrough' ? 'UPAC Walkthrough: ' + e.lessonTitle :
           e.kind === 'case' ? 'Case Study: ' + e.lessonTitle : e.lessonTitle;
         var k = e.app + '\n' + lesson;
@@ -320,7 +320,7 @@
     };
 
     // Points, coins and rest-days ride along with the history, so a wiped tablet can be fully restored.
-    var STATE_KEY_RE = /^(?:[a-z0-9]+_points_v1|wallet_v1|recall_v1)$/;
+    var STATE_KEY_RE = /^(?:[a-z0-9]+_points_v1|wallet_v1|recall_v1|review_v1|mastery_v1)$/;
     // Backups made before learners name the wallet and rest-days after the grade.
     var LEGACY_STATE_KEY = new RegExp('^' + prefix + '_(wallet_v1|recall_v1)$');
 
@@ -392,7 +392,8 @@
           e.testName + ' (+' + numOr0(e.coins) + ' coins)', numOr0(e.score) + ' of ' + numOr0(e.total), '', '', '', '', '', '', '', ''];
       }
       var type = e.type === 'open' ? 'Opened app' : e.type === 'lesson' ? 'Lesson' :
-        e.kind === 'walkthrough' ? 'UPAC walkthrough' : e.kind === 'case' ? 'Case study' : e.final ? 'Final exam' : 'Quiz';
+        e.kind === 'walkthrough' ? 'UPAC walkthrough' : e.kind === 'case' ? 'Case study' : e.kind === 'review' ? 'Review' :
+        e.final ? 'Final exam' : 'Quiz';
       var wrong = Array.isArray(e.wrong) ? e.wrong.filter(Boolean) : [];
       var updatedAt = typeof e.updatedAt === 'number' ? e.updatedAt : e.t;
       return [
@@ -470,6 +471,7 @@
     var sh = create(store, Date.now, grade);
     store.getItem(KEY);
     sh.create = create;
+    sh.plain = plain;
     root.StudyHistory = sh;
   } catch (e) {}
 })(this);

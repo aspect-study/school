@@ -31,6 +31,8 @@ function __e2eRun() {
   if (mode === 'powerups2') return __e2ePowerUps2(function () { currentLesson = 0; startQuiz(); }, function () { document.getElementById('btn-next').click(); });
   if (mode === 'powerups3') return __e2ePowerUps3(function () { currentLesson = 0; startQuiz(); }, startFinalExam);
   if (mode === 'recall') return __e2eRecall(function () { currentLesson = __e2eTypedLesson(lessons); startQuiz(); }, function () { document.getElementById('btn-next').click(); }, startFinalExam);
+  if (mode === 'review') return __e2eReview(function () { currentLesson = 0; startQuiz(); }, function () { document.getElementById('btn-next').click(); });
+  if (mode === 'medal') return __e2eMedal(function () { currentLesson = 0; startQuiz(); });
   if (mode !== 'play') return;
 
   var expect = { cardsTotal: lessons[0].flashcards.length, lessonTitle: lessons[0].title };

@@ -33,6 +33,8 @@
     if (POINTS.test(key)) return 'counter';
     if (key === 'wallet_v1') return 'wallet';
     if (key === 'recall_v1') return 'recall';
+    if (key === 'review_v1') return 'review';
+    if (key === 'mastery_v1') return 'mastery';
     if (key === 'history_v1') return 'history';
     if (key === 'profile_v1') return 'profile';
     if (key === 'coin_guide_seen_v1') return 'flag';
@@ -43,7 +45,62 @@
 
   // Merge rules: a = this device, b = the cloud; either may be null. Each is safe to repeat and gives the same
   // answer in either order, so devices agree whichever syncs first.
+  // A full tie goes to a deletion, then to a review start mark, so either merge order agrees.
+  function reviewRank(it) { return it.gone ? 2 : it.started ? 1 : 0; }
+  function reviewNewer(it, have) {
+    if (it.t !== have.t) return it.t > have.t;
+    if (it.box !== have.box) return it.box > have.box;
+    if (dayNum(it.due) !== dayNum(have.due)) return dayNum(it.due) > dayNum(have.due);
+    return reviewRank(it) > reviewRank(have);
+  }
+
+  // What a medal entry shows apart from best and paid; it breaks a tie between two writes at the same time.
+  function masteryView(e) {
+    return JSON.stringify([e.order, Object.keys(e.lessons).filter(function (k) { return isObj(e.lessons[k]); })
+      .map(function (k) { var l = e.lessons[k]; return [k, l.title, l.icon, l.now]; })]);
+  }
+  function medalLevel(v) { var n = Math.floor(Number(v)); return n >= 1 ? Math.min(n, 3) : 0; }
+  function ownLesson(e, k) { return Object.prototype.hasOwnProperty.call(e.lessons, k) && isObj(e.lessons[k]) ? e.lessons[k] : null; }
+  function masteryApp(newer, older) {
+    var lessons = {};
+    Object.keys(newer.lessons).concat(older ? Object.keys(older.lessons) : []).forEach(function (k) {
+      var l = ownLesson(newer, k), o = older ? ownLesson(older, k) : null, base = l || o;
+      if (!base || Object.prototype.hasOwnProperty.call(lessons, k)) return;
+      lessons[k] = { title: base.title, icon: base.icon, now: base.now,
+        best: Math.max(medalLevel(l && l.best), medalLevel(o && o.best)), paid: Math.max(medalLevel(l && l.paid), medalLevel(o && o.paid)) };
+    });
+    return { t: newer.t, order: newer.order, lessons: lessons };
+  }
+
   var MERGE = {
+    // Review boxes: per question the later answer wins; at the same time the higher box, then the later due day.
+    review: function (a, b) {
+      var items = {};
+      [a, b].forEach(function (x) {
+        if (!x || !isObj(x.items)) return;
+        Object.keys(x.items).forEach(function (k) {
+          var it = x.items[k], have = items[k];
+          if (!isObj(it) || typeof it.t !== 'number' || !isFinite(it.t) || !(it.box >= 1 && it.box <= 5) || !dayNum(it.due)) return;
+          if (!have || reviewNewer(it, have)) items[k] = it;
+        });
+      });
+      return { v: 1, items: items };
+    },
+    // Medals: per app the newer write gives the lessons, titles and current levels; best and paid only go up.
+    mastery: function (a, b) {
+      var apps = {};
+      [a, b].forEach(function (x) {
+        if (!x || !isObj(x.apps)) return;
+        Object.keys(x.apps).forEach(function (id) {
+          var e = x.apps[id], have = apps[id];
+          if (!isObj(e) || !isObj(e.lessons) || typeof e.t !== 'number' || !isFinite(e.t)) return;
+          if (!have) { apps[id] = masteryApp(e, null); return; }
+          var eNewer = e.t !== have.t ? e.t > have.t : masteryView(e) > masteryView(have);
+          apps[id] = eNewer ? masteryApp(e, have) : masteryApp(have, e);
+        });
+      });
+      return { v: 1, apps: apps };
+    },
     recall: function (a, b) {
       var rest = {};
       [a, b].forEach(function (x) {
@@ -119,7 +176,7 @@
         var w = json(space.getItem('wallet_v1'), null);
         return w ? { baselines: w.baselines || {}, purchases: w.purchases || [], oldPointsCounted: w.oldPointsCounted === true } : null;
       }
-      if (kind === 'recall' || kind === 'profile' || kind === 'requests') return json(space.getItem(key), null);
+      if (kind === 'recall' || kind === 'review' || kind === 'mastery' || kind === 'profile' || kind === 'requests') return json(space.getItem(key), null);
       return space.getItem(key);
     }
     function writeLocal(kind, key, value) {
@@ -134,7 +191,7 @@
         w.purchases = value.purchases;
         w.oldPointsCounted = value.oldPointsCounted;
         space.put('wallet_v1', JSON.stringify(w));
-      } else if (kind === 'recall' || kind === 'profile' || kind === 'requests') {
+      } else if (kind === 'recall' || kind === 'review' || kind === 'mastery' || kind === 'profile' || kind === 'requests') {
         space.put(key, JSON.stringify(value));
       } else {
         space.put(key, String(value));

@@ -219,18 +219,97 @@ function __e2eRecallRound(start, next, typed) {
   return r;
 }
 
+function __e2eToday(plusDays) {
+  var d = new Date();
+  d.setDate(d.getDate() + (plusDays || 0));
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+}
+
+function __e2eAllDueToday() {
+  var store = JSON.parse(__store.getItem('review_v1'));
+  Object.keys(store.items).forEach(function (k) { store.items[k].due = __e2eToday(); });
+  __store.setItem('review_v1', JSON.stringify(store));
+  return store;
+}
+
 function __e2eRecall(startLesson, next, startExam) {
-  var key = 'recall_v1';
   var r = {};
   r.first = __e2eRecallRound(startLesson, next, 'wrong');
   r.second = __e2eRecallRound(startLesson, next, 'wrong');
-  var store = JSON.parse(__store.getItem(key));
-  var d = new Date();
-  d.setDate(d.getDate() - 3);
-  var back = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
-  Object.keys(store.rest).forEach(function (k) { store.rest[k] = back; });
-  __store.setItem(key, JSON.stringify(store));
+  var store = __e2eAllDueToday();
+  r.boxesBefore = Object.keys(store.items).map(function (k) { return store.items[k].box; });
   r.third = __e2eRecallRound(startLesson, next, 'right');
+  __store.setItem('review_v1', JSON.stringify({ v: 1, items: {} }));
   r.exam = __e2eRecallRound(startExam, next, null);
   __e2eOut({ recall: r, hasRecall: !!window.Recall });
+}
+
+// Every question's reviewInfo key must equal the key Recall used when it was shown.
+function __e2eReview(startLesson, next) {
+  var r = { keysMatch: 0, keysWrong: 0 }, missedKey = null;
+  startLesson();
+  for (var k = 0; k < currentQuizSet.length; k++) {
+    var q = currentQuizSet[__e2eIdx()];
+    if (Recall.lastKey() === Recall.keyOf(SH_APP, reviewInfo(q))) r.keysMatch++; else r.keysWrong++;
+    if (k === 0) missedKey = Recall.lastKey();
+    __e2eAnswer(k !== 0);
+    next();
+  }
+  r.dueToday = Recall.dueCount(SH_APP);
+  __e2eAllDueToday();
+  r.due = Recall.dueCount(SH_APP);
+  startReview();
+  r.reviewTotal = currentQuizSet.length;
+  r.reviewTitle = currentQuizMeta.title;
+  var played = currentQuizSet.map(function (pq) { return Recall.keyOf(SH_APP, reviewInfo(pq)); });
+  for (var j = 0; j < r.reviewTotal; j++) { __e2eAnswer(true); next(); }
+  var items = JSON.parse(__store.getItem('review_v1')).items;
+  r.missedPlayed = played.indexOf(missedKey) >= 0;
+  r.missedAfter = items[missedKey];
+  r.othersAfter = played.filter(function (pk) { return pk !== missedKey; }).map(function (pk) { return items[pk]; });
+  r.in3 = __e2eToday(3);
+  r.in7 = __e2eToday(7);
+  var quizzes = __e2eHistory().filter(function (e) { return e.type === 'quiz'; });
+  r.kind = quizzes[quizzes.length - 1].kind;
+  r.points = quizzes[quizzes.length - 1].points;
+  r.resultText = document.getElementById('points-earned').textContent;
+  startReview();
+  r.retryTotal = currentQuizMeta.id === 'review' ? currentQuizSet.length : 0;
+  __e2eOut({ review: r });
+}
+
+function __e2eMedal(startLesson) {
+  var r = {}, lesson = medalLessons()[0];
+  function texts(sel) { return Array.prototype.map.call(document.querySelectorAll(sel), function (e) { return e.textContent; }); }
+  function round() {
+    var before = kit.totalPoints();
+    startLesson(lesson);
+    __e2eAnswerAll(true);
+    return kit.totalPoints() - before - kit.sessionPoints();
+  }
+  function setBox(keys, box) {
+    var store = JSON.parse(__store.getItem('review_v1') || '{"v":1,"items":{}}');
+    keys.forEach(function (k) { store.items[k] = { box: box, due: __e2eToday(30), t: Date.now() }; });
+    __store.setItem('review_v1', JSON.stringify(store));
+  }
+  r.first = round();
+  setBox(lesson.keys, 3);
+  r.second = round();
+  r.newText = texts('.medal-new').join(' | ');
+  var saved = JSON.parse(__store.getItem('mastery_v1')).apps[SH_APP].lessons[lesson.id];
+  r.saved = { now: saved.now, best: saved.best, paid: saved.paid };
+  r.third = round();
+  renderHome();
+  r.badges = texts('.medal');
+  r.chip = (document.getElementById('medal-chip') || {}).textContent || '';
+  setBox(lesson.keys.slice(0, 1), 1);
+  r.slipPaid = updateMedals().points;
+  renderHome();
+  r.slipBadges = texts('.medal');
+  Mastery.showNew(document.getElementById('points-total-badge'), [{ level: 1, title: 'X', points: 20 }]);
+  renderHome();
+  r.homeLineFirst = document.querySelectorAll('.medal-new[data-home]').length;
+  renderHome();
+  r.homeLineAfter = document.querySelectorAll('.medal-new[data-home]').length;
+  __e2eOut({ medal: r });
 }

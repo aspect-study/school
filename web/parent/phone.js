@@ -152,6 +152,7 @@
     renderRequests();
     renderRecent();
     renderCoins();
+    renderMedals();
     child.panel.render();
   }
 
@@ -209,6 +210,25 @@
     $('kid-name').textContent = label(child.learner);
     $('kid-coins').textContent = '🪙 ' + coins + (coins === 1 ? ' coin' : ' coins') + ' · ⭐ ' + total + ' points';
     renderShop(points);
+  }
+
+  function renderMedals() {
+    var box = $('medals'), polish = [];
+    box.textContent = '';
+    box.hidden = !window.Mastery;
+    if (!window.Mastery) return;
+    var apps = Mastery.read(child.space).apps;
+    box.appendChild(el('h3', '', '🏅 Medals'));
+    child.subjects.forEach(function (s) {
+      var e = apps[s.app];
+      if (!e) { box.appendChild(el('div', 'p-note', s.title + ' · not opened since medals were added')); return; }
+      var c = Mastery.counts(e);
+      box.appendChild(el('div', '', s.title + ' · 🥇 ' + c.gold + ' · 🥈 ' + c.silver + ' · 🥉 ' + c.bronze + ' of ' + c.total));
+      Mastery.polishList(e).forEach(function (t) { polish.push(s.title + ': ' + t); });
+    });
+    if (!polish.length) return;
+    box.appendChild(el('h3', '', '🔧 Needs a polish'));
+    polish.forEach(function (t) { box.appendChild(el('div', '', t)); });
   }
 
   function renderShop(points) {

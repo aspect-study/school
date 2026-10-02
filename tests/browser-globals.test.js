@@ -32,3 +32,14 @@ test('the parent page can build a wallet and a history on a child\'s in-memory s
   h.testScore('rise-shine', 'GMRC', 'ST1', 19, 20, 40);
   assert.equal(h.findTest('rise-shine', 'st1').score, 19);
 });
+
+test('the parent page can read medals from a child\'s in-memory space', () => {
+  const win = browser('storage.js', 'mastery.js');
+  const s = win.StudyStore.memorySpace('kid');
+  s.put('mastery_v1', JSON.stringify({ v: 1, apps: { 'life-lab': { t: 1, order: ['a', 'b'], lessons: {
+    a: { title: 'Plants', now: 3, best: 3, paid: 3 }, b: { title: 'Rocks', now: 1, best: 2, paid: 2 } } } } }));
+  const e = win.Mastery.read(s).apps['life-lab'];
+  assert.deepEqual({ ...win.Mastery.counts(e) }, { gold: 1, silver: 1, bronze: 0, total: 2 });
+  assert.deepEqual([...win.Mastery.polishList(e)], ['Rocks']);
+  assert.equal(win.Mastery.update, undefined, 'no grade: no game helpers');
+});

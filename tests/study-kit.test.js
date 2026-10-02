@@ -188,3 +188,41 @@ test('lessons come back in the order their files loaded, and content by name', (
   lib.content('strategy', [{ title: 'Read twice' }]);
   assert.deepEqual(lib.content('strategy'), [{ title: 'Read twice' }]);
 });
+
+test('a wrong answer tells Recall, so the question goes back to box 1', () => {
+  const calls = [];
+  const recall = { points() { return 10; }, missed() { calls.push('missed'); }, resultLine() { return ''; } };
+  const { kit } = page({ recall });
+  kit.answer(false, { helped: false });
+  kit.answer(true, { helped: false });
+  assert.deepEqual(calls, ['missed']);
+});
+
+test('extra points are added to an unhelped right answer only', () => {
+  const { kit } = page();
+  assert.equal(kit.answer(true, { helped: false, extra: 6 }), RULES.POINTS_PER_CORRECT + 6);
+  assert.equal(kit.answer(true, { helped: true, extra: 6 }), RULES.POINTS_PER_CORRECT / 2);
+  assert.equal(kit.answer(false, { helped: false, extra: 6 }), 0);
+});
+
+test('a shielded wrong answer still tells Recall and keeps the streak', () => {
+  const calls = [];
+  const recall = { points() { return 10; }, missed() { calls.push('missed'); }, resultLine() { return ''; } };
+  const { kit } = page({ recall, shield: true });
+  kit.answer(true, { helped: false });
+  kit.answer(false, { helped: false });
+  assert.deepEqual(calls, ['missed']);
+  assert.equal(kit.streak(), 1);
+});
+
+test('award adds milestone points to the total but not to the round', () => {
+  const { kit, root, log } = page();
+  kit.startRound();
+  kit.answer(true, {});
+  kit.award(40);
+  kit.award(0);
+  assert.equal(kit.sessionPoints(), 10);
+  assert.equal(kit.totalPoints(), 50);
+  assert.equal(root.localStorage.data.riseshine_points_v1, '50');
+  assert.equal(log.filter((l) => l[0] === 'renderCoins').length, 2, 'coins redrawn after the answer and the award only');
+});

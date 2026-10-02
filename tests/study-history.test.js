@@ -467,6 +467,15 @@ test('exportCsv labels walkthrough and case rounds', () => {
   assert.equal(cols(lines[2])[7], '', 'Stars is blank for a case study row');
 });
 
+test('exportCsv labels a review round as Review', () => {
+  const { sh } = setup();
+  const r = sh.quizStarted('word-train', 'Word Train', 'review', 'Review', false, 3, 'review');
+  sh.quizAnswered(r, true, 'Q1', 'a', 'a');
+  sh.quizFinished(r, 0, 12, 1);
+  const lines = sh.exportCsv().slice(1).split('\r\n');
+  assert.match(lines[1], /^[^,]*,[^,]*,Word Train,Review,Review,1 of 3,/);
+});
+
 test('history is saved as history_v1 in the learner space given, whatever the grade', () => {
   const storage = memStorage();
   const clock = makeClock();
@@ -624,6 +633,8 @@ test('a full backup carries points, wallet, rest-days and her name, for its own 
     lifelab_points_v1: '420',
     wallet_v1: '{"v":1,"spent":40}',
     recall_v1: '{"v":1,"rest":{}}',
+    review_v1: '{"v":1,"items":{}}',
+    mastery_v1: '{"v":1,"apps":{}}',
     history_v1: '[]',
     'not a key': 'x',
     mathmastery_points_v1: 7,
@@ -631,7 +642,7 @@ test('a full backup carries points, wallet, rest-days and her name, for its own 
   const backup = sh.exportJson(state, { id: 'l1', name: 'Ana', emoji: '🌻', grade: 5 });
   assert.deepEqual(sh.backupState(backup), {
     exportedAt: clock.ms,
-    state: { lifelab_points_v1: '420', wallet_v1: '{"v":1,"spent":40}', recall_v1: '{"v":1,"rest":{}}' },
+    state: { lifelab_points_v1: '420', wallet_v1: '{"v":1,"spent":40}', recall_v1: '{"v":1,"rest":{}}', review_v1: '{"v":1,"items":{}}', mastery_v1: '{"v":1,"apps":{}}' },
     learner: { name: 'Ana', emoji: '🌻' },
   });
   assert.equal(create(memStorage(), clock.now, 'grade2').backupState(backup), null, 'another grade never restores it');
@@ -702,4 +713,17 @@ test('a purchase remembers how it was approved: the PIN on the tablet or the par
   sh.purchased('ml', 'ML game', 40, 'pin');
   sh.purchased('ml', 'ML game', 40, 'anything else');
   assert.deepEqual(saved(storage).map((e) => e.via), ['phone', 'pin', undefined]);
+});
+
+test('a Review round is saved with kind review and kept out of Needs practice', () => {
+  const { sh } = setup();
+  const id = sh.quizStarted('life-lab', 'Life Lab', 'review', 'Review', false, 5, 'review');
+  sh.quizAnswered(id, false, 'Q1', 'x', 'A1');
+  sh.quizAnswered(id, false, 'Q2', 'x', 'A2');
+  sh.quizAnswered(id, false, 'Q3', 'x', 'A3');
+  sh.quizAnswered(id, false, 'Q4', 'x', 'A4');
+  sh.quizAnswered(id, false, 'Q5', 'x', 'A5');
+  const entries = sh.list();
+  assert.equal(entries[0].kind, 'review');
+  assert.deepEqual(sh.weakSpots(entries), []);
 });

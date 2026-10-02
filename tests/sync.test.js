@@ -241,6 +241,7 @@ test('syncing twice in a row changes nothing', async () => {
 
 test('which keys sync, and how', () => {
   assert.equal(kindOf('riseshine_points_v1'), 'counter');
+  assert.equal(kindOf('review_v1'), 'review');
   assert.equal(kindOf('kuwentista_progress_v2_day'), 'progress');
   assert.equal(kindOf('last_backup_v1'), null);
   assert.equal(kindOf('history_corrupt_v1_5'), null);
@@ -457,4 +458,133 @@ test('a purchase made during the cloud round trip stays in the wallet', async ()
   assert.ok(wallet(tablet).purchases.some((p) => p.item === 'late'));
   await tablet.sync();
   assert.ok(cloud.db.ana.state.wallet_v1.value.purchases.some((p) => p.item === 'late'));
+});
+
+test('review boxes: the later answer wins per question, in either order', () => {
+  const a = { v: 1, items: { q1: { box: 3, due: '2026-10-09', t: 200 }, q2: { box: 1, due: '2026-10-03', t: 100 } } };
+  const b = { v: 1, items: { q1: { box: 1, due: '2026-10-03', t: 150 }, q2: { box: 2, due: '2026-10-05', t: 300 }, q3: { box: 2, due: '2026-10-04', t: 1 } } };
+  const want = { v: 1, items: { q1: a.items.q1, q2: b.items.q2, q3: b.items.q3 } };
+  assert.deepEqual(MERGE.review(a, b), want);
+  assert.deepEqual(MERGE.review(b, a), want);
+  assert.deepEqual(MERGE.review(MERGE.review(a, b), b), want, 'safe to repeat');
+});
+
+test('review boxes: at the same time the higher box wins; junk is dropped', () => {
+  const a = { v: 1, items: { q: { box: 2, due: '2026-10-05', t: 5 }, bad: 7 } };
+  const b = { v: 1, items: { q: { box: 3, due: '2026-10-09', t: 5 } } };
+  assert.deepEqual(MERGE.review(a, b).items, { q: b.items.q });
+  assert.deepEqual(MERGE.review(b, a).items, { q: b.items.q });
+  assert.deepEqual(MERGE.review(null, b), { v: 1, items: b.items });
+});
+
+test('review boxes: a pruned question stays gone whichever device syncs first', () => {
+  const recall = require(engineFile('recall.js'));
+  const store = (v) => ({ data: { review_v1: JSON.stringify(v) }, getItem(k) { return k in this.data ? this.data[k] : null; }, setItem(k, x) { this.data[k] = String(x); } });
+  const now = () => new Date(2026, 9, 2, 10).getTime();
+  const info = (q) => ({ q: q.q, answer: q.a, historyQ: q.q, historyAnswer: q.a });
+  const kept = { q: 'kept', a: 'k' }, old = { q: 'old', a: 'o' };
+  const k1 = recall.keyOf('a', info(kept)), k2 = recall.keyOf('a', info(old));
+  const both = { v: 1, items: { [k1]: { box: 1, due: '2026-10-01', t: 1 }, [k2]: { box: 2, due: '2026-10-01', t: 1 } } };
+  const deviceA = store(both);
+  recall.create(deviceA, now, 'grade5').tidy('a', [kept], info, []);
+  const pruned = JSON.parse(deviceA.data.review_v1);
+  assert.equal(pruned.items[k2].gone, true, 'kept as a tombstone');
+  for (const merged of [MERGE.review(pruned, both), MERGE.review(both, pruned)]) {
+    assert.equal(merged.items[k2].gone, true);
+    const r = recall.create(store(merged), now, 'grade5');
+    assert.equal(r.dueCount('a'), 1);
+    assert.deepEqual(r.pickDue('a', [kept, old], info).map((q) => q.q), ['kept']);
+  }
+});
+
+test('review boxes: extra fields like started pass through the merge', () => {
+  const a = { v: 1, items: { s: { box: 2, due: '2026-10-02', t: 5, started: '2026-10-02' } } };
+  assert.deepEqual(MERGE.review(a, null).items, a.items);
+  assert.deepEqual(MERGE.review(null, a).items, a.items);
+});
+
+test('review boxes: a stale start mark never beats a newer grade', () => {
+  const stale = { v: 1, items: { s: { box: 2, due: '2026-10-01', t: 5, started: '2026-10-02' } } };
+  const graded = { v: 1, items: { s: { box: 3, due: '2026-10-09', t: 9 } } };
+  assert.deepEqual(MERGE.review(stale, graded).items, graded.items);
+  assert.deepEqual(MERGE.review(graded, stale).items, graded.items);
+});
+
+test('review boxes: on a full tie gone wins, then started, in either order', () => {
+  const plain = { v: 1, items: { s: { box: 2, due: '2026-10-01', t: 5 } } };
+  const started = { v: 1, items: { s: { box: 2, due: '2026-10-01', t: 5, started: '2026-10-02' } } };
+  const gone = { v: 1, items: { s: { box: 2, due: '2026-10-01', t: 5, gone: true } } };
+  assert.deepEqual(MERGE.review(plain, started).items, started.items);
+  assert.deepEqual(MERGE.review(started, plain).items, started.items);
+  assert.deepEqual(MERGE.review(plain, gone).items, gone.items);
+  assert.deepEqual(MERGE.review(gone, plain).items, gone.items);
+  assert.deepEqual(MERGE.review(started, gone).items, gone.items);
+  assert.deepEqual(MERGE.review(gone, started).items, gone.items);
+});
+
+test('review boxes: a malformed item never beats a valid one at the same time', () => {
+  const good = { v: 1, items: { q: { box: 2, due: '2026-10-05', t: 5 } } };
+  const junk = { v: 1, items: { q: { box: 'x', t: 5 } } };
+  assert.deepEqual(MERGE.review(good, junk).items, good.items);
+  assert.deepEqual(MERGE.review(junk, good).items, good.items);
+});
+
+test('medals: per app the newer write wins, best and paid never go down, in either order', () => {
+  const a = { v: 1, apps: { 'life-lab': { t: 200, order: ['l1', 'l2'], lessons: {
+    l1: { title: 'Plants', icon: '🌱', now: 1, best: 2, paid: 1 },
+    l2: { title: 'Rocks', icon: '', now: 0, best: 0, paid: 0 } } } } };
+  const b = { v: 1, apps: {
+    'life-lab': { t: 100, order: ['l1'], lessons: { l1: { title: 'Old', icon: '🌱', now: 3, best: 3, paid: 3 } } },
+    'word-train': { t: 5, order: [], lessons: {} } } };
+  const want = { v: 1, apps: {
+    'life-lab': { t: 200, order: ['l1', 'l2'], lessons: {
+      l1: { title: 'Plants', icon: '🌱', now: 1, best: 3, paid: 3 },
+      l2: { title: 'Rocks', icon: '', now: 0, best: 0, paid: 0 } } },
+    'word-train': { t: 5, order: [], lessons: {} } } };
+  assert.deepEqual(MERGE.mastery(a, b), want);
+  assert.deepEqual(MERGE.mastery(b, a), want);
+  assert.deepEqual(MERGE.mastery(MERGE.mastery(a, b), b), want, 'safe to repeat');
+  assert.deepEqual(MERGE.mastery(null, b), MERGE.mastery(b, null));
+  assert.equal(kindOf('mastery_v1'), 'mastery');
+});
+
+test('medals: at the same time either order agrees; junk apps are dropped', () => {
+  const x = { v: 1, apps: { a: { t: 5, order: ['l'], lessons: { l: { title: 'X', icon: '', now: 2, best: 2, paid: 2 } } } } };
+  const y = { v: 1, apps: { a: { t: 5, order: ['l'], lessons: { l: { title: 'Y', icon: '', now: 1, best: 3, paid: 1 } } } } };
+  assert.deepEqual(MERGE.mastery(x, y), MERGE.mastery(y, x));
+  assert.deepEqual(MERGE.mastery(MERGE.mastery(x, y), y), MERGE.mastery(x, y), 'safe to repeat');
+  assert.deepEqual(MERGE.mastery({ v: 1, apps: { p: 'nope', q: { t: 'z', lessons: {} }, r: { t: 1 } } }, null), { v: 1, apps: {} });
+});
+
+test('medals travel to a second device and merge back', async () => {
+  const cloud = fakeCloud();
+  const a = device(cloud), b = device(cloud);
+  const m = (best, t) => JSON.stringify({ v: 1, apps: { 'life-lab': { t, order: ['l1'], lessons: { l1: { title: 'Plants', icon: '', now: best, best, paid: best } } } } });
+  a.s.setItem('mastery_v1', m(2, 10));
+  await a.sync();
+  await b.sync();
+  assert.equal(JSON.parse(b.s.getItem('mastery_v1')).apps['life-lab'].lessons.l1.best, 2);
+  b.s.setItem('mastery_v1', m(1, 20));
+  await b.sync();
+  await a.sync();
+  const l1 = JSON.parse(a.s.getItem('mastery_v1')).apps['life-lab'].lessons.l1;
+  assert.deepEqual({ now: l1.now, best: l1.best, paid: l1.paid }, { now: 1, best: 2, paid: 2 });
+});
+
+test('medals: a lesson only in the older copy survives, in either order and when repeated', () => {
+  const a = { v: 1, apps: { g: { t: 200, order: ['l1'], lessons: { l1: { title: 'A', icon: '', now: 1, best: 1, paid: 1 } } } } };
+  const b = { v: 1, apps: { g: { t: 100, order: ['l1', 'l2'], lessons: {
+    l1: { title: 'A', icon: '', now: 1, best: 1, paid: 1 }, l2: { title: 'B', icon: '', now: 2, best: 2, paid: 2 } } } } };
+  const ab = MERGE.mastery(a, b), ba = MERGE.mastery(b, a);
+  assert.deepEqual(ab, ba);
+  assert.deepEqual(ab.apps.g.order, ['l1']);
+  assert.equal(ab.apps.g.lessons.l2.paid, 2);
+  assert.deepEqual(MERGE.mastery(ab, b), ab);
+  assert.deepEqual(MERGE.mastery(ab, a), ab);
+});
+
+test('medals: junk best and paid are clamped to 0..3', () => {
+  const x = { v: 1, apps: { g: { t: 5, order: ['l'], lessons: { l: { title: 'X', icon: '', now: 1, best: 9, paid: -4 } } } } };
+  const l = MERGE.mastery(x, null).apps.g.lessons.l;
+  assert.deepEqual({ best: l.best, paid: l.paid }, { best: 3, paid: 0 });
 });

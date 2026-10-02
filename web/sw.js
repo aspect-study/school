@@ -19,6 +19,7 @@ const PRECACHE = [
   'engine/firebase-remote.js',
   'engine/fx.js',
   'engine/learner.js',
+  'engine/mastery.js',
   'engine/parent-panel.js',
   'engine/powerups.js',
   'engine/recall.js',

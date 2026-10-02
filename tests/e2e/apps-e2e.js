@@ -29,6 +29,7 @@ const grade = process.argv[2] === '5' ? 5 : 2;
 const key = 'history_v1';
 const APPS = grade === 5 ? GRADE5_APPS : GRADE2_APPS;
 const { plain } = require(engineFile('study-history.js'));
+const REVIEW_TITLE = require(engineFile('recall.js')).TEXT['grade' + grade].reviewTitle;
 
 const read = (name) => fs.readFileSync(path.join(__dirname, name), 'utf8');
 
@@ -243,11 +244,67 @@ function checkRecall(app, out) {
   assert.equal(second.bars, 0, 'no power-up bar on a resting question');
   assert.match(second.resultText, /⏳/, 'the results screen says questions were resting');
   assert.ok(third.typedBoxes > 0, 'the chosen lesson has a typed question');
-  assert.equal(third.resting, 0, '3 days later every question pays again');
-  assert.equal(third.points, perfect(10, third.total) + 5 * third.typedBoxes, 'typed answers add 5 each');
+  assert.equal(third.resting, 0, 'due questions pay again');
+  assert.equal(out.recall.boxesBefore.every((b) => b === 2), true, 'the first round put every question in box 2');
+  assert.equal(third.points, perfect(10, third.total) + 5 * third.typedBoxes + 4 * third.total, 'typed answers add 5, box 2 adds 4 each');
+  assert.match(third.resultText, /📦/, 'the results screen says questions moved up');
   assert.equal(third.typedLogged, third.typedBoxes, 'history counts typed answers');
   assert.equal(exam.points, perfect(20, exam.total), 'the mock exam pays 20 a question');
   console.log('  recall: typed ' + third.typedBoxes + ', exam ' + exam.points + ' pts');
+}
+
+// A wrong answer is due tomorrow and a right one in 3 days, so nothing is due today until the driver moves the days.
+function checkReview(app, out) {
+  assert.deepEqual(out.errors, [], 'review: page errors');
+  const r = out.review;
+  assert.equal(r.keysWrong, 0, 'reviewInfo gives the same key Recall used');
+  assert.ok(r.keysMatch > 0);
+  assert.equal(r.dueToday, 0, 'nothing is due on the day it was answered');
+  assert.equal(r.reviewTotal, Math.min(10, r.due), 'a review round takes up to 10 due questions');
+  assert.equal(r.kind, 'review');
+  assert.equal(r.reviewTitle, REVIEW_TITLE);
+  const n = r.reviewTotal;
+  const bonus = 2 + 4 * (n - 1);
+  assert.equal(r.points, 10 * n + 5 * Math.max(0, n - 2) + bonus, 'the missed question (box 1, +2) comes first, the rest are box 2 (+4)');
+  assert.match(r.resultText, new RegExp('📦 ' + n + ' .*\\+' + bonus + ' review bonus\\)'), 'moved-up count and bonus');
+  assert.equal(r.missedPlayed, true, 'the missed question is in the review');
+  assert.deepEqual([r.missedAfter.box, r.missedAfter.due], [2, r.in3], 'box 1 right moves to box 2, due in 3 days');
+  assert.equal(r.othersAfter.length, n - 1);
+  r.othersAfter.forEach((it) => assert.deepEqual([it.box, it.due], [3, r.in7], 'box 2 right moves to box 3, due in 7 days'));
+  assert.equal(r.retryTotal, Math.min(10, r.due - r.reviewTotal), 'what was just answered rests; retry plays only what is still due');
+  console.log('  review: ' + r.reviewTotal + ' of ' + r.due + ' due, ' + r.points + ' pts');
+}
+
+function checkMathReview(out) {
+  assert.deepEqual(out.errors, [], 'review: page errors');
+  const r = out.review;
+  assert.equal(r.before, 2, 'a perfect lesson quiz puts the skill in box 2');
+  assert.equal(r.after, 3, 'a perfect review moves it to box 3');
+  assert.equal(r.total, 3, 'one due skill = 3 fresh problems');
+  assert.equal(r.kind, 'review', 'history logs the skill review as a review');
+  assert.equal(r.points, 3 * (10 + 4) + 5, 'RULES: 10 a question + box 2 bonus 4 each, +5 streak bonus on the 3rd in a row');
+  assert.match(r.resultText, /📦/);
+  console.log('  skill review: ' + r.points + ' pts');
+}
+
+function checkMedal(app, out) {
+  assert.deepEqual(out.errors, [], 'medal: page errors');
+  const m = out.medal;
+  if (app.family === 'math') assert.deepEqual([m.first, m.second], [20, 40], 'a skill at box 2 pays Bronze, at box 3 Silver');
+  else {
+    assert.ok(m.first === 0 || m.first === 20, 'Bronze only when the quiz covered the whole lesson: ' + m.first);
+    assert.equal(m.first + m.second, 60, 'Bronze and Silver pay 20 + 40, once each');
+  }
+  assert.equal(m.third, 0, 'replaying after the medal is paid pays nothing');
+  assert.equal(m.homeLineFirst, 1, 'the open-time medal line shows on the first home screen');
+  assert.equal(m.homeLineAfter, 0, 'and is gone the next time');
+  assert.match(m.newText, /🏅/, 'the results show the new medal');
+  assert.deepEqual(m.saved, { now: 2, best: 2, paid: 2 });
+  assert.ok(m.badges.includes('🥈'), 'the lesson card shows Silver: ' + m.badges.join(' '));
+  assert.match(m.chip, /🥈 1/, 'the header chip counts it');
+  assert.equal(m.slipPaid, 0, 'a slip pays nothing');
+  assert.ok(m.slipBadges.includes('🥈🔧'), 'a slipped lesson keeps its medal with a polish mark');
+  console.log('  medal: ' + m.first + ' + ' + m.second + ' pts');
 }
 
 const work = makeWorkDir('study-history-e2e');
@@ -264,7 +321,7 @@ for (const app of APPS) {
   const html = injectDriver(fs.readFileSync(appFile(app.slug), 'utf8'), driver);
   const file = stage(withJs, page, html, WITHOUT_RECALL);
   const noJsFile = stage(noJs, page, html, ['study-kit.js']);
-  const recallFile = app.family !== 'math' && stage(withRecall, page, html, ENGINE_FILES);
+  const recallFile = stage(withRecall, page, html, ENGINE_FILES);
   const profile = path.join(work, 'profile-' + app.slug);
   try {
     dumpDom(profile, file, '#e2e=seed');
@@ -274,7 +331,13 @@ for (const app of APPS) {
     checkPowerUps(app, readOutput(dumpDom(profile, file, '#e2e=powerups')));
     checkPowerUps2(app, readOutput(dumpDom(profile, file, '#e2e=powerups2')));
     checkPowerUps3(app, readOutput(dumpDom(profile, file, '#e2e=powerups3')));
-    if (app.family !== 'math') checkRecall(app, readOutput(dumpDom(path.join(work, 'profile-recall-' + app.slug), recallFile, '#e2e=recall')));
+    const reviewOut = readOutput(dumpDom(path.join(work, 'profile-review-' + app.slug), recallFile, '#e2e=review'));
+    if (app.family === 'math') checkMathReview(reviewOut);
+    else {
+      checkRecall(app, readOutput(dumpDom(path.join(work, 'profile-recall-' + app.slug), recallFile, '#e2e=recall')));
+      checkReview(app, reviewOut);
+    }
+    checkMedal(app, readOutput(dumpDom(path.join(work, 'profile-medal-' + app.slug), recallFile, '#e2e=medal')));
     checkNoJs(readOutput(dumpDom(path.join(work, 'profile-nojs-' + app.slug), noJsFile, '#e2e=nojs')));
     console.log('PASS ' + app.slug);
   } catch (err) {

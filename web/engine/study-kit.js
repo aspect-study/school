@@ -64,6 +64,7 @@
         renderLive();
       },
       // opts.shield: false for answers that never had power-ups, so an unused Streak Shield is not spent.
+      // opts.extra: points added to an unhelped right answer (Math Mastery's review bonus).
       answer: function (correct, o) {
         var pts = 0;
         if (correct) {
@@ -72,17 +73,26 @@
           var base = o.exam ? RULES.EXAM_POINTS_PER_CORRECT : RULES.POINTS_PER_CORRECT;
           var bonus = streak >= RULES.STREAK_BONUS_AT ? RULES.STREAK_BONUS : 0;
           pts = win.Recall ? win.Recall.points(!!o.helped, base, bonus) : o.helped ? base / 2 : base + bonus;
+          if (!o.helped && o.extra) pts += o.extra;
           session += pts;
           total += pts;
           set(opts.pointsKey, String(total));
           if (win.Wallet && win.Wallet.renderCoins) win.Wallet.renderCoins();
           if (win.Fx) win.Fx.correct(o.helped ? 0 : streak);
         } else {
+          if (win.Recall && win.Recall.missed) win.Recall.missed();
           if (!(o.shield !== false && win.PowerUps && win.PowerUps.shield())) streak = 0;
           if (win.Fx) win.Fx.wrong();
         }
         renderLive();
         return pts;
+      },
+      // Milestone points (a new medal): they count toward coins but not toward this round's line.
+      award: function (pts) {
+        if (!(pts > 0)) return;
+        total += pts;
+        set(opts.pointsKey, String(total));
+        if (win.Wallet && win.Wallet.renderCoins) win.Wallet.renderCoins();
       },
       renderLive: renderLive,
       roundLine: roundLine,

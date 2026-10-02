@@ -209,7 +209,7 @@ for (const g of games) {
     assert.ok(offers >= answers, 'every answered question was offered');
     // The study kit halves helped points, keeps the streak and checks the Streak Shield (tests/study-kit.test.js).
     const helpedAnswers = html.split("kit.answer(").length - 1 - (html.split('{ shield: false })').length - 1);
-    assert.equal(html.split("{ helped: helped, exam: currentQuizMeta.id === 'final' })").length - 1, answers, 'every answer that could use a power-up tells the kit');
+    assert.equal(html.split(/\{ helped: helped, exam: currentQuizMeta\.id === 'final'(?:, extra: extra)? \}\)/).length - 1, answers, 'every answer that could use a power-up tells the kit');
     assert.equal(helpedAnswers, answers, 'answers without power-ups say shield: false');
     assert.match(html, /exam: ?currentQuizMeta\.id === 'final'/, 'no power-ups in the mock exam');
     assert.equal(html.split('PowerUps.shield()').length - 1, 0, 'only the study kit uses the Streak Shield');

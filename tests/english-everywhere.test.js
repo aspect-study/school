@@ -62,3 +62,12 @@ test('the Grade 2 streak call-out has English', () => {
   hasEnglishWhereFilipino(SUBTITLE.grade2(3), 'streak subtitle');
   assert.match(SUBTITLE.grade2(3), /3 in a row/);
 });
+
+test('every Grade 2 medal line has English', () => {
+  const { TEXT } = require(engineFile('mastery.js'));
+  const c = { gold: 1, silver: 2, bronze: 3, total: 9 };
+  for (const [key, value] of Object.entries(TEXT.grade2)) {
+    const v = key === 'newLine' ? value({ level: 2, title: 'Halaman', points: 40 }) : key === 'chip' ? value(c) : key === 'name' ? value(2) : value;
+    hasEnglishWhereFilipino(v, 'medal ' + key);
+  }
+});

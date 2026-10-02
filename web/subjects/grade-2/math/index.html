@@ -295,6 +295,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
 <script src="../../../engine/powerups.js" data-grade="grade2"></script>
 <script src="../../../engine/recall.js" data-grade="grade2"></script>
+<script src="../../../engine/mastery.js" data-grade="grade2"></script>
 <script src="../../../engine/study-kit.js" data-grade="grade2"></script>
 <script src="lessons/01-blocks.js"></script>
 <script src="lessons/02-readwrite.js"></script>
@@ -364,6 +365,32 @@ function prepareQuestion(q){
   const correct = order.indexOf(q.correct);
   const why = q.why ? order.map(i=>q.why[i]) : [];
   return {q:q.q, options, correct, explain:q.explain, art:q.art, why, tip:q.tip};
+}
+// The same fields offerQuestion and SH.quizAnswered use, so the review key and history text match.
+function reviewInfo(q){
+  const answer = q.options[q.correct];
+  return { q:q.q, art:q.art, answer, historyQ:historyQuestion(q), historyAnswer:answer };
+}
+// Generated number-line lessons never repeat a question, so they have no review.
+function reviewPool(){
+  return LESSONS.filter(l => !l.generate).flatMap(l => l.quiz.map(prepareQuestion));
+}
+function medalLessons(){
+  return LESSONS.filter(l => !l.generate).map(l => ({ id: l.id, title: Recall.textOf(l.title), icon: l.emoji, keys: l.quiz.map(prepareQuestion).map(q => Recall.keyOf(SH_APP, reviewInfo(q))) }));
+}
+let medals = null;
+function updateMedals(){
+  if (!window.Mastery || !window.Recall) return null;
+  medals = Mastery.update(SH_APP, medalLessons());
+  if (medals.points) kit.award(medals.points);
+  return medals;
+}
+function showMedals(el){
+  const m = updateMedals();
+  if (m) Mastery.showNew(el, m.newly);
+}
+function medalBadge(id){
+  return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
 }
 function buildQuizSet(lesson){
   if(lesson.generate) return GENERATORS[lesson.generate](8);
@@ -562,6 +589,7 @@ function starsFor(pct){
 
 function renderHome(){
   document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' points earned';
+  if (window.Mastery && medals) Mastery.renderChip(medals);
   renderBot(document.getElementById('hero-bot-svg'), 8);
   const grid = document.getElementById('lesson-grid');
   grid.innerHTML = '';
@@ -583,6 +611,23 @@ function renderHome(){
   `;
   grid.appendChild(finalCard);
 
+  const rc = window.Recall ? Recall.homeCard(SH_APP) : null;
+  if(rc){
+    const reviewCard = document.createElement('button');
+    reviewCard.className = 'lesson-card' + (rc.ready ? '' : ' review-empty');
+    reviewCard.disabled = !rc.ready;
+    reviewCard.onclick = startReview;
+    reviewCard.innerHTML = `
+      <div class="lesson-emoji">🔁</div>
+      <div class="lesson-info">
+        <h3>${rc.title}</h3>
+        <p>${rc.line}</p>
+      </div>
+      ${rc.ready ? '<div class="go-btn">Start</div>' : ''}
+    `;
+    grid.appendChild(reviewCard);
+  }
+
   LESSONS.forEach((lesson, i)=>{
     const total = lesson.generate ? 8 : lesson.quiz.length;
     const best = progress[lesson.id] || 0;
@@ -595,7 +640,7 @@ function renderHome(){
       <div class="lesson-info">
         <h3>${lesson.title}</h3>
         <p>${lesson.subtitle}</p>
-        <div class="stars">${[1,2,3].map(s=>`<span class="${s<=stars?'star-on':'star-off'}">★</span>`).join('')}</div>
+        <div class="stars">${[1,2,3].map(s=>`<span class="${s<=stars?'star-on':'star-off'}">★</span>`).join('')}${medalBadge(lesson.id)}</div>
       </div>
       <div class="go-btn">${best>0?'Review':'Start'}</div>
     `;
@@ -674,6 +719,20 @@ function startFinalExam(){
   showScreen(quizScreen);
 }
 
+function startReview(){
+  if(!window.Recall) return;
+  currentQuizSet = Recall.pickDue(SH_APP, reviewPool(), reviewInfo);
+  if(!currentQuizSet.length){ goHome(); return; }
+  currentQuizMeta = {id:'review', title:Recall.text.reviewTitle};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, 'review', Recall.text.reviewTitle, false, currentQuizSet.length, 'review') : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  renderQuestion();
+  showScreen(quizScreen);
+}
+
 function showSentence(sentence){
   const el = document.getElementById('q-sentence');
   el.textContent = sentence || '';
@@ -698,7 +757,7 @@ function renderQuestion(){
     document.getElementById('q-options').classList.add('hidden');
     document.getElementById('q-numberline').classList.remove('hidden');
     renderNumberlineQuestion(q);
-    offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:document.getElementById('q-numberline'), options:[], tip:NUMBERLINE_TIP, q:`${q.start} + ${q.jumps} = ?`, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
+    offerQuestion({ art:q.art, review:false, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:document.getElementById('q-numberline'), options:[], tip:NUMBERLINE_TIP, q:`${q.start} + ${q.jumps} = ?`, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
     return;
   }
 
@@ -797,6 +856,7 @@ function renderResults(total){
     stars === 3 ? 'Block Bot Complete!' : stars > 0 ? 'Great Progress!' : 'Keep Building!';
   document.getElementById('results-score').textContent = `You scored ${quizScore} out of ${total} on ${currentQuizMeta.title}`;
   document.getElementById('points-earned').textContent = kit.resultLine();
+  showMedals(document.getElementById('points-earned'));
   document.getElementById('results-stars').innerHTML = [1,2,3].map(s=>`<span class="${s<=stars?'star-on':'star-off'}">★</span>`).join('');
   const reviewEl = document.getElementById('missed-review');
   if(missedQuestions.length){
@@ -810,9 +870,13 @@ function renderResults(total){
 }
 
 function retryLesson(){
+  if (currentQuizMeta.id === 'review') return startReview();
   if(currentQuizMeta.id === 'final'){ startFinalExam(); }
   else { startQuiz(); }
 }
 
+if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
+showMedals(document.getElementById('points-total-badge'));
 renderHome();
+if (window.Recall && Recall.wantsReview) startReview();
 </script>
