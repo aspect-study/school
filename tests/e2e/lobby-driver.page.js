@@ -157,7 +157,7 @@
   $('parent-close').click();
 
   localStorage.setItem(OTHER_WALLET, 'untouched');
-  __store.setItem(r.baselineKeys[0], '1000');
+  __store.setItem(r.baselineKeys[0], '3000');
   $('shop-open').click();
   r.shopOpen = !$('shop-overlay').hidden;
   r.shopCoins = $('shop-coins').textContent;
@@ -165,6 +165,17 @@
   r.movieNeed = shopRow('movie').querySelector('.shop-need').textContent;
   r.mlBuyable = !!shopRow('ml').querySelector('[data-buy]');
   r.mlHasNote = !!shopRow('ml').querySelector('.shop-note');
+  r.allItems = document.querySelectorAll('#shop-items [data-item]').length;
+  var search = $('shop-search');
+  search.value = 'TATAY';
+  search.dispatchEvent(new Event('input'));
+  r.tatayItems = Array.prototype.map.call(document.querySelectorAll('#shop-items [data-item]'), function (e) { return e.getAttribute('data-item'); });
+  search.value = 'zzz';
+  search.dispatchEvent(new Event('input'));
+  r.noMatchShown = !$('shop-empty').hidden && $('shop-empty').textContent.indexOf('zzz') >= 0;
+  search.value = '';
+  search.dispatchEvent(new Event('input'));
+  r.allBack = document.querySelectorAll('#shop-items [data-item]').length;
   shopRow('ml').querySelector('[data-buy]').click();
   r.pinShown = !$('shop-pin-view').hidden;
   press('1234', 'shop-pin-pad');

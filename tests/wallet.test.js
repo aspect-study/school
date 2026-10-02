@@ -113,20 +113,20 @@ test('buy deducts coins, records the purchase and never lowers points', () => {
   const points = { a: 0 };
   w.track(points);
   const p = w.buy('ml', { a: 600 });
-  assert.deepEqual(p, { item: 'ml', coins: 40, t: clock.ms });
-  assert.equal(w.balance({ a: 600 }), 60);
+  assert.deepEqual(p, { item: 'ml', coins: 80, t: clock.ms });
+  assert.equal(w.balance({ a: 600 }), 20);
   assert.deepEqual(w.purchases(), [p]);
-  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 40);
+  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 80);
 });
 
 test('not enough coins: canBuy says how many more are needed and buy changes nothing', () => {
   const { w, storage } = setup();
   w.track({ a: 0 });
-  assert.deepEqual(w.canBuy('dinner', { a: 0 }), { ok: false, need: 60, daily: false });
+  assert.deepEqual(w.canBuy('dinner', { a: 0 }), { ok: false, need: 160, daily: false });
   const before = storage.getItem('wallet_v1');
   assert.equal(w.buy('dinner', { a: 0 }), null);
   assert.equal(storage.getItem('wallet_v1'), before);
-  assert.deepEqual(w.canBuy('dinner', { a: 600 }), { ok: true, need: 0, daily: false });
+  assert.deepEqual(w.canBuy('dinner', { a: 1600 }), { ok: true, need: 0, daily: false });
 });
 
 test('unknown items cannot be bought', () => {
@@ -211,8 +211,9 @@ test('two learners never affect each other: each wallet lives in her own space',
   g2.track(p2);
   g5.track(p5);
 
-  const p2Later = { blockbot_points_v1: 1000 };
-  assert.equal(g2.balance(p2Later), 140, 'grade 2 earns from her own points');
+  const p2Later = { blockbot_points_v1: 2400 };
+  const p5Later = { pageturners_points_v1: 400 };
+  assert.equal(g2.balance(p2Later), 280, 'grade 2 earns from her own points');
   assert.equal(g5.balance(p5), 40, 'grade 5 keeps only her own welcome gift');
 
   assert.ok(g2.buy('ml', p2Later));
@@ -220,11 +221,11 @@ test('two learners never affect each other: each wallet lives in her own space',
   assert.equal(g2.balance(p2Later), 0);
   assert.equal(g5.balance(p5), 40, 'one learner spending does not touch the other');
   assert.deepEqual(g5.purchases(), []);
-  assert.deepEqual(g5.canBuy('ml', p5), { ok: true, need: 0, daily: false }, 'her sister\'s ML does not block hers');
-  assert.ok(g5.buy('ml', p5));
+  assert.deepEqual(g5.canBuy('ml', p5Later), { ok: true, need: 0, daily: false }, 'her sister\'s ML does not block hers');
+  assert.ok(g5.buy('ml', p5Later));
   assert.equal(g2.purchases().length, 2);
-  assert.equal(JSON.parse(sisterSpace.getItem('wallet_v1')).spent, 140);
-  assert.equal(JSON.parse(mySpace.getItem('wallet_v1')).spent, 40);
+  assert.equal(JSON.parse(sisterSpace.getItem('wallet_v1')).spent, 280);
+  assert.equal(JSON.parse(mySpace.getItem('wallet_v1')).spent, 80);
 });
 
 test('moving up a grade keeps every coin, purchase and tracked subject', () => {
@@ -241,13 +242,51 @@ test('moving up a grade keeps every coin, purchase and tracked subject', () => {
   assert.equal(six.balanceStored(), five.balanceStored());
 });
 
-test('the catalog has unique ids, whole-coin prices, and ML is 40 coins once a day', () => {
+test('the catalog has unique ids, whole-coin prices, and ML is 80 coins once a day', () => {
   const ids = CATALOG.map((i) => i.id);
   assert.equal(new Set(ids).size, ids.length);
   CATALOG.forEach((i) => assert.ok(Number.isInteger(i.coins) && i.coins > 0, i.id));
   const ml = CATALOG.find((i) => i.id === 'ml');
-  assert.equal(ml.coins, 40);
+  assert.equal(ml.coins, 80);
   assert.equal(ml.perDay, 1);
+});
+
+test('ML with Tatay sells 1, 2 or 3 games with no daily limit; only the solo game has one', () => {
+  const price = (id) => CATALOG.find((i) => i.id === id).coins;
+  assert.deepEqual(['tatay1', 'tatay2', 'tatay3'].map(price), [100, 240, 500]);
+  assert.equal(price('pesos'), 5000);
+  assert.equal(CATALOG.find((i) => i.id === 'skin'), undefined, 'the ML skin was swapped for 100 pesos');
+  const { w } = setup();
+  const rich = { a: 100000 };
+  w.track({ a: 0 });
+  for (const id of ['tatay1', 'tatay2', 'tatay3', 'duo', 'vs']) {
+    assert.ok(w.buy(id, rich), id);
+    assert.ok(w.buy(id, rich), id + ' again the same day');
+  }
+  assert.ok(w.buy('ml', rich));
+  assert.equal(w.canBuy('ml', rich).daily, true, 'the solo game is still once a day');
+  assert.deepEqual(CATALOG.filter((i) => i.perDay).map((i) => i.id), ['ml']);
+});
+
+test('shelf lists every shop item with what it would take to buy it now', () => {
+  const { w } = setup();
+  w.track({ a: 0 });
+  const poor = w.shelf({ a: 0 });
+  assert.deepEqual(poor.map((r) => r.item.id), CATALOG.map((i) => i.id));
+  assert.deepEqual(poor.find((r) => r.item.id === 'dinner'), { item: CATALOG.find((i) => i.id === 'dinner'), ok: false, need: 160, daily: false });
+  assert.equal(poor.find((r) => r.item.id === 'music').ok, true, 'the 40-coin welcome gift covers the cheapest reward');
+  assert.equal(poor.find((r) => r.item.id === 'ml').need, 40);
+
+  const rich = { a: 100000 };
+  w.buy('ml', rich);
+  const after = w.shelf(rich);
+  assert.deepEqual(after.filter((r) => r.daily).map((r) => r.item.id), ['ml']);
+  assert.ok(after.filter((r) => !r.daily).every((r) => r.ok));
+});
+
+test('the shop lists items from cheapest to dearest', () => {
+  const prices = CATALOG.map((i) => i.coins);
+  assert.deepEqual(prices, [...prices].sort((a, b) => a - b));
 });
 
 test('earned reports the new points since the baseline and the coins they made', () => {
@@ -256,7 +295,7 @@ test('earned reports the new points since the baseline and the coins they made',
   w.track({ a: 500, b: 0 });
   assert.deepEqual(w.earned({ a: 1500, b: 9 }), { points: 1009, coins: 100, welcome: 40, spent: 0, bonus: 0 });
   w.buy('ml', { a: 1500, b: 9 });
-  assert.deepEqual(w.earned({ a: 1500, b: 9 }), { points: 1009, coins: 100, welcome: 40, spent: 40, bonus: 0 });
+  assert.deepEqual(w.earned({ a: 1500, b: 9 }), { points: 1009, coins: 100, welcome: 40, spent: 80, bonus: 0 });
   assert.deepEqual(w.earned({ a: 0, b: 0 }).points, 0, 'never negative');
 });
 
@@ -271,8 +310,8 @@ test('prune drops purchases older than the last 7 local days but keeps the spent
   clock.set(2026, 10, 8, 9, 0);
   w.prune(7);
   assert.deepEqual(w.purchases().map((p) => p.item), ['dinner'], 'Oct 1 is outside Oct 2-8');
-  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 200);
-  assert.equal(w.balance(rich), 40 + 1000 - 200, 'pruning never gives coins back');
+  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 400);
+  assert.equal(w.balance(rich), 40 + 1000 - 400, 'pruning never gives coins back');
 });
 
 test('prune keeps today\'s ML purchase so the daily limit still holds', () => {
@@ -297,6 +336,21 @@ test('both guides explain the same topics, quote the real ML price and the 10-po
     assert.ok(text.includes(' ' + ml + ' coins'), 'quotes the ML price');
     assert.match(text, /10 points/);
     assert.match(text, /140 points = 14 coins/);
+  }
+});
+
+test('both guides explain ML with Tatay with the real prices, right after the solo ML game', () => {
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
+  const ml = CATALOG.find((i) => i.id === 'ml').coins;
+  const prices = ['tatay1', 'tatay2', 'tatay3'].map((id) => CATALOG.find((i) => i.id === id).coins);
+  for (const grade of ['grade2', 'grade5']) {
+    const sections = GUIDE_TEXT[grade].sections(ml);
+    const i = sections.findIndex((s) => s[0] === '👨');
+    assert.equal(sections[i - 1][0], '🎮', grade + ': comes after the ML game');
+    const english = grade === 'grade5' ? sections[i][2] : sections[i][3];
+    for (const p of prices) assert.ok(english.includes(p + ' coins'), grade + ' quotes ' + p);
+    assert.match(english, /No daily limit/);
+    assert.match(english, /own ML game/);
   }
 });
 

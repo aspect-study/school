@@ -6,14 +6,35 @@
   var POINTS_PER_COIN = 10;
 
   var CATALOG = [
-    { id: 'ml', emoji: '🎮', name: 'Rest: play 1 ML (Mobile Legends) game', goal: 'ML game', coins: 40, perDay: 1 },
-    { id: 'dinner', emoji: '🍽️', name: 'Choose what\'s for dinner', goal: 'Dinner pick', coins: 100 },
-    { id: 'dessert', emoji: '🍨', name: 'Dessert treat', goal: 'Dessert treat', coins: 100 },
-    { id: 'screen', emoji: '📱', name: '30 min extra screen time', goal: 'Extra screen time', coins: 120 },
-    { id: 'movie', emoji: '🎬', name: 'Movie night pick', goal: 'Movie night', coins: 300 },
-    { id: 'late', emoji: '🌙', name: 'Stay up 30 min later', goal: 'Stay up later', coins: 400 },
-    { id: 'toy', emoji: '🧸', name: 'Small toy', goal: 'Small toy', coins: 500 },
-    { id: 'big', emoji: '🎡', name: 'Big goal: outing or a toy you\'ve wanted', goal: 'Big goal', coins: 1200 }
+    { id: 'music', emoji: '🎵', name: 'Pick the music in the car', goal: 'Car music pick', coins: 40 },
+    { id: 'piggy', emoji: '🐴', name: 'Piggyback ride or Tatay does a silly dance', goal: 'Piggyback or silly dance', coins: 50 },
+    { id: 'hero', emoji: '🎯', name: 'Pick Tatay\'s ML hero (he has to play it)', goal: 'Pick Tatay\'s hero', coins: 60 },
+    { id: 'ml', emoji: '🎮', name: 'Rest: play 1 ML (Mobile Legends) game', goal: 'ML game', coins: 80, perDay: 1 },
+    { id: 'tatay1', emoji: '👨', name: 'Play 1 ML game with Tatay', goal: '1 ML game with Tatay', coins: 100 },
+    { id: 'sleepin', emoji: '😴', name: 'Sleep in 30 min on Saturday', goal: 'Saturday sleep-in', coins: 100 },
+    { id: 'vs', emoji: '🆚', name: '1v1 custom room vs Tatay in ML', goal: '1v1 vs Tatay', coins: 120 },
+    { id: 'teach', emoji: '🧑‍🏫', name: 'Tatay teaches you an ML hero (20 min)', goal: 'ML hero lesson', coins: 160 },
+    { id: 'dinner', emoji: '🍽️', name: 'Choose what\'s for dinner', goal: 'Dinner pick', coins: 200 },
+    { id: 'dessert', emoji: '🍨', name: 'Dessert treat', goal: 'Dessert treat', coins: 200 },
+    { id: 'duo', emoji: '🏆', name: 'Ranked ML match, duo with Tatay', goal: 'Ranked duo with Tatay', coins: 200 },
+    { id: 'screen', emoji: '📱', name: '30 min extra screen time', goal: 'Extra screen time', coins: 240 },
+    { id: 'tatay2', emoji: '👨', name: 'Play 2 ML games with Tatay', goal: '2 ML games with Tatay', coins: 240 },
+    { id: 'mpl', emoji: '📺', name: 'Watch an MPL PH match together', goal: 'MPL match together', coins: 300 },
+    { id: 'chore', emoji: '🧹', name: 'Skip one chore', goal: 'Chore pass', coins: 300 },
+    { id: 'milktea', emoji: '🥤', name: 'Milk tea', goal: 'Milk tea', coins: 300 },
+    { id: 'breakfast', emoji: '🍳', name: 'Special breakfast', goal: 'Special breakfast', coins: 300 },
+    { id: 'tatay3', emoji: '👨', name: 'Play 3 ML games with Tatay', goal: '3 ML games with Tatay', coins: 500 },
+    { id: 'jollibee', emoji: '🍗', name: 'Jollibee or McDo treat', goal: 'Jollibee or McDo', coins: 500 },
+    { id: 'pancake', emoji: '🥞', name: 'Cook pancakes together', goal: 'Pancakes together', coins: 500 },
+    { id: 'movie', emoji: '🎬', name: 'Movie night pick', goal: 'Movie night', coins: 600 },
+    { id: 'mystery', emoji: '🎁', name: 'Mystery box: a surprise reward', goal: 'Mystery box', coins: 600 },
+    { id: 'late', emoji: '🌙', name: 'Stay up 30 min later', goal: 'Stay up later', coins: 800 },
+    { id: 'book', emoji: '📚', name: 'Pick a book at National Bookstore', goal: 'New book', coins: 800 },
+    { id: 'toy', emoji: '🧸', name: 'Small toy', goal: 'Small toy', coins: 1000 },
+    { id: 'playdate', emoji: '👭', name: 'Friend playdate at home', goal: 'Playdate', coins: 1200 },
+    { id: 'big', emoji: '🎡', name: 'Big goal: outing or a toy you\'ve wanted', goal: 'Big goal', coins: 2400 },
+    { id: 'yesday', emoji: '✨', name: 'Mini Yes Day', goal: 'Mini Yes Day', coins: 3000 },
+    { id: 'pesos', emoji: '💵', name: '100 pesos', goal: '100 pesos', coins: 5000 }
   ];
 
   // Paid for inside a quiz (powerups.js), never in the shop.
@@ -137,6 +158,15 @@
 
       balance: function (points) { return balanceOf(read(), points); },
 
+      // Every catalog item with canBuy's answer, read once. The parent page shows it as a price list.
+      shelf: function (points) {
+        var state = read();
+        return CATALOG.map(function (item) {
+          var c = check(state, item.id, points);
+          return { item: item, ok: c.ok, need: c.need, daily: c.daily };
+        });
+      },
+
       // For the games, which do not know the other subjects' keys: reads every tracked key.
       balanceStored: function () { return storedBalanceOf(read()); },
 
@@ -195,6 +225,9 @@
   }
 
   function coinWord(n) { return n === 1 ? ' coin' : ' coins'; }
+  function coinsOf(id) { return findItem(id).coins; }
+  // A perfect 10-question lesson: 10 right, the last 8 on a streak = 140 points = 14 coins.
+  function lessonsFor(coins) { return Math.round(coins / 14); }
 
   // Kid-facing copy for the coin badges and the "how it works" guide, per child.
   var GUIDE_TEXT = {
@@ -208,7 +241,9 @@
           ['⭐', 'Points', 'Every right answer gives you 10 points. When you get 3 or more right in a row 🔥, each one gives 15. A wrong answer never takes points away.'],
           ['🪙', 'Coins', 'Every 10 points turns into 1 coin by itself. You do not need to press anything. A perfect 10-question lesson = 140 points = 14 coins.'],
           ['🛒', 'The Shop', 'In the lobby, tap 🛒 Shop and pick a reward. Then ask Mommy or Tatay to type the PIN. Buying uses up coins, but your ⭐ points stay the same.'],
-          ['🎮', 'ML game', 'One ML game costs ' + ml + ' coins. You can buy 1 a day, and only after studying. That is about 3 perfect lessons!'],
+          ['🎮', 'ML game', 'One ML game costs ' + ml + ' coins. You can buy 1 a day, and only after studying. That is about ' + lessonsFor(ml) + ' perfect lessons!'],
+          ['👨', 'ML with Tatay', 'Play ML with Tatay: 1 game for ' + coinsOf('tatay1') + ' coins, 2 games for ' + coinsOf('tatay2') + ' coins, or 3 games for ' + coinsOf('tatay3') +
+            ' coins. Or a 1v1 vs Tatay, or a ranked duo with him. No daily limit: buy any time you have the coins. It does not use up your own ML game.'],
           ['💡', 'Power-ups', 'Stuck on a lesson quiz question? Use 💡 Hint (' + POWER_UPS.hint + ' coins) to see a tip, or ✂️ 50/50 (' + POWER_UPS.fifty +
             ' coins) to cross out some wrong answers. Tap it twice to pay. You can use 2 per quiz, and none in the Mock Exam. A helped right answer gives half points and does not grow your 🔥 streak.'],
           ['🛡️', 'More power-ups', '🔁 2nd Chance (' + POWER_UPS.second + ' coins): if you miss, try once more. Half points only if you needed it. ' +
@@ -242,8 +277,12 @@
             'Every 10 points = 1 coin. Points turn into coins by themselves, so you do not need to press anything. A perfect 10-question lesson = 140 points = 14 coins!'],
           ['🛒', 'Shop', 'Sa lobby, pindutin ang 🛒 Shop at pumili ng reward. Tapos ipa-type kay Mommy o Tatay ang PIN. Coins lang ang nagagastos, hindi nababawasan ang ⭐ points mo.',
             'In the lobby, tap 🛒 Shop and pick a reward. Then ask Mommy or Tatay to type the PIN. Buying uses only coins; your ⭐ points stay the same.'],
-          ['🎮', 'ML game', 'Ang 1 ML game ay ' + ml + ' coins. Isa lang bawat araw, at pagkatapos lang mag-aral. Mga 3 perfect na lesson lang yan!',
-            'One ML game costs ' + ml + ' coins. You can buy only 1 a day, and only after studying. That is just about 3 perfect lessons!'],
+          ['🎮', 'ML game', 'Ang 1 ML game ay ' + ml + ' coins. Isa lang bawat araw, at pagkatapos lang mag-aral. Mga ' + lessonsFor(ml) + ' perfect na lesson yan!',
+            'One ML game costs ' + ml + ' coins. You can buy only 1 a day, and only after studying. That is about ' + lessonsFor(ml) + ' perfect lessons!'],
+          ['👨', 'ML kasama si Tatay · ML with Tatay', 'Maglaro ng ML kasama si Tatay: 1 game = ' + coinsOf('tatay1') + ' coins, 2 games = ' + coinsOf('tatay2') + ' coins, 3 games = ' + coinsOf('tatay3') +
+            ' coins. Puwede rin ang 1v1 laban kay Tatay o ranked duo kasama siya. Walang limit bawat araw: bumili kahit kailan basta may coins ka. Hindi nito nababawasan ang sarili mong ML game.',
+            'Play ML with Tatay: 1 game for ' + coinsOf('tatay1') + ' coins, 2 games for ' + coinsOf('tatay2') + ' coins, or 3 games for ' + coinsOf('tatay3') +
+            ' coins. Or a 1v1 vs Tatay, or a ranked duo with him. No daily limit: buy any time you have the coins. It does not use up your own ML game.'],
           ['💡', 'Power-ups', 'Nahihirapan sa tanong? Gamitin ang 💡 Hint (' + POWER_UPS.hint + ' coins) para makita ang tip, o ✂️ 50/50 (' + POWER_UPS.fifty +
             ' coins) para mawala ang ilang maling sagot. Pindutin nang 2 beses para magbayad. 2 lang bawat quiz, at wala sa Mock Exam. Kapag may tulong, kalahati lang ang points at hindi tataas ang 🔥 streak.',
             'Stuck on a question? Use 💡 Hint (' + POWER_UPS.hint + ' coins) to see a tip, or ✂️ 50/50 (' + POWER_UPS.fifty +

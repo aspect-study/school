@@ -9,7 +9,7 @@ const CONFIGS = {
     key: 'history_v1',
     wallet: 'wallet_v1',
     otherWallet: 'learner/her-sister/wallet_v1',
-    shop: { goal: '160 coins pa para sa Movie night!\n160 more coins to Movie night!', movieNeed: '160 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 1000 new points → 🪙 100 coins · 🎁 40 welcome · 🛒 40 spent' },
+    shop: { goal: '160 coins pa para sa 3 ML games with Tatay!\n160 more coins to 3 ML games with Tatay!', movieNeed: '260 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 3000 new points → 🪙 300 coins · 🎁 40 welcome · 🛒 80 spent' },
     apps: ['word-train', 'kuwentista'],
     subjects: ['English', 'Filipino'],
     subjectOptions: 8,
@@ -18,7 +18,7 @@ const CONFIGS = {
     key: 'history_v1',
     wallet: 'wallet_v1',
     otherWallet: 'learner/her-sister/wallet_v1',
-    shop: { goal: '160 more coins to Movie night!', movieNeed: '160 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 1000 new points → 🪙 100 coins · 🎁 40 welcome · 🛒 40 spent' },
+    shop: { goal: '160 more coins to 3 ML games with Tatay!', movieNeed: '260 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 3000 new points → 🪙 300 coins · 🎁 40 welcome · 🛒 80 spent' },
     apps: ['page-turners', 'math-mastery'],
     subjects: ['English', 'Math'],
     subjectOptions: 9,
@@ -84,26 +84,30 @@ try {
   assert.equal(r.guideClosed, true);
   assert.match(r.guideButton, /^❓ /);
   assert.equal(r.shopOpen, true);
-  assert.equal(r.shopCoins, '🪙 140 coins', '1000 new points earn 100 coins');
+  assert.equal(r.shopCoins, '🪙 340 coins', '3000 new points earn 300 coins');
   assert.equal(r.shopGoal, cfg.shop.goal);
   assert.equal(r.movieNeed, cfg.shop.movieNeed);
   assert.equal(r.mlBuyable, true);
   assert.equal(r.mlHasNote, true, 'ML shows its rules');
+  assert.ok(r.allItems > 20, 'the whole catalog shows');
+  assert.deepEqual(r.tatayItems, ['piggy', 'hero', 'tatay1', 'vs', 'teach', 'duo', 'tatay2', 'tatay3'], 'search ignores case');
+  assert.equal(r.noMatchShown, true, 'no match says so');
+  assert.equal(r.allBack, r.allItems, 'clearing the search shows everything');
   assert.equal(r.pinShown, true, 'Buy asks for the parent PIN');
   assert.equal(r.wrongPinSpent, 0, 'a wrong PIN spends nothing');
   assert.equal(r.wrongPinStays, true);
   assert.match(r.doneText, /🎉/);
-  assert.equal(r.badgeAfter, '🪙 100 coins');
-  assert.equal(r.spentAfter, 40);
-  assert.equal(r.pointsAfter, '1000', 'buying never changes points');
+  assert.equal(r.badgeAfter, '🪙 260 coins');
+  assert.equal(r.spentAfter, 80);
+  assert.equal(r.pointsAfter, '3000', 'buying never changes points');
   assert.equal(r.mlAfter, cfg.shop.tomorrow);
   assert.equal(r.earnedText, cfg.shop.earned, 'the shop shows how points became coins');
-  assert.equal(r.cancelSpent, 40, 'cancelling the PIN spends nothing');
+  assert.equal(r.cancelSpent, 80, 'cancelling the PIN spends nothing');
   assert.equal(r.escClosed, true);
   assert.equal(r.otherWallet, 'untouched', 'the other grade\'s wallet is never touched');
-  assert.deepEqual(r.purchaseLogged, [{ item: 'ml', coins: 40 }]);
+  assert.deepEqual(r.purchaseLogged, [{ item: 'ml', coins: 80 }]);
   assert.equal(r.shopDownload, 'shop-history-grade' + grade + '-' + r.today + '.csv');
-  assert.match(r.parentList, /🛒 Bought Rest: play 1 ML \(Mobile Legends\) game — 40 coins/);
+  assert.match(r.parentList, /🛒 Bought Rest: play 1 ML \(Mobile Legends\) game — 80 coins/);
 
   const t = readOutput(dumpDom(path.join(work, 'profile-testscore'), withJsLobby, '#e2e=testscore'));
   assert.deepEqual(t.errors, [], 'test score: page errors');

@@ -119,5 +119,13 @@
   .req-text{ flex:1 1 200px; font-weight:800; overflow-wrap:anywhere; }
   .coins-big{ font-family:'Baloo 2', system-ui, sans-serif; font-size:1.6rem; font-weight:800; margin:0; }
   .pts-list{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:6px 14px; margin-top:8px; font-weight:700; }
+  .shop-prices summary{ cursor:pointer; font-weight:800; }
+  .shop-row{ display:grid; grid-template-columns:1fr auto; gap:2px 12px; padding:8px 0; border-top:1px solid var(--border); }
+  .shop-row:first-child{ border-top:0; }
+  .shop-name{ font-weight:800; overflow-wrap:anywhere; }
+  .shop-limit{ font-weight:700; font-size:0.85rem; color:var(--ink-soft); }
+  .shop-price{ font-weight:800; text-align:right; }
+  .shop-state{ grid-column:1 / -1; font-size:0.85rem; font-weight:700; color:var(--ink-soft); }
+  .shop-row.can .shop-state{ color:var(--good); }
   .status-line{ margin:0 0 14px; }
   .status-line.error{ color:var(--bad); }

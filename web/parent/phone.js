@@ -208,6 +208,21 @@
     var coins = child.wallet.balance(points);
     $('kid-name').textContent = label(child.learner);
     $('kid-coins').textContent = '🪙 ' + coins + (coins === 1 ? ' coin' : ' coins') + ' · ⭐ ' + total + ' points';
+    renderShop(points);
+  }
+
+  function renderShop(points) {
+    var box = $('shop-list');
+    box.textContent = '';
+    child.wallet.shelf(points).forEach(function (r) {
+      var row = el('div', 'shop-row' + (r.ok ? ' can' : ''));
+      var name = el('div', 'shop-name', r.item.emoji + ' ' + r.item.name);
+      if (r.item.perDay) name.appendChild(el('span', 'shop-limit', ' · ' + r.item.perDay + ' a day'));
+      row.appendChild(name);
+      row.appendChild(el('div', 'shop-price', '🪙 ' + r.item.coins));
+      row.appendChild(el('div', 'shop-state', r.daily ? 'Done for today' : r.ok ? '✓ Can buy' : r.need + ' more'));
+      box.appendChild(row);
+    });
   }
 
   // ---- buttons and lifecycle ----

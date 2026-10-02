@@ -5,7 +5,7 @@ const { engineFile, lobbyFile, appFile, appsOf } = require('./paths.js');
 
 // Common Filipino words: text with any of them must also carry English (parent's rule, 2026-10-01).
 const FILIPINO = /\b(ang|mo|na|sa|ng|pa|ka|kay|ni|si|mong|lang|kapag|para|wala|ulit|tama|mali)\b/i;
-const ENGLISH = /\b(the|you|your|to|for|of|and|is|or|in|a|it|not|that|try|again|can|more|go|ask|just|yours)\b/i;
+const ENGLISH = /\b(the|you|your|to|for|of|and|is|or|in|a|it|not|that|try|again|can|more|go|ask|just|yours|with)\b/i;
 
 function hasEnglishWhereFilipino(text, where) {
   const s = String(text);

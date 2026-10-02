@@ -291,28 +291,52 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     padding:5px 14px; border-radius:999px;
     background:var(--card); color:var(--header-accent); border:2px solid var(--header-accent);
   }
-  .shop-box{ max-width:640px; margin:0 auto; }
+  /* The padding sits inside the box so the sticky search bar meets the top edge. */
+  #shop-overlay{ padding-top:0; }
+  .shop-box{ max-width:920px; margin:0 auto; padding-top:clamp(16px,4vw,32px); }
   .shop-coins{ margin:0; text-align:center; font-family:'Baloo 2', system-ui, sans-serif; font-size:1.7rem; font-weight:800; color:var(--gold-deep); }
   .shop-goal{ margin:2px 0 0; text-align:center; font-weight:800; }
   .shop-intro{ text-align:center; }
-  .shop-items{ display:grid; gap:10px; margin-top:16px; }
+  .shop-search-row{ position:sticky; top:0; z-index:1; margin:18px 0 0; padding:8px 0; background:var(--bg); }
+  .shop-search-wrap{ position:relative; }
+  .shop-search-icon{ position:absolute; left:16px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:1rem; }
+  .shop-search{
+    width:100%; font:inherit; font-size:1rem; font-weight:700; color:var(--ink);
+    padding:12px 18px 12px 46px; border-radius:999px; border:2px solid var(--border); background:var(--card);
+  }
+  .shop-search:focus{ outline:none; border-color:var(--header-accent); }
+  .shop-empty{ margin:28px 0; text-align:center; font-weight:800; color:var(--ink-soft); }
+  /* 3 columns when there is room, 2 on a phone. */
+  .shop-items{
+    display:grid; gap:14px; margin-top:8px;
+    grid-template-columns:repeat(auto-fill, minmax(max(148px, calc((100% - 28px) / 3)), 1fr));
+  }
   .shop-item{
-    display:flex; flex-wrap:wrap; align-items:center; gap:12px;
-    background:var(--card); border:1px solid var(--border); border-radius:18px; padding:12px 14px;
+    display:flex; flex-direction:column; gap:8px; min-width:0;
+    background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:14px;
+    box-shadow:0 2px 10px -6px var(--shadow);
   }
+  .shop-item.can{ border-color:var(--good); }
+  .shop-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
   .shop-emoji{
-    flex:none; width:48px; height:48px; border-radius:14px; background:var(--gold-soft);
-    display:flex; align-items:center; justify-content:center; font-size:1.7rem;
+    flex:none; width:52px; height:52px; border-radius:16px; background:var(--gold-soft);
+    display:flex; align-items:center; justify-content:center; font-size:1.8rem;
   }
-  .shop-info{ flex:1 1 140px; min-width:0; overflow-wrap:anywhere; }
-  .shop-name{ font-weight:800; line-height:1.25; }
-  .shop-price{ margin-top:2px; font-size:0.85rem; font-weight:800; color:var(--gold-deep); }
-  .shop-note{ margin-top:4px; font-size:0.82rem; font-weight:600; line-height:1.4; color:var(--ink-soft); }
+  .shop-price{
+    flex:none; padding:4px 10px; border-radius:999px; white-space:nowrap;
+    background:var(--gold-soft); color:var(--gold-deep); font-size:0.85rem; font-weight:800;
+  }
+  .shop-name{ font-weight:800; line-height:1.25; overflow-wrap:anywhere; }
+  .shop-note{ font-size:0.8rem; font-weight:600; line-height:1.4; color:var(--ink-soft); overflow-wrap:anywhere; }
+  .shop-foot{ margin-top:auto; padding-top:4px; }
   .shop-buy{
-    flex:none; margin-left:auto; font:inherit; font-weight:800; cursor:pointer;
+    font:inherit; font-weight:800; cursor:pointer;
     padding:9px 18px; border-radius:12px; border:0; background:var(--good); color:var(--card);
   }
-  .shop-need{ flex:none; margin-left:auto; max-width:120px; text-align:right; font-size:0.82rem; font-weight:800; color:var(--ink-soft); }
+  .shop-foot .shop-buy{ width:100%; }
+  .shop-need{ font-size:0.82rem; font-weight:800; color:var(--ink-soft); }
+  .shop-bar{ height:6px; margin-top:6px; border-radius:999px; background:var(--bg-alt); overflow:hidden; }
+  .shop-bar span{ display:block; height:100%; border-radius:inherit; background:var(--header-accent); }
   .shop-ask{ margin:0 0 4px; text-align:center; font-weight:800; font-size:1.05rem; }
   .shop-done{ margin:28px 0; text-align:center; font-weight:800; font-size:1.2rem; line-height:1.4; }
   .shop-actions{ display:flex; justify-content:center; margin-top:18px; }
@@ -323,7 +347,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     .subject-card{ transition:none; }
   }
 /* Grade 2 shop sentences carry an English line after a line break. */
-#shop-goal,#shop-intro,.shop-note,#shop-ask,#shop-done{white-space:pre-line;}
+#shop-goal,#shop-intro,.shop-note,#shop-ask,#shop-done,#shop-empty{white-space:pre-line;}
 </style>
 
 <div class="wrap">
@@ -554,7 +578,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       <p class="shop-goal" id="shop-goal"></p>
       <p class="p-note shop-intro" id="shop-earned"></p>
       <p class="p-note shop-intro" id="shop-intro"></p>
+      <div class="shop-search-row"><div class="shop-search-wrap">
+        <span class="shop-search-icon" aria-hidden="true">🔍</span>
+        <input class="shop-search" id="shop-search" type="search" autocomplete="off" enterkeyhint="search">
+      </div></div>
       <div class="shop-items" id="shop-items"></div>
+      <p class="shop-empty" id="shop-empty" aria-live="polite" hidden></p>
     </div>
 
     <div id="shop-pin-view" hidden>
@@ -637,7 +666,19 @@ window.SHOP_TEXT = {
   need: function(n){ return n + ' more ' + (n === 1 ? 'coin' : 'coins'); },
   tomorrow: 'Come back tomorrow',
   buy: 'Buy',
-  notes: { ml: 'Isang match lang, panalo man o talo. Pagkatapos lang mag-aral. Dagdag ito sa normal mong oras ng laro.\nOne match, win or lose. Only after studying. It is extra, on top of your normal play time.' },
+  search: 'Search rewards, like ML or Tatay',
+  noMatch: function(q){ return 'Walang reward na "' + q + '". Subukan ang ibang salita.\nNo reward matches "' + q + '". Try another word.'; },
+  notes: (function(){
+    var tatay = 'Walang limit bawat araw. Hindi nito nababawasan ang sarili mong ML game.\nNo daily limit. It does not use up your own ML game.';
+    return {
+      ml: 'Isang match lang, panalo man o talo. Pagkatapos lang mag-aral. Dagdag ito sa normal mong oras ng laro.\nOne match, win or lose. Only after studying. It is extra, on top of your normal play time.',
+      tatay1: tatay, tatay2: tatay, tatay3: tatay, vs: tatay, duo: tatay,
+      hero: 'Gamitin sa susunod mong ML game kasama si Tatay.\nUse it on your next ML game with Tatay.',
+      mystery: 'Si Mommy o Tatay ang pipili ng sorpresa para sa iyo.\nMommy or Tatay picks a surprise reward for you.',
+      yesday: 'Oo sina Mommy at Tatay sa mga plano mo sa araw na iyon, basta sundin ang rules ng pamilya.\nMommy and Tatay say yes to your plans for the day, within family rules.',
+      pesos: 'Totoong pera! Bibigyan ka ni Mommy o Tatay ng 100 pesos.\nReal money! Mommy or Tatay gives you 100 pesos.'
+    };
+  })(),
   ask: function(item, coins){ return 'Ipa-type kay Mommy o Tatay ang PIN para sa: ' + item + ' (' + coins + ' coins)\nAsk Mommy or Tatay to type the PIN for: ' + item + ' (' + coins + ' coins)'; },
   askPhone: function(item, coins){ return 'Ipa-approve kay Mommy o Tatay: ' + item + ' (' + coins + ' coins). Pindutin ang berdeng button para maipadala sa phone nila.\nAsk Mommy or Tatay to approve: ' + item + ' (' + coins + ' coins). Tap the green button to send it to their phone.'; },
   pinHint: 'PIN of Mommy or Tatay',
@@ -703,28 +744,40 @@ window.SHOP_TEXT = {
     $('shop-goal').textContent = nextGoal(points);
     var e = W.earned(points);
     $('shop-earned').textContent = T.earned(e.points, e.coins, e.welcome, e.spent, e.bonus);
-    var box = $('shop-items');
+    var box = $('shop-items'), typed = $('shop-search').value.trim(), query = typed.toLowerCase();
     box.textContent = '';
-    W.catalog.forEach(function(item){
+    var shown = W.catalog.filter(function(item){ return (item.name + ' ' + item.goal).toLowerCase().indexOf(query) >= 0; });
+    shown.forEach(function(item){
       var c = W.canBuy(item.id, points);
-      var row = el('div', 'shop-item');
+      var row = el('div', 'shop-item' + (c.ok ? ' can' : ''));
       row.setAttribute('data-item', item.id);
-      row.appendChild(el('div', 'shop-emoji', item.emoji));
-      var info = el('div', 'shop-info');
-      info.appendChild(el('div', 'shop-name', item.name));
-      info.appendChild(el('div', 'shop-price', T.coins(item.coins)));
-      if (T.notes[item.id]) info.appendChild(el('div', 'shop-note', T.notes[item.id]));
-      row.appendChild(info);
+      var top = el('div', 'shop-top');
+      top.appendChild(el('div', 'shop-emoji', item.emoji));
+      top.appendChild(el('div', 'shop-price', '🪙 ' + item.coins));
+      row.appendChild(top);
+      row.appendChild(el('div', 'shop-name', item.name));
+      if (T.notes[item.id]) row.appendChild(el('div', 'shop-note', T.notes[item.id]));
+      var foot = el('div', 'shop-foot');
       if (c.ok){
         var buy = el('button', 'shop-buy', T.buy);
         buy.type = 'button';
         buy.setAttribute('data-buy', item.id);
-        row.appendChild(buy);
+        buy.setAttribute('aria-label', T.buy + ': ' + item.name);
+        foot.appendChild(buy);
       } else {
-        row.appendChild(el('div', 'shop-need', c.daily ? T.tomorrow : T.need(c.need)));
+        foot.appendChild(el('div', 'shop-need', c.daily ? T.tomorrow : T.need(c.need)));
+        if (!c.daily){
+          var bar = el('div', 'shop-bar'), fill = el('span');
+          fill.style.width = Math.min(100, Math.round(coins / item.coins * 100)) + '%';
+          bar.appendChild(fill);
+          foot.appendChild(bar);
+        }
       }
+      row.appendChild(foot);
       box.appendChild(row);
     });
+    $('shop-empty').hidden = shown.length > 0;
+    $('shop-empty').textContent = shown.length ? '' : T.noMatch(typed);
   }
 
   function show(view){
@@ -736,6 +789,9 @@ window.SHOP_TEXT = {
     show('shop-list-view');
   }
   function openShop(){
+    $('shop-search').value = '';
+    $('shop-search').placeholder = T.search;
+    $('shop-search').setAttribute('aria-label', T.search);
     backToList();
     overlay.hidden = false;
     wrap.inert = true;
@@ -889,6 +945,7 @@ window.SHOP_TEXT = {
   $('shop-phone').addEventListener('click', askPhone);
   document.addEventListener('cloud-synced', settle);
   $('shop-back').addEventListener('click', backToList);
+  $('shop-search').addEventListener('input', renderList);
   $('shop-items').addEventListener('click', function(ev){
     var b = ev.target.closest('button[data-buy]');
     if (b) askParent(itemById(b.getAttribute('data-buy')));
