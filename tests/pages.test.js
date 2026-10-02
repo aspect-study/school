@@ -32,3 +32,10 @@ test('every page checks its shared files with the same snippet, right after the 
     assert.ok(!/<script src=/.test(html.slice(html.indexOf('<script data-file-check>'))), name + ': no shared file after the check');
   }
 });
+
+test('every page loads storage.js, then learner.js, before any other engine file', () => {
+  for (const file of pages) {
+    const engine = [...fs.readFileSync(file, 'utf8').matchAll(/<script src="(?:\.\.\/)+engine\/([a-z-]+)\.js"/g)].map((m) => m[1]);
+    assert.deepEqual(engine.slice(0, 2), ['storage', 'learner'], path.relative(root, file));
+  }
+});

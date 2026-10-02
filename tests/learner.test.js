@@ -141,3 +141,28 @@ test('blocked storage still gives an empty learner, and save errors reach the ca
   assert.equal(L.storage.getItem('wallet_v1'), null);
   assert.throws(() => L.storage.setItem('wallet_v1', 'x'), /blocked/, 'history and wallet report "storage is full" from this');
 });
+
+test('migrated keys and her profile wait in the outbox, so the first cloud sync uploads everything', () => {
+  const s = storage(GRADE5_DEVICE);
+  const L = create(s, now, 5);
+  const waiting = Object.keys(L.storage.outbox()).sort();
+  const expected = Object.keys(GRADE5_DEVICE).map(legacyKey).filter(Boolean).map((m) => m.key).concat('profile_v1').sort();
+  assert.deepEqual(waiting, expected);
+});
+
+test('renaming her is noted for sync too', () => {
+  const s = storage({});
+  const L = create(s, now, 5);
+  L.storage.done(L.storage.outbox());
+  L.update({ name: 'Ana' });
+  assert.deepEqual(Object.keys(L.storage.outbox()), ['profile_v1']);
+});
+
+test('adopt() makes this device a learner from the cloud, and she stays current', () => {
+  const s = storage({});
+  const L = create(s, now, 5);
+  L.adopt('cloud1', { name: 'Ana', emoji: '🌻', grade: 5 });
+  const again = create(s, now, 5);
+  assert.equal(again.current().id, 'cloud1');
+  assert.equal(again.current().name, 'Ana');
+});

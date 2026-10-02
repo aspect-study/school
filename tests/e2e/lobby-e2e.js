@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { stage, makeWorkDir, dumpDom, readOutput, appendDriver } = require('./chrome.js');
-const { LOBBIES, lobbyFile } = require('../paths.js');
+const { LOBBIES, lobbyFile, ENGINE_FILES } = require('../paths.js');
 
 const CONFIGS = {
   2: {
@@ -36,7 +36,7 @@ const driverSource = 'var __store = window.Learner ? Learner.storage : localStor
   ', __E2E_WALLET = ' + JSON.stringify(cfg.wallet) + ', __E2E_OTHER_WALLET = ' + JSON.stringify(cfg.otherWallet) + ';\n' +
   fs.readFileSync(path.join(__dirname, 'lobby-driver.page.js'), 'utf8');
 const html = appendDriver(fs.readFileSync(lobbyFile(grade), 'utf8'), driverSource);
-const withJsLobby = stage(withJs, LOBBIES[grade].page, html, ['study-history.js', 'wallet.js', 'fx.js']);
+const withJsLobby = stage(withJs, LOBBIES[grade].page, html, ENGINE_FILES);
 const noJsLobby = stage(noJs, LOBBIES[grade].page, html, []);
 
 try {

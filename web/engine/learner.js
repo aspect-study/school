@@ -1,10 +1,11 @@
-/* Loaded first by every page. Each child on a device is a learner, and everything she saves lives under
-   learner/<id>/, so her coins, history and stars stay hers when she moves up a grade. Keep this file ASCII-only. */
+/* Loaded by every page right after storage.js. Each child on a device is a learner, and everything she saves lives in
+   her own space (learner/<id>/), so her coins, history and stars stay hers when she moves up a grade. Keep this file ASCII-only. */
 (function (root) {
   'use strict';
 
+  var Store = typeof module !== 'undefined' && module.exports ? require('./storage.js') : null;
+
   var DEVICE_KEY = 'learners_v1';
-  var PREFIX = 'learner/';
   var PROFILE = 'profile_v1';
   var NAME_MAX = 30;
 
@@ -27,6 +28,7 @@
   }
 
   function create(storage, now, pageGrade) {
+    var space = function (id) { return Store.space(storage, id, now); };
     function get(k) { try { return storage.getItem(k); } catch (e) { return null; } }
     function set(k, v) { try { storage.setItem(k, v); } catch (e) {} }
     function keys() {
@@ -37,21 +39,19 @@
     function json(raw) { try { return JSON.parse(raw); } catch (e) { return null; } }
 
     function readProfile(id) {
-      var p = json(get(PREFIX + id + '/' + PROFILE));
+      var p = json(space(id).getItem(PROFILE));
       if (!p || typeof p.grade !== 'number') return null;
       return { id: id, name: typeof p.name === 'string' ? p.name : '', emoji: typeof p.emoji === 'string' ? p.emoji : '', grade: p.grade };
     }
-    function writeProfile(l) { set(PREFIX + l.id + '/' + PROFILE, JSON.stringify({ name: l.name, emoji: l.emoji, grade: l.grade })); }
+    function writeProfile(l) {
+      try { space(l.id).setItem(PROFILE, JSON.stringify({ name: l.name, emoji: l.emoji, grade: l.grade, at: now() })); } catch (e) {}
+    }
 
     function list() {
-      var seen = {}, out = [];
-      keys().forEach(function (k) {
-        var m = /^learner\/([^/]+)\/profile_v1$/.exec(k || '');
-        if (m && !seen[m[1]]) {
-          seen[m[1]] = true;
-          var p = readProfile(m[1]);
-          if (p) out.push(p);
-        }
+      var out = [];
+      Store.spaces(storage).forEach(function (id) {
+        var p = readProfile(id);
+        if (p) out.push(p);
       });
       return out.sort(function (a, b) { return b.grade - a.grade || (a.id < b.id ? -1 : 1); });
     }
@@ -74,10 +74,10 @@
         if (m) (byGrade[m.grade] = byGrade[m.grade] || []).push([k, m.key]);
       });
       Object.keys(byGrade).map(Number).sort(function (a, b) { return b - a; }).forEach(function (grade) {
-        var l = newLearner(grade);
+        var l = newLearner(grade), mine = space(l.id);
         byGrade[grade].forEach(function (pair) {
           var v = get(pair[0]);
-          if (v !== null) set(PREFIX + l.id + '/' + pair[1], v);
+          if (v !== null) { try { mine.setItem(pair[1], v); } catch (e) {} }
         });
       });
     }
@@ -102,12 +102,8 @@
       saveDevice();
     }
 
-    function scoped(k) { return PREFIX + me.id + '/' + k; }
-    var store = {
-      getItem: function (k) { return me ? get(scoped(k)) : null; },
-      setItem: function (k, v) { if (me) storage.setItem(scoped(k), v); },
-      removeItem: function (k) { if (me) { try { storage.removeItem(scoped(k)); } catch (e) {} } }
-    };
+    var nobody = { getItem: function () { return null; }, setItem: function () {}, removeItem: function () {}, put: function () {}, keys: function () { return []; }, outbox: function () { return {}; }, done: function () {} };
+    var store = me ? space(me.id) : nobody;
 
     return {
       current: function () { return me ? { id: me.id, name: me.name, emoji: me.emoji, grade: me.grade } : null; },
@@ -119,7 +115,15 @@
         if (typeof fields.emoji === 'string') me.emoji = fields.emoji.trim().slice(0, 8);
         writeProfile(me);
       },
-      lobby: function (l) { return 'lobby/grade-' + (l || me).grade + '.html'; }
+      lobby: function (l) { return 'lobby/grade-' + (l || me).grade + '.html'; },
+      // Cloud sync: this device becomes a learner who already exists in the cloud. The page reloads afterwards.
+      adopt: function (id, profile) {
+        var l = { id: String(id), name: profile.name || '', emoji: profile.emoji || '', grade: Number(profile.grade) || (me && me.grade) || pageGrade };
+        writeProfile(l);
+        device.current = l.id;
+        saveDevice();
+        return space(l.id);
+      }
     };
   }
 
@@ -128,6 +132,7 @@
     module.exports = exported;
     return;
   }
+  Store = { space: function (raw, id, now) { return root.StudyStore.space(id); }, spaces: function () { return root.StudyStore.spaces(); } };
   try {
     var script = root.document && root.document.currentScript;
     var m = /^grade(\d+)$/.exec(script ? script.getAttribute('data-grade') || '' : '');

@@ -89,12 +89,13 @@ Tap **🔒 Parent** in a lobby and enter the PIN:
 - **Study history:** every app opened, lesson viewed and quiz taken, with score, time, power-ups used and each wrong answer (what was picked vs the right answer). Filter by date range and subject.
 - **Needs practice:** lessons under 80% right, weakest first.
 - **Real test score:** add bonus coins for a school test.
+- **Cloud backup:** sign in once per device with the family login (email + password). The lobby then backs up to Firebase on its own and keeps her other devices in sync: when the lobby opens, every 2 minutes, and when the device comes back online. A new or wiped tablet signs in, taps the child, and everything comes back. See `docs/superpowers/specs/2026-10-02-cloud-sync-design.md`.
 - **Full backup:** export or import a `.json` file holding the history, points, coins, question rest-days and her name. Backups made before learner profiles still import. Import shows the backup's points and coins next to the device's and asks before replacing them. The 🔒 Parent button shows **💾 backup due** when the last backup is more than 7 days old.
 - Spreadsheet (`.csv`) export of the history and of shop purchases.
 
 ## Where data is stored
 
-All progress lives in the browser's `localStorage` on each device. There's no account and no server, and nothing is sent anywhere. That means:
+All progress lives in the browser's `localStorage` on each device, and the device is always the main copy: the games never wait on the network. If a parent signs in under **Cloud backup**, the lobby also syncs it to the family's Firebase project (`study-game`), readable only with the family login (`firebase/firestore.rules`). Without signing in, nothing is sent anywhere. That means:
 
 - Each device (and each website address) has its own data. Use **Export full backup / Import backup** to move it.
 - Everything a child saves belongs to her **learner profile**: it is stored under `learner/<id>/…`, not under a grade. Her coins, history and stars stay with her when she moves up a grade, and a younger sibling who later plays the same game on the same device starts fresh. `web/engine/learner.js` owns this.
@@ -116,7 +117,11 @@ web/                         the published site (the only folder GitHub Pages se
     lessons/NN-name.js         one lesson per file (cards + quiz), plain data
     strategy.js, type-it.js    exam tips; questions she may type first (cases.js, walkthroughs.js in Math)
   engine/                    shared by every page, one copy each:
-    learner.js                 who is studying; keeps each child's saved data in her own space (loaded first)
+    storage.js                 the only file that touches browser storage: each child's space + the sync outbox (loaded first)
+    learner.js                 who is studying, and which space is hers (loaded second)
+    sync-core.js               cloud sync merge rules (lobbies only)
+    firebase-config.js         the family's Firebase project; public by design
+    cloud.js                   Firebase sign-in, the Cloud backup panel and sync timing (lobbies only)
     study-history.js           study history + backup
     wallet.js                  points → coins, shop catalog, coin guide
     powerups.js                in-quiz power-ups
@@ -128,6 +133,7 @@ web/                         the published site (the only folder GitHub Pages se
   *.html, grade 2/*.html     redirects from the old addresses
 sources/<grade>/<subject>/   text extracted from the lesson decks the games were built from
 tools/update-precache.js     lists every file under web/ in the offline cache
+firebase/firestore.rules     who may read and write the cloud copy (paste into Firebase → Firestore → Rules)
 tests/                       unit tests (node:test) and headless-Chrome end-to-end tests
   paths.js                   where every page lives (games are found through their subject.json)
   content.js                 loads a game's lesson files the way the browser does

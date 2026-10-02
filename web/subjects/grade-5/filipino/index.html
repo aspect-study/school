@@ -393,6 +393,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 
 </div>
 
+<script src="../../../engine/storage.js" data-grade="grade5"></script>
 <script src="../../../engine/learner.js" data-grade="grade5"></script>
 <script src="../../../engine/study-history.js" data-grade="grade5"></script>
 <script src="../../../engine/wallet.js" data-grade="grade5"></script>
@@ -409,7 +410,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 <script src="type-it.js"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];

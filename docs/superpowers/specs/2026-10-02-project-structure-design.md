@@ -1,7 +1,7 @@
 # Project structure for the long run
 
 Date: 2026-10-02
-Status: approved. Phases 1–3 done 2026-10-02. Phase 4 (learner profiles) done 2026-10-02: 355 unit tests + all e2e (incl. migration) green. Phase 5 is open; the Grade 6 move-up work below is waiting for the first Grade 6 lobby.
+Status: approved. Phases 1–4 done 2026-10-02. Phase 5a (storage + outbox) and 5b (Firebase sync) built 2026-10-02 (385 unit tests + all e2e green); 5c (parent view) is next. See 2026-10-02-cloud-sync-design.md.
 
 ## Why
 
@@ -174,3 +174,7 @@ User decisions: each child has her own device; names are set on the device (neve
 - `wallet.js` / `recall.js` / `powerups.js` / `fx.js` TEXT and the coin guide need `grade6` entries (they are keyed by `data-grade`).
 - Backup import checks `data.grade` against the page's grade. Restoring a Grade 5 backup in a Grade 6 lobby must be allowed for the same learner.
 - The old global keys can be deleted in a later release, once every tablet has migrated.
+
+## Phase 5a: storage module (done 2026-10-02)
+
+`web/engine/storage.js` loads first on every page and is the only engine file that touches browser storage. `StudyStore.space(id)` is a learner's space (`learner/<id>/…`). Every save or delete through it is noted in that space's outbox (`sync_outbox_v1`: key → time; `sync_*` keys are never noted). `done(sent)` clears only what wasn't changed again. `learner.js` now builds on it, so migrated keys and profile changes are already in the outbox for the first cloud upload. Phase 5b (Firebase sync) and 5c (parent view) are designed in `2026-10-02-cloud-sync-design.md`.

@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { stage, makeWorkDir, dumpDom, readOutput, appendDriver } = require('./chrome.js');
-const { LOBBIES, lobbyFile } = require('../paths.js');
+const { LOBBIES, lobbyFile, ENGINE_FILES } = require('../paths.js');
 
 const grade = process.argv[2] === '5' ? 5 : 2;
 const cfg = { grade: 'grade' + grade };
@@ -128,7 +128,7 @@ const driver = `
 `;
 
 const work = makeWorkDir('backup-e2e');
-const lobby = stage(path.join(work, 'site'), LOBBIES[grade].page, appendDriver(fs.readFileSync(lobbyFile(grade), 'utf8'), driver), ['study-history.js', 'wallet.js', 'fx.js']);
+const lobby = stage(path.join(work, 'site'), LOBBIES[grade].page, appendDriver(fs.readFileSync(lobbyFile(grade), 'utf8'), driver), ENGINE_FILES);
 
 try {
   const r = readOutput(dumpDom(path.join(work, 'profile'), lobby, ''));

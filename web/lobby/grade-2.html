@@ -498,6 +498,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
           <p class="p-note" id="ts-msg"></p>
         </div>
 
+        <div class="p-section" id="cloud-section" hidden></div>
+
         <div class="p-section">
           <h3>Backup</h3>
           <div class="p-row">
@@ -573,13 +575,17 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   </div>
 </div>
 
+<script src="../engine/storage.js" data-grade="grade2"></script>
 <script src="../engine/learner.js" data-grade="grade2"></script>
 <script src="../engine/study-history.js" data-grade="grade2"></script>
 <script src="../engine/wallet.js" data-grade="grade2"></script>
 <script src="../engine/fx.js" data-grade="grade2"></script>
+<script src="../engine/sync-core.js" data-grade="grade2"></script>
+<script src="../engine/firebase-config.js" data-grade="grade2"></script>
+<script src="../engine/cloud.js" data-grade="grade2"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
