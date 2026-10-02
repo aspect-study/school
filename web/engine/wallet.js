@@ -46,7 +46,7 @@
 
   function create(storage, now, grade) {
     if (!/^grade[0-9]+$/.test(grade || '')) throw new Error('Wallet needs a grade like "grade5".');
-    var KEY = grade + '_wallet_v1';
+    var KEY = 'wallet_v1';
 
     function fresh() { return { v: 1, baselines: {}, spent: 0, bonus: 0, purchases: [], oldPointsCounted: false }; }
 
@@ -411,7 +411,7 @@
   }
   try {
     var script = root.document && root.document.currentScript;
-    root.Wallet = create(root.localStorage, Date.now, script ? script.getAttribute('data-grade') : null);
+    root.Wallet = create(root.Learner ? root.Learner.storage : root.localStorage, Date.now, script ? script.getAttribute('data-grade') : null);
     mountUi(root, root.Wallet);
   } catch (e) {}
 })(this);

@@ -288,6 +288,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 
 </div>
 
+<script src="../../../engine/learner.js" data-grade="grade2"></script>
 <script src="../../../engine/study-history.js" data-grade="grade2"></script>
 <script src="../../../engine/wallet.js" data-grade="grade2"></script>
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
@@ -309,7 +310,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="type-it.js"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
+  var GLOBALS = { learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];

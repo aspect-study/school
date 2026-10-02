@@ -7,7 +7,7 @@ function __e2eOut(obj) {
 }
 
 function __e2eHistory() {
-  try { return (JSON.parse(localStorage.getItem(__E2E_KEY)) || { entries: [] }).entries; }
+  try { return (JSON.parse(__store.getItem(__E2E_KEY)) || { entries: [] }).entries; }
   catch (e) { return 'unparseable'; }
 }
 
@@ -16,12 +16,12 @@ function __e2eMode() {
 }
 
 function __e2eSeed() {
-  localStorage.setItem(__E2E_KEY, JSON.stringify({
+  __store.setItem(__E2E_KEY, JSON.stringify({
     v: 1, entries: [{ id: 'seed-1', type: 'open', app: 'seed', appTitle: 'Seed', t: 1 }]
   }));
   var baselines = {};
   baselines[kit.pointsKey] = 0;
-  localStorage.setItem(__E2E_WALLET_KEY, JSON.stringify({ v: 1, baselines: baselines, spent: 0, purchases: [], oldPointsCounted: true }));
+  __store.setItem(__E2E_WALLET_KEY, JSON.stringify({ v: 1, baselines: baselines, spent: 0, purchases: [], oldPointsCounted: true }));
   __e2eOut({ seeded: true });
 }
 
@@ -38,7 +38,7 @@ function __e2eExploreAll(btnSelector, boxId) {
 }
 
 function __e2eCoins() {
-  var pts = parseInt(localStorage.getItem(kit.pointsKey), 10) || 0;
+  var pts = parseInt(__store.getItem(kit.pointsKey), 10) || 0;
   var badge = document.querySelector('[data-coins="badge"]');
   var have = document.querySelector('[data-coins="haveNow"]');
   var live = document.querySelector('.points-live .coins-live');
@@ -53,7 +53,7 @@ function __e2eCoins() {
 }
 
 function __e2eSpent() {
-  return (JSON.parse(localStorage.getItem(__E2E_WALLET_KEY)) || {}).spent || 0;
+  return (JSON.parse(__store.getItem(__E2E_WALLET_KEY)) || {}).spent || 0;
 }
 
 function __e2ePu(kind) {
@@ -220,16 +220,16 @@ function __e2eRecallRound(start, next, typed) {
 }
 
 function __e2eRecall(startLesson, next, startExam) {
-  var key = __E2E_KEY.replace('_history_v1', '_recall_v1');
+  var key = 'recall_v1';
   var r = {};
   r.first = __e2eRecallRound(startLesson, next, 'wrong');
   r.second = __e2eRecallRound(startLesson, next, 'wrong');
-  var store = JSON.parse(localStorage.getItem(key));
+  var store = JSON.parse(__store.getItem(key));
   var d = new Date();
   d.setDate(d.getDate() - 3);
   var back = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
   Object.keys(store.rest).forEach(function (k) { store.rest[k] = back; });
-  localStorage.setItem(key, JSON.stringify(store));
+  __store.setItem(key, JSON.stringify(store));
   r.third = __e2eRecallRound(startLesson, next, 'right');
   r.exam = __e2eRecallRound(startExam, next, null);
   __e2eOut({ recall: r, hasRecall: !!window.Recall });

@@ -2,9 +2,11 @@
 (function (root) {
   'use strict';
 
-  var KEY = 'grade2_history_v1';
-  var ERROR_KEY = 'grade2_history_error_v1';
-  var CORRUPT_PREFIX = 'grade2_history_corrupt_v1_';
+  // Saved in the learner's own space (learner.js), so the names carry no grade.
+  var KEY = 'history_v1';
+  var ERROR_KEY = 'history_error_v1';
+  var CORRUPT_PREFIX = 'history_corrupt_v1_';
+  var LAST_BACKUP_KEY = 'last_backup_v1';
   var TYPES = ['open', 'lesson', 'quiz', 'purchase', 'test'];
   var MAX_ENTRY_MS = 60 * 60000;
   var ENTITIES = {
@@ -59,7 +61,6 @@
 
   function create(storage, now, grade) {
     var prefix = /^[a-z0-9]+$/.test(grade || '') ? grade : 'grade2';
-    var KEY = prefix + '_history_v1', ERROR_KEY = prefix + '_history_error_v1', CORRUPT_PREFIX = prefix + '_history_corrupt_v1_';
     var api = { plain: plain, dateKey: dateKey, grade: prefix };
 
     // Pure read, never writes: [] for a missing or corrupt value, null only if storage cannot be read at all.
@@ -316,20 +317,23 @@
     };
 
     // Points, coins and rest-days ride along with the history, so a wiped tablet can be fully restored.
-    var STATE_KEY_RE = new RegExp('^(?:[a-z0-9]+_points_v1|' + prefix + '_(?:wallet|recall)_v1)$');
-    var LAST_BACKUP_KEY = prefix + '_last_backup_v1';
+    var STATE_KEY_RE = /^(?:[a-z0-9]+_points_v1|wallet_v1|recall_v1)$/;
+    // Backups made before learners name the wallet and rest-days after the grade.
+    var LEGACY_STATE_KEY = new RegExp('^' + prefix + '_(wallet_v1|recall_v1)$');
 
     function stateOnly(obj) {
       var out = {};
       Object.keys(obj).forEach(function (k) {
-        if (STATE_KEY_RE.test(k) && typeof obj[k] === 'string') out[k] = obj[k];
+        var name = LEGACY_STATE_KEY.test(k) ? k.replace(LEGACY_STATE_KEY, '$1') : k;
+        if (STATE_KEY_RE.test(name) && typeof obj[k] === 'string') out[name] = obj[k];
       });
       return out;
     }
 
-    api.exportJson = function (state) {
+    api.exportJson = function (state, learner) {
       var data = { v: 1, grade: prefix, exportedAt: now(), entries: (read() || []).filter(validEntry) };
       if (state) data.state = stateOnly(state);
+      if (learner) data.learner = { name: learner.name || '', emoji: learner.emoji || '' };
       return JSON.stringify(data);
     };
 
@@ -339,7 +343,8 @@
       if (!data || data.grade !== prefix || !data.state || typeof data.state !== 'object' || Array.isArray(data.state)) return null;
       var state = stateOnly(data.state);
       if (!Object.keys(state).length) return null;
-      return { exportedAt: typeof data.exportedAt === 'number' ? data.exportedAt : null, state: state };
+      var learner = data.learner && typeof data.learner === 'object' ? { name: String(data.learner.name || ''), emoji: String(data.learner.emoji || '') } : null;
+      return { exportedAt: typeof data.exportedAt === 'number' ? data.exportedAt : null, state: state, learner: learner };
     };
 
     api.markBackedUp = function () {
@@ -458,8 +463,9 @@
   try {
     var script = root.document && root.document.currentScript;
     var grade = script ? script.getAttribute('data-grade') : null;
-    var sh = create(root.localStorage, Date.now, grade);
-    root.localStorage.getItem(sh.grade + '_history_v1');
+    var store = root.Learner ? root.Learner.storage : root.localStorage;
+    var sh = create(store, Date.now, grade);
+    store.getItem(KEY);
     root.StudyHistory = sh;
   } catch (e) {}
 })(this);

@@ -1,7 +1,7 @@
 # Project structure for the long run
 
 Date: 2026-10-02
-Status: approved. Phase 1 done 2026-10-02. Phase 2 (scoring) done 2026-10-02. Phase 3 (content as data) done 2026-10-02: 341 unit tests + all e2e green. Phases 4–5 are open.
+Status: approved. Phases 1–3 done 2026-10-02. Phase 4 (learner profiles) done 2026-10-02: 355 unit tests + all e2e (incl. migration) green. Phase 5 is open; the Grade 6 move-up work below is waiting for the first Grade 6 lobby.
 
 ## Why
 
@@ -156,3 +156,21 @@ The user chose **content only**: every game keeps its own screens and look, and 
 - The files are **plain data**. They were made by running each page's own code (its `mc`/`tf` builders, picture builders and passage constants) and writing out the result, then checked to round-trip exactly. Builders used only by content were removed from the pages. Block Bot's one generator is named in its data (`generate: 'numberline'`) and resolved by the page. Math Mastery's lessons are generators, so they stay in its page.
 - `subject.json` per game holds `id`, `title`, `grade`, `subject`, `pointsKey`, `progressKey`. `tests/paths.js` discovers games from these files, and `REDIRECTS` is now a fixed historical list.
 - `tools/update-precache.js` rewrites the offline cache list. `tests/content.js` loads data files through the kit's real `library()`, and `tests/content.test.js` checks the tags match the files, the numbering, plain-data purity and that `subject.json` agrees with the page.
+
+## Phase 4: learner profiles (done 2026-10-02)
+
+User decisions: each child has her own device; names are set on the device (never in public code); after moving up, the lobby shows the new grade plus a Review section.
+
+- **`web/engine/learner.js`** is loaded first on every page (`data-grade` = the page's grade). Each learner's profile is `learner/<id>/profile_v1` (`name`, `emoji`, `grade`). The device keeps only `learners_v1` = `{ current }`, and the list is found by scanning profiles, so a damaged device record cannot orphan a child.
+- **Choosing the learner for a page:** the current learner if her grade matches. Otherwise a learner with that grade (and switch to her). Otherwise the current learner if her grade is higher (she is reviewing an earlier grade). Otherwise a new learner for that grade. `index.html` (no grade) never creates one: it goes to the current learner's lobby or shows the picker.
+- **Scoped storage:** `Learner.storage` maps `k` to `learner/<id>/k`. It is passed to study-history, wallet, recall and study-kit, and the lobbies use it too. Their keys no longer contain the grade (`wallet_v1`, `recall_v1`, `history_v1`, `history_error_v1`, `history_corrupt_v1_*`, `last_backup_v1`, `coin_guide_seen_v1`); game keys are unchanged. `data-grade` now only picks the language. The mute setting stays per device.
+- **Migration:** when no learner profile exists yet, legacy keys are grouped by grade (a frozen table of the 15 games that existed, test-checked against their `subject.json`), one learner is created per grade with data, and the keys are copied, not moved. It never runs again once any profile exists.
+- **Backups:** export adds `learner: { name, emoji }` and uses the new key names. Import maps `gradeN_wallet_v1` / `gradeN_recall_v1` from older backups, and fills in her name if the device has none.
+- **Parent panel → Learner:** name and emoji. The hero title greets her once a name is set.
+
+### Waiting for the first Grade 6 lobby
+
+- A "Move up to Grade N+1" button in Parent (it sets `profile.grade`), and the new lobby lists the earlier grade's games under **Review**. Their pages already save into her space through the review rule above.
+- `wallet.js` / `recall.js` / `powerups.js` / `fx.js` TEXT and the coin guide need `grade6` entries (they are keyed by `data-grade`).
+- Backup import checks `data.grade` against the page's grade. Restoring a Grade 5 backup in a Grade 6 lobby must be allowed for the same learner.
+- The old global keys can be deleted in a later release, once every tablet has migrated.

@@ -9,7 +9,7 @@
 
   // opts: { app, title, pointsKey, progressKey, liveLabel = 'pts', liveSelector = '#points-live' }
   function start(opts, win, now) {
-    var store = win.localStorage;
+    var store = win.Learner ? win.Learner.storage : win.localStorage;
     function get(key) { try { return store.getItem(key); } catch (e) { return null; } }
     function set(key, value) { try { store.setItem(key, value); } catch (e) {} }
 

@@ -26,7 +26,7 @@ const GRADE5_APPS = [
 ];
 
 const grade = process.argv[2] === '5' ? 5 : 2;
-const key = grade === 5 ? 'grade5_history_v1' : 'grade2_history_v1';
+const key = 'history_v1';
 const APPS = grade === 5 ? GRADE5_APPS : GRADE2_APPS;
 const { plain } = require(engineFile('study-history.js'));
 
@@ -256,7 +256,7 @@ const noJs = path.join(work, 'no-js');
 const withRecall = path.join(work, 'with-recall');
 const WITHOUT_RECALL = ENGINE_FILES.filter((f) => f !== 'recall.js');
 
-const common = "var __E2E_KEY = '" + key + "';\nvar __E2E_WALLET_KEY = 'grade" + grade + "_wallet_v1';\n" + read('driver-common.page.js');
+const common = "var __store = window.Learner ? Learner.storage : localStorage;\nvar __E2E_KEY = '" + key + "';\nvar __E2E_WALLET_KEY = 'wallet_v1';\n" + read('driver-common.page.js');
 const failures = [];
 for (const app of APPS) {
   const driver = common + '\n' + read(driverFileFor(app));

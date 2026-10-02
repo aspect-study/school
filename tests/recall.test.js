@@ -156,21 +156,22 @@ test('a cleared question falls back to the normal rule and rests nothing', () =>
 });
 
 test('old rest dates are pruned and bad data is ignored', () => {
-  const s = memory({ grade5_recall_v1: JSON.stringify({ v: 1, rest: { old: '2026-09-01', fresh: '2026-10-01', junk: 5, bad: 'yesterday' } }) });
+  const s = memory({ recall_v1: JSON.stringify({ v: 1, rest: { old: '2026-09-01', fresh: '2026-10-01', junk: 5, bad: 'yesterday' } }) });
   create(s, clock(2026, 10, 2), 'grade5');
-  assert.deepEqual(JSON.parse(s.data.grade5_recall_v1).rest, { fresh: '2026-10-01' });
-  const r = create(memory({ grade5_recall_v1: '{nope' }), clock(2026, 10, 2), 'grade5');
+  assert.deepEqual(JSON.parse(s.data.recall_v1).rest, { fresh: '2026-10-01' });
+  const r = create(memory({ recall_v1: '{nope' }), clock(2026, 10, 2), 'grade5');
   assert.equal(r.begin([], 'k').resting, 0);
 });
 
-test('each grade has its own store and an unknown grade is refused', () => {
-  const s = memory();
+test('rest-days live in the learner space given, and an unknown grade is refused', () => {
   const now = clock(2026, 10, 1);
-  const g5 = create(s, now, 'grade5');
+  const mine = memory(), sister = memory();
+  const g5 = create(mine, now, 'grade5');
   g5.begin([], 'k');
   g5.points(false, 10, 0);
-  assert.equal(create(s, now, 'grade2').begin([], 'k').resting, 0);
-  assert.throws(() => create(s, now, 'grade9'));
+  assert.ok(mine.data.recall_v1, 'saved as recall_v1 in her own space');
+  assert.equal(create(sister, now, 'grade5').begin([], 'k').resting, 0, 'another learner has her own rest-days');
+  assert.throws(() => create(mine, now, 'grade9'));
   assert.throws(() => create(s, now, null));
 });
 

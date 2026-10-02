@@ -11,6 +11,7 @@ const PRECACHE = [
   'lobby/grade-5.html',
   'lobby/grade-5.webmanifest',
   'engine/fx.js',
+  'engine/learner.js',
   'engine/powerups.js',
   'engine/recall.js',
   'engine/study-history.js',

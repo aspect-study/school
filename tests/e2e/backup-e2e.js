@@ -12,6 +12,7 @@ const cfg = { grade: 'grade' + grade };
 // Synchronous stand-ins for Blob/FileReader, because --dump-dom reads the page right after load.
 const driver = `
 (function () {
+  var __store = window.Learner ? Learner.storage : localStorage;
   var $ = function (id) { return document.getElementById(id); };
   var G = ${JSON.stringify(cfg.grade)};
   var r = {};
@@ -24,11 +25,11 @@ const driver = `
 
   var keys = Array.prototype.map.call(document.querySelectorAll('[data-points-key]'), function (c) { return c.getAttribute('data-points-key'); });
   localStorage.clear();
-  localStorage.setItem(keys[0], '500');
-  localStorage.setItem(keys[1], '120');
+  __store.setItem(keys[0], '500');
+  __store.setItem(keys[1], '120');
   var baselines = {}; baselines[keys[0]] = 0; baselines[keys[1]] = 0;
-  localStorage.setItem(G + '_wallet_v1', JSON.stringify({ v: 1, baselines: baselines, spent: 30, bonus: 50, purchases: [], oldPointsCounted: true }));
-  localStorage.setItem(G + '_recall_v1', JSON.stringify({ v: 1, rest: { 'x|quiz|1': StudyHistory.dateKey(Date.now()) } }));
+  __store.setItem('wallet_v1', JSON.stringify({ v: 1, baselines: baselines, spent: 30, bonus: 50, purchases: [], oldPointsCounted: true }));
+  __store.setItem('recall_v1', JSON.stringify({ v: 1, rest: { 'x|quiz|1': StudyHistory.dateKey(Date.now()) } }));
   StudyHistory.appOpened(keys[0].replace('_points_v1', ''), 'Some App');
   location.reload = function () {};
 
@@ -51,9 +52,9 @@ const driver = `
   r.dueAfter = $('parent-open').textContent;
   $('parent-close').click();
 
-  var lastBackup = localStorage.getItem(G + '_last_backup_v1');
+  var lastBackup = __store.getItem('last_backup_v1');
   localStorage.clear();
-  localStorage.setItem(G + '_last_backup_v1', lastBackup);
+  __store.setItem('last_backup_v1', lastBackup);
 
   function importFile(answer) {
     window.FileReader = function () {};
@@ -74,11 +75,11 @@ const driver = `
 
   unlock();
   r.declined = importFile(false);
-  r.pointsAfterDecline = localStorage.getItem(keys[0]);
+  r.pointsAfterDecline = __store.getItem(keys[0]);
   r.restored = importFile(true);
-  r.pointsRestored = [localStorage.getItem(keys[0]), localStorage.getItem(keys[1])];
+  r.pointsRestored = [__store.getItem(keys[0]), __store.getItem(keys[1])];
   r.coinsRestored = Wallet.balanceStored();
-  r.recallRestored = !!localStorage.getItem(G + '_recall_v1');
+  r.recallRestored = !!__store.getItem('recall_v1');
   r.historyRestored = StudyHistory.list(null, null).length;
   r.again = importFile(true);
   r.keys = keys.slice(0, 2);
@@ -103,7 +104,7 @@ const driver = `
   $('paste-import').click();
   window.setTimeout = realTimeout;
   r.pasteAlert = lastAlert;
-  r.pastedPoints = localStorage.getItem(keys[0]);
+  r.pastedPoints = __store.getItem(keys[0]);
   r.pastedCoins = Wallet.balanceStored();
   $('paste-text').value = '';
   $('paste-import').click();
@@ -137,7 +138,7 @@ try {
   assert.equal(r.dueBefore, '🔒 Parent · 💾 backup due', 'a tablet with points and no backup is due');
   assert.equal(r.ageBefore, '⚠️ No full backup from this device yet.');
   assert.match(r.fileName, new RegExp('^study-backup-grade' + grade + '-\\d{4}-\\d\\d-\\d\\d\\.json$'));
-  assert.deepEqual(r.exportedKeys, [r.keys[0], r.keys[1], 'grade' + grade + '_recall_v1', 'grade' + grade + '_wallet_v1'].sort());
+  assert.deepEqual(r.exportedKeys, [r.keys[0], r.keys[1], 'recall_v1', 'wallet_v1'].sort());
   assert.equal(r.ageAfter, '✅ Last full backup: today.');
   assert.equal(r.dueAfter, '🔒 Parent');
 

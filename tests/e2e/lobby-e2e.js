@@ -6,18 +6,18 @@ const { LOBBIES, lobbyFile } = require('../paths.js');
 
 const CONFIGS = {
   2: {
-    key: 'grade2_history_v1',
-    wallet: 'grade2_wallet_v1',
-    otherWallet: 'grade5_wallet_v1',
+    key: 'history_v1',
+    wallet: 'wallet_v1',
+    otherWallet: 'learner/her-sister/wallet_v1',
     shop: { goal: '160 coins pa para sa Movie night!\n160 more coins to Movie night!', movieNeed: '160 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 1000 new points → 🪙 100 coins · 🎁 40 welcome · 🛒 40 spent' },
     apps: ['word-train', 'kuwentista'],
     subjects: ['English', 'Filipino'],
     subjectOptions: 8,
   },
   5: {
-    key: 'grade5_history_v1',
-    wallet: 'grade5_wallet_v1',
-    otherWallet: 'grade2_wallet_v1',
+    key: 'history_v1',
+    wallet: 'wallet_v1',
+    otherWallet: 'learner/her-sister/wallet_v1',
     shop: { goal: '160 more coins to Movie night!', movieNeed: '160 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 1000 new points → 🪙 100 coins · 🎁 40 welcome · 🛒 40 spent' },
     apps: ['page-turners', 'math-mastery'],
     subjects: ['English', 'Math'],
@@ -32,7 +32,7 @@ const work = makeWorkDir('study-history-lobby');
 const withJs = path.join(work, 'with-js');
 const noJs = path.join(work, 'no-js');
 
-const driverSource = 'var __E2E_KEY = ' + JSON.stringify(cfg.key) + ', __E2E_APPS = ' + JSON.stringify(cfg.apps) +
+const driverSource = 'var __store = window.Learner ? Learner.storage : localStorage;\nvar __E2E_KEY = ' + JSON.stringify(cfg.key) + ', __E2E_APPS = ' + JSON.stringify(cfg.apps) +
   ', __E2E_WALLET = ' + JSON.stringify(cfg.wallet) + ', __E2E_OTHER_WALLET = ' + JSON.stringify(cfg.otherWallet) + ';\n' +
   fs.readFileSync(path.join(__dirname, 'lobby-driver.page.js'), 'utf8');
 const html = appendDriver(fs.readFileSync(lobbyFile(grade), 'utf8'), driverSource);

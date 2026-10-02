@@ -30,7 +30,7 @@
 
   var mode = (location.hash.match(/e2e=(\w+)/) || [])[1];
   var r = {};
-  function wallet() { return JSON.parse(localStorage.getItem(WALLET)); }
+  function wallet() { return JSON.parse(__store.getItem(WALLET)); }
   function shopRow(id) { return document.querySelector('#shop-items [data-item="' + id + '"]'); }
 
   if (mode === 'testscore') {
@@ -57,7 +57,7 @@
     r.bonusAfterSecond = wallet().bonus;
     fill('Bad', '16', '15');
     r.badDisabled = $('ts-add').disabled;
-    r.entries = JSON.parse(localStorage.getItem(KEY)).entries.filter(function (e) { return e.type === 'test'; }).length;
+    r.entries = JSON.parse(__store.getItem(KEY)).entries.filter(function (e) { return e.type === 'test'; }).length;
     r.shopEarned = $('shop-earned').textContent;
     return out(r);
   }
@@ -75,12 +75,12 @@
   r.coinBadge0 = $('coin-badge').textContent;
   r.baselineKeys = Object.keys(wallet().baselines).sort();
   r.guideAutoShown = !!(window.Wallet && Wallet.guideOpen());
-  r.guideSeen = localStorage.getItem(WALLET.replace('_wallet_v1', '_coin_guide_seen_v1'));
+  r.guideSeen = __store.getItem('coin_guide_seen_v1');
   document.querySelector('.coin-guide .cg-close').click();
   r.guideClosed = !Wallet.guideOpen();
   r.guideButton = $('coin-guide-open').textContent;
 
-  localStorage.setItem(KEY, JSON.stringify({ v: 1, entries: [
+  __store.setItem(KEY, JSON.stringify({ v: 1, entries: [
     { id: 'a', type: 'open', app: APPS[0], appTitle: 'Word Train', t: at(0, 9, 0) },
     { id: 'b', type: 'quiz', app: APPS[0], appTitle: 'Word Train', lessonId: '0', lessonTitle: 'Nouns', final: false,
       total: 10, answered: 10, correct: 8, finished: true, stars: 2, points: 95, bestStreak: 5,
@@ -127,13 +127,13 @@
   r.rowsAll = rows();
   r.allText = $('hist-list').textContent;
   r.weakAll = $('weak-spots').textContent;
-  var seeded = localStorage.getItem(KEY), withWeak = JSON.parse(seeded);
+  var seeded = __store.getItem(KEY), withWeak = JSON.parse(seeded);
   withWeak.entries.push({ id: 'w', type: 'quiz', app: APPS[0], appTitle: 'X', lessonTitle: 'Verbs', total: 10, answered: 10, correct: 4,
     finished: true, stars: 0, points: 40, bestStreak: 1, wrong: [], t: at(0, 8, 0), updatedAt: at(0, 8, 5) });
-  localStorage.setItem(KEY, JSON.stringify(withWeak));
+  __store.setItem(KEY, JSON.stringify(withWeak));
   document.querySelector('#range-buttons [data-range="all"]').click();
   r.weakList = Array.prototype.map.call(document.querySelectorAll('#weak-spots li'), function (li) { return li.textContent; });
-  localStorage.setItem(KEY, seeded);
+  __store.setItem(KEY, seeded);
   document.querySelector('#range-buttons [data-range="all"]').click();
   change('subject-filter', APPS[1]);
   r.rowsKuwentista = rows();
@@ -145,10 +145,10 @@
   $('del-from').value = day3;
   $('del-to').value = day3;
   $('delete-range').click();
-  r.afterRange = JSON.parse(localStorage.getItem(KEY)).entries.map(function (e) { return e.id; }).join(',');
+  r.afterRange = JSON.parse(__store.getItem(KEY)).entries.map(function (e) { return e.id; }).join(',');
   r.deleteMsg = $('delete-msg').textContent;
   $('delete-all').click();
-  r.afterAll = localStorage.getItem(KEY);
+  r.afterAll = __store.getItem(KEY);
 
   $('parent-close').click();
   r.closed = $('parent-overlay').hidden;
@@ -157,7 +157,7 @@
   $('parent-close').click();
 
   localStorage.setItem(OTHER_WALLET, 'untouched');
-  localStorage.setItem(r.baselineKeys[0], '1000');
+  __store.setItem(r.baselineKeys[0], '1000');
   $('shop-open').click();
   r.shopOpen = !$('shop-overlay').hidden;
   r.shopCoins = $('shop-coins').textContent;
@@ -174,7 +174,7 @@
   r.doneText = $('shop-done').textContent;
   r.badgeAfter = $('coin-badge').textContent;
   r.spentAfter = wallet().spent;
-  r.pointsAfter = localStorage.getItem(r.baselineKeys[0]);
+  r.pointsAfter = __store.getItem(r.baselineKeys[0]);
   $('shop-back').click();
   r.mlAfter = shopRow('ml').querySelector('.shop-need').textContent;
   r.earnedText = $('shop-earned').textContent;
@@ -184,7 +184,7 @@
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
   r.escClosed = $('shop-overlay').hidden;
   r.otherWallet = localStorage.getItem(OTHER_WALLET);
-  r.purchaseLogged = JSON.parse(localStorage.getItem(KEY)).entries
+  r.purchaseLogged = JSON.parse(__store.getItem(KEY)).entries
     .filter(function (e) { return e.type === 'purchase'; })
     .map(function (e) { return { item: e.item, coins: e.coins }; });
   $('parent-open').click();

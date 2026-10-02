@@ -97,7 +97,7 @@
 
   function create(storage, now, grade) {
     if (!Object.prototype.hasOwnProperty.call(TEXT, grade || '')) throw new Error('Recall needs a grade like "grade5".');
-    var KEY = grade + '_recall_v1';
+    var KEY = 'recall_v1';
     var current = null, lastQuiz = null, restingCount = 0;
 
     function read() {
@@ -253,6 +253,6 @@
   }
   try {
     var script = root.document && root.document.currentScript;
-    root.Recall = mountUi(root, create(root.localStorage, Date.now, script ? script.getAttribute('data-grade') : null));
+    root.Recall = mountUi(root, create(root.Learner ? root.Learner.storage : root.localStorage, Date.now, script ? script.getAttribute('data-grade') : null));
   } catch (e) {}
 })(this);

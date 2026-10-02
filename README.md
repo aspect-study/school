@@ -85,10 +85,11 @@ Each grade has its own separate wallet.
 
 Tap **🔒 Parent** in a lobby and enter the PIN:
 
+- **Learner:** her name and emoji. The lobby then greets her ("🌻 Hi, Ana!"). The name stays on the tablet and in her backups, never on the website.
 - **Study history:** every app opened, lesson viewed and quiz taken, with score, time, power-ups used and each wrong answer (what was picked vs the right answer). Filter by date range and subject.
 - **Needs practice:** lessons under 80% right, weakest first.
 - **Real test score:** add bonus coins for a school test.
-- **Full backup:** export or import a `.json` file holding the history, points, coins and question rest-days. Import shows the backup's points and coins next to the device's and asks before replacing them. The 🔒 Parent button shows **💾 backup due** when the last backup is more than 7 days old.
+- **Full backup:** export or import a `.json` file holding the history, points, coins, question rest-days and her name. Backups made before learner profiles still import. Import shows the backup's points and coins next to the device's and asks before replacing them. The 🔒 Parent button shows **💾 backup due** when the last backup is more than 7 days old.
 - Spreadsheet (`.csv`) export of the history and of shop purchases.
 
 ## Where data is stored
@@ -96,6 +97,9 @@ Tap **🔒 Parent** in a lobby and enter the PIN:
 All progress lives in the browser's `localStorage` on each device. There's no account and no server, and nothing is sent anywhere. That means:
 
 - Each device (and each website address) has its own data. Use **Export full backup / Import backup** to move it.
+- Everything a child saves belongs to her **learner profile**: it is stored under `learner/<id>/…`, not under a grade. Her coins, history and stars stay with her when she moves up a grade, and a younger sibling who later plays the same game on the same device starts fresh. `web/engine/learner.js` owns this.
+- The device remembers its child, so `index.html` goes straight to her lobby. A new device asks for the grade once.
+- Tablets saved before learner profiles (2026-10-02) are moved over automatically on their first visit. The old keys are copied, not moved, and stay as a safety net.
 - Clearing the browser's site data erases progress, so keep a recent backup off the device.
 - On iPad, a Home Screen app has storage separate from Safari.
 
@@ -112,6 +116,7 @@ web/                         the published site (the only folder GitHub Pages se
     lessons/NN-name.js         one lesson per file (cards + quiz), plain data
     strategy.js, type-it.js    exam tips; questions she may type first (cases.js, walkthroughs.js in Math)
   engine/                    shared by every page, one copy each:
+    learner.js                 who is studying; keeps each child's saved data in her own space (loaded first)
     study-history.js           study history + backup
     wallet.js                  points → coins, shop catalog, coin guide
     powerups.js                in-quiz power-ups
@@ -155,6 +160,7 @@ node tests/e2e/apps-e2e.js 5         # play every Grade 5 game
 node tests/e2e/lobby-e2e.js [5]      # lobby, parent panel and shop
 node tests/e2e/backup-e2e.js [5]     # export → wipe → import → restore
 node tests/e2e/file-check-e2e.js     # missing engine-file banner
+node tests/e2e/migration-e2e.js      # a tablet saved before learner profiles keeps its points, coins and stars
 ```
 
 The end-to-end tests inject a driver into a copy of each page. The driver plays every lesson perfectly and all-wrong, uses power-ups, and checks points, streaks, history and coins.

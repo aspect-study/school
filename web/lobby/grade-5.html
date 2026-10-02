@@ -340,7 +340,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <div class="wrap">
   <div class="hero">
     <div class="hero-emoji">🎒</div>
-    <h1>Study Games</h1>
+    <h1 id="hero-title">Study Games</h1>
     <p>Pick a subject and start a fresh run!</p>
     <div class="points-combined" id="points-combined-badge"></div>
     <div class="coin-row" id="coin-row" hidden>
@@ -502,6 +502,17 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         <div class="p-section" id="weak-spots"></div>
         <div class="p-section" id="hist-list"></div>
 
+        <div class="p-section" id="learner-section">
+          <h3>🧒 Learner</h3>
+          <div class="p-row">
+            <label>Name <input type="text" id="learner-name" maxlength="30" placeholder="e.g. Ana"></label>
+            <label>Emoji <input type="text" id="learner-emoji" maxlength="8" placeholder="🌻"></label>
+            <button class="p-btn" type="button" id="learner-save">Save</button>
+          </div>
+          <p class="p-note">Her name stays on this tablet and in her backups. It is never put on the website.</p>
+          <p class="p-note" id="learner-msg"></p>
+        </div>
+
         <div class="p-section" id="test-score">
           <h3>📝 Real test score</h3>
           <div class="p-row">
@@ -592,12 +603,13 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   </div>
 </div>
 
+<script src="../engine/learner.js" data-grade="grade5"></script>
 <script src="../engine/study-history.js" data-grade="grade5"></script>
 <script src="../engine/wallet.js" data-grade="grade5"></script>
 <script src="../engine/fx.js" data-grade="grade5"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
+  var GLOBALS = { learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
@@ -617,8 +629,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 </script>
 <script>
 (function(){
+  var STORE = window.Learner ? Learner.storage : localStorage;
   function getPoints(key){
-    try{ return parseInt(localStorage.getItem(key), 10) || 0; }catch(e){ return 0; }
+    try{ return parseInt(STORE.getItem(key), 10) || 0; }catch(e){ return 0; }
   }
   var total = 0;
   document.querySelectorAll('[data-points-key]').forEach(function(el){
@@ -653,6 +666,7 @@ window.SHOP_TEXT = {
 </script>
 <script data-shop>
 (function(){
+  var STORE = window.Learner ? Learner.storage : localStorage;
   var PIN = '0108';
   var KEEP_DAYS = 7;
   var W = window.Wallet, SH = window.StudyHistory, T = window.SHOP_TEXT;
@@ -674,7 +688,7 @@ window.SHOP_TEXT = {
     var points = {};
     document.querySelectorAll('[data-points-key]').forEach(function(card){
       var key = card.getAttribute('data-points-key');
-      try { points[key] = parseInt(localStorage.getItem(key), 10) || 0; } catch (e) { points[key] = 0; }
+      try { points[key] = parseInt(STORE.getItem(key), 10) || 0; } catch (e) { points[key] = 0; }
     });
     W.track(points);
     return points;
@@ -804,11 +818,11 @@ window.SHOP_TEXT = {
   W.refreshShop = renderList;
   $('coin-row').hidden = false;
 
-  var GUIDE_SEEN = W.grade + '_coin_guide_seen_v1', seen = null;
-  try { seen = localStorage.getItem(GUIDE_SEEN); } catch (e) {}
+  var GUIDE_SEEN = 'coin_guide_seen_v1', seen = null;
+  try { seen = STORE.getItem(GUIDE_SEEN); } catch (e) {}
   if (!seen && W.showGuide){
     W.showGuide();
-    try { localStorage.setItem(GUIDE_SEEN, '1'); } catch (e) {}
+    try { STORE.setItem(GUIDE_SEEN, '1'); } catch (e) {}
   }
 
   $('shop-open').addEventListener('click', openShop);
@@ -836,7 +850,8 @@ window.SHOP_TEXT = {
 <script>
 (function(){
   var PIN = '0108';
-  var SH = window.StudyHistory;
+  var SH = window.StudyHistory, L = window.Learner;
+  var STORE = window.Learner ? Learner.storage : localStorage;
   var $ = function(id){ return document.getElementById(id); };
   var overlay = $('parent-overlay'), pinView = $('pin-view'), historyView = $('history-view'), dots = $('pin-dots');
   var entered = '';
@@ -1067,11 +1082,11 @@ window.SHOP_TEXT = {
   var BACKUP_DUE_DAYS = 7;
   function savedState(){
     var state = {};
-    var keys = [SH.grade + '_wallet_v1', SH.grade + '_recall_v1'];
+    var keys = ['wallet_v1', 'recall_v1'];
     document.querySelectorAll('[data-points-key]').forEach(function(c){ keys.push(c.getAttribute('data-points-key')); });
     keys.forEach(function(k){
       var v = null;
-      try { v = localStorage.getItem(k); } catch (e) {}
+      try { v = STORE.getItem(k); } catch (e) {}
       if (v !== null) state[k] = v;
     });
     return state;
@@ -1114,7 +1129,8 @@ window.SHOP_TEXT = {
       'This device has ⭐ ' + pointsIn(current) + ' points' + coinsText(current) + '.\n\n' +
       'Replace the points and coins on this device with the ones in the backup?')) return 'Points and coins were left as they are.';
     try {
-      Object.keys(b.state).forEach(function(k){ localStorage.setItem(k, b.state[k]); });
+      Object.keys(b.state).forEach(function(k){ STORE.setItem(k, b.state[k]); });
+      if (b.learner && L && !L.current().name) L.update(b.learner);
     } catch (e) {
       return 'Could not restore points and coins: storage is full or unavailable.';
     }
@@ -1168,6 +1184,21 @@ window.SHOP_TEXT = {
     $('ts-subject').appendChild(tsOpt);
   });
 
+  function renderLearner(){
+    var me = L && L.current();
+    $('learner-section').hidden = !me;
+    if (!me) return;
+    $('learner-name').value = me.name;
+    $('learner-emoji').value = me.emoji;
+    $('hero-title').textContent = me.name ? (me.emoji ? me.emoji + ' ' : '') + 'Hi, ' + me.name + '!' : 'Study Games';
+  }
+  $('learner-save').addEventListener('click', function(){
+    L.update({ name: $('learner-name').value, emoji: $('learner-emoji').value });
+    renderLearner();
+    $('learner-msg').textContent = '✅ Saved.';
+  });
+  renderLearner();
+
   $('parent-open').addEventListener('click', openParent);
   renderBackupAge();
   $('test-score').hidden = !(SH && W && W.addBonus && W.testBonus);
@@ -1206,7 +1237,7 @@ window.SHOP_TEXT = {
   });
 
   $('export-json').addEventListener('click', function(){
-    download('study-backup-' + SH.grade + '-' + today() + '.json', SH.exportJson(savedState()), 'application/json');
+    download('study-backup-' + SH.grade + '-' + today() + '.json', SH.exportJson(savedState(), L && L.current()), 'application/json');
     $('backup-msg').textContent += ' It holds ' + totalsText(savedState()) + '.';
     SH.markBackedUp();
     renderBackupAge();
@@ -1253,7 +1284,7 @@ window.SHOP_TEXT = {
     return ok;
   }
   $('copy-backup').addEventListener('click', function(){
-    var text = SH.exportJson(savedState());
+    var text = SH.exportJson(savedState(), L && L.current());
     if (copyText(text)) {
       SH.markBackedUp();
       renderBackupAge();

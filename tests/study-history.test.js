@@ -134,7 +134,7 @@ test('corrupt history is copied aside before new writes', () => {
   const { sh, storage, clock } = setup();
   storage.setItem(KEY, '{not json');
   sh.appOpened('word-train', 'Word Train');
-  assert.equal(storage.getItem('grade2_history_corrupt_v1_' + clock.ms), '{not json');
+  assert.equal(storage.getItem('history_corrupt_v1_' + clock.ms), '{not json');
   assert.equal(saved(storage).length, 1);
 });
 
@@ -142,7 +142,7 @@ test('corrupt history that cannot be copied aside is left untouched', () => {
   const { sh, storage } = setup();
   storage.setItem(KEY, '{not json');
   const realSet = storage.setItem;
-  storage.setItem = (k, v) => { if (k.startsWith('grade2_history_corrupt')) throw new Error('full'); realSet(k, v); };
+  storage.setItem = (k, v) => { if (k.startsWith('history_corrupt')) throw new Error('full'); realSet(k, v); };
   assert.equal(sh.appOpened('word-train', 'Word Train'), null);
   assert.equal(storage.getItem(KEY), '{not json');
   assert.notEqual(sh.storageError(), null);
@@ -258,7 +258,7 @@ test('deleteRange removes only entries inside the inclusive range', () => {
 
 test('deleting clears the storage-full marker', () => {
   const { sh, storage } = seed();
-  storage.setItem('grade2_history_error_v1', '123');
+  storage.setItem('history_error_v1', '123');
   sh.deleteRange('2026-09-01', '2026-09-01');
   assert.equal(sh.storageError(), null);
 });
@@ -339,7 +339,7 @@ test('reads never copy corrupt data aside', () => {
   sh.list();
   sh.list();
   sh.list();
-  const corruptKeys = Object.keys(storage.data).filter((k) => k.startsWith('grade2_history_corrupt'));
+  const corruptKeys = Object.keys(storage.data).filter((k) => k.startsWith('history_corrupt'));
   assert.deepEqual(corruptKeys, []);
 });
 
@@ -393,7 +393,7 @@ test('deleteAll returns 0 without removing anything when storage cannot be read'
 
 test('deleteRange leaves the storage-full marker when nothing is removed', () => {
   const { sh, storage } = seed();
-  storage.setItem('grade2_history_error_v1', '123');
+  storage.setItem('history_error_v1', '123');
   assert.equal(sh.deleteRange('2020-01-01', '2020-01-01'), 0);
   assert.equal(sh.storageError(), 123);
 });
@@ -467,15 +467,14 @@ test('exportCsv labels walkthrough and case rounds', () => {
   assert.equal(cols(lines[2])[7], '', 'Stars is blank for a case study row');
 });
 
-test('create with a grade prefix uses that grade\'s keys only', () => {
+test('history is saved as history_v1 in the learner space given, whatever the grade', () => {
   const storage = memStorage();
   const clock = makeClock();
-  const g5 = create(storage, clock.now, 'grade5');
-  g5.appOpened('math-mastery', 'Math Mastery');
-  assert.equal(storage.getItem(KEY), null);
-  assert.equal(JSON.parse(storage.getItem('grade5_history_v1')).entries.length, 1);
-  assert.equal(create(storage, clock.now).list().length, 0, 'default prefix is grade2');
-  assert.equal(create(storage, clock.now, 'bad prefix!').list().length, 0, 'invalid prefix falls back to grade2');
+  create(storage, clock.now, 'grade5').appOpened('math-mastery', 'Math Mastery');
+  assert.equal(KEY, 'history_v1');
+  assert.equal(JSON.parse(storage.getItem('history_v1')).entries.length, 1);
+  assert.equal(create(storage, clock.now, 'grade6').list().length, 1, 'moving up a grade keeps her history');
+  assert.equal(create(memStorage(), clock.now, 'grade5').list().length, 0, 'another learner starts empty');
 });
 
 test('exportJson stamps the entries with the instance\'s grade', () => {
@@ -618,25 +617,38 @@ test('a real test score is stored, listed, findable, never pruned, and exported'
   assert.equal(row.split(',').length, 14, 'same column count as every other row');
 });
 
-test('a full backup carries points, wallet and rest-days for its own grade only', () => {
+test('a full backup carries points, wallet, rest-days and her name, for its own grade only', () => {
   const { storage, clock } = setup();
   const sh = create(storage, clock.now, 'grade5');
   const state = {
     lifelab_points_v1: '420',
-    grade5_wallet_v1: '{"v":1,"spent":40}',
-    grade5_recall_v1: '{"v":1,"rest":{}}',
-    grade2_wallet_v1: '{"v":1}',
-    grade5_history_v1: '[]',
+    wallet_v1: '{"v":1,"spent":40}',
+    recall_v1: '{"v":1,"rest":{}}',
+    history_v1: '[]',
     'not a key': 'x',
     mathmastery_points_v1: 7,
   };
-  const backup = sh.exportJson(state);
+  const backup = sh.exportJson(state, { id: 'l1', name: 'Ana', emoji: '🌻', grade: 5 });
   assert.deepEqual(sh.backupState(backup), {
     exportedAt: clock.ms,
-    state: { lifelab_points_v1: '420', grade5_wallet_v1: '{"v":1,"spent":40}', grade5_recall_v1: '{"v":1,"rest":{}}' },
+    state: { lifelab_points_v1: '420', wallet_v1: '{"v":1,"spent":40}', recall_v1: '{"v":1,"rest":{}}' },
+    learner: { name: 'Ana', emoji: '🌻' },
   });
   assert.equal(create(memStorage(), clock.now, 'grade2').backupState(backup), null, 'another grade never restores it');
   assert.deepEqual(create(memStorage(), clock.now, 'grade5').importJson(backup), { added: 0, skipped: 0 }, 'history import still accepts it');
+});
+
+test('a backup made before learners still restores: its grade-named keys map to her space', () => {
+  const { storage, clock } = setup();
+  const sh = create(storage, clock.now, 'grade5');
+  const old = JSON.stringify({ v: 1, grade: 'grade5', exportedAt: 5, entries: [], state: {
+    lifelab_points_v1: '420', grade5_wallet_v1: '{"v":1,"spent":40}', grade5_recall_v1: '{"v":1,"rest":{}}', grade2_wallet_v1: '{"v":1}',
+  } });
+  assert.deepEqual(sh.backupState(old), {
+    exportedAt: 5,
+    state: { lifelab_points_v1: '420', wallet_v1: '{"v":1,"spent":40}', recall_v1: '{"v":1,"rest":{}}' },
+    learner: null,
+  });
 });
 
 test('a history-only backup has no state to restore', () => {
@@ -647,16 +659,17 @@ test('a history-only backup has no state to restore', () => {
   assert.equal(sh.backupState('{"v":1,"grade":"grade2","entries":[],"state":[1]}'), null);
 });
 
-test('the last full backup time is remembered per grade', () => {
+test('the last full backup time is remembered per learner', () => {
   const { storage, clock } = setup();
-  const g2 = create(storage, clock.now, 'grade2');
-  const g5 = create(storage, clock.now, 'grade5');
-  assert.equal(g5.lastBackup(), null);
-  g5.markBackedUp();
-  assert.equal(g5.lastBackup(), clock.ms);
-  assert.equal(g2.lastBackup(), null);
-  g5.deleteAll();
-  assert.equal(g5.lastBackup(), clock.ms, 'deleting history does not forget the backup');
+  const mine = create(storage, clock.now, 'grade5');
+  const sister = create(memStorage(), clock.now, 'grade2');
+  assert.equal(mine.lastBackup(), null);
+  mine.markBackedUp();
+  assert.equal(mine.lastBackup(), clock.ms);
+  assert.equal(storage.getItem('last_backup_v1'), String(clock.ms));
+  assert.equal(sister.lastBackup(), null);
+  mine.deleteAll();
+  assert.equal(mine.lastBackup(), clock.ms, 'deleting history does not forget the backup');
 });
 
 test('weakSpots ranks lessons by accuracy, needs 5 answers, and keeps the exam separate', () => {

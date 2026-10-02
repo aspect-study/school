@@ -45,7 +45,7 @@ test('a fresh wallet holds the 40-coin welcome gift plus 1 coin per 10 points it
 
 test('a wallet saved before the conversion counts all its old points once, keeping what was spent', () => {
   const { w, storage } = setup();
-  storage.data.grade5_wallet_v1 = JSON.stringify({ v: 1, baselines: { a: 900, b: 455 }, spent: 40, purchases: [] });
+  storage.data.wallet_v1 = JSON.stringify({ v: 1, baselines: { a: 900, b: 455 }, spent: 40, purchases: [] });
   assert.equal(w.balance({ a: 900, b: 455 }), 0, 'before the lobby converts, old points still earn nothing');
   w.track({ a: 900, b: 455 });
   assert.equal(w.balance({ a: 900, b: 455 }), 40 + 135 - 40);
@@ -116,16 +116,16 @@ test('buy deducts coins, records the purchase and never lowers points', () => {
   assert.deepEqual(p, { item: 'ml', coins: 40, t: clock.ms });
   assert.equal(w.balance({ a: 600 }), 60);
   assert.deepEqual(w.purchases(), [p]);
-  assert.equal(JSON.parse(storage.getItem('grade5_wallet_v1')).spent, 40);
+  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 40);
 });
 
 test('not enough coins: canBuy says how many more are needed and buy changes nothing', () => {
   const { w, storage } = setup();
   w.track({ a: 0 });
   assert.deepEqual(w.canBuy('dinner', { a: 0 }), { ok: false, need: 60, daily: false });
-  const before = storage.getItem('grade5_wallet_v1');
+  const before = storage.getItem('wallet_v1');
   assert.equal(w.buy('dinner', { a: 0 }), null);
-  assert.equal(storage.getItem('grade5_wallet_v1'), before);
+  assert.equal(storage.getItem('wallet_v1'), before);
   assert.deepEqual(w.canBuy('dinner', { a: 600 }), { ok: true, need: 0, daily: false });
 });
 
@@ -174,7 +174,7 @@ test('the wallet only ever writes its own key, never a points key', () => {
   w.track({ a: 500 });
   w.buy('ml', { a: 1500 });
   w.buy('dinner', { a: 1500 });
-  assert.deepEqual([...new Set(storage.writes)], ['grade5_wallet_v1']);
+  assert.deepEqual([...new Set(storage.writes)], ['wallet_v1']);
   assert.equal(storage.data.a, '500');
 });
 
@@ -188,9 +188,9 @@ test('a failed write spends nothing and buy returns null', () => {
 
 test('corrupt wallet data reads as a fresh wallet without throwing', () => {
   const { w, storage } = setup();
-  storage.data.grade5_wallet_v1 = '{not json';
+  storage.data.wallet_v1 = '{not json';
   assert.equal(w.balance({ a: 10 }), 40);
-  storage.data.grade5_wallet_v1 = JSON.stringify({ v: 1, baselines: null, spent: 'x', purchases: 7 });
+  storage.data.wallet_v1 = JSON.stringify({ v: 1, baselines: null, spent: 'x', purchases: 7 });
   assert.equal(w.balance({ a: 10 }), 40);
   assert.deepEqual(w.purchases(), []);
 });
@@ -201,34 +201,44 @@ test('a missing or invalid grade is refused rather than defaulting to another ch
   assert.throws(() => create(storage, Date.now, 'Grade 5'));
 });
 
-test('two wallets on one storage never affect each other', () => {
-  const storage = memStorage();
+test('two learners never affect each other: each wallet lives in her own space', () => {
   const clock = makeClock();
-  const g2 = create(storage, clock.now, 'grade2');
-  const g5 = create(storage, clock.now, 'grade5');
+  const sisterSpace = memStorage(), mySpace = memStorage();
+  const g2 = create(sisterSpace, clock.now, 'grade2');
+  const g5 = create(mySpace, clock.now, 'grade5');
   const p2 = { blockbot_points_v1: 0 };
   const p5 = { pageturners_points_v1: 0 };
   g2.track(p2);
   g5.track(p5);
 
   const p2Later = { blockbot_points_v1: 1000 };
-  assert.equal(g2.balance(p2Later), 140, 'grade 2 earns from its own key');
-  assert.equal(g5.balance(p5), 40, 'grade 5 keeps only its own welcome gift');
+  assert.equal(g2.balance(p2Later), 140, 'grade 2 earns from her own points');
+  assert.equal(g5.balance(p5), 40, 'grade 5 keeps only her own welcome gift');
 
   assert.ok(g2.buy('ml', p2Later));
   assert.ok(g2.buy('dinner', p2Later));
   assert.equal(g2.balance(p2Later), 0);
-  assert.equal(g5.balance(p5), 40, 'grade 2 spending does not touch grade 5');
+  assert.equal(g5.balance(p5), 40, 'one learner spending does not touch the other');
   assert.deepEqual(g5.purchases(), []);
-  assert.deepEqual(g5.canBuy('ml', p5), { ok: true, need: 0, daily: false }, 'grade 2 ML does not block grade 5 ML');
+  assert.deepEqual(g5.canBuy('ml', p5), { ok: true, need: 0, daily: false }, 'her sister\'s ML does not block hers');
   assert.ok(g5.buy('ml', p5));
   assert.equal(g2.purchases().length, 2);
-  assert.equal(g2.balance(p2Later), 0);
+  assert.equal(JSON.parse(sisterSpace.getItem('wallet_v1')).spent, 140);
+  assert.equal(JSON.parse(mySpace.getItem('wallet_v1')).spent, 40);
+});
 
-  assert.ok(storage.getItem('grade2_wallet_v1'));
-  assert.ok(storage.getItem('grade5_wallet_v1'));
-  assert.equal(JSON.parse(storage.getItem('grade2_wallet_v1')).spent, 140);
-  assert.equal(JSON.parse(storage.getItem('grade5_wallet_v1')).spent, 40);
+test('moving up a grade keeps every coin, purchase and tracked subject', () => {
+  const clock = makeClock();
+  const space = memStorage();
+  const points = { pageturners_points_v1: 0 };
+  const five = create(space, clock.now, 'grade5');
+  five.track(points);
+  const later = { pageturners_points_v1: 500 };
+  assert.ok(five.buy('ml', later));
+  const six = create(space, clock.now, 'grade6');
+  assert.equal(six.balance(later), five.balance(later));
+  assert.equal(six.purchases().length, 1);
+  assert.equal(six.balanceStored(), five.balanceStored());
 });
 
 test('the catalog has unique ids, whole-coin prices, and ML is 40 coins once a day', () => {
@@ -261,7 +271,7 @@ test('prune drops purchases older than the last 7 local days but keeps the spent
   clock.set(2026, 10, 8, 9, 0);
   w.prune(7);
   assert.deepEqual(w.purchases().map((p) => p.item), ['dinner'], 'Oct 1 is outside Oct 2-8');
-  assert.equal(JSON.parse(storage.getItem('grade5_wallet_v1')).spent, 200);
+  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 200);
   assert.equal(w.balance(rich), 40 + 1000 - 200, 'pruning never gives coins back');
 });
 
@@ -347,7 +357,7 @@ test('a bonus adds coins on top of points, welcome gift and spending', () => {
 
 test('an old wallet without a bonus field reads it as 0', () => {
   const { storage, clock } = setup();
-  storage.setItem('grade5_wallet_v1', JSON.stringify({ v: 1, baselines: {}, spent: 0, purchases: [], oldPointsCounted: true }));
+  storage.setItem('wallet_v1', JSON.stringify({ v: 1, baselines: {}, spent: 0, purchases: [], oldPointsCounted: true }));
   const w = create(storage, clock.now, 'grade5');
   assert.equal(w.earned({}).bonus, 0);
   assert.equal(w.balance({}), 40);
@@ -364,7 +374,7 @@ test('the coin guide explains resting, typing, the exam and the test bonus in bo
 test('savedBalance reads the coins a backup would restore without touching storage', () => {
   const { storage, w } = setup();
   const saved = {
-    grade5_wallet_v1: JSON.stringify({ v: 1, baselines: { lifelab_points_v1: 0, riseshine_points_v1: 100 }, spent: 30, bonus: 50, purchases: [], oldPointsCounted: true }),
+    wallet_v1: JSON.stringify({ v: 1, baselines: { lifelab_points_v1: 0, riseshine_points_v1: 100 }, spent: 30, bonus: 50, purchases: [], oldPointsCounted: true }),
     lifelab_points_v1: '420',
     riseshine_points_v1: '300',
   };
