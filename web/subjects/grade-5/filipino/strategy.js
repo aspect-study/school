@@ -2,8 +2,8 @@ StudyKit.content('strategy', [
   {
     kicker: 'Tula',
     title: 'Sukat = pantig, Tugma = tunog',
-    body: '<b>Sukat</b>: bilangin ang <b>pantig</b> sa bawat taludtod. <b>Tugma</b>: pakinggan ang <b>huling tunog</b> ng mga taludtod. Sa pagdagdag ng salitang may tugma, hanapin ang may parehong huling tunog (nag<b>laro</b> &rarr; tuma<b>takbo</b>).',
-    en: '<b>Sukat = pantig, Tugma = tunog</b> (Meter = syllables, Rhyme = sound). <b>Sukat</b> (meter): count the <b>pantig</b> (syllables) in each <b>taludtod</b> (line). <b>Tugma</b> (rhyme): listen to the <b>last sound</b> of the lines. When adding a word that rhymes, look for the one with the same last sound (nag<b>laro</b> &rarr; tuma<b>takbo</b>).'
+    body: '<b>Sukat</b>: bilangin ang <b>pantig</b> sa bawat taludtod. <b>Tugma</b>: pakinggan ang <b>huling tunog</b> ng mga taludtod. Sa pagdagdag ng salitang may tugma, hanapin ang may parehong huling tunog (nagla<b>laro</b> &rarr; tuma<b>takbo</b>).',
+    en: '<b>Sukat = pantig, Tugma = tunog</b> (Meter = syllables, Rhyme = sound). <b>Sukat</b> (meter): count the <b>pantig</b> (syllables) in each <b>taludtod</b> (line). <b>Tugma</b> (rhyme): listen to the <b>last sound</b> of the lines. When adding a word that rhymes, look for the one with the same last sound (nagla<b>laro</b> &rarr; tuma<b>takbo</b>).'
   },
   {
     kicker: 'Hulwaran ng Teksto',
@@ -38,7 +38,7 @@ StudyKit.content('strategy', [
   {
     kicker: 'Pangkalahatan',
     title: 'Basahin muli bago isumite',
-    body: 'Basahin ang tanong kasama ang iyong sagot. Kung tugma pa rin ito sa aralin, tama ka.',
+    body: 'Basahin ang tanong kasama ang iyong sagot. Kung wasto pa rin ito ayon sa aralin, tama ka.',
     en: '<b>Read again before submitting.</b> Read the question together with your answer. If it still fits the lesson, you are right.'
   }
 ]);
