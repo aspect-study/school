@@ -84,10 +84,58 @@ StudyKit.content('strategy', [
     en: '<b>Memorize the numbers</b> &mdash; <b>1936</b> &mdash; wooden coffins in Banton, Romblon. <b>1977</b> &mdash; artifacts of the balangay. <b>1991</b> &mdash; anthropomorphic jars in Maitum, Sarangani. <b>320 people</b> &mdash; the capacity of one balangay. <b>150–200 years</b> &mdash; the age of the momiya (mummies) of Kabayan, which are in <b>22 caves</b>. <b>14th century</b> &mdash; Sulu as a trade route.'
   },
   {
-    kicker: 'Namaling Tanong',
-    title: 'Agoncillo ang sagot sa ordinaryong mamamayan',
-    body: 'Kapag ang tanong ay tungkol sa <b>kuwento ng ordinaryong mamamayan</b> o <b>&ldquo;Kasaysayan ng Bayan&rdquo;</b>, ang sagot ay <b>Teodoro Agoncillo</b>. Si Renato Constantino ang napili mo sa pagsusulit &mdash; iyon lang ang namali mo.',
-    en: '<b>Agoncillo is the answer for ordinary citizens</b> &mdash; When the question is about <b>the stories of ordinary citizens</b> or <b>&ldquo;Kasaysayan ng Bayan&rdquo;</b> (History of the People), the answer is <b>Teodoro Agoncillo</b>. You chose Renato Constantino on the test &mdash; that was the only one you got wrong.'
+    kicker: 'Mga Historyador',
+    title: 'Agoncillo, Constantino, o Salazar?',
+    body: '<b>Agoncillo</b> &rarr; pakikibaka ng mga Pilipino para sa <b>kalayaan</b>; hindi lang kuwento ng mananakop. <b>Constantino</b> &rarr; <b>kritikal</b> na pag-iisip at ang <b>karaniwang Pilipino / ordinaryong mamamayan</b> (C, k, k). <b>Salazar</b> &rarr; <b>Ama ng Pantayong Pananaw</b>, &ldquo;salaysay na may saysay&rdquo; (S, s, s). Paalala: sa lumang summative test, Agoncillo ang susi sa &ldquo;ordinaryong mamamayan&rdquo;; ang bagong aralin ng guro ay nagsasabing Constantino. Kapag lumabas ulit, sundin ang bagong aralin.',
+    en: '<b>Agoncillo, Constantino, or Salazar?</b> &mdash; <b>Agoncillo</b> &rarr; the Filipinos&rsquo; struggle for <b>freedom</b>; not only the conquerors&rsquo; story. <b>Constantino</b> &rarr; <b>critical</b> thinking and <b>ordinary Filipinos / ordinary citizens</b> (C, c, c). <b>Salazar</b> &rarr; <b>Father of Pantayong Pananaw</b>, &ldquo;a story that has meaning&rdquo; (S, s, s). Note: on the old summative test, the key for &ldquo;ordinary citizens&rdquo; was Agoncillo; the teacher&rsquo;s new lesson says Constantino. If it comes up again, follow the new lesson.'
+  },
+  {
+    kicker: 'Tama o Mali #3',
+    title: 'Mga pares na madalas pagpalitin',
+    body: 'Sa Fact or Bluff ng guro, pinagpalit ang kahulugan ng <b>saysay</b> (kahalagahan) at <b>salaysay</b> (pagkuwento). Bantayan din ang <b>historyador</b> (tao) at <b>historyograpiya</b> (paraan), <b>primarya</b> (gawa ng nakasaksi) at <b>sekundarya</b> (batay sa primarya), at <b>panlabas</b> (tunay o peke ang bagay) at <b>panloob</b> (tama ba ang laman).',
+    en: '<b>Pairs that often get swapped</b> &mdash; In the teacher&rsquo;s Fact or Bluff, the meanings of <b>saysay</b> (importance) and <b>salaysay</b> (storytelling) were swapped. Also watch <b>historyador</b> (a person) and <b>historyograpiya</b> (a method), <b>primary</b> (made by an eyewitness) and <b>secondary</b> (based on the primary), and <b>panlabas</b> (external: is the object real or fake) and <b>panloob</b> (internal: is the content correct).'
+  },
+  {
+    kicker: 'Pinagmulan ng Pilipinas',
+    title: 'Bilangin ang diyos, ipares ang siyentipiko',
+    body: 'Kaalamang-bayan: <b>Samal = 1</b> (T&rsquo;uhan), <b>Kabisayaan = 2</b> (Kaptan at Maguayan), <b>Bukidnon = 3</b> (tatlong diyos). Agham: <b>Alfred Wegener, 1912</b> &rarr; Continental Drift (Pangaea = &ldquo;All Land&rdquo; &rarr; Laurasia + Gondwanaland); <b>tectonic plates</b> &rarr; Plate Tectonic; <b>Bailey Willis</b> &rarr; Volcanic Origin (<b>B</b>ailey, <b>b</b>ulkan). Sa Tama o Mali, madalas pinagpapalit ang pangkat at diyos, o ang siyentipiko at teorya.',
+    en: '<b>Count the gods, pair the scientist</b> &mdash; Folk knowledge: <b>Samal = 1</b> (T&rsquo;uhan), <b>Kabisayaan = 2</b> (Kaptan and Maguayan), <b>Bukidnon = 3</b> (three gods). Science: <b>Alfred Wegener, 1912</b> &rarr; Continental Drift (Pangaea = &ldquo;All Land&rdquo; &rarr; Laurasia + Gondwanaland); <b>tectonic plates</b> &rarr; Plate Tectonic; <b>Bailey Willis</b> &rarr; Volcanic Origin (<b>B</b>ailey, <b>b</b>ulkan = volcano). In Tama o Mali, the group and god, or the scientist and theory, are often swapped.'
+  },
+  {
+    kicker: 'Unang Tao sa Pilipinas',
+    title: 'Kawayan o putik? K-C-T-E?',
+    body: 'Kaalamang-bayan: <b>Kabisayaan</b> (Kaptan at Maguayan &rarr; kawayan &rarr; Sikalak at Sikabay), <b>Igorot</b> (Lumawig &rarr; kawayan), <b>Ifugao</b> (Kabunian &rarr; <b>putik</b>). Teorya: <b>Core Population</b> = Jocano, walang malaking migrasyon; <b>Austronesyano</b> = Solheim/Bellwood, may paglalayag. Ebidensiya mula pinakamatanda: <b>K</b>alinga 709,000 &rarr; <b>C</b>allao 67,000 (Homo luzonensis) &rarr; <b>T</b>abon 47,000 (1962) &rarr; <b>E</b>scalon 4,700 (Mindanao).',
+    en: '<b>Bamboo or mud? K-C-T-E?</b> &mdash; Folk knowledge: <b>Visayans</b> (Kaptan and Maguayan &rarr; bamboo &rarr; Sikalak and Sikabay), <b>Igorot</b> (Lumawig &rarr; bamboo), <b>Ifugao</b> (Kabunian &rarr; <b>mud</b>). Theory: <b>Core Population</b> = Jocano, no big migration; <b>Austronesian</b> = Solheim/Bellwood, with sailing. Evidence from oldest: <b>K</b>alinga 709,000 &rarr; <b>C</b>allao 67,000 (Homo luzonensis) &rarr; <b>T</b>abon 47,000 (1962) &rarr; <b>E</b>scalon 4,700 (Mindanao).'
+  },
+  {
+    kicker: 'Lokasyon',
+    title: 'Absolute o relative?',
+    body: '<b>Absolute</b> = <b>eksakto</b>, gumagamit ng <b>latitude at longitude</b>. <b>Relative</b> = <b>kaugnay ng paligid</b>: &ldquo;malapit sa&hellip;&rdquo;, &ldquo;napaliligiran ng&hellip;&rdquo;, &ldquo;hilaga ng&hellip;&rdquo;. Kapag may numero o guhit sa globo &rarr; absolute. Kapag may ibang lugar o anyong tubig &rarr; relative.',
+    en: '<b>Absolute or relative?</b> &mdash; <b>Absolute</b> = <b>exact</b>, uses <b>latitude and longitude</b>. <b>Relative</b> = <b>related to the surroundings</b>: &ldquo;near&hellip;&rdquo;, &ldquo;surrounded by&hellip;&rdquo;, &ldquo;north of&hellip;&rdquo;. If there are numbers or lines on the globe &rarr; absolute. If there are other places or bodies of water &rarr; relative.'
+  },
+  {
+    kicker: 'Herarkiya',
+    title: 'Kabisayaan o Luzon?',
+    body: 'Hanapin muna ang rehiyon sa tanong. <b>Kabisayaan = D-T-O</b>: Datu &rarr; Timawa &rarr; Oripun. <b>Luzon = M-M-A</b>: Maginoo &rarr; Malayang tao &rarr; Alipin. Ipares ayon sa puwesto: datu &harr; maginoo, timawa &harr; malayang tao, oripun &harr; alipin. Pareho ang ayos, magkaiba lang ang tawag.',
+    en: '<b>Visayas or Luzon?</b> &mdash; First find the region in the question. <b>Visayas = D-T-O</b>: Datu &rarr; Timawa &rarr; Oripun. <b>Luzon = M-M-A</b>: Maginoo &rarr; Malayang tao &rarr; Alipin. Pair by position: datu &harr; maginoo, timawa &harr; malayang tao, oripun &harr; alipin. The order is the same; only the names are different.'
+  },
+  {
+    kicker: 'Kalinangang Di-Materyal',
+    title: 'Apat na bahagi: anong susing salita?',
+    body: 'Paniniwala, relihiyon, tradisyon, pagpapahalaga. Hanapin ang susing salita: <b>pagsamba, ritwal, pananampalataya</b> &rarr; relihiyon; <b>ipinapasa, salinlahi, seremonya</b> &rarr; tradisyon; <b>mahalaga, mabuti, nararapat</b> (paggalang, katapatan, malasakit) &rarr; pagpapahalaga; <b>kaisipan tungkol sa mundo, kalikasan, espiritu</b> &rarr; paniniwala.',
+    en: '<b>Four parts: what is the key word?</b> &mdash; Beliefs, religion, tradition, values. Find the key word: <b>worship, ritual, faith</b> &rarr; religion; <b>passed on, generation, ceremony</b> &rarr; tradition; <b>important, good, right</b> (respect, honesty, care) &rarr; values; <b>ideas about the world, nature, spirits</b> &rarr; beliefs.'
+  },
+  {
+    kicker: 'Islam at Sultanato',
+    title: 'T-K-A-K, tapos Sulu o Maguindanao?',
+    body: '<b>T</b>uan Masha&rsquo;ika 1280 (guro ng relihiyon) &rarr; <b>K</b>arim ul Makhdum 1380 (unang mosque, mula Malaysia) &rarr; <b>A</b>bu Bakr 1450 (Sultanato ng Sulu, unang sultan) &rarr; <b>K</b>abungsuwan 1515 (Maguindanao, mula Johore). Sa opisyal, hanapin muna ang sultanato: ministro = <b>Wajir</b> (Sulu) / <b>Gugu</b> (Ma<b>gu</b>indanao); konseho = <b>Ruma Bichara</b> (Sulu) / <b>Bichara Atas</b> (Maguindanao). Limang Haligi: Shahada (pananalig), Salat (dasal, 5 beses), Zakat (kawanggawa), Sawm (ayuno, Ramadan), Hajj (Mecca).',
+    en: '<b>T-K-A-K, then Sulu or Maguindanao?</b> &mdash; <b>T</b>uan Masha&rsquo;ika 1280 (teacher of religion) &rarr; <b>K</b>arim ul Makhdum 1380 (first mosque, from Malaysia) &rarr; <b>A</b>bu Bakr 1450 (Sultanate of Sulu, first sultan) &rarr; <b>K</b>abungsuwan 1515 (Maguindanao, from Johore). For officials, first find the sultanate: minister = <b>Wajir</b> (Sulu) / <b>Gugu</b> (Ma<b>gu</b>indanao); council = <b>Ruma Bichara</b> (Sulu) / <b>Bichara Atas</b> (Maguindanao). Five Pillars: Shahada (faith), Salat (prayer, 5 times), Zakat (charity), Sawm (fasting, Ramadan), Hajj (Mecca).'
+  },
+  {
+    kicker: 'Ugnayan sa Tsina',
+    title: 'Limang kahon: R-W-K-H-K',
+    body: '<b>Relihiyon</b>: Budismo. <b>Wika</b>: ate, ditse, sangko, kuya, gunting, susi, sipit. <b>Kagamitan</b>: porselana, kristal, karayom, patalim, seda, jade. <b>Hanapbuhay</b>: pulbura at kagamitang metal. <b>Kaugalian</b>: pagkakabuklod ng pamilya, paggalang sa matatanda. Gulay: petsay, kintsay, bataway. Tapayan &rarr; kabaong o imbakan.',
+    en: '<b>Five boxes: R-W-K-H-K</b> &mdash; <b>Religion</b>: Buddhism. <b>Language</b>: ate, ditse, sangko, kuya, gunting, susi, sipit. <b>Things</b>: porcelain, crystal, needles, blades, silk, jade. <b>Livelihood</b>: gunpowder and metal tools. <b>Customs</b>: close-knit family, respect for elders. Vegetables: petsay, kintsay, bataway. Jars &rarr; coffin or storage.'
   },
   {
     kicker: 'Pangkalahatan',
