@@ -31,9 +31,12 @@ const GRADE5_DEVICE = {
   study_fx_muted_v1: '1',
 };
 
+// Games added after 2026-10-02 have no old global keys to migrate.
+const ADDED_AFTER_LEARNERS = ['net-navigators'];
+
 test('the legacy table names exactly the 15 games that existed before learners', () => {
   const byGrade = { grade5: [], grade2: [] };
-  for (const a of APPS) byGrade['grade' + a.grade].push(a.pointsKey.replace(/_points_v1$/, ''));
+  for (const a of APPS.filter((a) => !ADDED_AFTER_LEARNERS.includes(a.id))) byGrade['grade' + a.grade].push(a.pointsKey.replace(/_points_v1$/, ''));
   assert.deepEqual(Object.fromEntries(Object.entries(LEGACY_APPS).map(([g, l]) => [g, [...l].sort()])),
     { grade5: byGrade.grade5.sort(), grade2: byGrade.grade2.sort() });
 });

@@ -40,6 +40,7 @@ The offline cache list is in `web/sw.js`. `tests/pwa.test.js` fails if any file 
 | Rise & Shine (`gmrc/`) | GMRC | 13 | Self, saving, dignity, faith, traffic rules, manners, gratitude, e-waste |
 | Rally Ready (`pe-health/`) | P.E. & Health | 8 | Net and wall games, ABC skills, pickleball, managing stress, practical skills test |
 | Craft Corner (`tle/`) | TLE | 9 | Home furnishings, embroidery, crochet, sewing |
+| Net Navigators (`computer/`) | Computer | 8 | Search engines and keywords, evaluating websites, file sharing and its risks, online storage, netiquette, chat and IM, discussion boards |
 
 The Filipino and Araling Panlipunan games keep the textbook's Filipino wording and add optional English help: card translations, a "Hindi maintindihan?" button on questions, and "Paano Sagutin?" tip cards.
 

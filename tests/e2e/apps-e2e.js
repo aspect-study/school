@@ -22,6 +22,7 @@ const GRADE5_APPS = [
   { slug: 'rally-ready', title: 'Rally Ready', family: 'c' },
   { slug: 'craft-corner', title: 'Craft Corner', family: 'c' },
   { slug: 'life-lab', title: 'Life Lab', family: 'c' },
+  { slug: 'net-navigators', title: 'Net Navigators', family: 'c' },
   { slug: 'math-mastery', title: 'Math Mastery', family: 'math' },
 ];
 

@@ -2,7 +2,7 @@
 const { lessons, content } = require('./content.js');
 
 // Math Mastery is built differently and is not read by this loader.
-const GRADE5 = ['craft-corner', 'history-explorers', 'life-lab', 'page-turners', 'rally-ready', 'rise-shine', 'wikaharian'];
+const GRADE5 = ['craft-corner', 'history-explorers', 'life-lab', 'net-navigators', 'page-turners', 'rally-ready', 'rise-shine', 'wikaharian'];
 const GRADE2 = ['batang-bayani', 'block-bot', 'byte-buddies', 'growing-good', 'kuwentista', 'science-detectives', 'word-train'];
 const TF = /^(true|false|tama|mali)$/i;
 

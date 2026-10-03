@@ -21,7 +21,7 @@ const CONFIGS = {
     shop: { goal: '160 more coins to 3 ML games with Tatay!', movieNeed: '260 more coins', tomorrow: 'Come back tomorrow', earned: '⭐ 3000 new points → 🪙 300 coins · 🎁 40 welcome · 🛒 80 spent' },
     apps: ['page-turners', 'math-mastery'],
     subjects: ['English', 'Math'],
-    subjectOptions: 9,
+    subjectOptions: 10,
   },
 };
 

@@ -19,7 +19,7 @@ for (const grade of Object.keys(LOBBIES)) {
 }
 
 const FAMILY = {
-  c: ['history-explorers', 'wikaharian', 'page-turners', 'rise-shine', 'rally-ready', 'craft-corner', 'life-lab'],
+  c: ['history-explorers', 'wikaharian', 'page-turners', 'rise-shine', 'rally-ready', 'craft-corner', 'life-lab', 'net-navigators'],
   b: ['byte-buddies', 'word-train', 'growing-good', 'batang-bayani', 'science-detectives'],
   a: ['kuwentista', 'block-bot'],
 };

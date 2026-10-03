@@ -12,7 +12,8 @@
       { app: 'rise-shine', title: 'GMRC', pointsKey: 'riseshine_points_v1' },
       { app: 'rally-ready', title: 'P.E. & Health', pointsKey: 'rallyready_points_v1' },
       { app: 'craft-corner', title: 'TLE', pointsKey: 'craftcorner_points_v1' },
-      { app: 'life-lab', title: 'Science', pointsKey: 'lifelab_points_v1' }
+      { app: 'life-lab', title: 'Science', pointsKey: 'lifelab_points_v1' },
+      { app: 'net-navigators', title: 'Computer', pointsKey: 'netnavigators_points_v1' }
     ],
     2: [
       { app: 'block-bot', title: 'Math', pointsKey: 'blockbot_points_v1' },
