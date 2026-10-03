@@ -1877,6 +1877,420 @@ function genOrderDecSet(n){
   return Array.from({length:n}, ()=> genOrderDecQuestion());
 }
 
+/* ================= GENERATOR: Divisibility Rules for 7, 11 and 12 ================= */
+/* The Week 1-2 decks: 7 = twice the ones digit, then the difference with the other
+   digits; 11 = subtract, add, subtract... from the left; 12 = both 3 and 4. The deck
+   never shows a negative 11-result, so numbers are picked to keep it 0 or more. */
+const BIG_TIPS = {
+  7: 'For 7, double the last digit and subtract it from the number made by the other digits. Keep going until the number is small enough to check with the 7 times table.',
+  11: 'For 11, go from left to right: first digit minus the next, plus the next, minus the next. A result of 0 or a multiple of 11 means yes.',
+  12: 'For 12, run two checks: the digits add up to a multiple of 3 (rule for 3) AND the last two digits divide by 4 (rule for 4). It needs BOTH.'
+};
+function altSum(n){
+  const digits = String(n).split('').map(Number);
+  const value = digits.reduce((s, d, i) => i % 2 ? s - d : s + d, 0);
+  const expr = digits.map((d, i) => i === 0 ? d : (i % 2 ? ' &minus; ' : ' + ') + d).join('');
+  return {value, expr};
+}
+function rule7(n){
+  const steps = [];
+  let v = n;
+  while(v >= 100){
+    const rest = Math.floor(v / 10), ones = v % 10, twice = 2 * ones, diff = Math.abs(rest - twice);
+    steps.push(`${v.toLocaleString()}: twice ${ones} is ${twice}, and ${Math.max(rest, twice).toLocaleString()} &minus; ${Math.min(rest, twice).toLocaleString()} = ${diff.toLocaleString()}`);
+    v = diff;
+  }
+  const lo = Math.floor(v / 7);
+  const end = v === 0 ? '0 means yes'
+    : v % 7 === 0 ? `${v} = 7 &times; ${v / 7}`
+    : `${v} is not in the 7 times table (7 &times; ${lo} = ${7 * lo}, 7 &times; ${lo + 1} = ${7 * lo + 7})`;
+  return steps.join('; ') + '; ' + end;
+}
+function bigRuleCheck(n, d){
+  if(d === 7) return rule7(n);
+  if(d === 11){
+    const a = altSum(n);
+    return `${a.expr} = ${a.value}, ` + (a.value === 0 ? 'and a result of 0 means yes'
+      : a.value % 11 === 0 ? `and ${a.value} = 11 &times; ${a.value / 11}` : `and ${a.value} is not 0 or a multiple of 11`);
+  }
+  if(d === 12){
+    const digits = String(n).split('').map(Number), sum = digits.reduce((x, y) => x + y, 0), l2 = n % 100;
+    return `its digits add up to ${sum} (${sum % 3 ? 'not ' : ''}divisible by 3) and its last two digits make ${l2} (${l2 % 4 ? 'not ' : ''}divisible by 4)`;
+  }
+  return divisibilityCheck(n, d);
+}
+function bigNumber(d, wantTrue){
+  let n;
+  do {
+    const base = d * randInt(15, d === 7 ? 1400 : 4000);
+    n = wantTrue ? base : base + randInt(1, d - 1);
+  } while(altSum(n).value < 0);
+  return n;
+}
+function genBigDivTF(){
+  const d = pick([7, 11, 12]);
+  const n = bigNumber(d, Math.random() < 0.5);
+  const ok = n % d === 0, N = n.toLocaleString(), check = bigRuleCheck(n, d);
+  return mcQuestion(
+    `True or False: ${N} is divisible by ${d}.`,
+    ok ? 'True' : 'False',
+    [[ok ? 'False' : 'True', `${ok ? 'It IS' : 'It is NOT'} divisible by ${d}: ${check}. Check: ${divisionFact(n, d)}.`]],
+    `Use the rule for ${d}: ${check} &mdash; so ${N} ${ok ? 'IS' : 'is NOT'} divisible by ${d}.`,
+    BIG_TIPS[d] + ' Then say True only if the rule works.'
+  );
+}
+function genBigDivMC(){
+  const d = pick([7, 11, 12]);
+  const right = bigNumber(d, true), nums = [right];
+  while(nums.length < 4){
+    const x = bigNumber(d, false);
+    if(!nums.includes(x)) nums.push(x);
+  }
+  return mcQuestion(
+    `Which of these numbers IS divisible by ${d}?`,
+    right.toLocaleString(),
+    nums.slice(1).map(x => [x.toLocaleString(), `${x.toLocaleString()} is not divisible by ${d}: ${bigRuleCheck(x, d)}. Check: ${divisionFact(x, d)}.`]),
+    `Use the rule for ${d} on ${right.toLocaleString()}: ${bigRuleCheck(right, d)}. The other numbers leave a remainder when divided by ${d}.`,
+    BIG_TIPS[d] + ' Test every choice with the rule and cross out each one that fails.'
+  );
+}
+
+/* "Which of 4, 7 and 8 are factors of 224?" (deck Examples 3-4). Only answers a real
+   number can have are offered: anything divisible by 8 is divisible by 4 too. */
+const FACTOR_SETS = [[4, 7, 8], [11, 12], [3, 7, 11], [7, 11, 12]];
+function listAnd(arr){ return arr.length < 2 ? String(arr[0]) : arr.slice(0, -1).join(', ') + ' and ' + arr[arr.length - 1]; }
+function factorChoiceText(sub, set){
+  if(!sub.length) return 'None of them';
+  if(sub.length === set.length) return set.length === 2 ? `Both ${listAnd(set)}` : `All three: ${listAnd(set)}`;
+  return listAnd(sub) + ' only';
+}
+function genFactorsQuestion(){
+  const set = pick(FACTOR_SETS);
+  const subs = [];
+  for(let mask = 0; mask < 1 << set.length; mask++){
+    const sub = set.filter((_, i) => mask & (1 << i));
+    const L = sub.reduce((a, b) => lcm(a, b), 1);
+    if(set.every(d => sub.includes(d) || L % d !== 0)) subs.push(sub);
+  }
+  const target = pick(subs), L = target.reduce((a, b) => lcm(a, b), 1), max = set.includes(7) ? 9999 : 60000;
+  let n;
+  do { n = L * randInt(Math.ceil(100 / L), Math.floor(max / L)); }
+  while(set.some(d => !target.includes(d) && n % d === 0) || altSum(n).value < 0);
+  const N = n.toLocaleString();
+  const line = d => `${d}: ${bigRuleCheck(n, d)} &rarr; ${n % d === 0 ? '<b>factor</b>' : 'not a factor'}`;
+  const others = shuffle(subs.filter(s => s !== target))
+    .sort((a, b) => set.filter(d => a.includes(d) !== target.includes(d)).length - set.filter(d => b.includes(d) !== target.includes(d)).length)
+    .slice(0, 3);
+  const wrongs = others.map(s => [factorChoiceText(s, set), set.filter(d => s.includes(d) !== target.includes(d))
+    .map(d => n % d === 0 ? `${d} is a factor too: ${bigRuleCheck(n, d)}.` : `${d} is not a factor: ${bigRuleCheck(n, d)}.`).join(' ')]);
+  return mcQuestion(
+    `Which of ${listAnd(set)} are factors of ${N}?`,
+    factorChoiceText(target, set), wrongs,
+    `Test each number with its rule:<br>${set.map(line).join('<br>')}`,
+    'Check each number one at a time with its own rule, and write factor or not a factor next to it before you look at the choices.' + (set.includes(8) ? ' If 8 is a factor, 4 is a factor too.' : '')
+  );
+}
+
+/* One step of the rule, with the three slips the deck's working warns against */
+function genRule7Step(){
+  let n, rest, ones;
+  do { n = randInt(105, 999); rest = Math.floor(n / 10); ones = n % 10; } while(ones === 0 || rest < 2 * ones);
+  const twice = 2 * ones, right = rest - twice;
+  return mcQuestion(
+    `Use the rule for 7 on ${n}: double the ones digit and subtract it from the number made by the other digits. What number do you get?`,
+    String(right),
+    [
+      [String(rest - ones), `This subtracted ${ones}, the ones digit itself. The rule says to DOUBLE it first: twice ${ones} is ${twice}.`],
+      [String(n - twice), `This subtracted ${twice} from the whole number ${n}. Cover the ones digit first: the other digits make ${rest}.`],
+      [String(rest + twice), `This added ${twice} to ${rest}. The rule says to subtract: ${rest} &minus; ${twice} = ${right}.`]
+    ],
+    `The ones digit is ${ones}, and twice ${ones} is ${twice}. The other digits make ${rest}. ${rest} &minus; ${twice} = <b>${right}</b>. ` +
+      (right === 0 ? `A result of 0 means ${n} IS divisible by 7.` : right % 7 === 0 ? `${right} = 7 &times; ${right / 7}, so ${n} IS divisible by 7.` : `${right} is not 0 or in the 7 times table, so ${n} is NOT divisible by 7.`),
+    'Cover the last digit with your finger. Double it, then subtract it from the number you can still see.'
+  );
+}
+function genRule11Step(){
+  let n, a;
+  do { n = randInt(1000, 99999); a = altSum(n); } while(a.value < 0);
+  const digits = String(n).split('').map(Number), sum = digits.reduce((x, y) => x + y, 0);
+  const last = digits.length - 1, lastSign = last % 2 ? 1 : -1;
+  const wrongs = distinctWrongs(String(a.value), [
+    [String(sum), `This adds every digit (${digits.join(' + ')} = ${sum}). That is the rule for 3 and 9. For 11, the signs take turns: minus, plus, minus...`],
+    [String(a.value + 2 * lastSign * digits[last]), `The last sign is wrong. The signs take turns from the left: ${a.expr} = ${a.value}.`],
+    [String(a.value + 2 * digits[1]), `The second digit should be subtracted, not added. The signs take turns from the left: ${a.expr} = ${a.value}.`],
+    [String(a.value + 1), `This is 1 more than the right answer. Recheck each step: ${a.expr} = ${a.value}.`],
+    [String(Math.max(0, a.value - 1)), `This is 1 less than the right answer. Recheck each step: ${a.expr} = ${a.value}.`]
+  ]).filter(w => Number(w[0]) >= 0);
+  return mcQuestion(
+    `Use the rule for 11 on ${n.toLocaleString()}: subtract, add, subtract... the digits from left to right. What is the result?`,
+    String(a.value), wrongs.slice(0, 3),
+    `${a.expr} = <b>${a.value}</b>. ${a.value % 11 === 0 ? `${a.value === 0 ? 'A result of 0' : `${a.value} = 11 &times; ${a.value / 11}, so it`} means ${n.toLocaleString()} IS divisible by 11.` : `${a.value} is not 0 or a multiple of 11, so ${n.toLocaleString()} is NOT divisible by 11.`}`,
+    'Write the signs between the digits first: the first digit has no sign, then &minus;, +, &minus;, + ... Then work left to right.'
+  );
+}
+function genRule12Concept(){
+  return mcQuestion(
+    'A number is divisible by 12 if it is divisible by BOTH...',
+    '3 and 4',
+    [
+      ['2 and 6', '18 is divisible by 2 and by 6, but 18 &divide; 12 = 1 remainder 6. Passing 2 and 6 is not enough.'],
+      ['2 and 4', '20 is divisible by 2 and by 4, but 20 &divide; 12 = 1 remainder 8. Passing 2 and 4 is not enough.'],
+      ['3 and 6', '30 is divisible by 3 and by 6, but 30 &divide; 12 = 2 remainder 6. Passing 3 and 6 is not enough.']
+    ],
+    '12 = 3 &times; 4. A number that passes the rule for 3 AND the rule for 4 is divisible by 12. Example: 80,160 &mdash; its digits add up to 15 (divisible by 3), and its last two digits make 60 (divisible by 4).',
+    'Think 3 &times; 4 = 12. Then test a small number like 18, 20 or 30 against each wrong pair.'
+  );
+}
+function genBigDivSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.35 ? genBigDivTF() : r < 0.55 ? genBigDivMC() : r < 0.8 ? genFactorsQuestion()
+      : r < 0.88 ? genRule7Step() : r < 0.95 ? genRule11Step() : genRule12Concept();
+  });
+}
+
+/* ================= GENERATOR: Rounding Decimals ================= */
+/* Week 9 Day 5 - Week 10 Day 3. Numbers are integers scaled by 10^places, so nothing
+   is ever a float. Digits are 1-9 and the rounding digit is never 9: an answer ending in
+   0 (2.80 vs 2.8) or a carried 9 (3.96 -> 4.0) would offer the same value two ways. */
+const ROUND_PLACES = ['whole number', 'tenth', 'hundredth', 'thousandth'];
+const ROUND_PLACE_COLS = ['ones', 'tenths', 'hundredths', 'thousandths', 'ten thousandths'];
+function fmtScaled(v, p){
+  if(p === 0) return String(v);
+  const s = String(v).padStart(p + 1, '0');
+  return s.slice(0, -p) + '.' + s.slice(-p);
+}
+function roundScaled(N, places, p){
+  const unit = Math.pow(10, places - p), q = Math.floor(N / unit);
+  const next = Math.floor(N / Math.pow(10, places - p - 1)) % 10;
+  return {down: q, up: q + 1, next, value: next >= 5 ? q + 1 : q};
+}
+function roundingNumber(minPlaces, maxPlaces, wholes){
+  const places = randInt(minPlaces, maxPlaces);
+  const whole = pick(wholes), digits = [];
+  for(let i = 0; i < places; i++) digits.push(randInt(1, 9));
+  const N = Number(String(whole) + digits.join(''));
+  return {whole, digits, places, N, str: fmtScaled(N, places)};
+}
+function roundPhrase(p){
+  return Math.random() < 0.5 ? `to the nearest ${ROUND_PLACES[p]}` : `to ${p} decimal place${p > 1 ? 's' : ''}`;
+}
+function markRoundingDigit(x, p){
+  const at = x.str.indexOf('.') + p;
+  return x.str.slice(0, at) + '<u>' + x.str[at] + '</u>' + x.str.slice(at + 1);
+}
+/* A rounding item that survives the "no trailing 0, no carried 9" rule */
+function roundingItem(minPlaces, maxPlaces, wholes, fixedP){
+  let x, p, r;
+  do {
+    x = roundingNumber(minPlaces, maxPlaces, wholes);
+    p = fixedP || randInt(1, x.places - 1);
+    r = roundScaled(x.N, x.places, p);
+  } while(p >= x.places || x.digits[p - 1] === 9);
+  return {x, p, r, rd: x.digits[p - 1]};
+}
+function roundingWrongs(it, unit){
+  const {x, p, r, rd} = it, u = unit || '';
+  const goneUp = r.next >= 5;
+  const list = [[fmtScaled(goneUp ? r.down : r.up, p), goneUp
+    ? `This keeps the ${rd}, but the digit to its right is ${r.next}. 5 or more means round UP: the ${rd} becomes ${rd + 1}.`
+    : `This rounds up, but the digit to the right of the ${rd} is ${r.next}. Less than 5 means round DOWN: keep the ${rd} the same.`]];
+  if(p + 1 < x.places) list.push([fmtScaled(roundScaled(x.N, x.places, p + 1).value, p + 1),
+    `This is rounded to ${p + 1} decimal places &mdash; one place too many. The question asks for ${p} decimal place${p > 1 ? 's' : ''}.`]);
+  list.push([fmtScaled(roundScaled(x.N, x.places, p - 1).value, p - 1), p === 1
+    ? 'This is rounded to the nearest whole number &mdash; one place too far left. The question asks for 1 decimal place.'
+    : `This is rounded to ${p - 1} decimal place${p > 2 ? 's' : ''} &mdash; one place too few. The question asks for ${p}.`]);
+  list.push([x.str, 'This is the number before rounding. Rounding drops every digit after the rounding place.']);
+  return distinctWrongs(fmtScaled(r.value, p), distinctNumeric(fmtScaled(r.value, p), list)).slice(0, 3).map(w => [w[0] + u, w[1]]);
+}
+function roundingExplain(it, unit){
+  const {x, p, r, rd} = it, u = unit || '';
+  return `Underline the digit in the ${ROUND_PLACE_COLS[p]} place: ${markRoundingDigit(x, p)}. ` +
+    `Look at the digit to its RIGHT: ${r.next}. ` +
+    (r.next >= 5 ? `${r.next} is 5 or more, so round UP: the ${rd} becomes ${rd + 1}. ` : `${r.next} is less than 5, so round DOWN: keep the ${rd}. `) +
+    `Drop the digits after it: <b>${fmtScaled(r.value, p)}${u}</b>.`;
+}
+const ROUND_TIP = 'Underline the rounding digit, then look ONLY at the digit right after it: 0-4 keep it, 5-9 add 1. Then drop everything after it.';
+function genRoundQuestion(){
+  const it = roundingItem(2, 4, [0, randInt(1, 9), randInt(10, 99)]);
+  return mcQuestion(`Round ${it.x.str} ${roundPhrase(it.p)}.`, fmtScaled(it.r.value, it.p),
+    roundingWrongs(it), roundingExplain(it), ROUND_TIP);
+}
+function genRoundDecider(){
+  const it = roundingItem(3, 4, [0, randInt(1, 9), randInt(10, 99)]);
+  const {x, p} = it;
+  const digitAt = k => k === 0 ? x.whole % 10 : x.digits[k - 1];
+  const name = k => `the ${digitAt(k)} in the ${ROUND_PLACE_COLS[k]} place`;
+  const wrongs = [[name(p), `The ${digitAt(p)} is the rounding digit &mdash; the one that may change. The digit that decides is the one right after it.`]];
+  if(p + 2 <= x.places) wrongs.push([name(p + 2), `Only the digit RIGHT after the rounding digit decides. The ${digitAt(p + 2)} is two places away.`]);
+  wrongs.push([name(p - 1), `The ${digitAt(p - 1)} is to the LEFT of the rounding digit. The digit that decides is to its right.`]);
+  if(wrongs.length < 3 && p - 1 > 0) wrongs.push([name(0), `The ${digitAt(0)} is in the ones place, far to the LEFT of the rounding digit. The digit that decides is right after the rounding digit.`]);
+  return mcQuestion(
+    `To round ${x.str} ${roundPhrase(p)}, which digit tells you whether to round up or down?`,
+    name(p + 1), wrongs,
+    `The rounding digit is in the ${ROUND_PLACE_COLS[p]} place: ${markRoundingDigit(x, p)}. The digit that decides is the one immediately to its right: <b>${name(p + 1)}</b>.`,
+    'First find the rounding digit. Then move ONE place to the right &mdash; that digit decides.'
+  );
+}
+function genRoundUpDown(){
+  const it = roundingItem(2, 4, [0, randInt(1, 9), randInt(10, 99)]);
+  const up = it.r.next >= 5;
+  return mcQuestion(
+    `You round ${it.x.str} ${roundPhrase(it.p)}. Do you round up or down?`,
+    up ? 'Round UP (add 1 to the rounding digit)' : 'Round DOWN (keep the rounding digit)',
+    [[up ? 'Round DOWN (keep the rounding digit)' : 'Round UP (add 1 to the rounding digit)', up
+      ? `The digit after the rounding digit is ${it.r.next}. 5, 6, 7, 8 or 9 means round UP.`
+      : `The digit after the rounding digit is ${it.r.next}. 0, 1, 2, 3 or 4 means round DOWN.`]],
+    roundingExplain(it), ROUND_TIP
+  );
+}
+function genRoundStory(){
+  const kind = pick(['money', 'tape', 'scale']);
+  let it, q, unit;
+  if(kind === 'money'){
+    it = roundingItem(3, 3, [randInt(10, 99), randInt(100, 999)], 2);
+    const item = pick(['jacket', 'pair of shoes', 'school bag', 'lunch box', 'toy car']);
+    q = `A ${item} costs ₱${it.x.str} after a discount. Prices are shown to the nearest centavo (2 decimal places). What price is shown?`;
+    unit = '';
+  } else if(kind === 'tape'){
+    it = roundingItem(4, 4, [1, 2, 3], 2);
+    q = `A metal pipe measures ${it.x.str} m. The measuring tape only shows centimetres (2 decimal places in metres). What length can be recorded?`;
+    unit = ' m';
+  } else {
+    it = roundingItem(3, 3, [randInt(1, 9)], 1);
+    q = `A bag of rice weighs ${it.x.str} kg. The scale only shows 1 decimal place. What does the scale show?`;
+    unit = ' kg';
+  }
+  const pre = kind === 'money' ? '₱' : '';
+  return mcQuestion(q, pre + fmtScaled(it.r.value, it.p) + unit,
+    roundingWrongs(it, unit).map(w => [pre + w[0], w[1]]), roundingExplain(it, unit),
+    'Find how many decimal places the story wants, then round: ' + ROUND_TIP);
+}
+function genRoundSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.45 ? genRoundQuestion() : r < 0.62 ? genRoundDecider() : r < 0.75 ? genRoundUpDown() : genRoundStory();
+  });
+}
+
+/* ================= GENERATOR: Adding & Subtracting Decimals ================= */
+/* Week 10 Day 4 - Week 11. Values are integers at a shared scale (10^P). The wrong
+   choices are the slips the steps guard against: last digits lined up instead of the
+   points, a missed carry, no borrowing (smaller digit from bigger), and a moved point. */
+function trimDecimal(v, p){
+  const s = fmtScaled(v, p);
+  return p === 0 ? s : s.replace(/0+$/, '').replace(/\.$/, '');
+}
+function decOperand(maxWhole, minP, maxP){
+  const p = randInt(minP, maxP);
+  let v;
+  do { v = randInt(0, maxWhole) * Math.pow(10, p) + randInt(0, Math.pow(10, p) - 1); } while(p > 0 && v % 10 === 0 || v === 0);
+  return {v, p, str: fmtScaled(v, p)};
+}
+function columnWise(a, b, P, op){
+  const sa = String(a), sb = String(b), len = Math.max(sa.length, sb.length);
+  const da = sa.padStart(len, '0'), db = sb.padStart(len, '0');
+  let out = '';
+  for(let i = 0; i < len; i++){
+    const x = +da[i], y = +db[i];
+    out += op === '+' ? (x + y) % 10 : Math.abs(x - y);
+  }
+  return Number(out);
+}
+/* Money keeps both centavo places (₱30.90, not ₱30.9) */
+function addSubDecItem(op, a, b, money){
+  const P = Math.max(a.p, b.p), A = a.v * Math.pow(10, P - a.p), B = b.v * Math.pow(10, P - b.p);
+  const R = op === '+' ? A + B : A - B;
+  const trimDec = money ? fmtScaled : trimDecimal;
+  const answer = trimDec(R, P);
+  const wrongs = [];
+  if(a.p !== b.p){
+    const short = a.p < b.p ? 'a' : 'b';
+    const mis = op === '+' ? (short === 'a' ? a.v + B : A + b.v) : (short === 'a' ? a.v - B : A - b.v);
+    if(mis >= 0) wrongs.push([trimDec(mis, P), `This lines up the last digits instead of the decimal points. Line up the points and fill the empty places with zeros: ${fmtScaled(A, P)} ${op === '+' ? '+' : '&minus;'} ${fmtScaled(B, P)}.`]);
+  }
+  const slip = columnWise(A, B, P, op);
+  if(slip !== R) wrongs.push([trimDec(slip, P), op === '+'
+    ? 'This forgot to carry. When a column adds up to 10 or more, write the ones digit and carry 1 to the next column on the left.'
+    : 'In some columns this took the smaller digit from the bigger one. When the top digit is smaller, borrow 1 from the next column on the left.']);
+  if(P > 0) wrongs.push([money ? fmtScaled(R * 10, P) : trimDec(R, P - 1), 'The digits are right, but the decimal point is in the wrong place. Put it directly under the other decimal points.']);
+  [Math.pow(10, P - 1), 1].forEach(step => {
+    if(R + step > 0) wrongs.push([trimDec(R + step, P), `This is ${trimDecimal(step, P)} more than the right answer. Recheck that column and the carrying or borrowing.`]);
+    if(R - step >= 0) wrongs.push([trimDec(R - step, P), `This is ${trimDecimal(step, P)} less than the right answer. Recheck that column and the carrying or borrowing.`]);
+  });
+  const full = fmtScaled(R, P);
+  const explain = `Line up the decimal points` + (a.p !== b.p ? ' and add zeros so both have the same number of decimal places' : '') +
+    `: ${fmtScaled(A, P)} ${op === '+' ? '+' : '&minus;'} ${fmtScaled(B, P)}. ` +
+    `${op === '+' ? 'Add' : 'Subtract'} from right to left, then bring the point straight down: ` +
+    (full !== answer ? `${full} = <b>${answer}</b>.` : `<b>${answer}</b>.`);
+  return {answer, wrongs: distinctWrongs(answer, distinctNumeric(answer, wrongs)).slice(0, 3), explain};
+}
+const ADDSUB_DEC_TIP = 'Write the numbers one under the other with the decimal points in a straight line. Fill empty places with zeros, then work from right to left.';
+function genAddSubDecQuestion(){
+  const op = Math.random() < 0.5 ? '+' : '-';
+  let a, b;
+  do {
+    a = decOperand(op === '+' ? 99 : 130, op === '-' && Math.random() < 0.15 ? 0 : 1, 4);
+    b = decOperand(op === '+' ? 99 : 60, 1, 4);
+  } while(op === '-' && a.v * Math.pow(10, Math.max(a.p, b.p) - a.p) <= b.v * Math.pow(10, Math.max(a.p, b.p) - b.p));
+  const it = addSubDecItem(op, a, b);
+  return mcQuestion(`${op === '+' ? 'Add' : 'Subtract'}: ${a.str} ${op === '+' ? '+' : '&minus;'} ${b.str} = ?`,
+    it.answer, it.wrongs, it.explain, ADDSUB_DEC_TIP);
+}
+const DEC_STORIES = {
+  '+': [
+    ['A ribbon was cut into two pieces: {a} m and {b} m. How long was the ribbon?', ' m'],
+    ['A jug has {a} L of juice. {b} L more is poured in. How much juice is in the jug now?', ' L'],
+    ['A bag of rice weighs {a} kg and a bag of sugar weighs {b} kg. What is their total weight?', ' kg'],
+    ['A notebook costs ₱{a} and a pen costs ₱{b}. How much do they cost together?', '₱']
+  ],
+  '-': [
+    ['A rope is {a} m long. {b} m is cut off. How much rope is left?', ' m'],
+    ['A water tank had {a} L. {b} L was used. How much water is left?', ' L'],
+    ['A box weighs {a} kg. A smaller box weighs {b} kg. How much heavier is the bigger box?', ' kg'],
+    ['A shirt costs ₱{a}. A cap costs ₱{b}. How much more does the shirt cost?', '₱']
+  ]
+};
+function genAddSubDecStory(){
+  const op = Math.random() < 0.5 ? '+' : '-';
+  const [text, unit] = pick(DEC_STORIES[op]);
+  const money = unit === '₱';
+  let a, b;
+  do {
+    a = money ? decOperand(op === '+' ? 150 : 600, 2, 2) : decOperand(op === '+' ? 20 : 40, 1, 3);
+    b = money ? decOperand(op === '+' ? 60 : 250, 2, 2) : decOperand(20, 1, 3);
+  } while(op === '-' && a.v * Math.pow(10, Math.max(a.p, b.p) - a.p) <= b.v * Math.pow(10, Math.max(a.p, b.p) - b.p));
+  const it = addSubDecItem(op, a, b, money);
+  const show = s => money ? '₱' + s : s + unit;
+  return mcQuestion(text.replace('{a}', a.str).replace('{b}', b.str), show(it.answer),
+    it.wrongs.map(w => [show(w[0]), w[1]]),
+    `${op === '+' ? 'The story puts two amounts together, so ADD.' : 'The story takes one amount away or compares two amounts, so SUBTRACT.'} ` + it.explain,
+    'Pick the operation first: putting amounts together means add; &ldquo;left&rdquo; or &ldquo;how much more&rdquo; means subtract. ' + ADDSUB_DEC_TIP);
+}
+function genPadZeros(){
+  let x, y;
+  do { x = decOperand(9, 1, 2); y = decOperand(9, x.p + 1, 4); } while(x.v < Math.pow(10, x.p) || x.v * Math.pow(10, y.p - x.p) <= y.v);
+  const k = y.p - x.p, whole = Math.floor(x.v / Math.pow(10, x.p)), dec = x.str.split('.')[1];
+  const right = x.str + '0'.repeat(k);
+  return mcQuestion(
+    `To subtract ${x.str} &minus; ${y.str}, both numbers need ${y.p} decimal places. How should ${x.str} be written?`,
+    right,
+    [
+      [whole + '.' + '0'.repeat(k) + dec, `Zeros go at the END of the decimal part. Zeros put right after the point change the value: ${whole}.${'0'.repeat(k)}${dec} is much less than ${x.str}.`],
+      [String(x.v) + '.' + '0'.repeat(y.p), `The decimal point disappeared: ${x.v} is much bigger than ${x.str}. Keep the point where it is and add zeros at the end.`],
+      [fmtScaled(x.v * Math.pow(10, k), y.p + 1), `The decimal point moved one place to the left, so the value became 10 times smaller. Keep the point where it is.`]
+    ],
+    `Add zeros at the end of the decimal part: ${x.str} = <b>${right}</b>. Zeros at the end do not change the value, and now both numbers have ${y.p} decimal places.`,
+    'Zeros at the END of a decimal never change its value: 5.1 = 5.10 = 5.100. Zeros right after the point DO change it.'
+  );
+}
+function genAddSubDecSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.6 ? genAddSubDecQuestion() : r < 0.85 ? genAddSubDecStory() : genPadZeros();
+  });
+}
+
 /* ================= LESSONS ================= */
 const LESSON_QUIZ_LEN = 10;
 const LESSONS = [
@@ -1893,6 +2307,21 @@ const LESSONS = [
       {icon:'🔟', term:'Divisible by 10', def:'The last digit is 0.'},
     ],
     generate: genDivisibilitySet
+  },
+  {
+    id:'divisibility71112', emoji:'🔎', title:'Divisibility Rules for 7, 11 &amp; 12', subtitle:'And finding factors',
+    flashcards:[
+      {icon:'➗', term:'Divisible', def:'You can divide a whole number by another whole number <b>evenly</b> &mdash; with no remainder.'},
+      {icon:'7️⃣', term:'Divisible by 7', def:'<b>Double</b> the ones digit. <b>Subtract</b> it from the number made by the other digits. If the result is 0 or a multiple of 7, the number is divisible by 7.'},
+      {icon:'✏️', term:'Example: 826', def:'Twice 6 is 12. 82 &minus; 12 = <b>70</b>, and 70 = 7 &times; 10. So 826 is divisible by 7.'},
+      {icon:'🔁', term:'Still Big? Do It Again', def:'5,789: twice 9 is 18, and 578 &minus; 18 = 560. Again: twice 0 is 0, and 56 &minus; 0 = 56 = 7 &times; 8. So 5,789 is divisible by 7.'},
+      {icon:'➖', term:'Divisible by 11', def:'Go from left to right: subtract, add, subtract, add the digits. If the result is 0 or a multiple of 11, the number is divisible by 11. 92,895 &rarr; 9 &minus; 2 + 8 &minus; 9 + 5 = <b>11</b>, so yes.'},
+      {icon:'🕛', term:'Divisible by 12', def:'It must be divisible by <b>BOTH 3 and 4</b>. 80,160: the digits add up to 15 (rule for 3 &#10003;) and the last two digits make 60 (60 &divide; 4 = 15, rule for 4 &#10003;). So it is divisible by 12.'},
+      {icon:'🧩', term:'Factor', def:'A number that divides another number exactly, with no remainder. The factors of 21 are 1, 3, 7 and 21.'},
+      {icon:'🔍', term:'Finding Factors With the Rules', def:'Is 224 divisible by 4, 7 and 8? Last two digits 24 &divide; 4 = 6 &#10003; &middot; 22 &minus; 8 = 14 = 7 &times; 2 &#10003; &middot; last three digits 224 &divide; 8 = 28 &#10003;. So 4, 7 and 8 are all factors of 224.'},
+      {icon:'📋', term:'Times Tables to Know', def:'<b>7:</b> 7, 14, 21, 28, 35, 42, 49, 56, 63, 70<br><b>11:</b> 11, 22, 33, 44, 55, 66, 77, 88, 99, 110<br><b>12:</b> 12, 24, 36, 48, 60, 72, 84, 96, 108, 120'},
+    ],
+    generate: genBigDivSet
   },
   {
     id:'gemdas', emoji:'🧮', title:'Order of Operations', subtitle:'GEMDAS / PEMDAS',
@@ -2023,6 +2452,36 @@ const LESSONS = [
       {icon:'✅', term:'Remember', def:'Decimal &rarr; Fraction: write it over 10, 100 or 1,000 and simplify. Fraction &rarr; Decimal: divide top by bottom.'},
     ],
     generate: genDecFracSet
+  },
+  {
+    id:'rounddecimals', emoji:'🎯', title:'Rounding Decimals', subtitle:'To the nearest tenth, hundredth &amp; thousandth',
+    flashcards:[
+      {icon:'📏', term:'Places = Decimal Places', def:'Nearest <b>tenth</b> = 1 decimal place &middot; nearest <b>hundredth</b> = 2 decimal places &middot; nearest <b>thousandth</b> = 3 decimal places.'},
+      {icon:'👉', term:'The Rounding Rule', def:'Look at the digit <b>immediately to the right</b> of the rounding digit.<br><b>0, 1, 2, 3 or 4</b> &rarr; round DOWN: keep the rounding digit the same.<br><b>5, 6, 7, 8 or 9</b> &rarr; round UP: add 1 to the rounding digit.'},
+      {icon:'🪜', term:'The Steps', def:'<b>1.</b> Underline the rounding digit. <b>2.</b> Look at the digit to its right. <b>3.</b> Round up or down. <b>4.</b> Drop every digit after the rounding digit.'},
+      {icon:'✏️', term:'Example: 5.837 to 1 Decimal Place', def:'Underline the 8: 5.<u>8</u>37. The digit to its right is 3, which is less than 5, so round DOWN. Answer: <b>5.8</b>.'},
+      {icon:'✏️', term:'Example: 12.465 to 2 Decimal Places', def:'Underline the 6: 12.4<u>6</u>5. The digit to its right is 5, so round UP. Answer: <b>12.47</b>.'},
+      {icon:'✏️', term:'Example: 34.9962 to 3 Decimal Places', def:'The third decimal place is the 6: 34.99<u>6</u>2. The digit to its right is 2, so round DOWN. Answer: <b>34.996</b>.'},
+      {icon:'💰', term:'Money: 2 Decimal Places', def:'Money is shown to the nearest centavo, which is 2 decimal places. A price of ₱79.347 is shown as <b>₱79.35</b> (the 7 after the 4 rounds it up).'},
+      {icon:'📐', term:'Measuring: 1.2847 m', def:'A tape that shows centimetres reads 2 decimal places in metres. 1.2<u>8</u>47: the next digit is 4, so round DOWN. Record <b>1.28 m</b>.'},
+      {icon:'⚠️', term:'Only the NEXT Digit Decides', def:'To round 2.4479 to 1 decimal place, look only at the 4 right after the first 4 &mdash; round DOWN to <b>2.4</b>. The 7 and 9 further along do not matter.'},
+    ],
+    generate: genRoundSet
+  },
+  {
+    id:'addsubdecimals', emoji:'🧾', title:'Adding &amp; Subtracting Decimals', subtitle:'Line up the decimal points',
+    flashcards:[
+      {icon:'📍', term:'1. Line Up the Points', def:'Write the numbers one under the other so the <b>decimal points are in a straight line</b>.'},
+      {icon:'0️⃣', term:'2. Add Zeros if Needed', def:'Give both numbers the same number of decimal places. 4.5 + 2.1628 &rarr; 4.5000 + 2.1628. Zeros at the end do not change the value.'},
+      {icon:'⬅️', term:'3. Work From Right to Left', def:'Start with the smallest place (the last column on the right) and move left, carrying or borrowing like whole numbers.'},
+      {icon:'⬇️', term:'4. Place the Decimal Point', def:'Bring the decimal point straight down into the answer, under the other points.'},
+      {icon:'✅', term:'5. Check Your Work', def:'Estimate to see if the answer makes sense. 5.1725 + 17.2825 is about 5 + 17 = 22, and the answer is <b>22.455</b>.'},
+      {icon:'✏️', term:'Example: 4.2726 &minus; 1.2352', def:'Line up the points and subtract from right to left, borrowing when the top digit is smaller. Answer: <b>3.0374</b>.'},
+      {icon:'✏️', term:'Example: 1.253 &minus; 0.6242', def:'Add a zero first: 1.2530 &minus; 0.6242. Borrow where needed. Answer: <b>0.6288</b>.'},
+      {icon:'🔢', term:'Whole Number? It Has a Point Too', def:'121 is the same as 121.00. So 121 &minus; 25.16 is 121.00 &minus; 25.16 = <b>95.84</b>.'},
+      {icon:'⚠️', term:'Zeros Go at the END', def:'5.1 = 5.10 = 5.100. But 5.001 is a different, much smaller number &mdash; never put the zeros right after the point.'},
+    ],
+    generate: genAddSubDecSet
   },
 ];
 

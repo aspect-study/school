@@ -10,7 +10,7 @@ const content = require('../content.js');
 const CASES = [
   { id: 'life-lab', list: 'homeList', home: 'home', query: 'atoms', enter: 'What Is Matter' },
   { id: 'history-explorers', list: 'homeList', home: 'home', query: 'timawa', enter: 'pakikipag-ugnayan sa tsina' },
-  { id: 'math-mastery', list: 'lesson-grid', home: 'screen-home', query: 'divisible', enter: 'divisibility rules', expect: ['0'] },
+  { id: 'math-mastery', list: 'lesson-grid', home: 'screen-home', query: 'divisible', enter: 'divisibility rules', expect: ['0', '1'] },
   { id: 'word-train', list: 'home-list', home: 'home', query: 'capital', enter: 'alphabet' },
   { id: 'kuwentista', list: 'lesson-grid', home: 'screen-home', query: 'patinig', enter: 'alpabetong pilipino' },
 ];
