@@ -36,6 +36,36 @@ StudyKit.content('strategy', [
     en: '<b>KONG, not KO.</b> When <b>ko</b> is followed by a <b>pandiwa</b> (verb), add <b>-ng</b> to it: Kailangan <b>kong</b> magdasal (I need to pray), Gusto <b>kong</b> kumain (I want to eat). Do not mix it up with <b>kung</b> (a condition, if).'
   },
   {
+    kicker: 'Realidad at Pantasya',
+    title: 'Puwede bang mangyari?',
+    body: 'Itanong: &ldquo;<b>Puwede ba itong mangyari sa tunay na buhay?</b>&rdquo; Oo &rarr; realidad. Hindi &rarr; pantasya. Kapag may <b>mahika</b> o <b>kakaibang nilalang</b>, pantasya iyon.',
+    en: '<b>Can it happen?</b> Ask: &ldquo;<b>Can this happen in real life?</b>&rdquo; Yes &rarr; realidad (reality). No &rarr; pantasya (fantasy). When there is <b>magic</b> or a <b>strange creature</b>, it is fantasy.'
+  },
+  {
+    kicker: 'Denotasyon at Konotasyon',
+    title: 'D = Diksiyonaryo',
+    body: '<b>D</b>enotasyon = <b>d</b>iksiyonaryo, ang mismong bagay (ilaw na binubuksan). <b>Konotasyon</b> = may ibang ibig sabihin (ilaw = gabay). Basahin ang buong pangungusap bago sumagot.',
+    en: '<b>D = Dictionary.</b> <b>D</b>enotation = <b>d</b>ictionary, the actual thing (a light you switch on). <b>Connotation</b> = it has another meaning (light = guide). Read the whole sentence before answering.'
+  },
+  {
+    kicker: 'Antas ng Pang-uri',
+    title: 'Ilan ang pinaghahambing?',
+    body: 'Walang paghahambing &rarr; <b>lantay</b>. Dalawa (mas, higit, kaysa, kasing-) &rarr; <b>pahambing</b>. Nangingibabaw sa lahat (pinaka-, napaka-, ubod ng, saksakan ng) &rarr; <b>pasukdol</b>.',
+    en: '<b>How many are compared?</b> No comparing &rarr; <b>lantay</b> (positive). Two (mas, higit, kaysa, kasing-) &rarr; <b>pahambing</b> (comparative). Above all (pinaka-, napaka-, ubod ng, saksakan ng) &rarr; <b>pasukdol</b> (superlative).'
+  },
+  {
+    kicker: 'Pananda',
+    title: 'Ano ang ginagawa ng pangungusap?',
+    body: 'Nagkukuwento &rarr; <b>Una, Pagkatapos, Kinabukasan</b>. Nag-iisa-isa &rarr; <b>Halimbawa, Gaya ng, Ilan sa mga ito</b>. Nagbubuod &rarr; <b>Sa kabuuan, Samakatuwid</b>. Sariling pananaw &rarr; <b>Para sa akin, Sa tingin ko</b>.',
+    en: '<b>What is the sentence doing?</b> Telling events &rarr; <b>Una, Pagkatapos, Kinabukasan</b> (first, after that, the next day). Listing &rarr; <b>Halimbawa, Gaya ng, Ilan sa mga ito</b> (for example, such as, some of these). Summing up &rarr; <b>Sa kabuuan, Samakatuwid</b> (overall, therefore). Own view &rarr; <b>Para sa akin, Sa tingin ko</b> (for me, I think).'
+  },
+  {
+    kicker: 'Angkop na Wika',
+    title: 'Sino ang kausap?',
+    body: 'Sa <b>nakatatanda o hindi kakilala</b>: po, opo, kayo, at pantawag (Lola, Ma&rsquo;am). Sa <b>kaibigan</b>: maaaring impormal. Sa <b>mas bata</b>: simpleng salita. Iwasan ang &ldquo;Hoy&rdquo; sa nakatatanda.',
+    en: '<b>Who are you talking to?</b> To an <b>older person or a stranger</b>: po, opo, kayo, and a title (Lola, Ma&rsquo;am). To a <b>friend</b>: you can be casual. To <b>someone younger</b>: simple words. Avoid &ldquo;Hoy&rdquo; (Hey!) with older people.'
+  },
+  {
     kicker: 'Pangkalahatan',
     title: 'Basahin muli bago isumite',
     body: 'Basahin ang tanong kasama ang iyong sagot. Kung wasto pa rin ito ayon sa aralin, tama ka.',

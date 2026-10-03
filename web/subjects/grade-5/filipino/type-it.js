@@ -5,5 +5,14 @@ StudyKit.content('typeIt', {
   'Isang teksto kung paano magluto ng kanin: hugasan ang bigas, ilagay ang tubig, at saka lutuin. Anong hulwaran ito?': [],
   'Aling salita ang wastong gamitin? &ldquo;Tumakbo ___ mabilis si Ana pauwi.&rdquo;': [],
   'Paano isusulat nang wasto ang <b>masaya</b> + <b>bata</b>?': [],
-  'Paano isusulat nang wasto ang <b>mabait</b> + <b>anak</b>?': []
+  'Paano isusulat nang wasto ang <b>mabait</b> + <b>anak</b>?': [],
+  '&ldquo;Mas mabait ang alaga naming pusa kaysa sa alaga naming aso.&rdquo; Anong antas ng pang-uri ang ginamit?': [],
+  'Ano ang tawag sa mga taong pinaglalaanan mo ng iyong mensahe?': [],
+  'Ano ang tawag sa bahagi ng liham na naglalaman ng tirahan at petsa?': [],
+  'Saan mo hahanapin ang kasaysayan ng Pilipinas?': ['encyclopedia', 'ensayklopidya'],
+  'Sa Alamat ng Mindoro, ano ang dating tawag sa isla?': [],
+  'Ano ang ibig sabihin ng DIY?': ['do it yourself'],
+  'Ayon sa halimbawang diksiyonaryo, ano ang kahulugan ng <b>batugan</b>?': [],
+  'Ilang pantig mayroon sa &ldquo;Ang bata ay mabait&rdquo;?': ['pito'],
+  'Ano ang ibig sabihin ng LRN?': []
 });

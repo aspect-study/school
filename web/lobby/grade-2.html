@@ -206,6 +206,23 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   }
   .go-arrow svg{ width:18px; height:18px; }
 
+  .fresh-note{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:14px 16px;
+    margin-top:clamp(20px,4vw,28px);
+    font-size:0.88rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .fresh-note .fresh-icon{ font-size:1.2rem; line-height:1.2; flex:none; }
+  .fresh-note b{ color:var(--ink); }
+
   .footer-note{
     text-align:center;
     margin-top:clamp(24px,5vw,36px);
@@ -451,6 +468,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       </div>
       <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
     </a>
+  </div>
+
+  <div class="fresh-note">
+    <span class="fresh-icon">⭐</span>
+    <span>Every new day, your <b>stars start empty again</b>, so you can earn them all over. Your <b>points keep adding up forever</b>, so every right answer counts!</span>
   </div>
 
   <p class="footer-note">Tap a subject to review the lessons and take the quiz! 🌟</p>
