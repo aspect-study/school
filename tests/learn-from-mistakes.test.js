@@ -55,7 +55,7 @@ for (const app of FAMILY_A) {
   });
 }
 
-const G5_FIXED = ['rise-shine', 'rally-ready', 'craft-corner', 'life-lab', 'net-navigators', 'history-explorers', 'page-turners', 'wikaharian'];
+const G5_FIXED = ['rise-shine', 'rally-ready', 'craft-corner', 'life-lab', 'net-navigators', 'rhythm-hues', 'history-explorers', 'page-turners', 'wikaharian'];
 const G5_WITH_ENGLISH = ['history-explorers', 'wikaharian'];
 
 function checkOptionWhys(where, q, whyKey) {

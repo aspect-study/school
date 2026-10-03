@@ -32,7 +32,7 @@ const GRADE5_DEVICE = {
 };
 
 // Games added after 2026-10-02 have no old global keys to migrate.
-const ADDED_AFTER_LEARNERS = ['net-navigators'];
+const ADDED_AFTER_LEARNERS = ['net-navigators', 'rhythm-hues'];
 
 test('the legacy table names exactly the 15 games that existed before learners', () => {
   const byGrade = { grade5: [], grade2: [] };
