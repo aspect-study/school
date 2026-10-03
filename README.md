@@ -38,7 +38,7 @@ The offline cache list is in `web/sw.js`. `tests/pwa.test.js` fails if any file 
 | History Explorers (`araling-panlipunan/`) | Araling Panlipunan | 14 | Origins of the Philippines, barangay, leaders and classes, trade, beliefs and traditions |
 | Life Lab (`science/`) | Science | 18 | Matter, measurement, scientific method, microorganisms, plant and animal groups |
 | Rise & Shine (`gmrc/`) | GMRC | 13 | Self, saving, dignity, faith, traffic rules, manners, gratitude, e-waste |
-| Rally Ready (`pe-health/`) | P.E. & Health | 7 | Net and wall games, ABC skills, pickleball, managing stress |
+| Rally Ready (`pe-health/`) | P.E. & Health | 8 | Net and wall games, ABC skills, pickleball, managing stress, practical skills test |
 | Craft Corner (`tle/`) | TLE | 9 | Home furnishings, embroidery, crochet, sewing |
 
 The Filipino and Araling Panlipunan games keep the textbook's Filipino wording and add optional English help: card translations, a "Hindi maintindihan?" button on questions, and "Paano Sagutin?" tip cards.
