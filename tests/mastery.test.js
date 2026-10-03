@@ -193,8 +193,8 @@ test('a new medal, a game-wide milestone and fixed mistakes become popup events,
   assert.equal(r.subjectUp, 1, 'every lesson now has Bronze or better');
   assert.equal(r.toNext, 1, 'one lesson is still below Silver');
   assert.deepEqual(m.events(r, 2, 'Life Lab'), [
-    { big: true, icon: '🏆', title: 'All of Life Lab is Bronze!', line: 'Every lesson has 🥉 or better.', next: 'Next: all-Silver, 1 lesson to go' },
-    { big: true, icon: '🥈', title: 'Silver: Lesson l1!', line: 'You got all 2 questions right on 2 different days.', next: '🥇 next: once more in about 7 days' },
+    { big: true, icon: '🏆', title: 'All of Life Lab is Bronze!', line: 'Every lesson has 🥉 or better.', next: 'Next: all-Silver, 1 lesson to go', medal: 1 },
+    { big: true, icon: '🥈', title: 'Silver: Lesson l1!', line: 'You got all 2 questions right on 2 different days.', next: '🥇 next: once more in about 7 days', medal: 2 },
     { big: false, icon: '🔧', title: 'You fixed 2 mistakes!', line: '2 questions you missed before are right now.', next: 'They come back in 3 days to check' },
   ]);
   assert.equal(m.update('life-lab', lessons).subjectUp, 0, 'it celebrates once');
@@ -205,9 +205,9 @@ test('popup text for each medal, all-Gold and a single fix', () => {
   const T = create(memory(), now, 'grade5');
   const ev = (result, fixed) => T.events(Object.assign({ newly: [], subjectUp: 0, toNext: 0 }, result), fixed || 0, 'Life Lab');
   assert.deepEqual(ev({ newly: [{ id: 'x', title: 'Plants', level: 1, points: 20, count: 1 }] }), [
-    { big: false, icon: '🥉', title: 'Bronze: Plants!', line: 'You got every question right.', next: '🥈 next: get them right again in 3 days' }]);
+    { big: false, icon: '🥉', title: 'Bronze: Plants!', line: 'You got every question right.', next: '🥈 next: get them right again in 3 days', medal: 1 }]);
   assert.deepEqual(ev({ newly: [{ id: 'x', title: 'Plants', level: 3, points: 80, count: 3 }] }), [
-    { big: true, icon: '🥇', title: 'Gold: Plants!', line: 'You got all 3 questions right on 3 different days.', next: 'It comes back in 2 weeks to stay strong' }]);
+    { big: true, icon: '🥇', title: 'Gold: Plants!', line: 'You got all 3 questions right on 3 different days.', next: 'It comes back in 2 weeks to stay strong', medal: 3 }]);
   assert.deepEqual(ev({ subjectUp: 3 })[0].next, 'Every lesson is Gold. Amazing!');
   assert.deepEqual(ev({}, 1), [
     { big: false, icon: '🔧', title: 'You fixed 1 mistake!', line: 'A question you missed before is right now.', next: 'It comes back in 3 days to check' }]);

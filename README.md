@@ -133,7 +133,7 @@ web/                         the published site (the only folder GitHub Pages se
     recall.js                  review boxes (1/3/7/14/30 days), Review rounds, type-it-first
     mastery.js                 lesson medals (🥉🥈🥇 from the review boxes), the lobby map, medal points
     quests.js                  daily quests, the gentle streak, quest and streak coins
-    fx.js                      sound effects + streak call-outs (Web Audio)
+    fx.js                      sound effects (Web Audio) + streak call-outs with voice clips from assets/sounds/
     study-kit.js               points, streaks, rounds, daily star reset (required by every game)
   assets/icons/              home-screen icons
   sw.js                      offline cache (service worker)

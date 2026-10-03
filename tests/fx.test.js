@@ -3,14 +3,40 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { APPS, engineFile, appFile, lobbyFile } = require('./paths.js');
-const { tierFor, SUBTITLE, POP_MS, POP_CLOSE } = require(engineFile('fx.js'));
+const { tierFor, TIERS, FIRST_BLOOD, finishClip, medalClip, allClips, SUBTITLE, POP_MS, POP_CLOSE } = require(engineFile('fx.js'));
+const { WEB } = require('./paths.js');
 
 
 test('the streak announcer climbs one tier per answer in a row and stays legendary', () => {
   assert.equal(tierFor(0), null);
   assert.equal(tierFor(1), null, 'a single right answer only dings');
   const words = [2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => tierFor(n).word);
-  assert.deepEqual(words, ['DOUBLE KILL!', 'TRIPLE KILL!', 'MANIAC!', 'SAVAGE!!!', 'UNSTOPPABLE!', 'GODLIKE!', 'LEGENDARY!', 'LEGENDARY!', 'LEGENDARY!']);
+  assert.deepEqual(words, ['DOUBLE KILL!', 'TRIPLE KILL!', 'MANIAC!', 'SAVAGE!!!', 'DOMINATING!', 'UNSTOPPABLE!', 'LEGENDARY!', 'LEGENDARY!', 'LEGENDARY!']);
+});
+
+test('each call-out has its own voice clip, and the first right answer of a round is First Blood', () => {
+  assert.deepEqual(TIERS.map((t) => t.clip), ['double-kill.mp3', 'triple-kill.mp3', 'maniac.mp3', 'savage.mp3', 'dominating.mp3', 'unstoppable.mp3', 'legendary.mp3']);
+  assert.equal(FIRST_BLOOD.word, 'FIRST BLOOD!');
+  assert.equal(FIRST_BLOOD.clip, 'first-blood.mp3');
+});
+
+test('the end of a round speaks by stars; a perfect round is Ace, a mock exam has its own top two', () => {
+  assert.deepEqual([0, 1, 2, 3].map((n) => finishClip(n, false)), ['valorant-1-kill.mp3', 'valorant-2-kills.mp3', 'valorant-3-kills.mp3', 'valorant-ace.mp3']);
+  assert.deepEqual([0, 1, 2, 3].map((n) => finishClip(n, true)), ['valorant-1-kill.mp3', 'valorant-2-kills.mp3', 'valorant-4-kills.mp3', 'lol-legendary-kill.mp3']);
+});
+
+test('a medal popup speaks by its best medal; other popups only chime', () => {
+  assert.equal(medalClip([{ medal: 1 }]), 'lol-quadra-kill.mp3');
+  assert.equal(medalClip([{ medal: 1 }, { medal: 2 }, {}]), 'valorant-5-kills.mp3');
+  assert.equal(medalClip([{ medal: 3 }]), 'lol-penta-kill.mp3');
+  assert.equal(medalClip([{ icon: '🔧' }]), null);
+});
+
+test('every voice clip is in assets/sounds, and every file there is used', () => {
+  const dir = path.join(WEB, 'assets', 'sounds');
+  const used = [...new Set(allClips())].sort();
+  assert.equal(used.length, allClips().length, 'no clip is used twice');
+  assert.deepEqual(fs.readdirSync(dir).sort(), used);
 });
 
 test('the call-out subtitle speaks each lobby\'s language', () => {

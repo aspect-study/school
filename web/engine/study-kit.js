@@ -61,6 +61,7 @@
         session = 0;
         streak = 0;
         best = 0;
+        if (win.Fx && win.Fx.round) win.Fx.round();
         renderLive();
       },
       // opts.shield: false for answers that never had power-ups, so an unused Streak Shield is not spent.
@@ -78,7 +79,7 @@
           total += pts;
           set(opts.pointsKey, String(total));
           if (win.Wallet && win.Wallet.renderCoins) win.Wallet.renderCoins();
-          if (win.Fx) win.Fx.correct(o.helped ? 0 : streak);
+          if (win.Fx) win.Fx.correct(o.helped ? 0 : streak, { exam: !!o.exam });
         } else {
           if (win.Recall && win.Recall.missed) win.Recall.missed();
           if (!(o.shield !== false && win.PowerUps && win.PowerUps.shield())) streak = 0;

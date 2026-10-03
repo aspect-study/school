@@ -1,5 +1,5 @@
-/* Sound effects and streak call-outs for every game. Sounds are synthesized with the
-   Web Audio API, so there are no audio files to license or download. */
+/* Sound effects and streak call-outs for every game. Beeps and chimes are synthesized with the Web Audio API;
+   the announcer voices are mp3 clips in assets/sounds/, with the device's speech voice as the fallback. */
 (function (root) {
   'use strict';
 
@@ -9,14 +9,40 @@
 
   // Mobile Legends-style streak announcer, one tier per answer in a row.
   var TIERS = [
-    { at: 2, word: 'DOUBLE KILL!', say: 'Double kill!', color: '#3b82f6', glow: '#93c5fd', notes: 2 },
-    { at: 3, word: 'TRIPLE KILL!', say: 'Triple kill!', color: '#10b981', glow: '#6ee7b7', notes: 3 },
-    { at: 4, word: 'MANIAC!', say: 'Maniac!', color: '#a855f7', glow: '#d8b4fe', notes: 4 },
-    { at: 5, word: 'SAVAGE!!!', say: 'Savage!', color: '#ef4444', glow: '#fca5a5', notes: 5, big: true },
-    { at: 6, word: 'UNSTOPPABLE!', say: 'Unstoppable!', color: '#f97316', glow: '#fdba74', notes: 5, big: true },
-    { at: 7, word: 'GODLIKE!', say: 'Godlike!', color: '#eab308', glow: '#fde047', notes: 6, big: true },
-    { at: 8, word: 'LEGENDARY!', say: 'Legendary!', color: '#f59e0b', glow: '#fef08a', notes: 7, big: true, rays: true }
+    { at: 2, word: 'DOUBLE KILL!', say: 'Double kill!', clip: 'double-kill.mp3', color: '#3b82f6', glow: '#93c5fd', notes: 2 },
+    { at: 3, word: 'TRIPLE KILL!', say: 'Triple kill!', clip: 'triple-kill.mp3', color: '#10b981', glow: '#6ee7b7', notes: 3 },
+    { at: 4, word: 'MANIAC!', say: 'Maniac!', clip: 'maniac.mp3', color: '#a855f7', glow: '#d8b4fe', notes: 4 },
+    { at: 5, word: 'SAVAGE!!!', say: 'Savage!', clip: 'savage.mp3', color: '#ef4444', glow: '#fca5a5', notes: 5, big: true },
+    { at: 6, word: 'DOMINATING!', say: 'Dominating!', clip: 'dominating.mp3', color: '#f97316', glow: '#fdba74', notes: 5, big: true },
+    { at: 7, word: 'UNSTOPPABLE!', say: 'Unstoppable!', clip: 'unstoppable.mp3', color: '#eab308', glow: '#fde047', notes: 6, big: true },
+    { at: 8, word: 'LEGENDARY!', say: 'Legendary!', clip: 'legendary.mp3', color: '#f59e0b', glow: '#fef08a', notes: 7, big: true, rays: true }
   ];
+
+  // The first unhelped right answer of each round.
+  var FIRST_BLOOD = { word: 'FIRST BLOOD!', say: 'First blood!', clip: 'first-blood.mp3', color: '#dc2626', glow: '#fca5a5', notes: 1 };
+
+  // The voice at the end of a round, by stars (3 = every answer right). A mock exam has its own top two.
+  var FINISH_CLIPS = ['valorant-1-kill.mp3', 'valorant-2-kills.mp3', 'valorant-3-kills.mp3', 'valorant-ace.mp3'];
+  var EXAM_CLIPS = { 2: 'valorant-4-kills.mp3', 3: 'lol-legendary-kill.mp3' };
+  // A popup's voice by its best medal: 1 Bronze, 2 Silver, 3 Gold (also an all-Bronze/Silver/Gold game).
+  var MEDAL_CLIPS = { 1: 'lol-quadra-kill.mp3', 2: 'valorant-5-kills.mp3', 3: 'lol-penta-kill.mp3' };
+
+  function finishClip(stars, exam) {
+    var n = Math.max(0, Math.min(3, stars | 0));
+    return (exam && EXAM_CLIPS[n]) || FINISH_CLIPS[n];
+  }
+
+  function medalClip(events) {
+    var best = 0;
+    (events || []).forEach(function (e) { if (e.medal > best) best = e.medal; });
+    return MEDAL_CLIPS[best] || null;
+  }
+
+  function allClips() {
+    var list = TIERS.map(function (t) { return t.clip; }).concat(FIRST_BLOOD.clip, FINISH_CLIPS);
+    [EXAM_CLIPS, MEDAL_CLIPS].forEach(function (m) { Object.keys(m).forEach(function (k) { list.push(m[k]); }); });
+    return list;
+  }
 
   var SUBTITLE = {
     grade5: function (n) { return '🔥 ' + n + ' in a row!'; },
@@ -29,8 +55,10 @@
     return found;
   }
 
-  function create(win, grade) {
+  // soundDir: the URL of assets/sounds/ (null when unknown: then the speech voice stands in).
+  function create(win, grade, soundDir) {
     var doc = win.document;
+    var clips = {}, playing = null, clipUntil = 0, blooded = false, examRound = false;
     var ctx = null;
     var layer = null;
     var hideTimer = null;
@@ -93,6 +121,36 @@
         u.volume = 1;
         win.speechSynthesis.speak(u);
       } catch (e) {}
+    }
+
+    function clipAudio(name) {
+      if (!clips[name]) {
+        clips[name] = new win.Audio(soundDir + name);
+        clips[name].preload = 'auto';
+      }
+      return clips[name];
+    }
+
+    // One voice at a time: a new clip cuts the old one. fallback runs when the clip cannot play (missing file, blocked).
+    function clip(name, fallback) {
+      if (muted()) return;
+      if (!soundDir || !win.Audio) { if (fallback) fallback(); return; }
+      try {
+        var a = clipAudio(name);
+        if (playing && playing !== a) playing.pause();
+        playing = a;
+        a.currentTime = 0;
+        a.volume = 0.9;
+        clipUntil = Date.now() + (a.duration > 0 && isFinite(a.duration) ? a.duration : 2.5) * 1000;
+        var p = a.play();
+        if (p && p.catch) p.catch(function () { if (playing === a) clipUntil = 0; if (fallback) fallback(); });
+      } catch (e) { clipUntil = 0; if (fallback) fallback(); }
+    }
+
+    function stopClip() {
+      if (playing) { try { playing.pause(); } catch (e) {} }
+      playing = null;
+      clipUntil = 0;
     }
 
     function addStyle() {
@@ -209,14 +267,23 @@
       calloutUntil = Date.now() + 1700;
     }
 
-    function correct(streak) {
+    // A new round: First Blood is ready again. study-kit.js calls this from startRound.
+    function round() {
+      blooded = false;
+      examRound = false;
+    }
+
+    function correct(streak, o) {
+      if (o && o.exam) examRound = true;
       tone(880, 0, 0.12, 'sine', 0.18);
       tone(1319, 0.08, 0.2, 'sine', 0.18);
       var tier = tierFor(streak);
+      if (!tier && streak === 1 && !blooded) tier = FIRST_BLOOD;
+      if (streak > 0) blooded = true;
       if (!tier) return;
       arpeggio(tier.notes, 0.07, tier.big ? 'square' : 'triangle', tier.big ? 0.07 : 0.12);
       if (tier.big) tone(110, 0.05, 0.4, 'sawtooth', 0.08, 55);
-      say(tier.say);
+      clip(tier.clip, function () { say(tier.say); });
       show(tier.word, subtitle(streak), tier);
     }
 
@@ -256,6 +323,7 @@
     }
 
     function finish(stars) {
+      clip(finishClip(stars, examRound));
       if (stars >= 3) {
         [523, 659, 784, 1047].forEach(function (f, i) { tone(f, i * 0.12, 0.25, 'triangle', 0.16); });
         tone(1047, 0.5, 0.6, 'triangle', 0.14);
@@ -348,6 +416,8 @@
       doc.body.appendChild(pop);
       try { ok.focus(); } catch (e) {}
       fanfare(big);
+      var voice = medalClip(events);
+      if (voice) clip(voice);
       closeTimer = setTimeout(closePop, big ? POP_MS.big : POP_MS.small);
     }
 
@@ -360,7 +430,7 @@
         .map(function (x) { return x.e; });
       queuedAnchor = anchor || null;
       clearTimeout(popTimer);
-      popTimer = setTimeout(openPop, Math.max(0, calloutUntil - Date.now()));
+      popTimer = setTimeout(openPop, Math.max(0, calloutUntil - Date.now(), clipUntil - Date.now()));
     }
 
     function renderMute(btn) {
@@ -373,6 +443,7 @@
     function setMuted(on) {
       write(MUTE_KEY, on ? '1' : '0');
       if (on && win.speechSynthesis) win.speechSynthesis.cancel();
+      if (on) stopClip();
       if (!on) tone(880, 0, 0.12, 'sine', 0.16);
       var btn = doc.getElementById('fx-mute');
       if (btn) renderMute(btn);
@@ -392,21 +463,27 @@
     function start() {
       addStyle();
       mountMute();
+      // Games load the voices at the first tap, so the first call-out plays on time.
+      if (win.Nav && soundDir && win.Audio) {
+        doc.addEventListener('pointerdown', function () { allClips().forEach(clipAudio); }, { once: true });
+      }
     }
     if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start);
     else start();
 
-    return { correct: correct, wrong: wrong, finish: finish, purchase: purchase, muted: muted, setMuted: setMuted,
+    return { round: round, correct: correct, wrong: wrong, finish: finish, purchase: purchase, muted: muted, setMuted: setMuted,
       celebrate: celebrate, celebrateNow: openPop, queued: function () { return queued; } };
   }
 
-  var exported = { tierFor: tierFor, TIERS: TIERS, SUBTITLE: SUBTITLE, MUTE_KEY: MUTE_KEY, POP_MS: POP_MS, POP_CLOSE: POP_CLOSE };
+  var exported = { tierFor: tierFor, TIERS: TIERS, FIRST_BLOOD: FIRST_BLOOD, finishClip: finishClip, medalClip: medalClip, allClips: allClips, SUBTITLE: SUBTITLE, MUTE_KEY: MUTE_KEY, POP_MS: POP_MS, POP_CLOSE: POP_CLOSE };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;
   }
   try {
     var script = root.document && root.document.currentScript;
-    root.Fx = create(root, script ? script.getAttribute('data-grade') : null);
+    var dir = null;
+    try { dir = new URL('../assets/sounds/', script.src).href; } catch (e) {}
+    root.Fx = create(root, script ? script.getAttribute('data-grade') : null, dir);
   } catch (e) {}
 })(this);

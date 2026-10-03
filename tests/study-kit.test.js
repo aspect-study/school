@@ -22,7 +22,7 @@ function page({ search = '', stored = {}, shield = false, recall = null, now = n
     location: { search, pathname: '/school/subjects/grade-5/gmrc/index.html', hash: '#top' },
     history: { replaceState(s, t, url) { log.push(['replaceState', url]); } },
     document: { querySelectorAll(sel) { log.push(['query', sel]); return live; } },
-    Fx: { correct(n) { log.push(['Fx.correct', n]); }, wrong() { log.push(['Fx.wrong']); } },
+    Fx: { round() { log.push(['Fx.round']); }, correct(n, o) { log.push(['Fx.correct', n, o]); }, wrong() { log.push(['Fx.wrong']); } },
     PowerUps: { shield() { log.push(['shield']); const on = shieldOn; shieldOn = false; return on; } },
     Wallet: { renderCoins() { log.push(['renderCoins']); }, liveHtml() { return '<w>'; } },
     StudyHistory: { appOpened(app, title) { log.push(['appOpened', app, title]); } },
@@ -58,7 +58,14 @@ test('a helped answer pays half, never grows the streak, and plays a quiet ding'
   kit.answer(true, {});
   assert.equal(kit.answer(true, { helped: true }), 5);
   assert.equal(kit.streak(), 1);
-  assert.deepEqual(log.filter((l) => l[0] === 'Fx.correct'), [['Fx.correct', 1], ['Fx.correct', 0]]);
+  assert.deepEqual(log.filter((l) => l[0] === 'Fx.correct'), [['Fx.correct', 1, { exam: false }], ['Fx.correct', 0, { exam: false }]]);
+});
+
+test('a new round readies First Blood, and exam answers tell Fx it is a mock exam', () => {
+  const { kit, log } = page();
+  kit.startRound();
+  kit.answer(true, { exam: true });
+  assert.deepEqual(log.filter((l) => l[0].startsWith('Fx.')), [['Fx.round'], ['Fx.correct', 1, { exam: true }]]);
 });
 
 test('a wrong answer breaks the streak unless a Streak Shield saves it', () => {

@@ -133,16 +133,21 @@
       events: function (result, fixed, appTitle) {
         var T = TEXT[grade], list = [];
         if (result.subjectUp) {
-          list.push({ rank: 10 + result.subjectUp, big: true, icon: '🏆', title: T.subjectTitle(result.subjectUp, appTitle),
+          list.push({ rank: 10 + result.subjectUp, medal: result.subjectUp, big: true, icon: '🏆', title: T.subjectTitle(result.subjectUp, appTitle),
             line: T.subjectLine(result.subjectUp), next: T.subjectNext(result.subjectUp, result.toNext) });
         }
         (result.newly || []).forEach(function (m) {
-          list.push({ rank: 1 + m.level, big: m.level >= 2, icon: MEDALS[m.level], title: T.medalTitle(m),
+          list.push({ rank: 1 + m.level, medal: m.level, big: m.level >= 2, icon: MEDALS[m.level], title: T.medalTitle(m),
             line: T.medalLine(m.level, m.count || 1), next: T.medalNext(m.level) });
         });
         if (fixed > 0) list.push({ rank: 1, big: false, icon: '🔧', title: T.fixedTitle(fixed), line: T.fixedLine(fixed), next: T.fixedNext(fixed) });
         list.sort(function (a, b) { return b.rank - a.rank; });
-        return list.map(function (e) { return { big: e.big, icon: e.icon, title: e.title, line: e.line, next: e.next }; });
+        // medal (1-3, Bronze to Gold) picks the popup's voice clip in Fx.
+        return list.map(function (e) {
+          var out = { big: e.big, icon: e.icon, title: e.title, line: e.line, next: e.next };
+          if (e.medal) out.medal = e.medal;
+          return out;
+        });
       },
 
       // lessons: [{ id, title, icon, keys }], keys being the lesson's review_v1 keys. A lesson with no keys has no medal.
