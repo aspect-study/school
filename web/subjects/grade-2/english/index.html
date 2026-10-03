@@ -418,6 +418,7 @@
 <script src="../../../engine/storage.js" data-grade="grade2"></script>
 <script src="../../../engine/learner.js" data-grade="grade2"></script>
 <script src="../../../engine/nav.js" data-grade="grade2"></script>
+<script src="../../../engine/search.js" data-grade="grade2"></script>
 <script src="../../../engine/study-history.js" data-grade="grade2"></script>
 <script src="../../../engine/wallet.js" data-grade="grade2"></script>
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
@@ -635,7 +636,7 @@
       var total = l.quiz.length;
       var best = progress[i] || 0;
       var stars = starsFor(best / total);
-      return '<div class="card lesson-card">' +
+      return '<div class="card lesson-card" data-search-lesson="' + i + '">' +
         '<div class="lesson-top">' +
           '<svg class="lesson-icon" viewBox="0 0 76 76">' + l.icon + '</svg>' +
           '<div class="lesson-info">' +
@@ -940,6 +941,7 @@
 
   if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
   showMedals(document.getElementById('points-total-badge'));
+  window.Search && Search.start({ list: 'home-list', lessons: lessons });
   window.Nav && Nav.start({ title: 'Word Train', home: 'home', goHome: goHome, inRound: function () { return Nav.current() === 'quiz'; } });
   renderHome();
   if (window.Recall && Recall.wantsReview) startReview();

@@ -25,6 +25,7 @@ const PRECACHE = [
   'engine/powerups.js',
   'engine/quests.js',
   'engine/recall.js',
+  'engine/search.js',
   'engine/shop-requests.js',
   'engine/storage.js',
   'engine/study-history.js',

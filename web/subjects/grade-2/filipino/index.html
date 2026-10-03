@@ -284,6 +284,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="../../../engine/storage.js" data-grade="grade2"></script>
 <script src="../../../engine/learner.js" data-grade="grade2"></script>
 <script src="../../../engine/nav.js" data-grade="grade2"></script>
+<script src="../../../engine/search.js" data-grade="grade2"></script>
 <script src="../../../engine/study-history.js" data-grade="grade2"></script>
 <script src="../../../engine/wallet.js" data-grade="grade2"></script>
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
@@ -520,6 +521,7 @@ function renderHome(){
     const card = document.createElement('button');
     card.className = 'lesson-card';
     card.onclick = ()=>openLesson(i);
+    card.dataset.searchLesson = i;
     card.innerHTML = `
       <div class="lesson-emoji">${lesson.emoji}</div>
       <div class="lesson-info">
@@ -767,6 +769,7 @@ function retryLesson(){
 
 if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
 showMedals(document.getElementById('points-total-badge'));
+window.Search && Search.start({ list: 'lesson-grid', lessons: LESSONS });
 window.Nav && Nav.start({ title: 'Kuwentista', home: 'screen-home', goHome: goHome, inRound: () => Nav.current() === 'screen-quiz' });
 renderHome();
 if (window.Recall && Recall.wantsReview) startReview();

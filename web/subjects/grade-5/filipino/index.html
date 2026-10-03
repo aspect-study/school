@@ -387,6 +387,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 <script src="../../../engine/storage.js" data-grade="grade5"></script>
 <script src="../../../engine/learner.js" data-grade="grade5"></script>
 <script src="../../../engine/nav.js" data-grade="grade5"></script>
+<script src="../../../engine/search.js" data-grade="grade5"></script>
 <script src="../../../engine/study-history.js" data-grade="grade5"></script>
 <script src="../../../engine/wallet.js" data-grade="grade5"></script>
 <script src="../../../engine/fx.js" data-grade="grade5"></script>
@@ -592,7 +593,7 @@ function renderHome(){
 
   LESSONS.forEach((l,i)=>{
     const best = progress[l.id] || 0;
-    html += `<div class="item-card" role="button" tabindex="0" onclick="openLesson(${i})" onkeydown="cardKey(event)">
+    html += `<div class="item-card" role="button" tabindex="0" onclick="openLesson(${i})" data-search-lesson="${i}" onkeydown="cardKey(event)">
       <div class="icon">${l.icon}</div>
       <div class="info">
         <h3>${l.title}</h3>
@@ -825,6 +826,7 @@ function renderStrategy(){
 
 if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
 showMedals(document.getElementById('points-total-badge'));
+window.Search && Search.start({ list: 'homeList', lessons: LESSONS });
 window.Nav && Nav.start({ title: 'Wikaharian 👑', home: 'home', goHome: goHome, inRound: () => Nav.current() === 'quizScreen' });
 renderHome();
 renderStrategy();
