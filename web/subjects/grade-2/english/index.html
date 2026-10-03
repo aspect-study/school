@@ -90,8 +90,8 @@
     font-family:'Comic Neue', system-ui, sans-serif;
     min-height:100vh;
     display:flex;
-    justify-content:center;
-    padding:clamp(16px,4vw,40px) 16px;
+    flex-direction:column;
+    align-items:center;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]) body{
@@ -106,7 +106,7 @@
       var(--bg);
   }
 
-  .app{ width:100%; max-width:560px; }
+  .app{ width:100%; max-width:592px; box-sizing:border-box; padding:clamp(16px,4vw,40px) 16px; }
 
   .eyebrow{
     font-family:'Comic Neue',sans-serif;
@@ -140,13 +140,6 @@
   .hero-sub{font-size:1.02rem; color:var(--ink-soft); font-weight:700; margin-top:8px;}
   .hero-scene{width:min(300px,78%); margin:16px auto 4px;}
 
-  .back-link{
-    background:none; border:none; cursor:pointer; padding:0 0 14px;
-    font-family:'Comic Neue',sans-serif; font-weight:700; font-size:0.85rem;
-    color:var(--blue-deep); display:inline-flex; align-items:center; gap:6px;
-  }
-  .back-link:focus-visible{outline:2px solid var(--blue-deep); outline-offset:3px;}
-  .back-link svg{width:16px; height:16px;}
 
   .lesson-card{padding:16px 18px; margin-bottom:12px;}
   .lesson-top{display:flex; align-items:center; gap:14px;}
@@ -304,7 +297,7 @@
 /* 3-up lesson map on wide screens, so every lesson shows at once.
    Only the lesson list widens -- flashcards, quiz and results stay narrow. */
 @media (min-width:900px){
-  .app{max-width:1120px;}
+  .app{max-width:1152px;}
   .app section:not(#screen-home){max-width:560px; margin-left:auto; margin-right:auto;}
   #screen-home > *:not(#home-list){max-width:560px; margin-left:auto; margin-right:auto;}
   #home-list{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; align-items:stretch;}
@@ -364,7 +357,6 @@
   <!-- FLASHCARDS -->
   <section id="screen-flash" class="screen">
     <div class="card">
-      <button class="back-link" id="back-from-flash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,5 8,12 15,19"/></svg>Lesson List</button>
       <p class="flash-lesson-label" id="flash-lesson-label"></p>
       <div class="flash-dots" id="flash-dots"></div>
       <div id="flash-body"></div>
@@ -378,7 +370,6 @@
   <!-- QUIZ -->
   <section id="screen-quiz" class="screen">
     <div class="card">
-      <button class="back-link" id="back-from-quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15,5 8,12 15,19"/></svg>Lesson List</button>
       <div class="quiz-head">
         <svg class="quiz-train-mini" viewBox="0 0 160 100" role="img" aria-label="A train growing as you answer">
           <g id="train-mini"></g>
@@ -426,6 +417,7 @@
 
 <script src="../../../engine/storage.js" data-grade="grade2"></script>
 <script src="../../../engine/learner.js" data-grade="grade2"></script>
+<script src="../../../engine/nav.js" data-grade="grade2"></script>
 <script src="../../../engine/study-history.js" data-grade="grade2"></script>
 <script src="../../../engine/wallet.js" data-grade="grade2"></script>
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
@@ -450,7 +442,7 @@
 <script src="type-it.js"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel' };
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
@@ -616,6 +608,7 @@
     screens.forEach(function(s){
       document.getElementById('screen-'+s).classList.toggle('active', s === name);
     });
+    if (window.Nav) Nav.screen(name);
   }
 
   /* ================= Home ================= */
@@ -684,8 +677,6 @@
     });
   }
   function goHome(){ renderHome(); showScreen('home'); }
-  document.getElementById('back-from-flash').addEventListener('click', goHome);
-  document.getElementById('back-from-quiz').addEventListener('click', goHome);
   document.getElementById('btn-go-home').addEventListener('click', goHome);
 
   /* ================= Flashcards ================= */
@@ -949,6 +940,7 @@
 
   if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
   showMedals(document.getElementById('points-total-badge'));
+  window.Nav && Nav.start({ title: 'Word Train', home: 'home', goHome: goHome, inRound: function () { return Nav.current() === 'quiz'; } });
   renderHome();
   if (window.Recall && Recall.wantsReview) startReview();
 })();

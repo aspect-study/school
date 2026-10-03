@@ -370,18 +370,22 @@
       btn.setAttribute('aria-pressed', m ? 'true' : 'false');
     }
 
+    function setMuted(on) {
+      write(MUTE_KEY, on ? '1' : '0');
+      if (on && win.speechSynthesis) win.speechSynthesis.cancel();
+      if (!on) tone(880, 0, 0.12, 'sine', 0.16);
+      var btn = doc.getElementById('fx-mute');
+      if (btn) renderMute(btn);
+    }
+
+    // Games switch sound from the Nav menu; only pages without Nav (the lobbies) get the floating button.
     function mountMute() {
-      if (doc.getElementById('fx-mute')) return;
+      if (win.Nav || doc.getElementById('fx-mute')) return;
       var btn = doc.createElement('button');
       btn.id = 'fx-mute';
       btn.type = 'button';
       renderMute(btn);
-      btn.addEventListener('click', function () {
-        write(MUTE_KEY, muted() ? '0' : '1');
-        if (muted() && win.speechSynthesis) win.speechSynthesis.cancel();
-        renderMute(btn);
-        if (!muted()) tone(880, 0, 0.12, 'sine', 0.16);
-      });
+      btn.addEventListener('click', function () { setMuted(!muted()); });
       doc.body.appendChild(btn);
     }
 
@@ -392,7 +396,7 @@
     if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', start);
     else start();
 
-    return { correct: correct, wrong: wrong, finish: finish, purchase: purchase, muted: muted,
+    return { correct: correct, wrong: wrong, finish: finish, purchase: purchase, muted: muted, setMuted: setMuted,
       celebrate: celebrate, celebrateNow: openPop, queued: function () { return queued; } };
   }
 

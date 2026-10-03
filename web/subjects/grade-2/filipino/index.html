@@ -84,7 +84,6 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 
 /* FLASHCARDS */
 .screen-head{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
-.back-btn{background:none; border:none; color:var(--accent); font-weight:700; font-size:0.95rem; padding:6px 4px;}
 .screen-head h2{margin:0; font-size:1.35rem; flex:1;}
 .card{
   background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
@@ -226,7 +225,6 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
   <!-- FLASHCARDS -->
   <section id="screen-cards" class="hidden">
     <div class="screen-head">
-      <button class="back-btn" onclick="goHome()">&larr; Balik</button>
       <h2 id="cards-title"></h2>
     </div>
     <div class="card">
@@ -246,7 +244,6 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
   <!-- QUIZ -->
   <section id="screen-quiz" class="hidden">
     <div class="screen-head">
-      <button class="back-btn" onclick="goHome()">&larr; Balik</button>
       <h2 id="quiz-title"></h2>
       <div class="points-live" id="points-live"></div>
     </div>
@@ -286,6 +283,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 
 <script src="../../../engine/storage.js" data-grade="grade2"></script>
 <script src="../../../engine/learner.js" data-grade="grade2"></script>
+<script src="../../../engine/nav.js" data-grade="grade2"></script>
 <script src="../../../engine/study-history.js" data-grade="grade2"></script>
 <script src="../../../engine/wallet.js" data-grade="grade2"></script>
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
@@ -311,7 +309,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="type-it.js"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel' };
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
@@ -464,6 +462,7 @@ function showScreen(el){
   [homeScreen, cardsScreen, quizScreen, resultsScreen].forEach(s=>s.classList.add('hidden'));
   el.classList.remove('hidden');
   window.scrollTo(0,0);
+  if (window.Nav) Nav.screen(el.id);
 }
 
 function starsFor(pct){
@@ -768,6 +767,7 @@ function retryLesson(){
 
 if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
 showMedals(document.getElementById('points-total-badge'));
+window.Nav && Nav.start({ title: 'Kuwentista', home: 'screen-home', goHome: goHome, inRound: () => Nav.current() === 'screen-quiz' });
 renderHome();
 if (window.Recall && Recall.wantsReview) startReview();
 </script>

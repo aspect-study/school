@@ -51,3 +51,19 @@ test('the parent page can show a child\'s streak line', () => {
   assert.equal(win.Quests.parentLine(win.Quests.read(s), new Date(2026, 9, 2, 9).getTime()), '🔥 1-day streak · today 1 of 1 quests');
   assert.equal(win.Quests.check, undefined, 'no grade: no lobby or game helpers');
 });
+
+test('Fx.setMuted switches the saved sound setting', () => {
+  const data = {};
+  const win = {
+    localStorage: { getItem: (k) => (k in data ? data[k] : null), setItem: (k, v) => { data[k] = String(v); } },
+    document: { readyState: 'loading', addEventListener() {}, currentScript: null, getElementById: () => null },
+  };
+  win.window = win;
+  vm.createContext(win);
+  vm.runInContext(fs.readFileSync(engineFile('fx.js'), 'utf8'), win);
+  win.Fx.setMuted(true);
+  assert.equal(win.Fx.muted(), true);
+  assert.equal(data.study_fx_muted_v1, '1');
+  win.Fx.setMuted(false);
+  assert.equal(win.Fx.muted(), false);
+});

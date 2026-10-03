@@ -116,8 +116,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 .item-card:focus-visible,
 .flashcard:focus-visible,
 .btn:focus-visible,
-.option:focus-visible,
-.btn-icon:focus-visible{
+.option:focus-visible{
   outline:3px solid var(--gold);
   outline-offset:3px;
 }
@@ -146,11 +145,6 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 
 .topbar{
   display:flex;align-items:center;gap:10px;margin-bottom:16px;
-}
-.btn-icon{
-  background:var(--card);border:2px solid var(--border);border-radius:12px;
-  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-size:1.1rem;color:var(--ink);flex-shrink:0;
 }
 .topbar h2{margin:0;font-size:1.15rem;flex:1;}
 
@@ -311,7 +305,6 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 
   <div id="flashScreen" class="screen">
     <div class="topbar">
-      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
       <h2 id="flashTitle"></h2>
     </div>
     <div class="flash-wrap">
@@ -334,7 +327,6 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 
   <div id="quizScreen" class="screen">
     <div class="topbar">
-      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
       <h2 id="quizTitle"></h2>
     </div>
     <div class="medal-box"><div id="medalSvg"></div></div>
@@ -367,13 +359,12 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
     <div class="missed-review" id="missedReview" style="display:none;"></div>
     <div class="result-actions">
       <button class="btn full" onclick="retryQuiz()">Try Again 🔁</button>
-      <button class="btn ghost full" onclick="goHome()">Back to Home</button>
+      <button class="btn ghost full" onclick="goHome()">📚 More lessons</button>
     </div>
   </div>
 
   <div id="strategyScreen" class="screen">
     <div class="topbar">
-      <div class="btn-icon" role="button" tabindex="0" aria-label="Back to home" onclick="goHome()" onkeydown="cardKey(event)">←</div>
       <h2>Exam Strategy 🎯</h2>
     </div>
     <div class="hero" style="background:linear-gradient(135deg,var(--coral),#C94B3A);">
@@ -388,6 +379,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 
 <script src="../../../engine/storage.js" data-grade="grade5"></script>
 <script src="../../../engine/learner.js" data-grade="grade5"></script>
+<script src="../../../engine/nav.js" data-grade="grade5"></script>
 <script src="../../../engine/study-history.js" data-grade="grade5"></script>
 <script src="../../../engine/wallet.js" data-grade="grade5"></script>
 <script src="../../../engine/fx.js" data-grade="grade5"></script>
@@ -413,7 +405,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 <script src="type-it.js"></script>
 <script data-file-check>
 (function(){
-  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel' };
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel' };
   var missing = [];
   document.querySelectorAll('script[src]').forEach(function(s){
     var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
@@ -565,6 +557,7 @@ function cardKey(e){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  if (window.Nav) Nav.screen(id);
 }
 function goHome(){ renderHome(); showScreen('home'); }
 
@@ -829,6 +822,7 @@ function renderStrategy(){
 
 if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
 showMedals(document.getElementById('points-total-badge'));
+window.Nav && Nav.start({ title: 'Rise & Shine 🏅', home: 'home', goHome: goHome, inRound: () => Nav.current() === 'quizScreen' });
 renderHome();
 renderStrategy();
 if (window.Recall && Recall.wantsReview) startReview();

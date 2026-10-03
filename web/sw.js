@@ -1,6 +1,6 @@
 // Offline support for both lobbies. Network first, so a content update shows up
 // the next time a tablet is online; the cache is only used when offline.
-const CACHE = 'study-games-v2';
+const CACHE = 'study-games-v3';
 const FONT_CACHE = 'study-games-fonts-v1';
 const NETWORK_TIMEOUT_MS = 4000;
 
@@ -20,6 +20,7 @@ const PRECACHE = [
   'engine/fx.js',
   'engine/learner.js',
   'engine/mastery.js',
+  'engine/nav.js',
   'engine/parent-panel.js',
   'engine/powerups.js',
   'engine/quests.js',

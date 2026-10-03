@@ -122,6 +122,7 @@ web/                         the published site (the only folder GitHub Pages se
   engine/                    shared by every page, one copy each:
     storage.js                 the only file that touches browser storage: each child's space + the sync outbox (loaded first)
     learner.js                 who is studying, and which space is hers (loaded second)
+    nav.js                     games only: top bar (Back, Home, Menu), the leave-the-quiz check, the back gesture
     sync-core.js               cloud sync merge rules (lobbies only)
     firebase-config.js         the family's Firebase project; public by design
     cloud.js                   Firebase sign-in, the Cloud backup panel and sync timing (lobbies only)
@@ -169,6 +170,7 @@ node --test                          # unit tests (run from the repo root)
 node tests/e2e/apps-e2e.js           # play every Grade 2 game in headless Chrome
 node tests/e2e/apps-e2e.js 5         # play every Grade 5 game
 node tests/e2e/lobby-e2e.js [5]      # lobby, parent panel and shop
+node tests/e2e/nav-e2e.js            # top bar: Back, Home, Menu and the leave-the-quiz check
 node tests/e2e/backup-e2e.js [5]     # export → wipe → import → restore
 node tests/e2e/file-check-e2e.js     # missing engine-file banner
 node tests/e2e/migration-e2e.js      # a tablet saved before learner profiles keeps its points, coins and stars

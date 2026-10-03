@@ -95,3 +95,9 @@ test('every Grade 2 quest and streak line has English', () => {
     t.streak({ days: 5, restLeft: 2 }), t.streak({ days: 5, restLeft: 0 }), t.streak({ days: 0, welcomeBack: true }), t.streak({ days: 0 })].concat(quests);
   lines.forEach((line) => hasEnglishWhereFilipino(line, 'quest text'));
 });
+
+test('every Grade 2 navigation line has English', () => {
+  const { TEXT } = require(engineFile('nav.js'));
+  for (const [key, value] of Object.entries(TEXT.grade2)) hasEnglishWhereFilipino(value, 'nav ' + key);
+  assert.match(TEXT.grade2.leaveBody, /points/i, 'puntos comes with points');
+});
