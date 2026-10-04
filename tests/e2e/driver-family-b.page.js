@@ -18,6 +18,15 @@ function __e2eAnswerAll(right) {
   return n;
 }
 
+// Next waits until the card was up long enough to read (read-gate.js): jump the clock ahead for one click.
+var __e2eClockAhead = 0;
+function __e2eAfterReading(click) {
+  var real = Date.now;
+  var t = real() + (__e2eClockAhead += 60000);
+  Date.now = function () { return t; };
+  try { click(); } finally { Date.now = real; }
+}
+
 function __e2eRun() {
   var mode = __e2eMode();
   if (mode === 'seed') return __e2eSeed();
@@ -37,8 +46,8 @@ function __e2eRun() {
 
   var expect = { cardsTotal: lessons[0].flashcards.length, lessonTitle: lessons[0].title };
   document.querySelector('button[data-lesson="0"]').click();
-  document.getElementById('btn-flash-next').click();
-  document.getElementById('btn-flash-next').click();
+  __e2eAfterReading(function () { document.getElementById('btn-flash-next').click(); });
+  __e2eAfterReading(function () { document.getElementById('btn-flash-next').click(); });
   goHome();
 
   currentLesson = 0; startQuiz();

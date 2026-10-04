@@ -126,6 +126,7 @@ web/                         the published site (the only folder GitHub Pages se
     learner.js                 who is studying, and which space is hers (loaded second)
     nav.js                     games only: top bar (Back, Home, Menu), the leave-the-quiz check, the back gesture
     search.js                  games only: the lesson search above the home list (titles, subtitles, flashcards)
+    read-gate.js               games only: the quiz unlocks after every flashcard was on screen long enough to read
     sync-core.js               cloud sync merge rules (lobbies only)
     firebase-config.js         the family's Firebase project; public by design
     cloud.js                   Firebase sign-in, the Cloud backup panel and sync timing (lobbies only)
@@ -175,6 +176,7 @@ node tests/e2e/apps-e2e.js 5         # play every Grade 5 game
 node tests/e2e/lobby-e2e.js [5]      # lobby, parent panel and shop
 node tests/e2e/nav-e2e.js            # top bar: Back, Home, Menu and the leave-the-quiz check
 node tests/e2e/search-e2e.js         # lesson search: filter, nothing-found line, redraw, clear, Enter
+node tests/e2e/read-gate-e2e.js      # reviewer lock: Next and Start Quiz wait until each card is read
 node tests/e2e/backup-e2e.js [5]     # export → wipe → import → restore
 node tests/e2e/file-check-e2e.js     # missing engine-file banner
 node tests/e2e/migration-e2e.js      # a tablet saved before learner profiles keeps its points, coins and stars

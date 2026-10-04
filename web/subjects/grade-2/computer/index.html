@@ -423,6 +423,7 @@
 <script src="../../../engine/learner.js" data-grade="grade2"></script>
 <script src="../../../engine/nav.js" data-grade="grade2"></script>
 <script src="../../../engine/search.js" data-grade="grade2"></script>
+<script src="../../../engine/read-gate.js" data-grade="grade2"></script>
 <script src="../../../engine/study-history.js" data-grade="grade2"></script>
 <script src="../../../engine/wallet.js" data-grade="grade2"></script>
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
@@ -642,6 +643,7 @@
         currentLesson = parseInt(b.getAttribute('data-lesson'), 10);
         flashIdx = 0;
         historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, currentLesson, lessons[currentLesson].title, lessons[currentLesson].flashcards.length) : null;
+        window.ReadGate && ReadGate.open({ cards: lessons[currentLesson].flashcards.length, next: 'btn-flash-next' });
         renderFlash();
         showScreen('flash');
       });
@@ -667,6 +669,7 @@
     }).join('');
     document.getElementById('btn-flash-prev').style.visibility = flashIdx === 0 ? 'hidden' : 'visible';
     document.getElementById('btn-flash-next').textContent = flashIdx === lesson.flashcards.length - 1 ? 'Start Quiz' : 'Next';
+    window.ReadGate && ReadGate.show(flashIdx, 0, document.getElementById('flash-body'));
   }
   document.getElementById('btn-flash-prev').addEventListener('click', function(){
     if (flashIdx > 0){ flashIdx--; renderFlash(); }

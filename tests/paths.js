@@ -5,7 +5,7 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 const WEB = path.join(ROOT, 'web');
 const ENGINE = path.join(WEB, 'engine');
-const ENGINE_FILES = ['storage.js', 'learner.js', 'nav.js', 'search.js', 'study-history.js', 'wallet.js', 'fx.js', 'powerups.js', 'recall.js', 'mastery.js', 'quests.js', 'study-kit.js', 'sync-core.js', 'firebase-config.js', 'firebase-remote.js', 'cloud.js', 'shop-requests.js', 'subjects.js', 'parent-panel.js'];
+const ENGINE_FILES = ['storage.js', 'learner.js', 'nav.js', 'search.js', 'read-gate.js', 'study-history.js', 'wallet.js', 'fx.js', 'powerups.js', 'recall.js', 'mastery.js', 'quests.js', 'study-kit.js', 'sync-core.js', 'firebase-config.js', 'firebase-remote.js', 'cloud.js', 'shop-requests.js', 'subjects.js', 'parent-panel.js'];
 
 const LOBBIES = {
   5: { page: 'lobby/grade-5.html', manifest: 'lobby/grade-5.webmanifest' },

@@ -319,9 +319,9 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
       <div class="flash-nav">
         <button class="btn ghost" onclick="prevCard()">◀ Prev</button>
         <span class="flash-dots" id="flashDots"></span>
-        <button class="btn ghost" onclick="nextCard()">Next ▶</button>
+        <button class="btn ghost" id="flashNext" onclick="nextCard()">Next ▶</button>
       </div>
-      <button class="btn gold full" onclick="startQuiz()">Start Quiz 🏅</button>
+      <button class="btn gold full" id="flashStart" onclick="startQuiz()">Start Quiz 🏅</button>
     </div>
   </div>
 
@@ -381,6 +381,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 <script src="../../../engine/learner.js" data-grade="grade5"></script>
 <script src="../../../engine/nav.js" data-grade="grade5"></script>
 <script src="../../../engine/search.js" data-grade="grade5"></script>
+<script src="../../../engine/read-gate.js" data-grade="grade5"></script>
 <script src="../../../engine/study-history.js" data-grade="grade5"></script>
 <script src="../../../engine/wallet.js" data-grade="grade5"></script>
 <script src="../../../engine/fx.js" data-grade="grade5"></script>
@@ -616,6 +617,7 @@ function openLesson(i){
   flashIdx = 0;
   historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].cards.length) : null;
   document.getElementById('flashTitle').textContent = LESSONS[i].title;
+  window.ReadGate && ReadGate.open({ cards: LESSONS[i].cards.length, faces: 2, next: 'flashNext', start: 'flashStart' });
   renderFlash();
   showScreen('flashScreen');
 }
@@ -633,6 +635,7 @@ function renderFlash(){
   document.getElementById('flashTag').textContent = 'Term';
   document.getElementById('flashHint').textContent = 'Tap the card to flip';
   document.getElementById('flashDots').textContent = `${flashIdx+1} / ${l.cards.length}`;
+  window.ReadGate && ReadGate.show(flashIdx, 0, document.getElementById('flashFront'));
 }
 function flipCard(){
   const front = document.getElementById('flashFront');
@@ -641,6 +644,7 @@ function flipCard(){
   front.style.display = flipped ? 'block' : 'none';
   back.style.display = flipped ? 'none' : 'block';
   document.getElementById('flashTag').textContent = flipped ? 'Term' : 'Meaning';
+  window.ReadGate && ReadGate.show(flashIdx, flipped ? 0 : 1, flipped ? front : back);
 }
 function nextCard(){
   const l = LESSONS[currentLessonIdx];

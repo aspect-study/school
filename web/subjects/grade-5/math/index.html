@@ -339,7 +339,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
       <div class="dots" id="card-dots"></div>
       <button class="nav-btn" id="card-next" onclick="cardStep(1)">Next &rarr;</button>
     </div>
-    <button class="primary-btn" onclick="startQuiz()">Start the Quiz!</button>
+    <button class="primary-btn" id="cards-start" onclick="startQuiz()">Start the Quiz!</button>
   </section>
 
   <!-- QUIZ -->
@@ -430,6 +430,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="../../../engine/learner.js" data-grade="grade5"></script>
 <script src="../../../engine/nav.js" data-grade="grade5"></script>
 <script src="../../../engine/search.js" data-grade="grade5"></script>
+<script src="../../../engine/read-gate.js" data-grade="grade5"></script>
 <script src="../../../engine/study-history.js" data-grade="grade5"></script>
 <script src="../../../engine/wallet.js" data-grade="grade5"></script>
 <script src="../../../engine/fx.js" data-grade="grade5"></script>
@@ -2740,6 +2741,7 @@ function openLesson(i){
   currentLessonIdx = i;
   cardIdx = 0;
   historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].flashcards.length) : null;
+  window.ReadGate && ReadGate.open({ cards: LESSONS[i].flashcards.length, next: 'card-next', start: 'cards-start' });
   renderCard();
   showScreen(cardsScreen);
 }
@@ -2754,6 +2756,7 @@ function renderCard(){
   document.getElementById('card-def').innerHTML = fc.def;
   document.getElementById('card-prev').disabled = cardIdx === 0;
   document.getElementById('card-next').disabled = cardIdx === lesson.flashcards.length - 1;
+  window.ReadGate && ReadGate.show(cardIdx, 0, document.querySelector('#screen-cards .card'));
   const dots = document.getElementById('card-dots');
   dots.innerHTML = '';
   lesson.flashcards.forEach((_, idx)=>{
