@@ -12,10 +12,14 @@ questions answered per day, subjects practiced, last sync per family. Free tiers
 
 - `firebase/firestore.rules` gains an owner clause: the owner's UID may **read** `families/{uid}` and everything under
   it, for every family. Families keep their own-data-only read/write rule. The owner gets no write access.
-- The owner UID is a constant in the rules file. It is not a secret. The owner copies it from the Firebase console
-  (Authentication → Users) and pastes it into the rules before deploying with `firebase deploy --only firestore:rules`.
-- The page signs in with Email/Password through `FirebaseRemote`. If the signed-in UID is not the owner's, it shows
-  "Not allowed" and reads nothing. The page check is a courtesy; the rules are the real protection.
+- The owner is exactly one account: `aspectjump.java@gmail.com`. The rules allow a read only when the signed-in user's
+  UID equals the owner UID **and** their token email equals `aspectjump.java@gmail.com`. Both are constants in the rules
+  file; neither is a secret. The owner copies the UID from the Firebase console (Authentication → Users).
+- The password is never stored in the repo, the page or the rules. Firebase Auth checks it at sign-in; a wrong password
+  never produces a signed-in user, so the rules never match. The owner account is created in the Firebase console
+  (or by registering once on the app) with a strong password, and nobody else can register that email afterwards.
+- The page signs in with Email/Password through `FirebaseRemote`. If the signed-in UID or email is not the owner's, it
+  shows "Not allowed" and reads nothing. The page check is a courtesy; the rules are the real protection.
 
 ## Data
 
@@ -67,7 +71,10 @@ Error reporting hook, Vercel Analytics, per-family parent dashboard, any write t
 ## Rules change (sketch)
 
 ```
-function isOwner() { return request.auth != null && request.auth.uid == 'OWNER_UID'; }
+function isOwner() {
+  return request.auth != null && request.auth.uid == 'OWNER_UID'
+    && request.auth.token.email == 'aspectjump.java@gmail.com';
+}
 
 match /families/{uid} {
   allow read: if isOwner();

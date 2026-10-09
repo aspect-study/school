@@ -245,6 +245,11 @@ test('the owner may read every family, and only read', () => {
   for (const l of lines) assert.match(l.trim(), /^allow read:/, 'the owner must not get write access: ' + l);
 });
 
+test('the owner is one UID with one email', () => {
+  assert.match(rules, /request\.auth\.uid == 'OWNER_UID'/);
+  assert.match(rules, /request\.auth\.token\.email == 'aspectjump\.java@gmail\.com'/);
+});
+
 test('a family keeps read and write on its own data', () => {
   const own = rules.split('\n').filter((l) => l.includes('request.auth.uid == uid'));
   assert.ok(own.length >= 2);
@@ -265,8 +270,12 @@ Replace `firebase/firestore.rules` with:
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // The owner's UID (Firebase console, Authentication, Users). Until it is pasted here the owner clause matches nobody.
-    function isOwner() { return request.auth != null && request.auth.uid == 'OWNER_UID'; }
+    // The owner is one account: this UID (Firebase console, Authentication, Users) with this email. Until the UID is
+    // pasted here the owner clause matches nobody.
+    function isOwner() {
+      return request.auth != null && request.auth.uid == 'OWNER_UID'
+        && request.auth.token.email == 'aspectjump.java@gmail.com';
+    }
 
     match /families/{uid} {
       allow read: if isOwner();
@@ -596,10 +605,11 @@ Expected: FAIL (no `web/admin/index.html`).
 - [ ] **Step 3: admin-config.js**
 
 ```js
-/* The owner's Firebase UID (Firebase console, Authentication, Users). Paste the same value into firebase/firestore.rules.
-   The page shows your UID after you sign in, so you can copy it from there. */
+/* The owner: one Firebase account, by UID and email. Paste the same UID into firebase/firestore.rules.
+   The page shows your UID after you sign in, so you can copy it from there. No password is stored anywhere. */
 (function (root) {
   root.OWNER_UID = 'OWNER_UID';
+  root.OWNER_EMAIL = 'aspectjump.java@gmail.com';
 })(this);
 ```
 
@@ -695,7 +705,7 @@ button{padding:10px 14px;border:0;border-radius:8px;background:var(--accent);col
 (function (root) {
   'use strict';
 
-  var FR = root.FirebaseRemote, Stats = root.AdminStats, OWNER = root.OWNER_UID;
+  var FR = root.FirebaseRemote, Stats = root.AdminStats, OWNER = root.OWNER_UID, OWNER_EMAIL = root.OWNER_EMAIL;
   var doc = root.document;
   var CACHE = 'admin_cache_v1', FRESH_MS = 10 * 60 * 1000, WINDOW_MS = Stats.DAYS * 86400000;
   var VIEWS = ['signin-view', 'denied-view', 'dash-view'];
@@ -815,7 +825,7 @@ button{padding:10px 14px;border:0;border-radius:8px;background:var(--accent);col
   function onUser(u) {
     $('signout').hidden = !u;
     if (!u) { clearCache(); show('signin-view'); say(''); return; }
-    var owner = OWNER && OWNER !== 'OWNER_UID' && u.uid === OWNER;
+    var owner = OWNER && OWNER !== 'OWNER_UID' && u.uid === OWNER && String(u.email).toLowerCase() === OWNER_EMAIL;
     if (!owner) {
       show('denied-view');
       $('denied-note').textContent = 'Signed in as ' + (u.email || 'this account') + '. Your UID is ' + u.uid +
@@ -861,10 +871,10 @@ git add web/admin tests/admin-wiring.test.js && git commit -m 'Add the owner das
 
 ### Task 7: Go live (owner steps, no code)
 
-- [ ] **Step 1:** Open the Firebase console → Authentication → Users and create (or use) your owner account; copy its **User UID**.
+- [ ] **Step 1:** Open the Firebase console → Authentication → Users and create (or use) the account `aspectjump.java@gmail.com` with a strong password that is not used anywhere else (type it only in the console and on the sign-in page, never in chat or the repo); copy its **User UID**. If that email is already registered, use that account; nobody else can register it.
 - [ ] **Step 2:** Paste the UID over `OWNER_UID` in `web/admin/admin-config.js` and in `firebase/firestore.rules`.
 - [ ] **Step 3:** Firebase console → Firestore → Rules: paste the whole `firebase/firestore.rules` and Publish.
-- [ ] **Step 4:** Push to Vercel as usual. Open `/admin/`, sign in, confirm the dashboard shows. Then sign in with a normal family account and confirm "Not allowed" and that no data loads.
+- [ ] **Step 4:** Push to Vercel as usual. Open `/admin/`, sign in, confirm the dashboard shows. Then confirm three failures: a wrong password for the owner email is refused at sign-in; a normal family account shows "Not allowed" with no data; and in the Firebase Rules Playground a read of `families/<other uid>` as that family is denied.
 - [ ] **Step 5:** Open a lobby on a tablet signed in as a family, tap Sync now, then Refresh the dashboard: that family appears (families only show after their first sync on the updated app).
 - [ ] **Step 6 (commit, owner runs):**
 
