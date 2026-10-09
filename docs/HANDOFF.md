@@ -98,6 +98,11 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   down, walls in its way see-through). Merged into `main` 2026-10-08.
 - Gifts and monsters at the hangout places: question-gated, 1/2/3 coins, at most 15 world coins a day, found-only
   wardrobe items for Hard questions.
+- Owner dashboard (sub-project 1 of 3): built, a private page at `/admin/` (`web/admin/`) showing families, children,
+  activity, questions per day, subjects and last sync, read from Firebase through the owner clause in the rules and
+  `FirebaseRemote.adminRemote()`. It still needs the owner's live steps from plan Task 7 (owner UID into
+  `admin-config.js` and the rules, paste the rules in the Firebase console, check it live). Still to do: error
+  reporting hook, Vercel Web Analytics link, parent progress dashboard, play-world time tracking.
 
 ## Parked or excluded (ask the owner before starting)
 

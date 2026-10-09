@@ -30,7 +30,14 @@ test('account errors are in words', () => {
 
 test('the account calls exist', () => {
   const FR = remoteModule();
-  for (const name of ['createAccount', 'resetPassword', 'changePassword', 'accountError', 'signIn', 'signOut', 'onAuth', 'remote']) {
+  for (const name of ['createAccount', 'resetPassword', 'changePassword', 'accountError', 'signIn', 'signOut', 'onAuth', 'remote', 'adminRemote']) {
     assert.equal(typeof FR[name], 'function', name);
   }
+});
+
+test('the owner dashboard signs in on its own app, apart from the family login', () => {
+  const FR = remoteModule();
+  for (const name of ['onAuth', 'signIn', 'signOut']) assert.equal(typeof FR.admin[name], 'function', name);
+  const src = fs.readFileSync(engineFile('firebase-remote.js'), 'utf8');
+  assert.match(src, /open\('admin'\)/);
 });

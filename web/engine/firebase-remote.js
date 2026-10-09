@@ -5,17 +5,26 @@
 
   var SDK = 'https://www.gstatic.com/firebasejs/12.4.0/';
   var ROUND_TIMEOUT_MS = 30000;
-  var fb = null;
+  var fb = null, adminLoading = null;
 
-  function load() {
-    if (fb) return Promise.resolve(fb);
+  function open(name) {
     if (!root.FIREBASE_CONFIG) return Promise.reject(new Error('no Firebase config'));
     return Promise.all(['app', 'auth', 'firestore'].map(function (m) { return import(SDK + 'firebase-' + m + '.js'); }))
       .then(function (mods) {
-        var app = mods[0].initializeApp(root.FIREBASE_CONFIG);
-        fb = { A: mods[1], F: mods[2], auth: mods[1].getAuth(app), db: mods[2].getFirestore(app) };
-        return fb;
+        var app = mods[0].initializeApp(root.FIREBASE_CONFIG, name);
+        return { A: mods[1], F: mods[2], auth: mods[1].getAuth(app), db: mods[2].getFirestore(app) };
       });
+  }
+
+  function load() {
+    if (fb) return Promise.resolve(fb);
+    return open().then(function (b) { fb = b; return fb; });
+  }
+
+  // The owner dashboard runs on its own named app, so its sign-in never replaces a family's login on the same browser.
+  function loadAdmin() {
+    if (!adminLoading) adminLoading = open('admin').catch(function (e) { adminLoading = null; throw e; });
+    return adminLoading;
   }
 
   function parse(text) { try { return JSON.parse(text); } catch (e) { return null; } }
@@ -117,7 +126,45 @@
           return { pin: String(d.pin), at: Number(d.at) || 0 };
         });
       },
-      putPin: function (rec) { return F.setDoc(pinRef(), { pin: rec.pin, at: rec.at, updatedAt: F.serverTimestamp() }); }
+      putPin: function (rec) { return F.setDoc(pinRef(), { pin: rec.pin, at: rec.at, updatedAt: F.serverTimestamp() }); },
+      // The family's summary doc, listed by the owner dashboard. createdAt is passed only when the account is made.
+      putFamily: function (rec) {
+        var data = { lastSeenAt: F.serverTimestamp(), updatedAt: F.serverTimestamp() };
+        if (rec.email) data.email = rec.email;
+        if (rec.createdAt) data.createdAt = rec.createdAt;
+        return F.setDoc(F.doc(db, 'families', uid), data, { merge: true });
+      }
+    };
+  }
+
+  // Read-only reads for the owner dashboard, on the admin app's own connection.
+  function adminRemote(b) {
+    var F = b.F, db = b.db;
+    function ms(t) { return t && t.toMillis ? t.toMillis() : null; }
+    return {
+      families: function () {
+        return F.getDocs(F.collection(db, 'families')).then(function (snap) {
+          return snap.docs.map(function (d) {
+            var x = d.data();
+            return { uid: d.id, email: x.email || '', createdAt: Number(x.createdAt) || null, lastSeenAt: ms(x.lastSeenAt) };
+          });
+        });
+      },
+      learners: function (uid) {
+        return F.getDocs(F.collection(db, 'families', uid, 'learners')).then(function (snap) {
+          return snap.docs.map(function (d) {
+            var p = parse(d.data().json) || {};
+            return { uid: uid, id: d.id, grade: Number(p.grade) || 0 };
+          });
+        });
+      },
+      history: function (uid, id, sinceMs) {
+        var col = F.collection(db, 'families', uid, 'learners', id, 'history');
+        return F.getDocs(F.query(col, F.where('updatedAt', '>=', F.Timestamp.fromMillis(sinceMs)))).then(function (snap) {
+          return snap.docs.filter(function (d) { return !d.data().deleted; })
+            .map(function (d) { return { uid: uid, learnerId: id, entry: parse(d.data().json) }; });
+        });
+      }
     };
   }
 
@@ -178,6 +225,16 @@
     },
     signOut: function () { return fb ? fb.A.signOut(fb.auth) : Promise.resolve(); },
     remote: remoteFor,
+    adminRemote: function () { return loadAdmin().then(adminRemote); },
+    admin: {
+      onAuth: function (onUser) {
+        return loadAdmin().then(function (b) { return b.auth.authStateReady().then(function () { b.A.onAuthStateChanged(b.auth, onUser); }); });
+      },
+      signIn: function (email, password) {
+        return loadAdmin().then(function (b) { return b.A.signInWithEmailAndPassword(b.auth, email, password); });
+      },
+      signOut: function () { return adminLoading ? adminLoading.then(function (b) { return b.A.signOut(b.auth); }) : Promise.resolve(); }
+    },
     signInError: signInError,
     accountError: accountError
   };

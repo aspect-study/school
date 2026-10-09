@@ -132,7 +132,11 @@
     var email = $('reg-email').value.trim(), pass = $('reg-pass').value;
     var problem = validEmail(email) ? checkPassword(pass, $('reg-pass2').value) : 'Type a real email address.';
     if (problem) { say(problem, true); return; }
-    work('Creating the account\u2026', function () { return FR.createAccount(email, pass).then(startSession); }, function () {
+    work('Creating the account\u2026', function () {
+      return FR.createAccount(email, pass).then(startSession).then(function () {
+        return settle(remote().putFamily({ email: email, createdAt: Date.now() }).then(null, function () {}));
+      });
+    }, function () {
       $('reg-pass').value = '';
       $('reg-pass2').value = '';
       kids = [];

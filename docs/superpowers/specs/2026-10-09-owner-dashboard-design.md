@@ -24,12 +24,12 @@ questions answered per day, subjects practiced, last sync per family. Free tiers
 ## Data
 
 - **Family summary doc.** Today a family has only subcollections, so families cannot be listed. When an account is
-  created and on each sync, the app writes `families/{uid}` = `{ email, createdAt, lastSeenAt, learnerCount, updatedAt }`
+  created and on each sync, the app writes `families/{uid}` = `{ email, createdAt, lastSeenAt, updatedAt }`
   (merge write, `createdAt` set once). This is written by `account.js` / `cloud.js` through a new remote method
   `putFamily(rec)`. Existing families get their doc on their next sync.
 - **Dashboard reads** (new `adminRemote`, read-only):
   - `families` (all summary docs).
-  - For each family, each learner's `history` docs with `updatedAt` in the last 30 days, and its `counters`.
+  - For each family, each learner's `history` docs with `updatedAt` in the last 30 days, plus each learner profile (for the grade). Counters are not read.
 - **Cost guard.** Only the last 30 days of history are read. The result is cached in `localStorage` for 10 minutes
   (wrapped in try/catch); a Refresh button bypasses the cache.
 
@@ -91,5 +91,5 @@ match /families/{uid}/{document=**} {
 ## Deploy
 
 1. Paste the owner UID into `firebase/firestore.rules`.
-2. `firebase deploy --only firestore:rules` (the owner runs this; it changes live security).
+2. Paste `firebase/firestore.rules` into Firebase console → Firestore → Rules and Publish (no `firebase.json` exists).
 3. Push to Vercel as usual; open `/admin/`.

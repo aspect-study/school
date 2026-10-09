@@ -23,7 +23,8 @@ const group = (f) => {
   return i < 0 ? GROUPS.length : i;
 };
 
-const files = walk(WEB).filter((f) => f !== 'sw.js').sort((a, b) => group(a) - group(b) || a.localeCompare(b));
+// The owner dashboard (web/admin) is for the owner's phone or PC only, never for the kids' tablets.
+const files = walk(WEB).filter((f) => f !== 'sw.js' && !f.startsWith('admin/')).sort((a, b) => group(a) - group(b) || a.localeCompare(b));
 const lines = files.map((f, i) => {
   const redirect = group(f) === GROUPS.length && (i === 0 || group(files[i - 1]) !== GROUPS.length);
   return (redirect ? '  // Redirect pages at the old URLs, so icons installed before 2026-10-02 still open offline.\n' : '') + "  '" + f + "',";

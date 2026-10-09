@@ -6,7 +6,9 @@
   'use strict';
 
   var EVERY_MS = 2 * 60 * 1000;
+  var SEEN_EVERY_MS = 60 * 60 * 1000;
   var SIGNED_IN = 'sync_signed_in_v1';
+  var SEEN = 'family_seen_';
 
   // Defined even when sync is off (opened as a file, no learner), so the missing-file check and the shop see it.
   root.Cloud = {
@@ -52,6 +54,16 @@
     }).then(F.store, function () {});
   }
 
+  // Keeps the family's summary doc fresh for the owner dashboard without a write on every 2-minute round.
+  function touchFamily(remote) {
+    var key = SEEN + user.uid, last = 0;
+    try { last = Number(device.getItem(key)) || 0; } catch (e) {}
+    if (Date.now() - last < SEEN_EVERY_MS) return;
+    remote.putFamily({ email: user.email }).then(function () {
+      try { device.setItem(key, String(Date.now())); } catch (e) {}
+    }, function () {});
+  }
+
   function runSync() {
     if (!user || choice) return Promise.resolve();
     // A sync asked for during a round (for example a shop request) runs right after it.
@@ -74,6 +86,7 @@
       .then(function (r) {
         if (r) {
           if (root.ParentPin) root.ParentPin.sync(remote);
+          touchFamily(remote);
           setStatus('☁️ Synced ' + ago(r.at) + '.');
           document.dispatchEvent(new CustomEvent('cloud-synced'));
         } else render();

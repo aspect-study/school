@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Study Games &mdash; Owner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="admin.css">
+
+<div class="wrap">
+  <header class="head">
+    <h1>📊 Owner dashboard</h1>
+    <button type="button" id="signout" hidden>Sign out</button>
+  </header>
+  <p class="note" id="status" aria-live="polite"></p>
+
+  <section id="signin-view" hidden>
+    <h2>Sign in</h2>
+    <div class="row">
+      <input type="email" id="signin-email" autocomplete="username" placeholder="Owner email">
+      <input type="password" id="signin-pass" autocomplete="current-password" placeholder="Password">
+      <button type="button" id="signin-go">Sign in</button>
+    </div>
+  </section>
+
+  <section id="denied-view" hidden>
+    <h2>Not allowed</h2>
+    <p class="note" id="denied-note"></p>
+  </section>
+
+  <main id="dash-view" hidden>
+    <div class="row"><button type="button" id="refresh">↻ Refresh</button><span class="note" id="updated"></span></div>
+    <div class="tiles" id="tiles"></div>
+    <section><h2>Questions answered, last 30 days</h2><div class="chart" id="chart" role="img"></div><div class="axis" id="axis"></div></section>
+    <section><h2>By subject, last 30 days</h2><div id="subjects"></div></section>
+    <section><h2>Families</h2><div class="table" id="families"></div>
+      <p class="note">A family appears here after its next sync on the updated app.</p></section>
+    <section id="errors-slot" hidden></section>
+    <section id="traffic-slot" hidden></section>
+  </main>
+</div>
+
+<script src="../engine/firebase-config.js"></script>
+<script src="../engine/firebase-remote.js"></script>
+<script src="admin-config.js"></script>
+<script src="admin-stats.js"></script>
+<script src="admin.js"></script>

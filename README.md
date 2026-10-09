@@ -156,7 +156,7 @@ Tap **🔒 Parent** in a lobby and enter the PIN:
 
 ## Where data is stored
 
-All progress lives in the browser's `localStorage` on each device, and the device is always the main copy: the games never wait on the network. If a parent signs in under **Cloud backup**, the lobby also syncs it to the family's Firebase project (`study-game`), readable only with the family login (`firebase/firestore.rules`). Without signing in, nothing is sent anywhere. That means:
+All progress lives in the browser's `localStorage` on each device, and the device is always the main copy: the games never wait on the network. If a parent signs in under **Cloud backup**, the lobby also syncs it to the family's Firebase project (`study-game`), readable only with the family login (`firebase/firestore.rules`). Without signing in, nothing is sent anywhere. The owner can read every family's summary on `/admin/`; the owner UID is set in `web/admin/admin-config.js` and `firebase/firestore.rules`. That means:
 
 - Each device (and each website address) has its own data. Use **Export full backup / Import backup** to move it.
 - Everything a child saves belongs to her **learner profile**: it is stored under `learner/<id>/…`, not under a grade. Her coins, history and stars stay with her when she moves up a grade, and a younger sibling who later plays the same game on the same device starts fresh. `web/engine/learner.js` owns this.
@@ -224,6 +224,7 @@ tools/update-precache.js     lists every file under web/ in the offline cache (a
 tools/world-sounds.js        makes the 3D world's sound clips
 tools/kid-sounds.js          makes the Happy Chimes clips (original, generated: node tools/kid-sounds.js)
 firebase/firestore.rules     who may read and write the cloud copy (paste into Firebase → Firestore → Rules)
+web/admin/                   owner dashboard at /admin/ (sign in with the owner account; not linked, not cached offline)
 tests/                       unit tests (node:test) and headless-Chrome end-to-end tests
   paths.js                   where every page lives (games are found through their subject.json)
   content.js                 loads a game's lesson files the way the browser does

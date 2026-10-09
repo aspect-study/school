@@ -292,12 +292,13 @@ test('first sign-in: a device with data of a grade already in the cloud asks "Is
   assert.deepEqual(plan({ id: 'x', grade: 5 }, ['riseshine_points_v1'], [ANA, BEA]), { action: 'choose', candidates: [ANA], keep: true });
 });
 
-test('the Firestore rules only let the signed-in family read or write its own data', () => {
+test('the Firestore rules let the signed-in family read and write its own data, and the owner only read', () => {
   const fs = require('node:fs');
   const path = require('node:path');
   const rules = fs.readFileSync(path.join(__dirname, '..', 'firebase', 'firestore.rules'), 'utf8').replace(/\s+/g, ' ');
-  assert.match(rules, /match \/families\/\{uid\}\/\{document=\*\*\} \{ allow read, write: if request\.auth != null && request\.auth\.uid == uid; \}/);
-  assert.equal((rules.match(/allow /g) || []).length, 1, 'no other allow rules');
+  assert.match(rules, /match \/families\/\{uid\}\/\{document=\*\*\} \{ allow read: if isOwner\(\); allow read, write: if request\.auth != null && request\.auth\.uid == uid; \}/);
+  assert.equal((rules.match(/allow /g) || []).length, 4, 'no other allow rules');
+  assert.equal((rules.match(/allow read, write:/g) || []).length, 2, 'only the family writes');
 });
 
 const DAY = 86400000;
