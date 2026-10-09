@@ -412,7 +412,7 @@
   }
 
   function withLead(pair) {
-    var lead = /^[^p{L}p{N}]*/u.exec(pair[0])[0];
+    var lead = /^[^\p{L}\p{N}]*/u.exec(pair[0])[0];
     return pair[1].indexOf(lead) === 0 ? pair[1] : lead + pair[1];
   }
 
