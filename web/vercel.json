@@ -1,6 +1,8 @@
 {
   "rewrites": [
     { "source": "/world/grade-2", "destination": "/world/grade-2.html" },
-    { "source": "/world/grade-5", "destination": "/world/grade-5.html" }
+    { "source": "/world/grade-5", "destination": "/world/grade-5.html" },
+    { "source": "/lobby/grade-2", "destination": "/lobby/grade-2.html" },
+    { "source": "/lobby/grade-5", "destination": "/lobby/grade-5.html" }
   ]
 }
