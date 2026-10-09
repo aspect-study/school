@@ -50,12 +50,39 @@
     return g;
   }
 
-  // A gentle idle bob and head tilt; dance() hops and spins once.
+  // Whole-body poses for what the world's characters do (routines.js); d = seconds since the action began.
+  var ACTIONS = {
+    walk: function (b, top, d) { b.position.y += Math.abs(Math.sin(d * 8)) * 0.18; b.rotation.z = Math.sin(d * 8) * 0.07; },
+    sweep: function (b, top, d) { b.rotation.y = Math.sin(d * 4) * 0.35; b.rotation.x = 0.18; },
+    read: function (b, top) { top.rotation.x = 0.35; b.rotation.x = 0.06; },
+    water: function (b, top, d) { b.rotation.x = 0.3 + Math.sin(d * 6) * 0.05; },
+    gaze: function (b, top, d) { top.rotation.x = -0.35; top.rotation.y = Math.sin(d * 0.8) * 0.4; },
+    stretch: function (b, top, d) { b.scale.y = 1.08 + Math.sin(d * 3) * 0.04; top.rotation.x = -0.25; },
+    hum: function (b, top, d) { b.rotation.z = Math.sin(d * 3) * 0.1; b.position.y += Math.abs(Math.sin(d * 3)) * 0.12; },
+    arrange: function (b, top, d) { b.rotation.x = 0.2; b.rotation.y = Math.sin(d * 2.5) * 0.25; },
+    serve: function (b, top, d) { b.rotation.x = 0.15 + Math.max(0, Math.sin(d * 2)) * 0.15; top.rotation.y = Math.sin(d * 1.4) * 0.3; },
+    sip: function (b, top, d) { top.rotation.x = -0.3 * Math.min(1, d * 2); },
+    hammer: function (b, top, d) { b.rotation.x = 0.1 + Math.max(0, Math.sin(d * 6)) * 0.12; },
+    nibble: function (b, top, d) { top.rotation.x = 0.4 + Math.sin(d * 12) * 0.12; },
+    hop: function (b, top, d) { b.position.y += Math.abs(Math.sin(d * 7)) * 0.7; },
+    flap: function (b, top, d) { b.position.y += Math.abs(Math.sin(d * 12)) * 0.25; b.rotation.z = Math.sin(d * 12) * 0.12; },
+    hover: function (b, top, d) { b.position.y += Math.sin(d * 5) * 0.12; b.rotation.z = Math.sin(d * 9) * 0.1; },
+    wave: function (b, top, d) { b.rotation.z = Math.sin(d * 6) * 0.14; b.position.y += Math.abs(Math.sin(d * 6)) * 0.2; }
+  };
+
+  // A gentle idle bob and head tilt; dance() hops and spins once; setAction(name, lift) holds one of ACTIONS (lift raises
+  // the body, for a flying Hoot).
   function life(group, body, top, phase) {
-    var from = null, pending = false, baseY = body.position.y;
+    var from = null, pending = false, baseY = body.position.y, act = 'idle', actFrom = 0, lastT = 0, lift = 0;
     function animate(t) {
+      lastT = t;
       if (pending) { from = t; pending = false; }
       var d = from === null ? -1 : t - from;
+      body.scale.y = 1;
+      body.rotation.x = 0;
+      body.rotation.z = 0;
+      top.rotation.x = 0;
+      top.rotation.y = 0;
       if (d >= 0 && d < DANCE) {
         body.position.y = baseY + Math.abs(Math.sin(d * 9)) * 0.7;
         body.rotation.y = d / DANCE * Math.PI * 2;
@@ -63,10 +90,19 @@
         from = null;
         body.position.y = baseY + Math.abs(Math.sin(t * 2 + phase)) * 0.08;
         body.rotation.y = 0;
+        if (ACTIONS[act]) ACTIONS[act](body, top, t - actFrom);
       }
+      body.position.y += lift;
       top.rotation.z = Math.sin(t * 1.5 + phase) * 0.06;
     }
-    return { group: group, animate: animate, dance: function () { pending = true; } };
+    function setAction(name, y) {
+      if (name !== act) {
+        act = name;
+        actFrom = lastT;
+      }
+      lift = y || 0;
+    }
+    return { group: group, body: body, animate: animate, dance: function () { pending = true; }, setAction: setAction };
   }
 
   var FACES = {
@@ -225,13 +261,27 @@
     add(rbox(0.45, 1.1, 0.45, 0.2), COAT, 0, -0.5, 0, arm2);
     add(ball(0.28), FUR, 0, -1.1, 0, arm2);
 
-    var waving = false;
+    var waving = false, act = 'idle', actFrom = 0, lastT = 0;
     function animate(t) {
+      lastT = t;
+      body.rotation.set(0, 0, 0);
+      body.scale.y = 1;
+      head.rotation.x = 0;
+      head.rotation.y = 0;
       arm.rotation.z = waving ? -0.4 + Math.sin(t * 8) * 0.5 : -0.2;
       head.rotation.z = Math.sin(t * 1.4) * 0.05;
       body.position.y = waving ? Math.abs(Math.sin(t * 4)) * 0.2 : 0;
+      if (ACTIONS[act]) ACTIONS[act](body, head, t - actFrom);
     }
-    return { group: group, animate: animate, wave: function (on) { waving = on; } };
+    return {
+      group: group, body: body, animate: animate, wave: function (on) { waving = on; },
+      setAction: function (name) {
+        if (name !== act) {
+          act = name;
+          actFrom = lastT;
+        }
+      }
+    };
   }
 
   // look = { kind, fur, belly, prop, hat, spikes } from buddies.js

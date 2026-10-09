@@ -126,6 +126,7 @@
     function startMove(id) {
       if (maker || stall || overlay || talking || riding || ctl.state.mag > 0 || !runner.start(id)) return false;
       pal.watch(ctl.state, W.Moves.find(id).len);
+      herMove = true;
       sfx.play(id, { her: true });
       return true;
     }
@@ -230,6 +231,14 @@
         try { streak = root.Quests.streakOf(root.Quests.read(store).days, today()); } catch (e) {}
         return W.MateLines.facts(town.snapshot(), subjectNames, streak);
       }
+    });
+    var herMove = false;
+    var life = W.Life.create({
+      S: S, grade: grade, rand: Math.random, kids: mates.api.ids(),
+      blocked: function (x, z, r) { return !!games && games.blocked(x, z, r); },
+      chars: folk.chars, owners: mates.api.owners, mimi: town.mimiLife,
+      talkingId: function () { return folk.talkingId() || mates.api.talking(); }, busy: function () { return talking || !!overlay; }, waving: function () { return herMove; },
+      sfx: function (name) { sfx.play(name); }
     });
     var loot = W.Loot3D.create({
       S: S, built: world, grade: grade, T: T, store: store, today: today, busy: busy, sound: sound, teach: teacher,
@@ -1071,6 +1080,7 @@
       var mv = pose ? (runner.stop(), null) : runner.tick(dt, { moving: st.mag > 0, free: free, clothes: shown ? shown.wear.clothes : '' });
       if (was && !was.idle && !mv) sfx.stopHer(0.2);
       if (!mv) pal.unwatch();
+      if (!mv) herMove = false;
       var mp = mv ? { move: mv.move, k: mv.k } : undefined;
       me.group.scale.setScalar(maker || stall ? 1 : W.Avatar.SCALE);
       if (pose) {
@@ -1136,6 +1146,7 @@
         folk.tick(t);
         kin.tick(t, dt, st, free && !town.visiting());
         if (!overlay) mates.tick(t, dt, st, play.now(), near);
+        if (!overlay) life.tick(t, dt, st);
       }
       if (!home) {
         loot.tick(t, dt, st, !free || !!pose);
@@ -1329,6 +1340,7 @@
       };
     };
     debug.mates = mates.debug;
+    debug.life = life.debug;
     debug.jesus = kin.debug;
     debug.sisters = kin.sisterIds;
     debug.sisterAt = kin.sisterAt;

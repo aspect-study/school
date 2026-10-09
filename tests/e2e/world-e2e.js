@@ -398,6 +398,21 @@ try {
   assert.equal(mt.farVisible, 0, 'hidden away from the playground');
   console.log('ok playmates: ride together, study and fun questions, invite');
 
+  // Living world: characters move or act within 60 s, 11 pets exist, a character that is talked to freezes.
+  const lifeFile = stageWorld('life', 5, MATES);
+  for (const f of lf.files) {
+    const to = path.join(work, 'life', 'world', lf.dir, f);
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.copyFileSync(path.join(web('world'), lf.dir, f), to);
+  }
+  const lv = run('life', lifeFile, 'life');
+  assert.deepEqual(lv.errors, [], 'life: page errors');
+  assert.equal(lv.pets.length, 11, 'eleven pets');
+  assert.ok(lv.movedChars >= lv.chars - 3, 'characters move or act: ' + lv.movedChars + ' of ' + lv.chars);
+  assert.ok(lv.petActions.every((n) => n >= 2), 'every pet did something: ' + lv.petActions);
+  assert.equal(lv.lanaFrozen, true, 'a character talked to stands still');
+  console.log('ok living world: characters move, pets act, talks freeze');
+
   // Phase 4: Jesus greets her once a day where she starts; Hug sends hearts; Bye walks him back to his bench; in his
   // garden he talks with her. On a hard day (a boss stage missed today) he comes in a golden glow.
   const says = (list) => list.map((l) => l.say);

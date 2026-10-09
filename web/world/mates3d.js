@@ -260,6 +260,14 @@
     var api = {
       mind: mind,
       ids: function () { return kids.map(function (k) { return k.m.id; }); },
+      owners: function () {
+        var out = {};
+        mind.list().forEach(function (k) {
+          out['mate:' + k.id] = { x: k.x, z: k.z, state: k.state, seat: !!k.seat, hidden: !byId[k.id].ch.group.visible };
+        });
+        return out;
+      },
+      talking: function () { return talking ? 'mate:' + talking.m.id : null; },
       nameOf: function (id) { return nameOf(byId[id]); },
       face: function (id) { return byId[id].m.face; },
       pop: function (id, text) { if (byId[id]) showPop(byId[id], text); },

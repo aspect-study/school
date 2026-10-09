@@ -259,6 +259,28 @@
   var AT = { hat: 'head', neck: 'neck', back: 'back', glasses: 'face' };
   var SCALE = 0.8;
 
+  // Moods the world's living pets show (routines.js actions); t is the clock, so each loops.
+  var MOODS = {
+    hop: function (b, t) { b.position.y = Math.abs(Math.sin(t * 8)) * 0.6; },
+    preen: function (b, t) { b.rotation.z = Math.sin(t * 6) * 0.18; b.rotation.x = 0.1; },
+    crouch: function (b, t) { b.scale.set(1.1, 0.7, 1.1); b.rotation.x = 0.1; b.position.x = Math.sin(t * 25) * 0.03; },
+    pounce: function (b, t) { b.position.y = Math.abs(Math.sin(t * 5)) * 1.2; b.rotation.x = -0.4; },
+    shell: function (b) { b.scale.set(1.1, 0.6, 1.1); },
+    rear: function (b) { b.rotation.x = -0.5; b.position.y = 0.2; },
+    breathe: function (b, t) { b.rotation.x = -0.35; b.scale.set(1, 1 + Math.sin(t * 20) * 0.05, 1); },
+    chase: function (b, t) { b.position.y = Math.abs(Math.sin(t * 9)) * 0.5; b.rotation.y = Math.sin(t * 3) * 0.9; },
+    carry: function (b, t) { b.position.y = Math.abs(Math.sin(t * 6)) * 0.25; b.rotation.x = -0.1; },
+    run: function (b, t) { b.position.y = Math.abs(Math.sin(t * 16)) * 0.3; b.rotation.z = Math.sin(t * 16) * 0.12; },
+    roll: function (b, t) { b.rotation.z = t * 7; b.position.y = 0.3; },
+    belly: function (b) { b.rotation.x = 1.2; b.position.y = 0.1; },
+    graze: function (b, t) { b.rotation.x = 0.5 + Math.sin(t * 3) * 0.08; },
+    prance: function (b, t) { b.position.y = Math.abs(Math.sin(t * 5)) * 0.5; b.rotation.y = Math.sin(t * 2.5) * 0.4; },
+    stare: function (b, t) { b.rotation.y = Math.sin(t * 0.9) * 0.9; },
+    paddle: function (b, t) { b.position.y = Math.sin(t * 6) * 0.08; b.rotation.z = Math.sin(t * 6) * 0.1; },
+    peck: function (b, t) { b.rotation.x = 0.1 + Math.max(0, Math.sin(t * 9)) * 0.55; }
+  };
+  var MOODS_ALL = ['idle', 'walk', 'happy', 'munch', 'sit', 'sleep', 'stretch'].concat(Object.keys(MOODS));
+
   // l = a look already through Pets.wearable(): { pet, petColor, petWear }.
   function build(S, l) {
     var THREE = S.THREE, p = Pets.find(l.pet) || Pets.find('chick');
@@ -291,6 +313,7 @@
         body.scale.set(1.08, 0.75 + Math.sin(t * 2) * 0.03, 1);
         body.rotation.z = 0.25;
       } else if (mood === 'stretch') body.scale.set(0.95, 1.12, 1.05);
+      else if (MOODS[mood]) MOODS[mood](body, t);
       else body.position.y = Math.abs(Math.sin(t * 2)) * 0.05;
     }
 
@@ -325,7 +348,7 @@
     return s;
   }
 
-  var exported = { BODIES: BODIES, GEAR: GEAR, MOUNT: MOUNT, SCALE: SCALE, build: build, mount: mount, tag: tag };
+  var exported = { BODIES: BODIES, GEAR: GEAR, MOUNT: MOUNT, SCALE: SCALE, build: build, mount: mount, tag: tag, MOODS_ALL: MOODS_ALL };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

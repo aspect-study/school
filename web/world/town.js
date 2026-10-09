@@ -30,7 +30,7 @@
     plate.position.set(pr.mimi.x, 6.4, pr.mimi.z);
     S.scene.add(plate);
 
-    var snap = null, trailTo = null, talk = null, greeted = false, visit = null;
+    var snap = null, trailTo = null, talk = null, greeted = false, visit = null, mimiTalk = false;
 
     function talkedToday() { return W.Prefs.readDaily(o.store).mimi === o.today(); }
     function quiet() { return !!(o.quiet && o.quiet()); }
@@ -51,6 +51,7 @@
       talk = W.Talk.open({ doc: root.document, face: face, who: who, text: text, pair: grade === 'grade2', buttons: buttons,
         onClose: function () {
           talk = null;
+          mimiTalk = false;
           o.busy(false);
           if (after) after();
         } });
@@ -78,6 +79,7 @@
       W.Prefs.markDaily(o.store, 'mimi', o.today(), Date.now());
       mimi.wave(false);
       var step = snap && snap.step, target = snap && snap.target;
+      mimiTalk = true;
       say('🐱', T.mimi, step ? (target ? W.Chat.join(step.text, T.follow) : step.text) : T.mimiIdle, stepButtons());
     }
 
@@ -109,6 +111,7 @@
       greeted = true;
       W.Prefs.markDaily(o.store, 'mimi', o.today(), Date.now());
       var step = snap && snap.step;
+      mimiTalk = true;
       say('🐱', T.mimi, step ? W.Chat.join(T.nudge, step.text) : T.nudge, stepButtons(), goHome);
     }
 
@@ -119,6 +122,7 @@
       greeted = true;
       W.Prefs.markDaily(o.store, 'mimi', o.today(), Date.now());
       var step = snap && snap.step;
+      mimiTalk = true;
       say('🐱', T.mimi, step ? W.Chat.join(T.nudge, step.text) : T.nudge, stepButtons(goOut));
       return true;
     }
@@ -213,6 +217,18 @@
       snapshot: function () { return snap; },
       fortDebug: function () { return fortBoss ? fortBoss.debug() : null; },
       visiting: function () { return !!visit; },
+      mimiLife: function () {
+        return {
+          char: mimi,
+          held: function () { return !!visit; },
+          talking: function () { return mimiTalk; },
+          place: function (x, z, face) {
+            mimi.group.position.set(x, 0, z);
+            mimi.group.rotation.y = face;
+            plate.position.set(x, 6.4, z);
+          }
+        };
+      },
       trailTo: startTrail,
       trail: function () { return { to: trailTo ? trailTo.id : null, count: decor.trailCount() }; },
       closeTalk: function () { if (talk) talk.close(); }

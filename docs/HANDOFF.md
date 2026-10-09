@@ -65,6 +65,17 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 - World controls: Sprint button, looping rides with a Stop pill (the slide stays one run), pinch / wheel zoom.
 - Playground playmates: 6 named friends + 3 new kids each visit; they ride, join her rides, follow when invited, roam
   the whole map, and ask one study or fun question per talk (study answers saved with 0 points).
+- Living world (2026-10-09): world characters no longer stand still. Buddies, Hoot, Bunny, Mimi and the four shop
+  owners each run small routines (sweep, read, water, serve, hammer, hop, short flights, Mimi's stroll) inside a
+  leash of 2-3 squares around their spot; they wave when she walks close, stop and face her when she talks to them,
+  and carry on 2 s after. 11 unique pets (5 on playmates: Tagpi, Lila, Kidlat, Pandesal, Mingming; Hoot's parrot
+  Kwento, Bunny's turtle Tagal, Mimi's unicorn Bituin; three on buddies) follow their owner, do 2 species behaviors
+  each (parrot talks, fox pounces, dragon-style breathe, turtle shell...), sit and cheer when their kid rides, nap
+  when the owner is still, greet her once every 30 s, play with another pet, and startle (a turtle hides) when
+  someone runs or she sprints past. Pure engine `web/world/routines.js` + tables `lifedata.js`, view `life.js`;
+  cosmetic only (no coins, points or saved data); far characters (40+) stand still and at most 12 act at once.
+  Spec and plan: `docs/superpowers/specs/2026-10-09-living-world-design.md`,
+  `docs/superpowers/plans/2026-10-09-living-world.md`. Tablet smoothness check pending.
 - Playground games: tag, hide-and-seek and Patintero (Games board by the playground entrance; pure play, no coins).
   - Tuning (2026-10-08): hide-and-seek covers her eyes while she counts, the kids hide all over the map far from her,
     hints name only the place in the last 90 s; tag chasers are faster and lunge, with a red edge and heartbeat when
@@ -112,6 +123,7 @@ New subject lessons arrive as class decks and summative tests.
   of it, the kids' play pace, her guarding on the middle line, Sprint having to be pressed again after each
   "Ready… Set… Go!", and any stutter when the teams swap (8 sparkles at once).
 - A live cheer test between the two tablets.
+- Living world on the tablet: smoothness with everyone moving, pets keeping up when a kid runs, and whether the pets' sizes next to the characters look right.
 - My Room on the tablet: Decorate taps on squares and pieces, the panel size, Tito Tasyo's preview, the desk (the
   camera there looks past her head, which hides most of the desk top and a small pet sitting on it), the trophy
   bubble, and a sister visit once both tablets have synced.

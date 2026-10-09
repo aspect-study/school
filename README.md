@@ -112,6 +112,7 @@ is purely visual and falls back to the plain page when 3D cannot run.
 
 World answers from Ask me!, gifts and monsters are scored like a review and show in the parent history. The
 playmates' study questions are saved to history with 0 points.
+Characters walk small routines and some of them have unique pets (web/world/routines.js, lifedata.js, life.js).
 
 ## Rewards
 

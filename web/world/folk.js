@@ -198,8 +198,21 @@
       return null;
     }
 
+    var talkWho = null;
+    function whoOf(it) {
+      if (it.kind === 'buddy') return 'buddy:' + it.app;
+      if (it.kind === 'hoot') return 'hoot';
+      if (it.kind === 'counter') return 'bunny';
+      if (it.kind === 'boutique') return 'lana';
+      if (it.kind === 'petshop') return 'kiko';
+      if (it.kind === 'toyshop') return 'pilo';
+      if (it.kind === 'carpenter') return 'tasyo';
+      return null;
+    }
+
     function act(it) {
       if (talk) return;
+      talkWho = whoOf(it);
       if (it.kind === 'buddy') openBuddy(it.app);
       else if (it.kind === 'hoot') openHoot();
       else if (it.kind === 'counter') openBunny();
@@ -221,6 +234,13 @@
     return {
       refresh: function (s) { snap = s; },
       label: label, act: act, tick: tick, study: study,
+      // Every character with a body, by the id routines.js uses, for the living world (life.js).
+      chars: function () {
+        var out = { hoot: hoot.char, bunny: bunny.char, lana: lana, kiko: kiko, pilo: pilo, tasyo: tasyo };
+        Object.keys(buddies).forEach(function (a) { out['buddy:' + a] = buddies[a].char; });
+        return out;
+      },
+      talkingId: function () { return talk ? talkWho : null; },
       handles: function (kind) { return kind === 'buddy' || kind === 'hoot' || kind === 'counter' || kind === 'tree' || kind === 'boutique' || kind === 'petshop' || kind === 'toyshop' || kind === 'carpenter'; },
       talking: function () { return !!talk; },
       closeTalk: function () { if (talk) talk.close(); }

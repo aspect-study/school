@@ -1,5 +1,5 @@
 // Drives the 3D world page for world-e2e.js. The mode comes from the URL hash:
-// #e2e=fresh|back|lost|resting|grade2|progress|fort|finale|talk|kin|comfort|family|wardrobe|pets|tricks|cheer|toys|sounds|controls|zoomed|mates|teach|loot|games|patintero|house|grow|visit.
+// #e2e=fresh|back|lost|resting|grade2|progress|fort|finale|talk|kin|comfort|family|wardrobe|pets|tricks|cheer|toys|sounds|controls|zoomed|mates|life|teach|loot|games|patintero|house|grow|visit.
 (function () {
   var mode = (location.hash.match(/e2e=(\w+)/) || [])[1];
   var sent = false;
@@ -1049,6 +1049,37 @@
         o.farVisible = D.mates.list().filter(function (k) { return k.visible; }).length;
         out(o);
       });
+    }
+    if (mode === 'life') {
+      D.pause();
+      var LF = D.life, start = {}, lr;
+      D.teleport('playground');
+      D.tick(0.1);
+      LF.list().forEach(function (a) { start[a.id] = { x: a.x, z: a.z }; });
+      var charIds = LF.list().filter(function (a) { return !a.pet; }).map(function (a) { return a.id; });
+      var seen = {};
+      // Characters stand still beyond 40 units, so she visits each area; (0, 0) is left out because Mimi opens a talk there.
+      var stops = [[22, 70], [0, -54], [-20, 20], [55, 0], [-45, 45]];
+      for (lr = 0; lr < 600; lr++) {
+        if (lr % 120 === 0) D.stand(stops[lr / 120][0], stops[lr / 120][1]);
+        D.tick(0.1);
+        LF.list().forEach(function (a) { seen[a.id] = seen[a.id] || {}; seen[a.id][a.action] = true; });
+      }
+      var now = {};
+      LF.list().forEach(function (a) { now[a.id] = a; });
+      o.pets = LF.pets();
+      o.movedChars = charIds.filter(function (id) { return Math.hypot(now[id].x - start[id].x, now[id].z - start[id].z) > 0.3 || Object.keys(seen[id]).length > 2; }).length;
+      o.chars = charIds.length;
+      o.petActions = LF.pets().map(function (id) { return Object.keys(seen[id] || {}).length; });
+      D.stand(55, 0);
+      LF.talk('lana');
+      D.tick(0.1);
+      var lanaAt = LF.list().filter(function (a) { return a.id === 'lana'; })[0];
+      for (lr = 0; lr < 30; lr++) D.tick(0.1);
+      var lanaLater = LF.list().filter(function (a) { return a.id === 'lana'; })[0];
+      o.lanaFrozen = lanaAt.x === lanaLater.x && lanaAt.z === lanaLater.z && lanaLater.action === 'idle';
+      LF.talk(null);
+      return out(o);
     }
     if (mode === 'house') {
       D.pause();
