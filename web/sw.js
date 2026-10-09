@@ -525,6 +525,7 @@ const PRECACHE = [
   'page-turners.html',
   'rally-ready.html',
   'rise-shine.html',
+  'vercel.json',
   'wikaharian.html',
 ];
 
@@ -571,7 +572,8 @@ function fromNetwork(request) {
 }
 
 function networkFirst(request) {
-  const cached = () => caches.match(request, { ignoreSearch: true });
+  const cached = () => caches.match(request, { ignoreSearch: true })
+    .then((hit) => hit || caches.match(withoutSearch(request.url) + '.html'));
   return fromNetwork(request).then(
     (response) => (response.ok ? response : cached().then((hit) => hit || response)),
     () => cached().then((hit) => hit || fetch(request))

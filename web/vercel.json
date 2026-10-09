@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/world/grade-2", "destination": "/world/grade-2.html" },
+    { "source": "/world/grade-5", "destination": "/world/grade-5.html" }
+  ]
+}
