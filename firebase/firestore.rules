@@ -4,7 +4,7 @@ service cloud.firestore {
     // The owner is one account: this UID (Firebase console, Authentication, Users) with this email. Until the UID is
     // pasted here the owner clause matches nobody.
     function isOwner() {
-      return request.auth != null && request.auth.uid == 'OWNER_UID'
+      return request.auth != null && request.auth.uid == '8DAk3YrIYTUEtP52VLWdC29ykb23'
         && request.auth.token.email == 'aspectjump.java@gmail.com';
     }
 

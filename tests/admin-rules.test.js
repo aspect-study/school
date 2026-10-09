@@ -13,7 +13,7 @@ test('the owner may read every family, and only read', () => {
 });
 
 test('the owner is one UID with one email', () => {
-  assert.match(rules, /request\.auth\.uid == 'OWNER_UID'/);
+  assert.match(rules, /request\.auth\.uid == '[A-Za-z0-9]{20,}'/);
   assert.match(rules, /request\.auth\.token\.email == 'aspectjump\.java@gmail\.com'/);
 });
 
