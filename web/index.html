@@ -127,6 +127,14 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
     <button class="link" type="button" data-back>← Back</button>
   </section>
 
+  <section id="lock-view" hidden>
+    <h2>🔒 Parent PIN</h2>
+    <p class="note">Type the parent PIN to open the Account page.</p>
+    <input type="password" id="lock-pin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Parent PIN">
+    <button class="big" type="button" id="lock-go">Open</button>
+    <a class="link" id="lock-back" href="index.html">← Back</a>
+  </section>
+
   <section id="account-view" hidden>
     <h2>👤 Account</h2>
     <p class="note" id="acct-who"></p>

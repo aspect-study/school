@@ -43,9 +43,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   Kuya". Spec and plan: `docs/superpowers/specs/2026-10-09-boy-players-design.md`,
   `docs/superpowers/plans/2026-10-09-boy-players.md`.
   - Known gaps: newest-wins compares each device's own clock, so a tablet whose clock runs ahead wins over later real
-    changes; a phone parent page left open picks up a PIN changed elsewhere only after it signs in again or is reopened. `index.html?account=1` opens without the parent PIN (the 👤 Account button sits behind it, but the
-    address does not), so a child who types it can sign the tablet out or add a child; changing the password or PIN
-    still needs the current one.
+    changes; a phone parent page left open picks up a PIN changed elsewhere only after it signs in again or is reopened. `index.html?account=1` now asks for the parent PIN first (`lock-view`, 2026-10-09).
 
 **3D world** (`web/world`, opened from 🌸 Play World in each lobby)
 - Phases 1-4: character maker, a building per game with medal decorations, Mayor Mimi + sparkle trail, subject buddies

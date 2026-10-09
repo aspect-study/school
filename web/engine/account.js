@@ -55,7 +55,7 @@
   var FR = root.FirebaseRemote, L = root.Learner, Pin = root.ParentPin, raw = root.StudyStore.raw;
   var SIGNED_IN = 'sync_signed_in_v1';
   var OFFLINE = 'No internet. Try again when online, or play without an account.';
-  var VIEWS = ['welcome-view', 'signin-view', 'register-view', 'children-view', 'pick-view', 'play-view', 'account-view'];
+  var VIEWS = ['welcome-view', 'signin-view', 'register-view', 'children-view', 'pick-view', 'play-view', 'lock-view', 'account-view'];
   var $ = function (id) { return doc.getElementById(id); };
   var accountMode = /[?&]account=1(&|$)/.test(root.location.search);
   var user = null, kids = [], form = { emoji: EMOJIS[0], grade: 0, boy: null }, working = false, authKnown = false;
@@ -308,7 +308,18 @@
   });
 
   if (!accountMode) { show('welcome-view'); return; }
-  renderAccount();
+
+  function unlock() {
+    pinReady.then(function () {
+      if (!Pin.check($('lock-pin').value)) { $('lock-pin').value = ''; say('That PIN is not right.', true); return; }
+      $('lock-pin').value = '';
+      renderAccount();
+    });
+  }
+  $('lock-go').addEventListener('click', unlock);
+  $('lock-pin').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') unlock(); });
+  $('lock-back').setAttribute('href', backTarget(root.location.search) || (L.current() ? L.lobby() : 'index.html'));
+  show('lock-view');
   // Only the first answer: later sign-ins from this page are handled by their own buttons.
   var heard = false;
   FR.onAuth(function (u) {

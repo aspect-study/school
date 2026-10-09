@@ -31,6 +31,7 @@ const FAKE = `(function (root) {
       return {
         learners: function () { var u = me(db()); return Promise.resolve(Object.keys(u.learners).map(function (id) { return { id: id, profile: u.learners[id] }; })); },
         merge: function (id, key, local, fn) { var d = db(), u = me(d); u.learners[id] = fn(local, u.learners[id] || null); save(d); return Promise.resolve(u.learners[id]); },
+        putFamily: function () { return Promise.resolve(); },
         getPin: function () { return Promise.resolve(me(db()).pin); },
         putPin: function (rec) { var d = db(); me(d).pin = rec; save(d); return Promise.resolve(); }
       };
@@ -45,7 +46,7 @@ function q(id) { return document.getElementById(id); }
 function type(id, v) { q(id).value = v; }
 function click(id) { q(id).click(); }
 function msg() { return q('msg').textContent; }
-function view() { return ['welcome-view','signin-view','register-view','children-view','pick-view','play-view','account-view'].filter(function (v) { return q(v) && !q(v).hidden; })[0] || ''; }
+function view() { return ['welcome-view','signin-view','register-view','children-view','pick-view','play-view','lock-view','account-view'].filter(function (v) { return q(v) && !q(v).hidden; })[0] || ''; }
 function cloud() { return JSON.parse(localStorage.getItem('fake_cloud')); }
 function run(steps) {
   var i = 0;
@@ -113,6 +114,8 @@ run([
 
 const account = page('account.html', `
 run([
+  function () { log.locked = view(); type('lock-pin', '9999'); click('lock-go'); },
+  function () { log.wrongLock = msg(); log.stillLocked = view(); type('lock-pin', '0108'); click('lock-go'); },
   function () { log.view = view(); log.who = q('acct-who').textContent; log.back = q('acct-back').getAttribute('href'); },
   function () { type('pw-cur', 'wrong11'); type('pw-new', 'newpass1'); type('pw-new2', 'newpass1'); click('pw-go'); },
   function () { log.wrongPass = msg(); type('pw-cur', 'secret1'); type('pw-new', 'newpass1'); type('pw-new2', 'newpass1'); click('pw-go'); },
@@ -196,6 +199,9 @@ try {
   const b = readOutput(dumpDom(one, account, '?account=1&back=lobby/grade-2.html', WAIT));
   assert.deepEqual(b.errors, [], 'account errors');
   assert.equal(b.log.stepError, undefined, b.log.stepError);
+  assert.equal(b.log.locked, 'lock-view', 'the Account view starts behind the PIN');
+  assert.equal(b.log.wrongLock, 'That PIN is not right.');
+  assert.equal(b.log.stillLocked, 'lock-view');
   assert.equal(b.log.view, 'account-view');
   assert.equal(b.log.who, 'Signed in as mom@family.test.');
   assert.equal(b.log.back, 'lobby/grade-2.html');
