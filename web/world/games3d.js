@@ -13,7 +13,7 @@
 (function (root) {
   'use strict';
   var W = root.World3D = root.World3D || {};
-  var PLAYERS = 4, POP_IN = 40, BOARD_R = 2.8, INVITE_MIN = 240, INVITE_MAX = 360, INVITE_NEAR = 30, ASK_NEAR = 3, HINT_TIME = 7;
+  var PLAYERS = 4, POP_IN = 40, BOARD_R = 2.8, INVITE_MIN = 240, INVITE_MAX = 360, INVITE_NEAR = 30, ASK_NEAR = 3, HINT_TIME = 7, NOISE_TIME = 1.4;
   // Patintero: 7 players besides her (her sister counts as one); RING: the team rings' colours.
   var COURT_AT = [-57, -63], PAT_KIDS = 7, RING = { blue: '#4a8cff', red: '#ff5a5a' };
 
@@ -39,7 +39,7 @@
     function playing() { return game.playing() || pat.playing(); }
     function state() { return pat.state() || game.state(); }
     var props = [], disguise = null, talk = null, last = null, inviteT = INVITE_MIN + rand() * (INVITE_MAX - INVITE_MIN), asking = null;
-    var her = { x: 0, z: 0 }, hintT = 0, beatT = 0, rings = null;
+    var her = { x: 0, z: 0 }, hintT = 0, noiseT = 0, beatT = 0, rings = null;
 
     // --- the board by the playground's entrance -----------------------------------------------------------------
     var board = (function () {
@@ -155,7 +155,8 @@
     var pill = el('div', 'g-pill'), pillText = el('span', 'g-pill-text'), hint = el('div', 'g-hint');
     // Her eyes are covered while she counts: the cover hides the whole view, so she never sees where anyone hides.
     var count = el('div', 'g-count'), countEyes = el('div', 'g-count-eyes', '🙈'), countN = el('div', 'g-count-n');
-    var danger = el('div', 'g-danger');
+    var danger = el('div', 'g-danger'), noise = el('div', 'g-noise');
+    noise.setAttribute('aria-hidden', 'true');
     count.appendChild(countEyes);
     count.appendChild(countN);
     var endBtn = button('g-end', B.end, function () { end(null); });
@@ -165,7 +166,7 @@
     pill.appendChild(endBtn);
     count.setAttribute('aria-live', 'assertive');
     hint.setAttribute('aria-live', 'polite');
-    [pill, hint, count, danger, disBtn, booBtn].forEach(function (n) { n.hidden = true; doc.body.appendChild(n); });
+    [pill, hint, count, danger, disBtn, booBtn, noise].forEach(function (n) { n.hidden = true; doc.body.appendChild(n); });
 
     function nameOf(id) { return isSis(id) ? sis.name : String(M.nameOf(id)).split(' · ').pop(); }
     function faceOf(id) { return isSis(id) ? sis.face : M.face(id); }
@@ -179,7 +180,7 @@
     function hud() {
       var s = state();
       if (!s || s.done) {
-        [pill, hint, count, danger, disBtn, booBtn].forEach(function (n) { show(n, false); });
+        [pill, hint, count, danger, disBtn, booBtn, noise].forEach(function (n) { show(n, false); });
         return;
       }
       if (s.kind === 'patintero') return patHud(s);
@@ -193,6 +194,7 @@
       show(count, !!big);
       if (big) setText(countN, String(big));
       show(hint, hintT > 0);
+      show(noise, noiseT > 0);
       show(danger, !!s.danger);
       if (s.danger && s.chaseD !== null) setOpacity(danger, Math.max(0.35, Math.min(1, 1.3 - s.chaseD / G.TAG.safe)));
       show(disBtn, !disguise && !!game.disguiseProp(her));
@@ -323,6 +325,7 @@
       var s = state();
       if (s) s.ids.forEach(function (id) { cast.game(id, false); });
       hintT = 0;
+      noiseT = 0;
       undisguise();
       clearProps();
       clearRings();
@@ -365,6 +368,11 @@
         else if (e.type === 'tagged' || e.type === 'gotYou' || e.type === 'kidTagged') o.sfx('catch');
         else if (e.type === 'found' || e.type === 'kidFound') o.sfx('mate-giggle');
         else if (e.type === 'sneak') o.sfx('emote-giggle');
+        else if (e.type === 'noise') {
+          o.sfx('mate-giggle', { gain: 0.5 + e.near * 1.5 });
+          noise.textContent = e.near > 0.66 ? '🔊' : e.near > 0.33 ? '🔉' : '🔈';
+          noiseT = NOISE_TIME;
+        }
         else if (e.type === 'hint') {
           // Only the place, never the spot: no marker over the prop.
           o.sfx('emote-giggle');
@@ -449,6 +457,7 @@
       her.z = st.z;
       if (disguise && (Math.hypot(st.x - disguise.at.x, st.z - disguise.at.z) > 0.3 || st.mag > 0)) undisguise();
       if (hintT > 0) hintT -= dt;
+      if (noiseT > 0) noiseT -= dt;
       if (frozen || talk) return;
       if (pat.playing()) {
         var pev = pat.tick(dt, { x: st.x, z: st.z });

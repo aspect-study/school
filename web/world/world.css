@@ -195,6 +195,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 .g-hint { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 108px); z-index: 12;
   max-width: calc(100% - 32px); box-sizing: border-box; padding: 6px 16px; border-radius: 16px; text-align: center;
   background: #fff6c8; color: #5b2a6b; font: 800 15px 'Baloo 2', system-ui, sans-serif; box-shadow: 0 3px 0 #f0d77a; }
+/* A small speaker near the top that flashes when a hidden kid makes a noise; more waves when closer. */
+.g-noise { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 150px); z-index: 12;
+  padding: 4px 12px; border-radius: 16px; background: #fff6c8; box-shadow: 0 3px 0 #f0d77a; font-size: 22px; pointer-events: none; }
 .g-danger { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
 /* The pulse fades a fixed shadow: animating the shadow itself repaints the whole screen every frame. */
 .g-danger::before { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 100px 34px rgba(255,40,70,.8);

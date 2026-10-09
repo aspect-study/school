@@ -255,7 +255,7 @@
     }, 1500);
     games = W.Games3D.create({
       S: S, built: world, grade: grade, T: T, busy: busy, mates: mates.api,
-      sfx: function (name) { sfx.play(name); },
+      sfx: function (name, opts) { sfx.play(name, opts); },
       freeze: function (on) { gameFreeze = on; ctl.freeze(on || talking); },
       staticBlocked: function (x, z, r) { return L.blocked(obs, bounds, x, z, r); },
       onPath: function (x, z, m) { return L.onPath(grade, x, z, m) || Math.hypot(x - plaza.x, z - plaza.z) <= plaza.r + m; },

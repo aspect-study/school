@@ -351,3 +351,37 @@ test('group and Patintero texts in both grades; Grade 2 pairs Filipino · Englis
   assert.equal(G.TEXT.grade5.why.length, G.TEXT.grade2.why.length);
   assert.ok(G.TEXT.grade5.why.includes('Teamwork: watch your teammates and run when the guard looks away!'));
 });
+
+test('hide-and-seek, she seeks: a hidden kid makes a noise now and then, faster and louder the closer she is, never from far away', () => {
+  const noises = (at) => {
+    const f = field({ migo: { x: 0, z: 0 } }), g = make(f), list = props(4);
+    g.startSeek(['migo'], { x: 0, z: 0 }, list);
+    const spot = { x: 0, z: 0 };
+    for (let i = 0; i < 101; i++) g.tick(0.1, spot);
+    const k = f.kids.migo, her = { x: k.x + at, z: k.z };
+    const out = [];
+    for (let i = 0; i < 600; i++) g.tick(0.1, her).forEach((e) => { if (e.type === 'noise') out.push(e); });
+    return out;
+  };
+  const close = noises(8), mid = noises(20), far = noises(G.SEEK.noiseR + 5);
+  assert.equal(far.length, 0, 'out of earshot');
+  assert.ok(mid.length > 3 && close.length > mid.length, 'closer: more often ' + close.length + ' vs ' + mid.length);
+  assert.ok(close[0].near > mid[0].near && close[0].near < 1 && mid[0].near > 0);
+  assert.deepEqual(Object.keys(close[0]).sort(), ['kid', 'near', 'type'], 'no x or z in a noise');
+});
+
+test('she hides: when the seeker checks the prop she is on she is found, disguised or not, and soon enough', () => {
+  const areas = [{ x: 0, z: 0, r: 60 }, { x: 90, z: 0, r: 40 }];
+  const times = [];
+  for (let run = 0; run < 60; run++) {
+    const f = field({ jun: { x: 0, z: 0 }, ella: { x: 1, z: 0 } }), g = make(f), list = G.props(areas, G.SEEK.props, rand, () => true);
+    g.startHide(['jun', 'ella'], { x: 0, z: 0 }, list, 'jun');
+    const p = list[run % list.length], her = { x: p.x, z: p.z, still: true, disguised: true };
+    let t = 0, end = null;
+    while (t < 200 && !end) { g.tick(0.1, her).forEach((e) => { if (e.type === 'end') end = e; }); t += 0.1; }
+    assert.equal(end.result, 'foundYou', 'run ' + run);
+    times.push(t);
+  }
+  times.sort((a, b) => a - b);
+  assert.ok(times[Math.floor(times.length * 0.9)] < 80, 'nine in ten found within 80 s: ' + times[Math.floor(times.length * 0.9)]);
+});

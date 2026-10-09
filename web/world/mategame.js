@@ -22,8 +22,12 @@
     time: 120, r: 1.8, freeze: 3, noBack: 3, giveUp: 20, area: 30, fleeR: 14, flee: 8.5, jog: 3.5, chase: 9.6, props: 8,
     lunge: 14, lungeR: 7, lungeT: 1, puff: 1.5, puffSpeed: 7, lead: 0.5, danger: 6, safe: 10, juke: 11, jukeR: 3.5, jukeT: 0.5, jukeRest: 2.5
   };
-  // hints: seconds left when a hidden kid giggles; near: no hiding prop closer than this to where she counts.
-  var SEEK = { count: 10, time: 240, findR: 3.2, hints: [90, 60, 30], sneakR: 9, sneak: 0.5, run: 7, late: 20, props: 24, near: 20 };
+  // hints: seconds left when a hidden kid giggles; near: no hiding prop closer than this to where she counts;
+  // noiseR: a hidden kid within this of her makes a small noise now and then, every noiseNear s up close to noiseFar s at the edge.
+  var SEEK = {
+    count: 10, time: 240, findR: 3.2, hints: [90, 60, 30], sneakR: 9, sneak: 0.5, run: 7, late: 20, props: 24, near: 20,
+    noiseR: 28, noiseNear: 2.2, noiseFar: 7
+  };
   var HIDE = { count: 10, time: 120, seeR: 3.5, miss: 0.7, booR: 5, look: 1.2, walk: 5.5, disguiseR: 3 };
   var PROP = { gap: 6, r: 1.3, off: 1.7 };
   var KINDS = ['bush', 'crates', 'barrel', 'hay', 'box', 'flowers'];
@@ -458,6 +462,16 @@
           ev.push({ type: 'found', kid: id, sneaky: sneaky }, { type: 'pop', kid: id, text: sneaky ? POPS.sneaky : POPS.giggle });
           return;
         }
+        if (k.hidden) {
+          k.noiseT = (k.noiseT === undefined ? 1 + rand() * 2 : k.noiseT) - dt;
+          if (k.noiseT <= 0) {
+            var near = Math.max(0, 1 - d / SEEK.noiseR);
+            if (near > 0) {
+              ev.push({ type: 'noise', kid: id, near: near });
+              k.noiseT = SEEK.noiseFar - (SEEK.noiseFar - SEEK.noiseNear) * near + rand();
+            } else k.noiseT = 1;
+          }
+        }
         // The kids' twist: once a game, a kid she comes close to may dash to another prop.
         if (k.hidden && !st.sneaked && !k.tested && d <= SEEK.sneakR) {
           k.tested = true;
@@ -524,7 +538,7 @@
       if (!left.length) return null;
       var at = o.where(st.seeker);
       // Later on, now and then they go straight to the prop nearest her: a good guess.
-      if (st.t > 40 && rand() < 0.35) left.sort(function (a, b) { return dist(a, her) - dist(b, her); });
+      if (st.t > 10 && rand() < 0.5) left.sort(function (a, b) { return dist(a, her) - dist(b, her); });
       else left.sort(function (a, b) { return dist(a, at) * (0.6 + rand() * 0.8) - dist(b, at) * (0.6 + rand() * 0.8); });
       return left[0];
     }
@@ -566,6 +580,8 @@
         if (o.move(sk, st.lookAt.x, st.lookAt.z, HIDE.walk, dt) || (o.where(sk).stuck || 0) > 2) {
           st.visited.push(st.cur);
           st.look = HIDE.look;
+          // Checking the very prop she is on: she is found, however well she is disguised.
+          if (dist(st.cur, her) <= HIDE.disguiseR) return finish(ev.concat([{ type: 'foundYou', kid: sk }, { type: 'pop', kid: sk, text: POPS.found }]), 'foundYou');
           st.hiders.forEach(function (id) {
             var k = st.kids[id];
             if (k.hidden && k.prop === st.cur) {
