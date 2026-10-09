@@ -230,3 +230,44 @@ test('a pet of a character follows the character and never stands in a blocked s
   });
   assert.ok(worst < 9, 'buddy pets stay close to their buddy: ' + worst);
 });
+
+test('a character gated out beyond NEAR reports idle and resumes when she returns', () => {
+  const engine = plain([char('a', 0, 0, { routines: ['sweep'] })]);
+  let doing = null;
+  run(engine, 60, { x: 0, z: 30 }, (out) => { if (!doing && out.poses.a.action !== 'idle') doing = out.poses.a.action; });
+  assert.ok(doing, 'it did something near her');
+  let busy = null;
+  for (let i = 0; i < 600 && !busy; i++) {
+    const out = engine.tick(0.1, { x: 0, z: 30 });
+    if (out.poses.a.action !== 'idle') busy = out.poses.a;
+  }
+  assert.ok(busy, 'caught mid-routine');
+  const gone = engine.tick(0.1, { x: 1000, z: 1000 }).poses.a;
+  assert.equal(gone.action, 'idle');
+  assert.equal(gone.mag, 0);
+  let resumed = false;
+  run(engine, 60, { x: 0, z: 30 }, (out) => { if (out.poses.a.action !== 'idle') resumed = true; });
+  assert.ok(resumed, 'carries on when she returns');
+});
+
+test('a flying character talked to mid-flight eases down to the ground and faces her', () => {
+  const hoot = char('h', 0, 0, { fly: true, leash: 3, routines: ['fly'], kind: 'hoot' });
+  const engine = plain([hoot]);
+  let up = false;
+  for (let i = 0; i < 900 && !up; i++) up = engine.tick(0.1, { x: 0, z: 30 }).poses.h.y > 1;
+  assert.ok(up, 'flew');
+  const her = { x: 6, z: 3, talkingTo: 'h' };
+  const out = run(engine, 3, her);
+  assert.ok(out.poses.h.y < 0.05, 'landed: ' + out.poses.h.y);
+  assert.equal(out.poses.h.talk, true);
+});
+
+test('snapHome puts a character on its home spot facing her, resting', () => {
+  const engine = plain([char('a', 4, 4)]);
+  run(engine, 40, { x: 4, z: 34 });
+  const p = engine.snapHome('a', 10, 4);
+  assert.deepEqual([p.x, p.z], [4, 4]);
+  assert.ok(Math.abs(p.face - Math.PI / 2) < 1e-9);
+  assert.equal(p.action, 'idle');
+  assert.equal(engine.snapHome('nobody', 0, 0), null);
+});

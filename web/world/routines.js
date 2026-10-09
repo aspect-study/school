@@ -32,7 +32,7 @@
         def: d, x: d.home ? d.home.x : 0, z: d.home ? d.home.z : 0, y: 0, face: d.face || 0, state: 'rest', timer: 0.5 + rand() * 2,
         action: 'idle', prop: null, speed: 0, still: 0, walkT: 0, stuck: 0, target: null, route: [], homing: false, rt: null, last: null,
         stepI: 0, step: null, held: false, hidden: false, placed: !d.pet, loose: false, seen: false, own: null,
-        greetAt: 0, playAt: 0, startleAt: 0, waveAt: 0, legX: 0, legZ: 0, sx: 0, sz: 0
+        greetAt: 0, playAt: 0, startleAt: 0, waveAt: 0, legX: 0, legZ: 0, sx: 0, sz: 0, gated: false
       };
       byId[d.id] = a;
       return a;
@@ -230,6 +230,7 @@
         a.rt = null;
         a.homing = false;
         a.face = toward(a, ctx);
+        if (d.fly) a.y += (0 - a.y) * Math.min(1, dt * 6);
         return;
       }
       if (a.state === 'talk') {
@@ -422,6 +423,7 @@
 
     function hold(a) {
       a.held = true;
+      a.gated = false;
       a.state = 'rest';
       a.timer = 1;
       a.action = 'idle';
@@ -449,8 +451,8 @@
     }
 
     function pose(a) {
-      return { id: a.def.id, x: a.x, y: a.y, z: a.z, face: a.face, action: a.action, mag: a.speed > 0.1 ? 1 : 0, walkT: a.walkT,
-        prop: a.prop, hidden: a.hidden || !a.placed, held: a.held, pet: !!a.def.pet };
+      return { id: a.def.id, x: a.x, y: a.y, z: a.z, face: a.face, action: a.gated ? 'idle' : a.action, mag: !a.gated && a.speed > 0.1 ? 1 : 0,
+        walkT: a.walkT, prop: a.prop, hidden: a.hidden || !a.placed, held: a.held, pet: !!a.def.pet, talk: a.state === 'talk' };
     }
 
     function tick(dt, c) {
@@ -473,7 +475,8 @@
             return;
           }
           if (a.held) release(a);
-          if (gateDist(a) > NEAR) {
+          a.gated = gateDist(a) > NEAR;
+          if (a.gated) {
             if (pets && !a.placed) {
               var own = ownerOf(a);
               if (own) spawn(a, own);
@@ -490,8 +493,20 @@
       return { poses: poses, pops: pops, sounds: sounds };
     }
 
+    function snapHome(id, fx, fz) {
+      var a = byId[id];
+      if (!a || a.def.pet || a.def.external || !a.def.home) return null;
+      rest(a);
+      a.x = a.def.home.x;
+      a.z = a.def.home.z;
+      a.y = 0;
+      a.face = toward(a, { x: fx, z: fz });
+      return pose(a);
+    }
+
     return {
       tick: tick,
+      snapHome: snapHome,
       list: function () {
         return actors.filter(function (a) { return !a.def.external; }).map(function (a) {
           return { id: a.def.id, x: a.x, z: a.z, state: a.state, action: a.action, owner: a.def.owner || null, pet: !!a.def.pet };

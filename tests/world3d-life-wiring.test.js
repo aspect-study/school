@@ -40,3 +40,15 @@ test('the world creates and ticks the living world, only outside rooms and menus
   assert.match(src, /life\.tick\(/);
   assert.match(src, /debug\.life = life\.debug/);
 });
+
+test('she only startles pets while she is actually moving', () => {
+  const src = fs.readFileSync(worldFile('life.js'), 'utf8');
+  assert.match(src, /sprint: !!st\.sprint && st\.mag > 0/);
+});
+
+test('a shop keeper is snapped home before the stall opens, and sprites reuse their material', () => {
+  assert.match(fs.readFileSync(worldFile('world-main.js'), 'utf8'), /life\.snapHome\(keeperId/);
+  const src = fs.readFileSync(worldFile('life.js'), 'utf8');
+  assert.match(src, /material\.map = texture\(/);
+  assert.ok(!/S\.scene\.remove\(/.test(src), 'no sprite is dropped without disposing');
+});

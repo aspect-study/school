@@ -17,12 +17,16 @@
       actors: defs, rand: o.rand,
       blocked: function (x, z, r) { return L.blocked(obs, bounds, x, z, r) || !!(o.blocked && o.blocked(x, z, r)); }
     });
-    var chars = o.chars(), mimi = o.mimi(), textures = {}, pets = {}, props = {}, pool = [], forced;
+    var chars = o.chars(), mimi = o.mimi(), textures = {}, pets = {}, props = {}, pool = [], forced, lastT = 0;
     chars.mimi = mimi.char;
 
     function texture(e) {
       if (!textures[e]) textures[e] = S.emoji(e);
       return textures[e];
+    }
+    function reskin(sp, e) {
+      sp.material.map = texture(e);
+      sp.material.needsUpdate = true;
     }
     function sprite(e, size) {
       var sp = S.sprite(texture(e), size, size);
@@ -44,11 +48,9 @@
     function pop(x, y, z, text) {
       var slot = pool.filter(function (p) { return p.t <= 0; })[0];
       if (!slot) return;
-      if (!slot.sp || slot.e !== text) {
-        if (slot.sp) S.scene.remove(slot.sp);
-        slot.sp = sprite(text, 1.4);
-        slot.e = text;
-      }
+      if (!slot.sp) slot.sp = sprite(text, 1.4);
+      else if (slot.e !== text) reskin(slot.sp, text);
+      slot.e = text;
       slot.t = POP_TIME;
       slot.x = x;
       slot.y = y;
@@ -62,9 +64,10 @@
         if (p) p.sp.visible = false;
         return;
       }
-      if (!p || p.e !== e) {
-        if (p) S.scene.remove(p.sp);
-        p = props[id] = { e: e, sp: sprite(e, 1.1) };
+      if (!p) p = props[id] = { e: e, sp: sprite(e, 1.1) };
+      else if (p.e !== e) {
+        reskin(p.sp, e);
+        p.e = e;
       }
       p.sp.visible = true;
       p.sp.position.set(x + Math.sin(face + Math.PI / 2) * PROP_SIDE, y, z + Math.cos(face + Math.PI / 2) * PROP_SIDE);
@@ -85,7 +88,8 @@
         c.group.position.set(p.x, 0, p.z);
         c.group.rotation.y = p.face;
       }
-      if (c.setAction && !p.held) c.setAction(p.action, def.fly ? p.y : 0);
+      if (c.setAction) c.setAction(p.held ? 'idle' : p.action, def.fly && !p.held ? p.y : 0);
+      if (def.fly && p.talk && c.body) c.body.rotation.y = p.face - c.group.rotation.y;
       showProp(def.id, near && !p.held ? p.prop : null, p.x, CHAR_PROP_Y + (def.fly ? p.y : 0), p.z, p.face);
     }
 
@@ -103,9 +107,21 @@
       showProp(pet.def.id, p.prop, p.x, PET_PROP_Y, p.z, p.face);
     }
 
+    // The stall view pauses the world, so a keeper is put on its spot facing her before the stall opens.
+    function snapHome(id, fx, fz) {
+      var p = engine.snapHome(id, fx, fz), c = chars[id];
+      if (!p || !c) return;
+      c.group.position.set(p.x, 0, p.z);
+      c.group.rotation.y = p.face;
+      if (c.setAction) c.setAction('idle', 0);
+      if (c.animate) c.animate(lastT);
+      showProp(id, null);
+    }
+
     function tick(t, dt, st) {
+      lastT = t;
       var out = engine.tick(dt, {
-        x: st.x, z: st.z, sprint: !!st.sprint, cam: { x: S.camera.position.x, z: S.camera.position.z },
+        x: st.x, z: st.z, sprint: !!st.sprint && st.mag > 0, cam: { x: S.camera.position.x, z: S.camera.position.z },
         talkingTo: forced !== undefined ? forced : (o.talkingId() || (mimi.talking() ? 'mimi' : null)),
         busy: !!(o.busy && o.busy()), waving: !!(o.waving && o.waving()),
         hold: mimi.held() ? { mimi: true } : null, owners: o.owners()
@@ -137,6 +153,7 @@
 
     return {
       tick: tick,
+      snapHome: snapHome,
       debug: {
         list: engine.list,
         pets: function () { return Object.keys(pets); },
