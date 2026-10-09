@@ -1261,9 +1261,9 @@
     refresh();
     dress(worn(look));
     var ret = W.Prefs.readReturn(session);
+    if (!mine.made) openMaker();
     goTo(L.spawnFor(grade, ret));
     welcome(ret);
-    if (!mine.made) openMaker();
 
     debug.makerOpen = function () { return !!maker; };
     debug.maker = {
