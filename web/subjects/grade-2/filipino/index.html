@@ -1,0 +1,800 @@
+<html lang="fil">
+<meta charset="utf-8">
+<title>Kuwentista</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chewy&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF6EC; --surface:#FFFFFF; --surface2:#FBEADF;
+  --ink:#2B2440; --ink-soft:#6A6083;
+  --accent:#D6467E; --accent-ink:#FFFFFF;
+  --gold:#F2A83C; --navy:#2C4A6E;
+  --good:#2F9C5D; --bad:#D8433A;
+  --border:#F0DCC7;
+  --shadow: 0 8px 24px rgba(214,70,126,0.14);
+  --radius:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1D1626; --surface:#2A2036; --surface2:#352840;
+    --ink:#F5EEFB; --ink-soft:#C3B6D6;
+    --accent:#F073A0; --accent-ink:#1D1626;
+    --gold:#F5C168; --navy:#7FA6D6;
+    --good:#4FCB84; --bad:#F0766B;
+    --border:#443652;
+    --shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1D1626; --surface:#2A2036; --surface2:#352840;
+  --ink:#F5EEFB; --ink-soft:#C3B6D6;
+  --accent:#F073A0; --accent-ink:#1D1626;
+  --gold:#F5C168; --navy:#7FA6D6;
+  --good:#4FCB84; --bad:#F0766B;
+  --border:#443652;
+  --shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:'Poppins',system-ui,sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Chewy',cursive; font-weight:400; letter-spacing:0.01em;}
+.app{max-width:720px; margin:0 auto; padding:20px 16px 60px;}
+.hidden{display:none !important;}
+button{font-family:inherit; cursor:pointer;}
+button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+
+/* HOME */
+.hero{display:flex; align-items:center; gap:14px; margin:10px 0 20px;}
+.hero-book{width:84px; height:84px; flex:none;}
+.hero h1{font-size:2.2rem; margin:0; color:var(--accent);}
+.hero p{margin:4px 0 0; color:var(--ink-soft); font-size:0.95rem;}
+.lesson-grid{display:grid; gap:14px;}
+.lesson-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px 18px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow);
+  text-align:left; width:100%;
+}
+.final-card{
+  border:2px solid var(--gold);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--gold) 14%, var(--surface)), var(--surface));
+}
+.final-badge{
+  display:inline-block; font-size:0.68rem; font-weight:800; letter-spacing:0.04em;
+  color:var(--navy); background:color-mix(in srgb, var(--gold) 35%, var(--surface));
+  padding:2px 8px; border-radius:20px; margin-bottom:3px;
+}
+.lesson-emoji{font-size:2rem; flex:none; width:52px; height:52px; border-radius:14px;
+  background:var(--surface2); display:flex; align-items:center; justify-content:center;}
+.lesson-info{flex:1; min-width:0;}
+.lesson-info h3{margin:0 0 2px; font-size:1.1rem;}
+.lesson-info p{margin:0; color:var(--ink-soft); font-size:0.85rem;}
+.stars{margin-top:6px; font-size:0.95rem; letter-spacing:2px;}
+.star-on{color:var(--gold);}
+.star-off{color:var(--border);}
+.go-btn{
+  flex:none; background:var(--accent); color:var(--accent-ink); border:none; border-radius:12px;
+  padding:10px 16px; font-weight:700; font-size:0.85rem;
+}
+
+/* FLASHCARDS */
+.screen-head{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+.screen-head h2{margin:0; font-size:1.35rem; flex:1;}
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:32px 24px; box-shadow:var(--shadow); gap:14px;
+}
+.card-icon{font-size:2.6rem;}
+.card-term{font-family:'Chewy',cursive; font-size:1.5rem; color:var(--accent);}
+.card-def{font-size:1.02rem; color:var(--ink-soft); line-height:1.5; white-space:pre-line;}
+.card-en{font-size:0.92rem; color:var(--ink); line-height:1.45; white-space:pre-line; text-align:left; width:100%;
+  background:color-mix(in srgb, var(--navy) 10%, var(--surface)); border-left:4px solid var(--navy); border-radius:10px; padding:10px 14px;}
+.en-label{display:block; font-weight:800; font-size:0.75rem; letter-spacing:0.04em; color:var(--navy); margin-bottom:2px;}
+.card.tip{border:3px solid var(--gold); background:color-mix(in srgb, var(--gold) 10%, var(--surface));}
+.card.tip .card-term{color:var(--ink);}
+.card.tip .card-def{color:var(--ink); text-align:left;}
+.q-help{background:none; border:1px dashed var(--navy); color:var(--navy); border-radius:10px; padding:6px 12px; font-weight:700; font-size:0.85rem; margin:-8px 0 14px;}
+.q-en{font-size:0.92rem; color:var(--ink); background:color-mix(in srgb, var(--navy) 10%, var(--surface)); border-left:4px solid var(--navy); border-radius:10px; padding:8px 12px; margin:-8px 0 14px;}
+.fb-en{margin-top:8px; font-size:0.88rem; color:var(--ink-soft);}
+.card-nav{display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:10px;}
+.nav-btn{
+  background:var(--surface2); color:var(--ink); border:1px solid var(--border); border-radius:12px;
+  padding:12px 18px; font-weight:600;
+}
+.nav-btn:disabled{opacity:0.4; cursor:default;}
+.dots{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:140px;}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--border);}
+.dot.active{background:var(--accent);}
+.primary-btn{
+  background:var(--accent); color:var(--accent-ink); border:none; border-radius:14px;
+  padding:14px 22px; font-weight:700; font-size:1rem; width:100%; margin-top:18px;
+}
+
+/* QUIZ */
+.quiz-top{display:flex; align-items:center; gap:14px; margin-bottom:16px;}
+.progress-bar{flex:1; height:10px; background:var(--surface2); border-radius:6px; overflow:hidden;}
+.progress-fill{height:100%; background:var(--accent); transition:width .3s;}
+.quiz-book{width:46px; height:46px; flex:none;}
+.q-text{font-size:1.1rem; font-weight:700; margin:6px 0 16px; line-height:1.4;}
+.options{display:grid; gap:10px;}
+.option{
+  background:var(--surface); border:2px solid var(--border); border-radius:14px; padding:14px 16px;
+  text-align:left; font-size:1rem; font-weight:600; color:var(--ink);
+}
+.option.correct{border-color:var(--good); background:color-mix(in srgb, var(--good) 14%, var(--surface));}
+.option.incorrect{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 14%, var(--surface));}
+.option:disabled{cursor:default;}
+.option.explorable{border-style:dashed;}
+.option.explored{box-shadow:0 0 0 3px var(--surface2);}
+.explore{margin-top:10px;}
+.explore-hint{font-size:0.88rem; color:var(--ink-soft); font-weight:700;}
+.explore-card{margin-top:8px; background:var(--surface); border:2px solid var(--border); border-left:5px solid var(--bad); border-radius:12px; padding:9px 12px; line-height:1.45; font-size:0.95rem;}
+.explore-card.explore-right{border-left-color:var(--good);}
+.explore-card b{display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft);}
+.explore-card .learn-choice{font-weight:800;}
+.explore-card .learn-why{display:block; margin-top:3px;}
+.explore-card .fb-en{margin-top:4px;}
+.feedback{margin-top:14px; padding:14px 16px; border-radius:14px; font-size:0.95rem; line-height:1.5;}
+.feedback.good{background:color-mix(in srgb, var(--good) 16%, var(--surface)); color:var(--ink);}
+.feedback.bad{background:color-mix(in srgb, var(--bad) 16%, var(--surface)); color:var(--ink);}
+.feedback strong{display:block; margin-bottom:4px; font-family:'Chewy',cursive; font-size:1.05rem;}
+.q-sentence{
+  background:var(--surface2); border:2px solid var(--border); border-radius:14px; padding:14px 16px;
+  font-size:1.2rem; font-weight:700; line-height:1.5; text-align:center; margin:-4px 0 16px; color:var(--ink);
+}
+.passage{
+  background:var(--surface2); border:1px solid var(--border); border-radius:14px; padding:14px 16px;
+  font-size:0.95rem; line-height:1.55; margin-bottom:14px; color:var(--ink);
+}
+.passage strong{font-family:'Chewy',cursive; color:var(--accent); display:block; margin-bottom:4px; font-size:1.05rem;}
+
+/* RESULTS */
+.results{text-align:center; padding:20px 10px;}
+.results-book{width:180px; height:180px; margin:0 auto 14px;}
+.results h2{font-size:1.75rem; color:var(--accent); margin:0 0 4px;}
+.score-line{font-size:1.05rem; color:var(--ink-soft); margin-bottom:10px;}
+.results-stars{font-size:2rem; letter-spacing:8px; margin-bottom:18px;}
+.points-total{display:inline-flex; align-items:center; gap:6px; background:color-mix(in srgb, var(--gold) 30%, var(--surface)); color:var(--ink); font-weight:800; font-size:0.85rem; padding:6px 14px; border-radius:999px; margin-top:8px;}
+.points-live{font-size:0.85rem; font-weight:800; color:var(--ink); white-space:nowrap; margin-left:auto;}
+.points-live .streak{color:var(--bad); margin-left:4px;}
+.points-earned{font-size:1rem; font-weight:800; color:var(--ink); margin-bottom:4px;}
+.missed-review{display:none; text-align:left; margin:0 0 18px; padding-top:16px; border-top:1px solid var(--border);}
+.missed-review.show{display:block;}
+.missed-review h3{font-size:1rem; font-family:'Chewy',cursive; font-weight:400; color:var(--ink); margin:0 0 10px; text-align:center;}
+.missed-list{max-height:340px; overflow-y:auto; padding-right:2px;}
+.missed-item{background:var(--surface2); border-radius:12px; padding:12px 14px; margin-bottom:10px;}
+.missed-item .missed-q{white-space:pre-line; font-weight:700; color:var(--ink); margin:0 0 4px; line-height:1.4; font-size:0.96rem;}
+.missed-item .missed-explain{color:var(--ink-soft); margin:0; line-height:1.4; font-size:0.9rem;}
+.results-actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+.secondary-btn{
+  background:var(--surface2); color:var(--ink); border:1px solid var(--border); border-radius:14px;
+  padding:12px 20px; font-weight:600;
+}
+
+/* book pieces */
+.piece{opacity:0; transform:scale(0.6); transform-origin:center; transition:opacity .35s ease, transform .35s ease;}
+.piece.on{opacity:1; transform:scale(1);}
+
+/* 3-up lesson map on wide screens, so every lesson shows at once.
+   Only the lesson list widens -- flashcards, quiz and results stay narrow. */
+@media (min-width:900px){
+  .app{max-width:1120px;}
+  .app section:not(#screen-home){max-width:720px; margin-left:auto; margin-right:auto;}
+  #screen-home > *:not(.lesson-grid){max-width:720px; margin-left:auto; margin-right:auto;}
+  #screen-home .lesson-grid{grid-template-columns:repeat(3, minmax(0,1fr)); align-items:stretch;}
+  #screen-home .lesson-card{flex-direction:column; align-items:stretch; gap:10px; height:100%;}
+  #screen-home .lesson-emoji{align-self:flex-start;}
+  #screen-home .lesson-info{flex:1;}
+  #screen-home .go-btn{width:100%; text-align:center;}
+}
+/* ---- Learn from a wrong answer ---- */
+.learn{display:flex; flex-direction:column; gap:8px;}
+.learn-row{background:var(--surface); border-radius:12px; padding:9px 12px; border-left:5px solid var(--bad); line-height:1.45;}
+.learn-row b{display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft);}
+.learn-row .learn-choice{font-weight:800;}
+.learn-row .learn-why{display:block; margin-top:3px;}
+.learn-right{border-left-color:var(--good);}
+.learn-tip{border-left-color:var(--gold);}
+.learn-row .fb-en{margin-top:4px;}
+.missed-item .learn{margin-top:6px; font-size:0.9rem;}
+#points-earned{white-space:pre-line;}
+</style>
+
+<div class="app">
+
+  <!-- HOME -->
+  <section id="screen-home">
+    <div class="hero">
+      <svg class="hero-book" viewBox="0 0 200 200" id="hero-book-svg"></svg>
+      <div>
+        <h1>Kuwentista</h1>
+        <p>Mas mahigpit na antas: bagong halimbawa, hindi lang paulit-ulit sa flashcard. Repasuhin, sagutan, at subukan ang Pangwakas na Pagsusulit para maging handa sa tunay na exam!</p>
+        <div class="points-total" id="points-total-badge"></div>
+      <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
+      </div>
+    </div>
+    <div class="lesson-grid" id="lesson-grid"></div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="screen-cards" class="hidden">
+    <div class="screen-head">
+      <h2 id="cards-title"></h2>
+    </div>
+    <div class="card">
+      <div class="card-icon" id="card-icon"></div>
+      <div class="card-term" id="card-term"></div>
+      <div class="card-def" id="card-def"></div>
+      <div class="card-en hidden" id="card-en"></div>
+    </div>
+    <div class="card-nav">
+      <button class="nav-btn" id="card-prev" onclick="cardStep(-1)">&larr; Balik</button>
+      <div class="dots" id="card-dots"></div>
+      <button class="nav-btn" id="card-next" onclick="cardStep(1)">Susunod &rarr;</button>
+    </div>
+    <button class="primary-btn" id="cards-start" onclick="startQuiz()">Simulan ang Pagsusulit!</button>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="hidden">
+    <div class="screen-head">
+      <h2 id="quiz-title"></h2>
+      <div class="points-live" id="points-live"></div>
+    </div>
+    <div class="quiz-top">
+      <div class="progress-bar"><div class="progress-fill" id="quiz-progress"></div></div>
+      <svg class="quiz-book" viewBox="0 0 200 200" id="quiz-book-svg"></svg>
+    </div>
+    <div id="q-passage"></div>
+    <div class="q-text" id="q-text"></div>
+    <button class="q-help" id="q-help" onclick="showQuestionEnglish()">🤔 Hindi maintindihan? Tingnan sa English</button>
+    <div class="q-en hidden" id="q-en"></div>
+    <div class="q-sentence hidden" id="q-sentence"></div>
+    <div class="options" id="q-options"></div>
+    <div class="explore hidden" id="q-explore"></div>
+    <div id="q-feedback"></div>
+    <button class="primary-btn hidden" id="q-next-btn" onclick="nextQuestion()">Susunod &rarr;</button>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="screen-results" class="hidden">
+    <div class="results">
+      <svg class="results-book" viewBox="0 0 200 200" id="results-book-svg"></svg>
+      <h2 id="results-heading"></h2>
+      <div class="score-line" id="results-score"></div>
+      <div class="points-earned" id="points-earned"></div>
+      <div class="coins-have" data-coins="haveNow"></div>
+      <div class="results-stars" id="results-stars"></div>
+      <div class="missed-review" id="missed-review"></div>
+      <div class="results-actions">
+        <button class="primary-btn" style="width:auto" onclick="retryLesson()">Ulitin</button>
+        <button class="secondary-btn" onclick="goHome()">Balik sa Aralin</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="../../../engine/lang.js"></script>
+<script src="../../../engine/storage.js" data-grade="grade2"></script>
+<script src="../../../engine/learner.js" data-grade="grade2"></script>
+<script src="../../../engine/clock.js" data-grade="grade2"></script>
+<script src="../../../engine/nav.js" data-grade="grade2"></script>
+<script src="../../../engine/search.js" data-grade="grade2"></script>
+<script src="../../../engine/read-gate.js" data-grade="grade2"></script>
+<script src="../../../engine/study-history.js" data-grade="grade2"></script>
+<script src="../../../engine/wallet.js" data-grade="grade2"></script>
+<script src="../../../engine/fx.js" data-grade="grade2"></script>
+<script src="../../../engine/powerups.js" data-grade="grade2"></script>
+<script src="../../../engine/recall.js" data-grade="grade2"></script>
+<script src="../../../engine/mastery.js" data-grade="grade2"></script>
+<script src="../../../engine/quests.js" data-grade="grade2"></script>
+<script src="../../../engine/boss.js" data-grade="grade2"></script>
+<script src="../../../engine/bosses.js"></script>
+<script src="../../../engine/army.js" data-grade="grade2"></script>
+<script src="../../../engine/family.js" data-grade="grade2"></script>
+<script src="../../../engine/guide.js" data-grade="grade2"></script>
+<script src="../../../engine/trail.js" data-grade="grade2"></script>
+<script src="../../../engine/study-kit.js" data-grade="grade2"></script>
+<script src="lessons/01-alpabeto.js"></script>
+<script src="lessons/02-pangngalan.js"></script>
+<script src="lessons/03-panghalip.js"></script>
+<script src="lessons/04-magkatugma.js"></script>
+<script src="lessons/05-panguri.js"></script>
+<script src="lessons/06-pandiwa.js"></script>
+<script src="lessons/07-intonasyon.js"></script>
+<script src="lessons/08-kwento.js"></script>
+<script src="lessons/09-kayarian.js"></script>
+<script src="lessons/10-reaksyon.js"></script>
+<script src="lessons/11-antas.js"></script>
+<script src="lessons/12-sightwords.js"></script>
+<script src="lessons/13-kongkreto.js"></script>
+<script src="lessons/14-parirala.js"></script>
+<script src="lessons/15-pantukoy.js"></script>
+<script src="type-it.js"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel', world: 'World', family: 'Family', guide: 'Guide', trail: 'Trail' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+const STORY_PASSAGE = `Isang mainit na araw, nakita ng masipag na langgam ang isang tipaklong na umaawit sa ilalim ng punong-kahoy. Habang naglalakad, patuloy na nagtitipon ang langgam ng pagkain para sa paparating na tag-ulan. Nang dumating ang tag-ulan, wala nang pagkain ang tipaklong ngunit marami pa rin ang naitipon ng langgam. Kusang-loob na ibinahagi ng langgam ang kaniyang pagkain sa tipaklong. Mula noon, natutong maging masipag ang tipaklong.`;
+
+const LESSONS = StudyKit.lessons();
+
+// Questions she may answer by typing first (+5 bonus). Value: other accepted answers.
+const TYPE_IT = StudyKit.content('typeIt');
+
+const FINAL_EXAM_PER_LESSON = 3;
+const SH = window.StudyHistory, SH_APP = 'kuwentista', SH_TITLE = 'Kuwentista';
+let historyLessonId = null, historyQuizId = null;
+const STORAGE_KEY = 'kuwentista_progress_v2';
+const kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'kuwentista_points_v1', progressKey: STORAGE_KEY, liveLabel: 'puntos (points)' });
+let progress = kit.progress();
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+// Recall decides whether this question pays, shows a typing box, and offers power-ups.
+function offerQuestion(pu){
+  if (window.Recall) Recall.ask(pu, SH_APP, typeof TYPE_IT === 'undefined' ? null : TYPE_IT);
+  else if (window.PowerUps) PowerUps.offer(pu);
+}
+function prepareQuestion(q){
+  const order = shuffle(q.options.map((_,i)=>i));
+  const options = order.map(i=>q.options[i]);
+  const correct = order.indexOf(q.correct);
+  const why = q.why ? order.map(i=>q.why[i]) : [];
+  const whyEn = q.whyEn ? order.map(i=>q.whyEn[i]) : [];
+  return { q:q.q, qen:q.qen, options, correct, explain:q.explain, en:q.en, passage:q.passage, why, whyEn, tip:q.tip, tipEn:q.tipEn };
+}
+// The same fields offerQuestion and SH.quizAnswered use, so the review key and history text match.
+function reviewInfo(q){
+  const answer = q.options[q.correct];
+  return { q:q.q, art:undefined, answer, historyQ:q.q, historyAnswer:answer };
+}
+function reviewPool(){
+  return LESSONS.flatMap(l => l.quiz.map(prepareQuestion));
+}
+function medalLessons(){
+  return LESSONS.map(l => ({ id: l.id, title: Recall.textOf(l.title), icon: l.emoji, keys: l.quiz.map(prepareQuestion).map(q => Recall.keyOf(SH_APP, reviewInfo(q))) }));
+}
+let medals = null;
+function updateMedals(){
+  if (!window.Mastery || !window.Recall) return null;
+  medals = Mastery.update(SH_APP, medalLessons());
+  return medals;
+}
+function showMedals(el){
+  var boss = bossEvents(el);
+  const m = updateMedals();
+  if (!m) return;
+  Mastery.showNew(el, m.newly);
+  if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE).concat(window.Quests && Quests.check ? Quests.check() : []).concat(boss), el);
+}
+// A finished boss stage reports once; Try Again replays it only while the stage is still open.
+function bossEvents(el){
+  if (el.id !== 'points-earned' || !currentQuizMeta || !currentQuizMeta.boss || currentQuizMeta.bossDone || !window.Boss) return [];
+  currentQuizMeta.bossDone = true;
+  return Boss.stageResult(SH_APP, quizScore, currentQuizSet.length);
+}
+function bossAgain(){
+  return !!(currentQuizMeta.boss && window.Boss && Boss.isStage(SH_APP));
+}
+function medalBadge(id){
+  return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
+}
+
+/* ---- Storybook SVG ---- */
+function bookMarkup(){
+  return `
+  <g class="piece" data-n="1">
+    <rect x="30" y="140" width="140" height="14" rx="4" fill="var(--navy)"/>
+    <path d="M40 60 L40 148 Q100 138 160 148 L160 60 Q100 50 40 60 Z" fill="var(--surface)" stroke="var(--border)" stroke-width="3"/>
+  </g>
+  <g class="piece" data-n="2">
+    <path d="M40 60 Q100 50 160 60 L160 70 Q100 60 40 70 Z" fill="var(--accent)"/>
+    <line x1="100" y1="55" x2="100" y2="145" stroke="var(--border)" stroke-width="2"/>
+  </g>
+  <g class="piece" data-n="3">
+    <text x="70" y="80" font-family="Chewy, cursive" font-size="13" fill="var(--accent)">Kwento</text>
+    <text x="112" y="80" font-family="Chewy, cursive" font-size="13" fill="var(--gold)">Ko</text>
+  </g>
+  <g class="piece" data-n="4">
+    <circle cx="62" cy="105" r="9" fill="var(--gold)"/>
+    <circle cx="59" cy="102" r="1.6" fill="var(--ink)"/>
+    <circle cx="65" cy="102" r="1.6" fill="var(--ink)"/>
+    <path d="M58 109 Q62 112 66 109" stroke="var(--ink)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path d="M56 96 Q62 90 68 96" stroke="var(--ink)" stroke-width="1.4" fill="none"/>
+  </g>
+  <g class="piece" data-n="5">
+    <ellipse cx="132" cy="107" rx="10" ry="8" fill="var(--navy)"/>
+    <circle cx="128" cy="104" r="1.4" fill="#fff"/>
+    <circle cx="136" cy="104" r="1.4" fill="#fff"/>
+    <path d="M124 98 L118 92 M140 98 L146 92" stroke="var(--navy)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="piece" data-n="6">
+    <circle cx="100" cy="118" r="6" fill="var(--gold)"/>
+    <path d="M90 130 Q100 122 110 130" stroke="var(--navy)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+  <g class="piece" data-n="7">
+    <text x="55" y="128" font-family="Poppins, sans-serif" font-size="10" font-weight="700" fill="var(--accent)">. ? !</text>
+    <path d="M150 118 q6 -8 12 0 q-6 6 -6 10 q0 -4 -6 -10 Z" fill="var(--accent)"/>
+  </g>
+  <g class="piece" data-n="8">
+    <path d="M42 55 Q100 30 158 55" stroke="var(--gold)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <text x="70" y="45" font-family="Chewy, cursive" font-size="11" fill="var(--navy)">WAKAS</text>
+    <circle cx="35" cy="65" r="2.5" fill="var(--accent)"/>
+    <circle cx="165" cy="65" r="2.5" fill="var(--gold)"/>
+    <circle cx="25" cy="90" r="2" fill="var(--navy)"/>
+    <circle cx="175" cy="90" r="2" fill="var(--accent)"/>
+  </g>`;
+}
+function renderBook(svgEl, n){
+  svgEl.innerHTML = bookMarkup();
+  svgEl.querySelectorAll('.piece').forEach(p=>{
+    if(parseInt(p.dataset.n) <= n) p.classList.add('on');
+  });
+}
+
+/* ---- State ---- */
+let currentLessonIdx = 0;
+let cardIdx = 0;
+let quizIdx = 0;
+let quizScore = 0;
+let answered = false;
+let currentQuizSet = [];
+let currentQuizMeta = {id:'', title:''};
+let missedQuestions = [];
+
+const homeScreen = document.getElementById('screen-home');
+const cardsScreen = document.getElementById('screen-cards');
+const quizScreen = document.getElementById('screen-quiz');
+const resultsScreen = document.getElementById('screen-results');
+
+function showScreen(el){
+  [homeScreen, cardsScreen, quizScreen, resultsScreen].forEach(s=>s.classList.add('hidden'));
+  el.classList.remove('hidden');
+  window.scrollTo(0,0);
+  if (window.Nav) Nav.screen(el.id);
+}
+
+function starsFor(pct){
+  if(pct >= 1) return 3;
+  if(pct >= 0.83) return 2;
+  if(pct >= 0.58) return 1;
+  return 0;
+}
+
+function renderHome(){
+  document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' na puntos (points)';
+  if (window.Mastery && medals) Mastery.renderChip(medals);
+  renderBook(document.getElementById('hero-book-svg'), 8);
+  const grid = document.getElementById('lesson-grid');
+  grid.innerHTML = '';
+
+  const finalTotal = LESSONS.length * FINAL_EXAM_PER_LESSON;
+  const finalBest = progress['final'] || 0;
+  const finalStars = starsFor(finalBest / finalTotal);
+  const finalCard = document.createElement('button');
+  finalCard.className = 'lesson-card final-card';
+  finalCard.onclick = startFinalExam;
+  finalCard.innerHTML = `
+    <div class="lesson-emoji">🏆</div>
+    <div class="lesson-info">
+      <div class="final-badge">PANGWAKAS NA PAGSUSULIT</div>
+      <h3>Buong Pagsusulit</h3>
+      <p>Halo-halong tanong mula sa lahat ng aralin — parang tunay na exam!</p>
+      <div class="stars">${[1,2,3].map(s=>`<span class="${s<=finalStars?'star-on':'star-off'}">★</span>`).join('')}</div>
+    </div>
+    <div class="go-btn">${finalBest>0?'Ulitin':'Subukan'}</div>
+  `;
+  grid.appendChild(finalCard);
+
+  const rc = window.Recall ? Recall.homeCard(SH_APP) : null;
+  if(rc){
+    const reviewCard = document.createElement('button');
+    reviewCard.className = 'lesson-card' + (rc.ready ? '' : ' review-empty');
+    reviewCard.disabled = !rc.ready;
+    reviewCard.onclick = () => startReview();
+    reviewCard.innerHTML = `
+      <div class="lesson-emoji">🔁</div>
+      <div class="lesson-info">
+        <h3>${rc.title}</h3>
+        <p>${rc.line}</p>
+      </div>
+      ${rc.ready ? '<div class="go-btn">Start</div>' : ''}
+    `;
+    grid.appendChild(reviewCard);
+  }
+
+  LESSONS.forEach((lesson, i)=>{
+    const best = progress[lesson.id] || 0;
+    const stars = starsFor(best / lesson.quiz.length);
+    const card = document.createElement('button');
+    card.className = 'lesson-card';
+    card.onclick = ()=>openLesson(i);
+    card.dataset.searchLesson = i;
+    card.innerHTML = `
+      <div class="lesson-emoji">${lesson.emoji}</div>
+      <div class="lesson-info">
+        <h3>${lesson.title}</h3>
+        <p>${lesson.subtitle}</p>
+        <div class="stars">${[1,2,3].map(s=>`<span class="${s<=stars?'star-on':'star-off'}">★</span>`).join('')}${medalBadge(lesson.id)}</div>
+      </div>
+      <div class="go-btn">${best>0?'Balikan':'Simulan'}</div>
+    `;
+    grid.appendChild(card);
+  });
+  showScreen(homeScreen);
+}
+
+function goHome(){ renderHome(); }
+
+function openLesson(i){
+  currentLessonIdx = i;
+  cardIdx = 0;
+  historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].flashcards.length) : null;
+  window.ReadGate && ReadGate.open({ cards: LESSONS[i].flashcards.length, next: 'card-next', start: 'cards-start' });
+  renderCard();
+  showScreen(cardsScreen);
+}
+
+function renderCard(){
+  const lesson = LESSONS[currentLessonIdx];
+  document.getElementById('cards-title').textContent = lesson.title;
+  const fc = lesson.flashcards[cardIdx];
+  SH && SH.cardViewed(historyLessonId, cardIdx + 1);
+  document.getElementById('card-icon').textContent = fc.icon;
+  document.getElementById('card-term').textContent = fc.term;
+  document.getElementById('card-def').textContent = fc.def;
+  const enEl = document.getElementById('card-en');
+  enEl.innerHTML = fc.en ? '<span class="en-label">SA ENGLISH</span>' : '';
+  enEl.appendChild(document.createTextNode(fc.en || ''));
+  enEl.classList.toggle('hidden', !fc.en);
+  document.querySelector('#screen-cards .card').classList.toggle('tip', !!fc.tip);
+  document.getElementById('card-prev').disabled = cardIdx === 0;
+  document.getElementById('card-next').disabled = cardIdx === lesson.flashcards.length - 1;
+  window.ReadGate && ReadGate.show(cardIdx);
+  const dots = document.getElementById('card-dots');
+  dots.innerHTML = '';
+  lesson.flashcards.forEach((_, idx)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (idx === cardIdx ? ' active' : '');
+    dots.appendChild(d);
+  });
+}
+
+function cardStep(dir){
+  const lesson = LESSONS[currentLessonIdx];
+  cardIdx = Math.max(0, Math.min(lesson.flashcards.length - 1, cardIdx + dir));
+  renderCard();
+}
+
+function startQuiz(){
+  const lesson = LESSONS[currentLessonIdx];
+  currentQuizSet = shuffle(lesson.quiz).map(prepareQuestion);
+  currentQuizMeta = {id:lesson.id, title:lesson.title};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  renderQuestion();
+  showScreen(quizScreen);
+}
+
+function startFinalExam(){
+  let qs = [];
+  LESSONS.forEach(l=>{
+    qs = qs.concat(shuffle(l.quiz).slice(0, FINAL_EXAM_PER_LESSON));
+  });
+  currentQuizSet = shuffle(qs).map(prepareQuestion);
+  currentQuizMeta = {id:'final', title:'Pangwakas na Pagsusulit'};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  renderQuestion();
+  showScreen(quizScreen);
+}
+
+function startReview(boss){
+  if(!window.Recall) return;
+  currentQuizSet = boss ? Recall.pickBoss(SH_APP, reviewPool(), reviewInfo, Boss.STAGE_SIZE) : Recall.pickDue(SH_APP, reviewPool(), reviewInfo);
+  if(!currentQuizSet.length){ goHome(); return; }
+  currentQuizMeta = {id:'review', title: boss ? Boss.text.stageTitle : Recall.text.reviewTitle, boss: !!boss};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, 'review', currentQuizMeta.title, false, currentQuizSet.length, 'review') : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  renderQuestion();
+  showScreen(quizScreen);
+  window.Army && (boss ? Army.start(currentQuizSet.length, quizScreen) : Army.stop());
+}
+
+function renderQuestion(){
+  answered = false;
+  document.getElementById('quiz-title').textContent = currentQuizMeta.title;
+  kit.renderLive();
+  const total = currentQuizSet.length;
+  document.getElementById('quiz-progress').style.width = `${(quizIdx/total)*100}%`;
+  renderBook(document.getElementById('quiz-book-svg'), Math.round((quizScore/total)*8));
+  const q = currentQuizSet[quizIdx];
+  const passageEl = document.getElementById('q-passage');
+  passageEl.innerHTML = q.passage ? `<div class="passage"><strong>Basahin ang Kuwento:</strong>${STORY_PASSAGE}</div>` : '';
+  const [prompt, sentence] = q.q.split('\n');
+  document.getElementById('q-text').textContent = `Tanong ${quizIdx+1} sa ${total}: ${prompt}`;
+  const sentenceEl = document.getElementById('q-sentence');
+  sentenceEl.textContent = sentence || '';
+  sentenceEl.classList.toggle('hidden', !sentence);
+  const qEnEl = document.getElementById('q-en');
+  qEnEl.textContent = q.qen || '';
+  qEnEl.classList.add('hidden');
+  document.getElementById('q-help').classList.toggle('hidden', !q.qen);
+  const opts = document.getElementById('q-options');
+  opts.innerHTML = '';
+  q.options.forEach((opt, idx)=>{
+    const b = document.createElement('button');
+    b.className = 'option';
+    b.textContent = opt;
+    b.onclick = ()=>selectOption(idx);
+    opts.appendChild(b);
+  });
+  offerQuestion({ quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:opts, options:opts.children, correct:q.correct, tip:q.tip, tipEn:q.tipEn, q:q.q, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
+  document.getElementById('q-feedback').innerHTML = '';
+  document.getElementById('q-explore').classList.add('hidden');
+  document.getElementById('q-next-btn').classList.add('hidden');
+}
+
+function learnEn(text){
+  return text ? `<div class="fb-en"><b>Sa English:</b> ${text}</div>` : '';
+}
+function learnHtml(m){
+  return `<div class="learn">
+    <div class="learn-row learn-picked"><b>Ang pinili mo</b><span class="learn-choice">${m.picked}</span>${m.why ? `<span class="learn-why">Bakit mali: ${m.why}</span>${learnEn(m.whyEn)}` : ''}</div>
+    <div class="learn-row learn-right"><b>Ang tamang sagot</b><span class="learn-choice">${m.answer}</span><span class="learn-why">${m.explain}</span>${learnEn(m.en)}</div>
+    ${m.tip ? `<div class="learn-row learn-tip"><b>💡 Tip sa susunod</b>${m.tip}${learnEn(m.tipEn)}</div>` : ''}
+  </div>`;
+}
+
+function showQuestionEnglish(){
+  document.getElementById('q-help').classList.add('hidden');
+  document.getElementById('q-en').classList.remove('hidden');
+}
+
+function selectOption(idx){
+  if(answered) return exploreOption(idx);
+  answered = true;
+  const q = currentQuizSet[quizIdx];
+  const buttons = document.querySelectorAll('#q-options .option');
+  buttons.forEach((b, i)=>{
+    if(i === q.correct) b.classList.add('correct');
+    else if(i === idx) b.classList.add('incorrect');
+    if(i === idx) b.disabled = true;
+    else b.classList.add('explorable');
+  });
+  showExploreHint('');
+  const correct = idx === q.correct;
+  const miss = correct ? null : { q: q.q, picked: q.options[idx], why: (q.why || [])[idx] || '', whyEn: (q.whyEn || [])[idx] || '', answer: q.options[q.correct], explain: q.explain, en: q.en, tip: q.tip || '', tipEn: q.tipEn || '' };
+  SH && SH.quizAnswered(historyQuizId, correct, q.q, q.options[idx], q.options[q.correct], window.Recall ? Recall.typed() : false);
+  const helped = !!(window.PowerUps && PowerUps.answered());
+  if(correct){
+    quizScore++;
+  } else {
+    missedQuestions.push(miss);
+  }
+  kit.answer(correct, { helped: helped, exam: currentQuizMeta.id === 'final' });
+  renderBook(document.getElementById('quiz-book-svg'), Math.round((quizScore/currentQuizSet.length)*8));
+  const fb = document.getElementById('q-feedback');
+  fb.innerHTML = correct
+    ? `<div class="feedback good"><strong>Tama! 🎉</strong>${q.explain}${learnEn(q.en)}</div>`
+    : `<div class="feedback bad"><strong>Hindi tama — alamin natin kung bakit!</strong>${learnHtml(miss)}</div>`;
+  document.getElementById('q-next-btn').classList.remove('hidden');
+}
+
+function exploreWhy(text){
+  return text.replace(/^(?:You said (?:True|False), but |Pinili mo ang (?:Tama|Mali), pero )(.)/, (m, c)=>c.toUpperCase());
+}
+function showExploreHint(card){
+  const el = document.getElementById('q-explore');
+  el.innerHTML = '<div class="explore-hint">&#128269; Gusto mong malaman? Pindutin ang ibang sagot para makita kung bakit.</div>' + card;
+  el.classList.remove('hidden');
+}
+function exploreOption(i){
+  const q = currentQuizSet[quizIdx];
+  if(!q.options) return;
+  document.querySelectorAll('#q-options .option').forEach((b, n)=>b.classList.toggle('explored', n === i));
+  showExploreHint(i === q.correct
+    ? '<div class="explore-card explore-right"><b>Ito ang tamang sagot</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + q.explain + '</span>' + learnEn(q.en) + '</div>'
+    : '<div class="explore-card"><b>Bakit hindi ito?</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + (exploreWhy((q.why||[])[i] || '') || 'Hindi ito ang tamang sagot.') + '</span>' + learnEn(exploreWhy((q.whyEn||[])[i] || '')) + '</div>');
+}
+
+function nextQuestion(){
+  quizIdx++;
+  if(quizIdx >= currentQuizSet.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  const best = Math.max(progress[currentQuizMeta.id] || 0, quizScore);
+  progress[currentQuizMeta.id] = best;
+  kit.saveProgress(progress);
+  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / currentQuizSet.length), kit.sessionPoints(), kit.bestStreak());
+  window.Fx && Fx.finish(starsFor(quizScore / currentQuizSet.length));
+  renderResults();
+  showScreen(resultsScreen);
+}
+
+function renderResults(){
+  const total = currentQuizSet.length;
+  renderBook(document.getElementById('results-book-svg'), Math.round((quizScore/total)*8));
+  const stars = starsFor(quizScore/total);
+  document.getElementById('results-heading').textContent =
+    stars === 3 ? 'Handa ka na sa Pagsusulit!' : stars > 0 ? 'Malapit ka na!' : 'Balikan Natin!';
+  document.getElementById('results-score').textContent = `Nakakuha ka ng ${quizScore} sa ${total} sa ${currentQuizMeta.title}`;
+  let ptsLine = `⭐ +${kit.sessionPoints()} puntos sa pagsubok na ito`;
+  if(kit.bestStreak() >= StudyKit.RULES.STREAK_BONUS_AT) ptsLine += ` · 🔥 pinakamahabang sunod-sunod: ${kit.bestStreak()}!`;
+  document.getElementById('points-earned').textContent = ptsLine + '\n' + kit.resultLine();
+  showMedals(document.getElementById('points-earned'));
+  document.getElementById('results-stars').innerHTML = [1,2,3].map(s=>`<span class="${s<=stars?'star-on':'star-off'}">★</span>`).join('');
+  const reviewEl = document.getElementById('missed-review');
+  if(missedQuestions.length){
+    reviewEl.innerHTML = '<h3>Mga Tanong na Dapat Balikan</h3><div class="missed-list">' +
+      missedQuestions.map(m => `<div class="missed-item"><p class="missed-q">${m.q}</p>${learnHtml(m)}</div>`).join('') +
+      '</div>';
+  } else {
+    reviewEl.innerHTML = '';
+  }
+  reviewEl.classList.toggle('show', missedQuestions.length > 0);
+}
+
+function retryLesson(){
+  if (currentQuizMeta.id === 'review') return startReview(bossAgain());
+  if(currentQuizMeta.id === 'final'){
+    startFinalExam();
+  } else {
+    startQuiz();
+  }
+}
+
+if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
+showMedals(document.getElementById('points-total-badge'));
+window.Search && Search.start({ list: 'lesson-grid', lessons: LESSONS });
+window.Trail && window.Recall && Trail.start({ app: SH_APP, title: SH_TITLE, list: 'lesson-grid', lessons: medalLessons(), review: startReview, final: startFinalExam, finalStars: function () { return starsFor((progress['final'] || 0) / (LESSONS.length * FINAL_EXAM_PER_LESSON)); } });
+window.Nav && Nav.start({ title: 'Kuwentista', home: 'screen-home', goHome: goHome, inRound: () => Nav.current() === 'screen-quiz' });
+renderHome();
+if (window.Recall && Recall.wantsReview) startReview();
+else if (window.Recall && window.Boss && Boss.wantsBoss && Boss.isStage(SH_APP)) startReview(true);
+</script>

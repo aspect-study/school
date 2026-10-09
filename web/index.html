@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Games</title>
+<script src="engine/lang.js"></script>
+<script src="engine/storage.js"></script>
+<script src="engine/learner.js"></script>
+<script>
+// A device that already knows its child goes straight to her lobby; ?account=1 opens the Account view instead.
+if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.search)) location.replace(Learner.lobby());
+</script>
+<link rel="icon" type="image/png" href="assets/icons/grade5-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#F4F1E9; --ink:#2B2A26; --muted:#6B6860; --teal:#1B7A79; --pink:#D9667B; --bad:#B42318; }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; background:var(--paper); color:var(--ink);
+    font-family:'Nunito',system-ui,sans-serif;
+    display:flex; justify-content:center; padding:32px 16px;
+  }
+  main{ width:100%; max-width:520px; display:flex; flex-direction:column; gap:16px; }
+  #backdrop{ position:fixed; inset:0; width:100%; height:100%; border:0; z-index:-2; pointer-events:none; opacity:0; transition:opacity .8s; }
+  #backdrop.on{ opacity:1; }
+  body::before{ content:''; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(244,241,233,.4); }
+  main{ background:rgba(244,241,233,.78); border-radius:24px; padding:20px; align-self:flex-start; }
+  main.busy{ opacity:.6; pointer-events:none; }
+  h1{ font-family:'Baloo 2',system-ui,sans-serif; font-size:clamp(30px,6vw,44px); margin:0; text-align:center; }
+  h2{ font-family:'Baloo 2',system-ui,sans-serif; font-size:26px; margin:0 0 4px; }
+  h3{ margin:18px 0 4px; font-size:18px; }
+  section{ display:flex; flex-direction:column; gap:10px; }
+  section[hidden]{ display:none; }
+  .note{ margin:0; color:var(--muted); font-weight:600; overflow-wrap:anywhere; }
+  .msg{ margin:0; min-height:1.4em; text-align:center; font-weight:700; color:var(--teal); }
+  .msg.error{ color:var(--bad); }
+  input{ font:inherit; font-size:18px; padding:12px 14px; border-radius:12px; border:2px solid #D8D3C6; background:#fff; color:var(--ink); }
+  input:focus-visible{ outline:3px solid var(--teal); outline-offset:1px; }
+  button{ font:inherit; cursor:pointer; color:var(--ink); }
+  .big{
+    padding:14px 18px; border-radius:16px; border:3px solid var(--teal); background:#fff; box-shadow:0 4px 0 var(--teal);
+    font-family:'Baloo 2',system-ui,sans-serif; font-size:22px; font-weight:800; text-align:left;
+  }
+  .big:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--teal); }
+  .big.ghost{ border-color:#C9C3B4; box-shadow:0 4px 0 #C9C3B4; }
+  .big:disabled{ opacity:.5; cursor:default; }
+  .link{ border:0; background:none; padding:6px 0; color:var(--muted); font-weight:700; text-decoration:underline; align-self:flex-start; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ padding:8px 14px; border-radius:999px; border:2px solid #D8D3C6; background:#fff; font-size:20px; font-weight:800; }
+  .chip.on{ border-color:var(--teal); background:var(--teal); color:#fff; }
+  #acct-guest, #acct-signed{ display:flex; flex-direction:column; gap:10px; }
+  #acct-guest[hidden], #acct-signed[hidden]{ display:none; }
+  #kid-list{ margin:0; padding-left:20px; font-weight:700; }
+  .choices{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+  .choices a{
+    display:flex; align-items:center; gap:14px; padding:18px 20px; border-radius:18px; text-decoration:none;
+    background:#fff; color:var(--ink); border:3px solid var(--accent); box-shadow:0 4px 0 var(--accent);
+    font-family:'Baloo 2',system-ui,sans-serif; font-size:24px; font-weight:800;
+  }
+  .choices a:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--accent); }
+  .choices img{ width:56px; height:56px; border-radius:14px; }
+  a.parent-page{ align-self:center; color:var(--muted); font-weight:700; }
+  .credit{ margin:0; text-align:center; font-size:13px; font-weight:700; color:var(--muted); }
+</style>
+</head>
+<body>
+<iframe id="backdrop" title="" aria-hidden="true" tabindex="-1"></iframe>
+<main id="account-app">
+  <h1>Study Games</h1>
+  <p class="msg" id="msg" aria-live="polite"></p>
+
+  <section id="welcome-view" hidden>
+    <button class="big" type="button" id="go-signin">🔑 Sign in</button>
+    <button class="big" type="button" id="go-register">✨ Create family account</button>
+    <button class="big ghost" type="button" id="go-play">🎮 Play without an account</button>
+    <p class="note">With an account, progress is backed up and the children's tablets and your phone stay in sync.</p>
+    <a class="parent-page" href="parent/">🔒 Parent page (for a parent's phone)</a>
+  </section>
+
+  <section id="signin-view" hidden>
+    <h2>Sign in</h2>
+    <input type="email" id="signin-email" autocomplete="username" placeholder="Family email">
+    <input type="password" id="signin-pass" autocomplete="current-password" placeholder="Password">
+    <button class="big" type="button" id="signin-go">Sign in</button>
+    <button class="link" type="button" id="signin-forgot">Forgot password?</button>
+    <button class="link" type="button" data-back>← Back</button>
+  </section>
+
+  <section id="register-view" hidden>
+    <h2>Create family account</h2>
+    <p class="note">One account for the whole family. Use it on every tablet and on your phone.</p>
+    <input type="email" id="reg-email" autocomplete="username" placeholder="Family email">
+    <input type="password" id="reg-pass" autocomplete="new-password" placeholder="Password (6 or more characters)">
+    <input type="password" id="reg-pass2" autocomplete="new-password" placeholder="Password again">
+    <button class="big" type="button" id="reg-go">Create account</button>
+    <button class="link" type="button" data-back>← Back</button>
+  </section>
+
+  <section id="children-view" hidden>
+    <h2>Add children</h2>
+    <p class="note" id="kid-note" hidden></p>
+    <ul id="kid-list"></ul>
+    <input type="text" id="kid-name" maxlength="30" placeholder="Child's name">
+    <div class="chips" id="kid-emojis" role="group" aria-label="Emoji"></div>
+    <div class="chips" id="kid-grades" role="group" aria-label="Grade"></div>
+    <div class="chips" id="kid-kinds" role="group" aria-label="Girl or boy"></div>
+    <button class="big" type="button" id="kid-add">➕ Add child</button>
+    <button class="big ghost" type="button" id="kid-done" disabled>Done</button>
+    <button class="link" type="button" data-back>← Back</button>
+  </section>
+
+  <section id="pick-view" hidden>
+    <h2>Who uses this tablet?</h2>
+    <div class="chips" id="pick-list" style="flex-direction:column"></div>
+    <button class="link" type="button" data-back>← Back</button>
+  </section>
+
+  <section id="play-view" hidden>
+    <h2>Pick your grade.</h2>
+    <div class="choices">
+      <a href="world/grade-5.html" style="--accent:#1B7A79"><img src="assets/icons/grade5-192.png" alt="">Grade 5</a>
+      <a href="world/grade-2.html" style="--accent:#D9667B"><img src="assets/icons/grade2-192.png" alt="">Grade 2</a>
+    </div>
+    <button class="link" type="button" data-back>← Back</button>
+  </section>
+
+  <section id="account-view" hidden>
+    <h2>👤 Account</h2>
+    <p class="note" id="acct-who"></p>
+    <div id="acct-guest">
+      <button class="big" type="button" id="acct-signin">🔑 Sign in</button>
+      <button class="big" type="button" id="acct-register">✨ Create family account</button>
+    </div>
+    <div id="acct-signed">
+      <button class="big ghost" type="button" id="acct-signout">Sign out</button>
+      <h3>Change password</h3>
+      <section>
+        <input type="password" id="pw-cur" autocomplete="current-password" placeholder="Current password">
+        <input type="password" id="pw-new" autocomplete="new-password" placeholder="New password (6 or more characters)">
+        <input type="password" id="pw-new2" autocomplete="new-password" placeholder="New password again">
+        <button class="big" type="button" id="pw-go">Change password</button>
+      </section>
+      <h3>Children</h3>
+      <section>
+        <button class="big ghost" type="button" id="acct-add">➕ Add a child</button>
+      </section>
+    </div>
+    <h3>Change parent PIN</h3>
+    <section>
+      <input type="password" id="pin-cur" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Current PIN">
+      <input type="password" id="pin-new" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="New PIN (4 digits)">
+      <input type="password" id="pin-new2" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="New PIN again">
+      <button class="big" type="button" id="pin-go">Change PIN</button>
+    </section>
+    <a class="link" id="acct-back" href="index.html">← Back</a>
+  </section>
+  <p class="credit">Made with ❤️ by Tatay Oliver for his daughters</p>
+</main>
+<script src="engine/parent-pin.js"></script>
+<script src="engine/firebase-config.js"></script>
+<script src="engine/firebase-remote.js"></script>
+<script src="engine/account.js"></script>
+<script>
+(function () {
+  var frame = document.getElementById('backdrop');
+  addEventListener('message', function (e) {
+    if (!frame || e.source !== frame.contentWindow) return;
+    if (e.data === 'backdrop-ready') frame.classList.add('on');
+    else if (e.data === 'backdrop-failed') {
+      frame.remove();
+      frame = null;
+    }
+  });
+  addEventListener('load', function () { if (frame) frame.src = 'world/backdrop.html'; });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+process.env.TZ = 'Asia/Manila';
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { engineFile } = require('./paths.js');
+const { create, CATALOG } = require(engineFile('wallet.js'));
+
+function memStorage() {
+  const data = {};
+  const writes = [];
+  return {
+    data,
+    writes,
+    getItem: (k) => (Object.prototype.hasOwnProperty.call(data, k) ? data[k] : null),
+    setItem: (k, v) => { writes.push(k); data[k] = String(v); },
+    removeItem: (k) => { delete data[k]; },
+  };
+}
+
+function makeClock() {
+  const clock = { ms: new Date(2026, 9, 1, 15, 0).getTime() };
+  clock.now = () => clock.ms;
+  clock.set = (y, mo, d, h, mi, s) => { clock.ms = new Date(y, mo - 1, d, h, mi, s || 0).getTime(); };
+  return clock;
+}
+
+function setup(grade) {
+  const storage = memStorage();
+  const clock = makeClock();
+  return { storage, clock, w: create(storage, clock.now, grade || 'grade5') };
+}
+
+// The first track() converts every existing point once; this starts a wallet past that step.
+function converted(w) {
+  w.track({});
+  return w;
+}
+
+test('a fresh wallet holds the 40-coin welcome gift plus 1 coin per 10 points it already had', () => {
+  const { w } = setup();
+  const points = { a: 900, b: 455 };
+  w.track(points);
+  assert.equal(w.balance(points), 40 + 135);
+});
+
+test('a wallet saved before the conversion counts all its old points once, keeping what was spent', () => {
+  const { w, storage } = setup();
+  storage.data.wallet_v1 = JSON.stringify({ v: 1, baselines: { a: 900, b: 455 }, spent: 40, purchases: [] });
+  assert.equal(w.balance({ a: 900, b: 455 }), 0, 'before the lobby converts, old points still earn nothing');
+  w.track({ a: 900, b: 455 });
+  assert.equal(w.balance({ a: 900, b: 455 }), 40 + 135 - 40);
+  w.track({ a: 900, b: 455 });
+  assert.equal(w.balance({ a: 900, b: 455 }), 40 + 135 - 40, 'a second track converts nothing again');
+});
+
+test('after the conversion, a subject added later starts from its current points', () => {
+  const { w } = setup();
+  w.track({ a: 100 });
+  w.track({ a: 100, b: 700 });
+  assert.equal(w.balance({ a: 100, b: 700 }), 50);
+  assert.equal(w.balance({ a: 100, b: 730 }), 51, 'the later subject earns at 20 a coin');
+});
+
+test('balanceStored reads the points of every tracked key from storage', () => {
+  const { w, storage } = setup();
+  storage.data.a = '300';
+  storage.data.b = '55';
+  storage.data.other = '9999';
+  w.track({ a: 300, b: 55 });
+  assert.equal(w.balanceStored(), 40 + 35, 'untracked keys are ignored');
+  storage.data.a = '420';
+  assert.equal(w.balanceStored(), 40 + 41, 'the 355 old points at 10, the 120 new at 20');
+  delete storage.data.b;
+  assert.equal(w.balanceStored(), 40 + 36, 'a missing key reads as 0 points');
+});
+
+test('points earned after the baseline become 1 coin per 20, rounded down', () => {
+  const { w } = setup();
+  converted(w);
+  w.track({ a: 900, b: 455 });
+  assert.equal(w.balance({ a: 1040, b: 455 }), 47);
+  assert.equal(w.balance({ a: 1049, b: 455 }), 47);
+  assert.equal(w.balance({ a: 1045, b: 470 }), 48, 'floor applies to the sum across keys');
+});
+
+test('the earned part never goes below 0 when points drop under the baseline', () => {
+  const { w } = setup();
+  converted(w);
+  w.track({ a: 500 });
+  assert.equal(w.balance({ a: 0 }), 40);
+});
+
+test('a points key seen for the first time is baselined, so its old points give no coins', () => {
+  const { w } = setup();
+  converted(w);
+  w.track({ a: 100 });
+  assert.equal(w.balance({ a: 100, b: 700 }), 40, 'an untracked key earns nothing');
+  w.track({ a: 100, b: 700 });
+  assert.equal(w.balance({ a: 100, b: 700 }), 40);
+  assert.equal(w.balance({ a: 100, b: 730 }), 41);
+});
+
+test('track keeps the first baseline and does not move it', () => {
+  const { w } = setup();
+  converted(w);
+  w.track({ a: 100 });
+  w.track({ a: 300 });
+  assert.equal(w.balance({ a: 300 }), 50);
+});
+
+test('buy deducts coins, records the purchase and never lowers points', () => {
+  const { w, storage, clock } = setup();
+  const points = { a: 0 };
+  w.track(points);
+  const p = w.buy('ml', { a: 1200 });
+  assert.deepEqual(p, { item: 'ml', coins: 80, t: clock.ms });
+  assert.equal(w.balance({ a: 1200 }), 20);
+  assert.deepEqual(w.purchases(), [p]);
+  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 80);
+});
+
+test('not enough coins: canBuy says how many more are needed and buy changes nothing', () => {
+  const { w, storage } = setup();
+  w.track({ a: 0 });
+  assert.deepEqual(w.canBuy('dinner', { a: 0 }), { ok: false, need: 160, daily: false });
+  const before = storage.getItem('wallet_v1');
+  assert.equal(w.buy('dinner', { a: 0 }), null);
+  assert.equal(storage.getItem('wallet_v1'), before);
+  assert.deepEqual(w.canBuy('dinner', { a: 3200 }), { ok: true, need: 0, daily: false });
+});
+
+test('unknown items cannot be bought', () => {
+  const { w } = setup();
+  assert.equal(w.canBuy('pony', {}).ok, false);
+  assert.equal(w.buy('pony', {}), null);
+});
+
+test('ML is limited to one per local calendar day and resets at local midnight', () => {
+  const { w, clock } = setup();
+  const rich = { a: 10000 };
+  w.track({ a: 0 });
+  clock.set(2026, 10, 1, 23, 59, 0);
+  assert.ok(w.buy('ml', rich));
+  clock.set(2026, 10, 1, 23, 59, 59);
+  assert.deepEqual(w.canBuy('ml', rich), { ok: false, need: 0, daily: true });
+  assert.equal(w.buy('ml', rich), null);
+  clock.set(2026, 10, 2, 0, 0, 1);
+  assert.deepEqual(w.canBuy('ml', rich), { ok: true, need: 0, daily: false });
+  assert.ok(w.buy('ml', rich));
+});
+
+test('ML bought at 7 AM blocks a second one at 9 AM the same local day (a UTC date would roll over at 8 AM)', () => {
+  const { w, clock } = setup();
+  const rich = { a: 10000 };
+  w.track({ a: 0 });
+  clock.set(2026, 10, 3, 7, 0);
+  assert.ok(w.buy('ml', rich));
+  clock.set(2026, 10, 3, 9, 0);
+  assert.equal(w.canBuy('ml', rich).daily, true);
+  assert.equal(w.buy('ml', rich), null);
+});
+
+test('items without a daily limit can be bought more than once a day', () => {
+  const { w } = setup();
+  const rich = { a: 10000 };
+  w.track({ a: 0 });
+  assert.ok(w.buy('dessert', rich));
+  assert.ok(w.buy('dessert', rich));
+});
+
+test('the wallet only ever writes its own key, never a points key', () => {
+  const { w, storage } = setup();
+  storage.data.a = '500';
+  w.track({ a: 500 });
+  w.buy('ml', { a: 1500 });
+  w.buy('dinner', { a: 1500 });
+  assert.deepEqual([...new Set(storage.writes)], ['wallet_v1']);
+  assert.equal(storage.data.a, '500');
+});
+
+test('a failed write spends nothing and buy returns null', () => {
+  const { w, storage } = setup();
+  w.track({ a: 0 });
+  storage.setItem = () => { throw new Error('full'); };
+  assert.equal(w.buy('ml', { a: 0 }), null);
+  assert.equal(w.balance({ a: 0 }), 40);
+});
+
+test('corrupt wallet data reads as a fresh wallet without throwing', () => {
+  const { w, storage } = setup();
+  storage.data.wallet_v1 = '{not json';
+  assert.equal(w.balance({ a: 10 }), 40);
+  storage.data.wallet_v1 = JSON.stringify({ v: 1, baselines: null, spent: 'x', purchases: 7 });
+  assert.equal(w.balance({ a: 10 }), 40);
+  assert.deepEqual(w.purchases(), []);
+});
+
+test('a missing or invalid grade is refused rather than defaulting to another child\'s wallet', () => {
+  const storage = memStorage();
+  assert.throws(() => create(storage, Date.now, null));
+  assert.throws(() => create(storage, Date.now, 'Grade 5'));
+});
+
+test('two learners never affect each other: each wallet lives in her own space', () => {
+  const clock = makeClock();
+  const sisterSpace = memStorage(), mySpace = memStorage();
+  const g2 = create(sisterSpace, clock.now, 'grade2');
+  const g5 = create(mySpace, clock.now, 'grade5');
+  const p2 = { blockbot_points_v1: 0 };
+  const p5 = { pageturners_points_v1: 0 };
+  g2.track(p2);
+  g5.track(p5);
+
+  const p2Later = { blockbot_points_v1: 4800 };
+  const p5Later = { pageturners_points_v1: 800 };
+  assert.equal(g2.balance(p2Later), 280, 'grade 2 earns from her own points');
+  assert.equal(g5.balance(p5), 40, 'grade 5 keeps only her own welcome gift');
+
+  assert.ok(g2.buy('ml', p2Later));
+  assert.ok(g2.buy('dinner', p2Later));
+  assert.equal(g2.balance(p2Later), 0);
+  assert.equal(g5.balance(p5), 40, 'one learner spending does not touch the other');
+  assert.deepEqual(g5.purchases(), []);
+  assert.deepEqual(g5.canBuy('ml', p5Later), { ok: true, need: 0, daily: false }, 'her sister\'s ML does not block hers');
+  assert.ok(g5.buy('ml', p5Later));
+  assert.equal(g2.purchases().length, 2);
+  assert.equal(JSON.parse(sisterSpace.getItem('wallet_v1')).spent, 280);
+  assert.equal(JSON.parse(mySpace.getItem('wallet_v1')).spent, 80);
+});
+
+test('moving up a grade keeps every coin, purchase and tracked subject', () => {
+  const clock = makeClock();
+  const space = memStorage();
+  const points = { pageturners_points_v1: 0 };
+  const five = create(space, clock.now, 'grade5');
+  five.track(points);
+  const later = { pageturners_points_v1: 800 };
+  assert.ok(five.buy('ml', later));
+  const six = create(space, clock.now, 'grade6');
+  assert.equal(six.balance(later), five.balance(later));
+  assert.equal(six.purchases().length, 1);
+  assert.equal(six.balanceStored(), five.balanceStored());
+});
+
+test('the catalog has unique ids, whole-coin prices, and ML is 80 coins once a day', () => {
+  const ids = CATALOG.map((i) => i.id);
+  assert.equal(new Set(ids).size, ids.length);
+  CATALOG.forEach((i) => assert.ok(Number.isInteger(i.coins) && i.coins > 0, i.id));
+  const ml = CATALOG.find((i) => i.id === 'ml');
+  assert.equal(ml.coins, 80);
+  assert.equal(ml.perDay, 1);
+});
+
+test('ML with Tatay sells 1, 2 or 3 games with no daily limit; only the solo game has one', () => {
+  const price = (id) => CATALOG.find((i) => i.id === id).coins;
+  assert.deepEqual(['tatay1', 'tatay2', 'tatay3'].map(price), [100, 240, 500]);
+  assert.equal(price('pesos'), 5000);
+  assert.equal(CATALOG.find((i) => i.id === 'skin'), undefined, 'the ML skin was swapped for 100 pesos');
+  const { w } = setup();
+  const rich = { a: 100000 };
+  w.track({ a: 0 });
+  for (const id of ['tatay1', 'tatay2', 'tatay3', 'duo', 'vs']) {
+    assert.ok(w.buy(id, rich), id);
+    assert.ok(w.buy(id, rich), id + ' again the same day');
+  }
+  assert.ok(w.buy('ml', rich));
+  assert.equal(w.canBuy('ml', rich).daily, true, 'the solo game is still once a day');
+  assert.deepEqual(CATALOG.filter((i) => i.perDay).map((i) => i.id), ['ml']);
+});
+
+test('shelf lists every shop item with what it would take to buy it now', () => {
+  const { w } = setup();
+  w.track({ a: 0 });
+  const poor = w.shelf({ a: 0 });
+  assert.deepEqual(poor.map((r) => r.item.id), CATALOG.map((i) => i.id));
+  assert.deepEqual(poor.find((r) => r.item.id === 'dinner'), { item: CATALOG.find((i) => i.id === 'dinner'), ok: false, need: 160, daily: false });
+  assert.equal(poor.find((r) => r.item.id === 'music').ok, true, 'the 40-coin welcome gift covers the cheapest reward');
+  assert.equal(poor.find((r) => r.item.id === 'ml').need, 40);
+
+  const rich = { a: 200000 };
+  w.buy('ml', rich);
+  const after = w.shelf(rich);
+  assert.deepEqual(after.filter((r) => r.daily).map((r) => r.item.id), ['ml']);
+  assert.ok(after.filter((r) => !r.daily).every((r) => r.ok));
+});
+
+test('the shop lists items from cheapest to dearest', () => {
+  const prices = CATALOG.map((i) => i.coins);
+  assert.deepEqual(prices, [...prices].sort((a, b) => a - b));
+});
+
+test('earned reports the new points since the baseline and the coins they made', () => {
+  const { w } = setup();
+  converted(w);
+  w.track({ a: 500, b: 0 });
+  assert.deepEqual(w.earned({ a: 1500, b: 9 }), { points: 1009, coins: 50, welcome: 40, spent: 0, bonus: 0 });
+  w.buy('ml', { a: 1500, b: 9 });
+  assert.deepEqual(w.earned({ a: 1500, b: 9 }), { points: 1009, coins: 50, welcome: 40, spent: 80, bonus: 0 });
+  assert.deepEqual(w.earned({ a: 0, b: 0 }).points, 0, 'never negative');
+});
+
+test('prune drops purchases older than the last 7 local days but keeps the spent total', () => {
+  const { w, storage, clock } = setup();
+  const rich = { a: 10000 };
+  w.track({ a: 0 });
+  clock.set(2026, 10, 1, 23, 0);
+  w.buy('dessert', rich);
+  clock.set(2026, 10, 2, 0, 30);
+  w.buy('dinner', rich);
+  clock.set(2026, 10, 8, 9, 0);
+  w.prune(7);
+  assert.deepEqual(w.purchases().map((p) => p.item), ['dinner'], 'Oct 1 is outside Oct 2-8');
+  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 400);
+  assert.equal(w.balance(rich), 40 + 500 - 400, 'pruning never gives coins back');
+});
+
+test('prune keeps today\'s ML purchase so the daily limit still holds', () => {
+  const { w, storage, clock } = setup();
+  const rich = { a: 10000 };
+  w.track({ a: 0 });
+  w.buy('ml', rich);
+  const before = storage.writes.length;
+  w.prune(7);
+  assert.equal(storage.writes.length, before, 'nothing to prune means no write');
+  assert.equal(w.canBuy('ml', rich).daily, true);
+});
+
+test('both guides explain the same topics, quote the real ML price and the 20-points-per-coin rate', () => {
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
+  const ml = CATALOG.find((i) => i.id === 'ml').coins;
+  const g2 = GUIDE_TEXT.grade2.sections(ml), g5 = GUIDE_TEXT.grade5.sections(ml);
+  assert.deepEqual(Object.keys(GUIDE_TEXT.grade2).sort(), Object.keys(GUIDE_TEXT.grade5).sort());
+  assert.deepEqual(g2.map((s) => s[0]), g5.map((s) => s[0]), 'same icons in the same order');
+  for (const sections of [g2, g5]) {
+    const text = sections.map((s) => s[2]).join(' ');
+    assert.ok(text.includes(' ' + ml + ' coins'), 'quotes the ML price');
+    assert.match(text, /20 points/);
+    assert.match(text, /140 points = 7 coins/);
+    assert.match(text, /🥉 3, 🥈 5, 🥇 10/);
+  }
+});
+
+test('both guides explain ML with Tatay with the real prices, right after the solo ML game', () => {
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
+  const ml = CATALOG.find((i) => i.id === 'ml').coins;
+  const prices = ['tatay1', 'tatay2', 'tatay3'].map((id) => CATALOG.find((i) => i.id === id).coins);
+  for (const grade of ['grade2', 'grade5']) {
+    const sections = GUIDE_TEXT[grade].sections(ml);
+    const i = sections.findIndex((s) => s[0] === '👨');
+    assert.equal(sections[i - 1][0], '🎮', grade + ': comes after the ML game');
+    const english = grade === 'grade5' ? sections[i][2] : sections[i][3];
+    for (const p of prices) assert.ok(english.includes(p + ' coins'), grade + ' quotes ' + p);
+    assert.match(english, /No daily limit/);
+    assert.match(english, /own ML game/);
+  }
+});
+
+test('the Grade 2 guide gives every section an English line with the same numbers', () => {
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
+  const ml = CATALOG.find((i) => i.id === 'ml').coins;
+  const sections = GUIDE_TEXT.grade2.sections(ml);
+  assert.ok(GUIDE_TEXT.grade2.titleEn, 'English title');
+  for (const s of sections) assert.ok(s[3], s[1] + ' has an English line');
+  const english = sections.map((s) => s[3]).join(' ');
+  assert.ok(english.includes(' ' + ml + ' coins'), 'quotes the ML price');
+  assert.match(english, /140 points = 7 coins/);
+  assert.ok(GUIDE_TEXT.grade5.sections(ml).every((s) => !s[3]), 'Grade 5 is already in English');
+});
+
+test('spend takes in-quiz power-up coins from the stored balance, never below zero', () => {
+  const { w, storage } = setup();
+  storage.setItem('a_points', '50');
+  w.track({ a_points: 50 });
+  assert.equal(w.balanceStored(), 45);
+  assert.equal(w.spend(5), true);
+  assert.equal(w.balanceStored(), 40);
+  assert.equal(w.purchases().length, 0, 'power-ups are not shop purchases');
+  assert.equal(w.spend(41), false);
+  assert.equal(w.spend(0), false);
+  assert.equal(w.spend(40), true);
+  assert.equal(w.balanceStored(), 0);
+});
+
+test('test-score coins follow the tiers, compared without rounding', () => {
+  const { testBonus, TEST_BONUS_TIERS } = require(engineFile('wallet.js'));
+  assert.deepEqual(TEST_BONUS_TIERS.map((t) => [t.pct, t.coins]), [[100, 50], [90, 40], [80, 30], [0, 10]]);
+  assert.equal(testBonus(15, 15), 50);
+  assert.equal(testBonus(14, 15), 40, '93.3%');
+  assert.equal(testBonus(9, 10), 40, 'exactly 90%');
+  assert.equal(testBonus(899, 1000), 30, '89.9%');
+  assert.equal(testBonus(4, 5), 30, 'exactly 80%');
+  assert.equal(testBonus(799, 1000), 10, '79.9%');
+  assert.equal(testBonus(0, 10), 10, 'trying still counts');
+  assert.equal(testBonus(11, 10), 0, 'score above total');
+  assert.equal(testBonus(5, 0), 0, 'no total');
+  assert.equal(testBonus(2.5, 10), 0, 'whole numbers only');
+});
+
+test('a bonus adds coins on top of points, welcome gift and spending', () => {
+  const { w } = setup();
+  converted(w);
+  const before = w.balance({});
+  assert.equal(w.addBonus(40), true);
+  assert.equal(w.balance({}), before + 40);
+  assert.equal(w.balanceStored(), before + 40);
+  assert.equal(w.earned({}).bonus, 40);
+  assert.equal(w.addBonus(0), false);
+  assert.equal(w.addBonus(-5), false);
+  assert.equal(w.addBonus(2.5), false);
+  assert.equal(w.balance({}), before + 40);
+});
+
+test('an old wallet without a bonus field reads it as 0', () => {
+  const { storage, clock } = setup();
+  storage.setItem('wallet_v1', JSON.stringify({ v: 1, baselines: {}, spent: 0, purchases: [], oldPointsCounted: true }));
+  const w = create(storage, clock.now, 'grade5');
+  assert.equal(w.earned({}).bonus, 0);
+  assert.equal(w.balance({}), 40);
+});
+
+test('the coin guide explains resting, typing, the exam and the test bonus in both grades', () => {
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
+  for (const grade of ['grade2', 'grade5']) {
+    const icons = GUIDE_TEXT[grade].sections(40).map((s) => s[0]);
+    for (const icon of ['⏳', '✏️', '🏆', '📝']) assert.ok(icons.includes(icon), grade + ' has ' + icon);
+  }
+});
+
+test('savedBalance reads the coins a backup would restore without touching storage', () => {
+  const { storage, w } = setup();
+  const saved = {
+    wallet_v1: JSON.stringify({ v: 1, baselines: { lifelab_points_v1: 0, riseshine_points_v1: 100 }, spent: 30, bonus: 50, purchases: [], oldPointsCounted: true }),
+    lifelab_points_v1: '420',
+    riseshine_points_v1: '300',
+  };
+  assert.equal(w.savedBalance(saved), 40 + 62 + 50 - 30);
+  assert.equal(w.savedBalance({}), 40);
+  assert.deepEqual(storage.writes, []);
+});
+
+test('while the date guard is on, no bonus coins are added', () => {
+  const storage = memStorage(), clock = makeClock();
+  let paused = true;
+  const w = create(storage, clock.now, 'grade5', () => paused);
+  assert.equal(w.addBonus(10), false);
+  assert.equal(storage.data.wallet_v1, undefined);
+  paused = false;
+  assert.equal(w.addBonus(10), true);
+  assert.equal(JSON.parse(storage.data.wallet_v1).bonus, 10);
+});
+
+test('the switch to 20 points a coin never lowers a balance', () => {
+  const { storage, w } = setup();
+  w.track({ lifelab_points_v1: 400 });
+  assert.equal(w.balance({ lifelab_points_v1: 400 }), 40 + 40, 'the 400 old points keep 10 a coin');
+  assert.deepEqual(JSON.parse(storage.data.wallet_v1).rateFrom, { lifelab_points_v1: 400 });
+  assert.equal(w.balance({ lifelab_points_v1: 440 }), 40 + 40 + 2, '40 new points = 2 coins');
+  assert.equal(w.earned({ lifelab_points_v1: 440 }).coins, 42);
+  w.track({ lifelab_points_v1: 440, newgame_points_v1: 100 });
+  assert.equal(w.balance({ lifelab_points_v1: 440, newgame_points_v1: 160 }), 40 + 42 + 3, 'a key first seen after the switch is all new rate');
+});
+
+test('a wallet the lobby has not opened since the update keeps the old rate', () => {
+  const { storage, clock } = setup();
+  storage.data.wallet_v1 = JSON.stringify({ v: 1, baselines: { lifelab_points_v1: 0 }, spent: 0, bonus: 0, purchases: [], oldPointsCounted: true });
+  const w = create(storage, clock.now, 'grade5');
+  assert.equal(w.balance({ lifelab_points_v1: 400 }), 80);
+  assert.equal(w.balanceStored(), 40, 'balanceStored reads the stored points (none here)');
+});
+
+test('the rate switch records every tracked key, even ones this lobby does not show', () => {
+  const { storage, clock } = setup();
+  storage.data.wallet_v1 = JSON.stringify({ v: 1, baselines: { a_points_v1: 0, b_points_v1: 0 }, spent: 0, bonus: 0, purchases: [], oldPointsCounted: true });
+  storage.data.b_points_v1 = '300';
+  const w = create(storage, clock.now, 'grade5');
+  w.track({ a_points_v1: 200 });
+  assert.deepEqual(JSON.parse(storage.data.wallet_v1).rateFrom, { a_points_v1: 200, b_points_v1: 300 });
+  assert.equal(w.balance({ a_points_v1: 200, b_points_v1: 300 }), 40 + 20 + 30, 'the other grade keeps the old rate too');
+});

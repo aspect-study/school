@@ -1,0 +1,8 @@
+{
+  "id": "rally-ready",
+  "title": "Rally Ready",
+  "grade": 5,
+  "subject": "pe-health",
+  "pointsKey": "rallyready_points_v1",
+  "progressKey": "rallyready_progress_v1"
+}

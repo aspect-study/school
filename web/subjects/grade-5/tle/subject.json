@@ -1,0 +1,8 @@
+{
+  "id": "craft-corner",
+  "title": "Craft Corner",
+  "grade": 5,
+  "subject": "tle",
+  "pointsKey": "craftcorner_points_v1",
+  "progressKey": "craftcorner_progress_v1"
+}

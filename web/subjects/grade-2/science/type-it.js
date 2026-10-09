@@ -1,0 +1,23 @@
+StudyKit.content('typeIt', {
+  'Which body part helps you smell things?': [],
+  'What connects your arms to your torso (body)?': ['shoulders'],
+  'Which body part protects your heart and lungs?': [],
+  'Which body part helps you bend your legs to lower or raise your body?': ['knees'],
+  'Which body part do we use to see colors, shapes, and sizes?': ['eye'],
+  'Which sense organ helps us hear sounds like music and voices?': ['ear'],
+  'Which body part helps us taste sweet, sour, salty, or bitter food?': [],
+  'What do we call the watery liquid made inside your mouth that helps you chew and digest food?': [],
+  'What do we call anything that has mass and takes up space?': [],
+  'What state of matter is a cotton ball?': [],
+  'What is a baby cat called?': [],
+  'What is a baby horse called?': [],
+  'What is a baby chicken called?': [],
+  'What is a baby frog called?': [],
+  'What do we call the proper home of an animal?': [],
+  'A habitat provides animals with food, water, and ___.': [],
+  'Which habitat is an area mostly covered with trees and plants?': [],
+  'Which habitat is cold and covered in snow all year round?': ['polar'],
+  'What is in the air that animals breathe?': [],
+  'Animals need oxygen to turn the food they ate into ___.': [],
+  'What do we call animals that get food by hunting or eating other animals?': ['predator']
+});

@@ -1,0 +1,17 @@
+{
+  "id": "./grade-5.html",
+  "name": "Study Games - Grade 5",
+  "short_name": "Grade 5",
+  "description": "Flashcards, quizzes and mock exams for every Grade 5 subject.",
+  "start_url": "./grade-5.html",
+  "scope": "../",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F4F1E9",
+  "theme_color": "#1B7A79",
+  "icons": [
+    { "src": "../assets/icons/grade5-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "../assets/icons/grade5-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "../assets/icons/grade5-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

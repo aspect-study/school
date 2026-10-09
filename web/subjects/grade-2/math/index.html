@@ -1,0 +1,911 @@
+<html lang="en">
+<meta charset="utf-8">
+<title>Block Bot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F2FF; --surface:#FFFFFF; --surface2:#EFE9FF;
+  --ink:#241C3D; --ink-soft:#5B5478;
+  --accent:#7C3AED; --accent-ink:#FFFFFF;
+  --gold:#FFC93C; --coral:#FF6B6B;
+  --good:#22A560; --bad:#E0483E;
+  --border:#E1D8FA;
+  --shadow: 0 8px 24px rgba(124,58,237,0.14);
+  --radius:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#161022; --surface:#211934; --surface2:#2A2044;
+    --ink:#F2EEFF; --ink-soft:#B8AEDD;
+    --accent:#9D6BFF; --accent-ink:#161022;
+    --gold:#FFD666; --coral:#FF8A80;
+    --good:#3FCB86; --bad:#FF6B60;
+    --border:#382A57;
+    --shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161022; --surface:#211934; --surface2:#2A2044;
+  --ink:#F2EEFF; --ink-soft:#B8AEDD;
+  --accent:#9D6BFF; --accent-ink:#161022;
+  --gold:#FFD666; --coral:#FF8A80;
+  --good:#3FCB86; --bad:#FF6B60;
+  --border:#382A57;
+  --shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:'Mulish',system-ui,sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Lilita One',cursive; font-weight:400; letter-spacing:0.02em;}
+.app{max-width:720px; margin:0 auto; padding:20px 16px 60px;}
+.hidden{display:none !important;}
+button{font-family:inherit; cursor:pointer;}
+button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+
+/* HOME */
+.hero{display:flex; align-items:center; gap:14px; margin:10px 0 20px;}
+.hero-bot{width:76px; height:92px; flex:none;}
+.hero h1{font-size:2.1rem; margin:0; color:var(--accent);}
+.hero p{margin:4px 0 0; color:var(--ink-soft); font-size:0.95rem;}
+.lesson-grid{display:grid; gap:14px;}
+.lesson-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px 18px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow);
+  text-align:left; width:100%;
+}
+.lesson-emoji{font-size:2rem; flex:none; width:52px; height:52px; border-radius:14px;
+  background:var(--surface2); display:flex; align-items:center; justify-content:center;}
+.lesson-info{flex:1; min-width:0;}
+.lesson-info h3{margin:0 0 2px; font-size:1.15rem;}
+.lesson-info p{margin:0; color:var(--ink-soft); font-size:0.85rem;}
+.stars{margin-top:6px; font-size:0.95rem; letter-spacing:2px;}
+.star-on{color:var(--gold);}
+.star-off{color:var(--border);}
+.go-btn{
+  flex:none; background:var(--accent); color:var(--accent-ink); border:none; border-radius:12px;
+  padding:10px 16px; font-weight:800; font-size:0.9rem;
+}
+
+/* FLASHCARDS */
+.screen-head{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+.screen-head h2{margin:0; font-size:1.4rem; flex:1;}
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:32px 24px; box-shadow:var(--shadow); gap:14px;
+}
+.card-icon{font-size:2.6rem;}
+.card-icon.has-art{font-size:0; line-height:0;}
+.money-group{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px;}
+.money-group svg{display:block;}
+.q-art{margin:2px 0 14px;}
+.card-term{font-family:'Lilita One',cursive; font-size:1.6rem; color:var(--accent);}
+.card-def{font-size:1.05rem; color:var(--ink-soft); line-height:1.5;}
+.card-nav{display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:10px;}
+.nav-btn{
+  background:var(--surface2); color:var(--ink); border:1px solid var(--border); border-radius:12px;
+  padding:12px 18px; font-weight:700;
+}
+.nav-btn:disabled{opacity:0.4; cursor:default;}
+.dots{display:flex; gap:6px;}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--border);}
+.dot.active{background:var(--accent);}
+.primary-btn{
+  background:var(--accent); color:var(--accent-ink); border:none; border-radius:14px;
+  padding:14px 22px; font-weight:800; font-size:1rem; width:100%; margin-top:18px;
+}
+
+/* QUIZ */
+.quiz-top{display:flex; align-items:center; gap:14px; margin-bottom:16px;}
+.progress-bar{flex:1; height:10px; background:var(--surface2); border-radius:6px; overflow:hidden;}
+.progress-fill{height:100%; background:var(--accent); transition:width .3s;}
+.quiz-bot{width:44px; height:52px; flex:none;}
+.q-text{font-size:1.2rem; font-weight:800; margin:6px 0 16px;}
+.options{display:grid; gap:10px;}
+.option{
+  background:var(--surface); border:2px solid var(--border); border-radius:14px; padding:14px 16px;
+  text-align:left; font-size:1rem; font-weight:600; color:var(--ink);
+}
+.option.correct{border-color:var(--good); background:color-mix(in srgb, var(--good) 14%, var(--surface));}
+.option.incorrect{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 14%, var(--surface));}
+.option:disabled{cursor:default;}
+.option.explorable{border-style:dashed;}
+.option.explored{box-shadow:0 0 0 3px var(--surface2);}
+.explore{margin-top:10px;}
+.explore-hint{font-size:0.88rem; color:var(--ink-soft); font-weight:700;}
+.explore-card{margin-top:8px; background:var(--surface); border:2px solid var(--border); border-left:5px solid var(--bad); border-radius:12px; padding:9px 12px; line-height:1.45; font-size:0.95rem;}
+.explore-card.explore-right{border-left-color:var(--good);}
+.explore-card b{display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft);}
+.explore-card .learn-choice{font-weight:800;}
+.explore-card .learn-why{display:block; margin-top:3px;}
+.explore-card .fb-en{margin-top:4px;}
+.feedback{margin-top:14px; padding:14px 16px; border-radius:14px; font-size:0.95rem; line-height:1.5;}
+.feedback.good{background:color-mix(in srgb, var(--good) 16%, var(--surface)); color:var(--ink);}
+.feedback.bad{background:color-mix(in srgb, var(--bad) 16%, var(--surface)); color:var(--ink);}
+.feedback strong{display:block; margin-bottom:4px; font-family:'Lilita One',cursive; font-size:1.05rem;}
+
+/* RESULTS */
+.results{text-align:center; padding:20px 10px;}
+.results-bot{width:160px; height:190px; margin:0 auto 14px;}
+.results h2{font-size:1.8rem; color:var(--accent); margin:0 0 4px;}
+.score-line{font-size:1.1rem; color:var(--ink-soft); margin-bottom:10px;}
+.results-stars{font-size:2rem; letter-spacing:8px; margin-bottom:18px;}
+.points-total{display:inline-flex; align-items:center; gap:6px; background:color-mix(in srgb, var(--gold) 30%, var(--surface)); color:var(--ink); font-weight:800; font-size:0.85rem; padding:6px 14px; border-radius:999px; margin-top:8px;}
+.points-live{font-size:0.85rem; font-weight:800; color:var(--ink); white-space:nowrap; margin-left:auto;}
+.points-live .streak{color:var(--bad); margin-left:4px;}
+.points-earned{font-size:1rem; font-weight:800; color:var(--ink); margin-bottom:4px;}
+.missed-review{display:none; text-align:left; margin:0 0 18px; padding-top:16px; border-top:1px solid var(--border);}
+.missed-review.show{display:block;}
+.missed-review h3{font-size:1rem; font-family:'Lilita One',cursive; font-weight:400; color:var(--ink); margin:0 0 10px; text-align:center;}
+.missed-list{max-height:340px; overflow-y:auto; padding-right:2px;}
+.missed-item{background:var(--surface2); border-radius:12px; padding:12px 14px; margin-bottom:10px;}
+.missed-item .missed-q{white-space:pre-line; font-weight:700; color:var(--ink); margin:0 0 4px; line-height:1.4; font-size:0.96rem;}
+.missed-item .missed-explain{color:var(--ink-soft); margin:0; line-height:1.4; font-size:0.9rem;}
+.results-actions{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+.secondary-btn{
+  background:var(--surface2); color:var(--ink); border:1px solid var(--border); border-radius:14px;
+  padding:12px 20px; font-weight:700;
+}
+
+/* bot pieces */
+.piece{opacity:0; transform:scale(0.6); transform-origin:center; transition:opacity .35s ease, transform .35s ease;}
+.piece.on{opacity:1; transform:scale(1);}
+
+/* NUMBER LINE */
+.nline-box{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow);}
+.mode-badge{display:inline-block; font-size:0.78rem; font-weight:800; padding:4px 12px; border-radius:999px; margin-bottom:12px;}
+.mode-badge.guided{background:var(--surface2); color:var(--accent);}
+.mode-badge.challenge{background:color-mix(in srgb, var(--coral) 18%, var(--surface)); color:var(--coral);}
+.nline-svg{width:100%; margin-bottom:14px;}
+.nline-svg svg{width:100%; height:auto; display:block;}
+.nline-input-row{display:flex; align-items:center; gap:10px; font-size:1.15rem; font-weight:800; flex-wrap:wrap;}
+.nline-input{width:64px; padding:10px; font-size:1.1rem; font-weight:800; text-align:center; border:2px solid var(--border); border-radius:10px; font-family:inherit; color:var(--ink); background:var(--bg);}
+.nline-input.correct{border-color:var(--good); background:color-mix(in srgb, var(--good) 14%, var(--bg));}
+.nline-input.incorrect{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 14%, var(--bg));}
+.check-btn{background:var(--accent); color:var(--accent-ink); border:none; border-radius:10px; padding:10px 18px; font-weight:800; font-size:0.95rem;}
+.check-btn:disabled{opacity:0.5;}
+
+/* FINAL EXAM CARD */
+.final-card{border-color:var(--gold); background:linear-gradient(135deg, var(--surface2), var(--surface));}
+.final-badge{
+  display:inline-block; background:var(--gold); color:#3A2900; font-size:0.68rem; font-weight:800;
+  padding:2px 10px; border-radius:999px; margin-bottom:4px; letter-spacing:0.03em;
+}
+
+/* 3-up lesson map on wide screens, so every lesson shows at once.
+   Only the lesson list widens -- flashcards, quiz and results stay narrow. */
+@media (min-width:900px){
+  .app{max-width:1120px;}
+  .app section:not(#screen-home){max-width:720px; margin-left:auto; margin-right:auto;}
+  #screen-home > *:not(.lesson-grid){max-width:720px; margin-left:auto; margin-right:auto;}
+  #screen-home .lesson-grid{grid-template-columns:repeat(3, minmax(0,1fr)); align-items:stretch;}
+  #screen-home .lesson-card{flex-direction:column; align-items:stretch; gap:10px; height:100%;}
+  #screen-home .lesson-emoji{align-self:flex-start;}
+  #screen-home .lesson-info{flex:1;}
+  #screen-home .go-btn{width:100%; text-align:center;}
+}
+  .q-sentence{background:var(--surface2); border:2px solid var(--border); border-radius:14px; padding:14px 16px; font-size:1.2rem; font-weight:700; line-height:1.5; text-align:center; margin:-4px 0 16px; color:var(--ink);}
+/* ---- Learn from a wrong answer ---- */
+.learn{display:flex; flex-direction:column; gap:8px;}
+.learn-row{background:var(--surface); border-radius:12px; padding:9px 12px; border-left:5px solid var(--bad); line-height:1.45;}
+.learn-row b{display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft);}
+.learn-row .learn-choice{font-weight:800;}
+.learn-row .learn-why{display:block; margin-top:3px;}
+.learn-right{border-left-color:var(--good);}
+.learn-tip{border-left-color:var(--gold);}
+.learn-row .fb-en{margin-top:4px;}
+.missed-item .learn{margin-top:6px; font-size:0.9rem;}
+</style>
+
+<div class="app">
+
+  <!-- HOME -->
+  <section id="screen-home">
+    <div class="hero">
+      <svg class="hero-bot" viewBox="0 0 200 240" id="hero-bot-svg"></svg>
+      <div>
+        <h1>Block Bot</h1>
+        <p>Build your robot with base-ten blocks! Questions and answer order shuffle every time, and numbers change every attempt, so you truly learn each skill. Try the Final Mock Exam once you've mastered every lesson!</p>
+        <div class="points-total" id="points-total-badge"></div>
+      <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
+      </div>
+    </div>
+    <div class="lesson-grid" id="lesson-grid"></div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="screen-cards" class="hidden">
+    <div class="screen-head">
+      <h2 id="cards-title"></h2>
+    </div>
+    <div class="card">
+      <div class="card-icon" id="card-icon"></div>
+      <div class="card-term" id="card-term"></div>
+      <div class="card-def" id="card-def"></div>
+    </div>
+    <div class="card-nav">
+      <button class="nav-btn" id="card-prev" onclick="cardStep(-1)">&larr; Prev</button>
+      <div class="dots" id="card-dots"></div>
+      <button class="nav-btn" id="card-next" onclick="cardStep(1)">Next &rarr;</button>
+    </div>
+    <button class="primary-btn" id="cards-start" onclick="startQuiz()">Start the Quiz!</button>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="hidden">
+    <div class="screen-head">
+      <h2 id="quiz-title"></h2>
+      <div class="points-live" id="points-live"></div>
+    </div>
+    <div class="quiz-top">
+      <div class="progress-bar"><div class="progress-fill" id="quiz-progress"></div></div>
+      <svg class="quiz-bot" viewBox="0 0 200 240" id="quiz-bot-svg"></svg>
+    </div>
+    <div class="q-text" id="q-text"></div>
+      <div class="q-sentence" id="q-sentence" style="display:none"></div>
+    <div class="q-art hidden" id="q-art"></div>
+    <div class="options" id="q-options"></div>
+    <div class="explore hidden" id="q-explore"></div>
+    <div class="nline-box hidden" id="q-numberline">
+      <div class="mode-badge" id="nline-badge"></div>
+      <div class="nline-svg" id="nline-svg"></div>
+      <div class="nline-input-row">
+        <span id="nline-equation"></span>
+        <input type="number" inputmode="numeric" id="nline-input" class="nline-input" placeholder="?">
+        <button class="check-btn" id="nline-check" onclick="checkNumberline()">Check</button>
+      </div>
+    </div>
+    <div id="q-feedback"></div>
+    <button class="primary-btn hidden" id="q-next-btn" onclick="nextQuestion()">Next &rarr;</button>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="screen-results" class="hidden">
+    <div class="results">
+      <svg class="results-bot" viewBox="0 0 200 240" id="results-bot-svg"></svg>
+      <h2 id="results-heading"></h2>
+      <div class="score-line" id="results-score"></div>
+      <div class="points-earned" id="points-earned"></div>
+      <div class="coins-have" data-coins="haveNow"></div>
+      <div class="results-stars" id="results-stars"></div>
+      <div class="missed-review" id="missed-review"></div>
+      <div class="results-actions">
+        <button class="primary-btn" style="width:auto" onclick="retryLesson()">Try Again</button>
+        <button class="secondary-btn" onclick="goHome()">Lesson Map</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="../../../engine/lang.js"></script>
+<script src="../../../engine/storage.js" data-grade="grade2"></script>
+<script src="../../../engine/learner.js" data-grade="grade2"></script>
+<script src="../../../engine/clock.js" data-grade="grade2"></script>
+<script src="../../../engine/nav.js" data-grade="grade2"></script>
+<script src="../../../engine/search.js" data-grade="grade2"></script>
+<script src="../../../engine/read-gate.js" data-grade="grade2"></script>
+<script src="../../../engine/study-history.js" data-grade="grade2"></script>
+<script src="../../../engine/wallet.js" data-grade="grade2"></script>
+<script src="../../../engine/fx.js" data-grade="grade2"></script>
+<script src="../../../engine/powerups.js" data-grade="grade2"></script>
+<script src="../../../engine/recall.js" data-grade="grade2"></script>
+<script src="../../../engine/mastery.js" data-grade="grade2"></script>
+<script src="../../../engine/quests.js" data-grade="grade2"></script>
+<script src="../../../engine/boss.js" data-grade="grade2"></script>
+<script src="../../../engine/bosses.js"></script>
+<script src="../../../engine/army.js" data-grade="grade2"></script>
+<script src="../../../engine/family.js" data-grade="grade2"></script>
+<script src="../../../engine/guide.js" data-grade="grade2"></script>
+<script src="../../../engine/trail.js" data-grade="grade2"></script>
+<script src="../../../engine/study-kit.js" data-grade="grade2"></script>
+<script src="lessons/01-blocks.js"></script>
+<script src="lessons/02-readwrite.js"></script>
+<script src="lessons/03-skip.js"></script>
+<script src="lessons/04-compare.js"></script>
+<script src="lessons/05-order.js"></script>
+<script src="lessons/06-ordinal.js"></script>
+<script src="lessons/07-placevalue.js"></script>
+<script src="lessons/08-numberline.js"></script>
+<script src="lessons/09-expanded.js"></script>
+<script src="lessons/10-addnoregroup.js"></script>
+<script src="lessons/11-addregroup.js"></script>
+<script src="lessons/12-money.js"></script>
+<script src="type-it.js"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel', world: 'World', family: 'Family', guide: 'Guide', trail: 'Trail' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+const LESSONS = StudyKit.lessons();
+// A lesson's generate names a question generator here instead of listing fixed questions.
+const GENERATORS = { numberline: genNumberlineSet };
+
+// Questions she may answer by typing first (+5 bonus). Value: other accepted answers.
+const TYPE_IT = StudyKit.content('typeIt');
+
+const SH = window.StudyHistory, SH_APP = 'block-bot', SH_TITLE = 'Block Bot';
+let historyLessonId = null, historyQuizId = null;
+const STORAGE_KEY = 'blockbot_progress_v2';
+const kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'blockbot_points_v1', progressKey: STORAGE_KEY });
+let progress = kit.progress();
+
+const FINAL_EXAM_PER_LESSON = 3;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+// Recall decides whether this question pays, shows a typing box, and offers power-ups.
+function offerQuestion(pu){
+  if (window.Recall) Recall.ask(pu, SH_APP, typeof TYPE_IT === 'undefined' ? null : TYPE_IT);
+  else if (window.PowerUps) PowerUps.offer(pu);
+}
+function prepareQuestion(q){
+  const order = shuffle(q.options.map((_,i)=>i));
+  const options = order.map(i=>q.options[i]);
+  const correct = order.indexOf(q.correct);
+  const why = q.why ? order.map(i=>q.why[i]) : [];
+  return {q:q.q, options, correct, explain:q.explain, art:q.art, why, tip:q.tip};
+}
+// The same fields offerQuestion and SH.quizAnswered use, so the review key and history text match.
+function reviewInfo(q){
+  const answer = q.options[q.correct];
+  return { q:q.q, art:q.art, answer, historyQ:historyQuestion(q), historyAnswer:answer };
+}
+// Generated number-line lessons never repeat a question, so they have no review.
+function reviewPool(){
+  return LESSONS.filter(l => !l.generate).flatMap(l => l.quiz.map(prepareQuestion));
+}
+function medalLessons(){
+  return LESSONS.filter(l => !l.generate).map(l => ({ id: l.id, title: Recall.textOf(l.title), icon: l.emoji, keys: l.quiz.map(prepareQuestion).map(q => Recall.keyOf(SH_APP, reviewInfo(q))) }));
+}
+let medals = null;
+function updateMedals(){
+  if (!window.Mastery || !window.Recall) return null;
+  medals = Mastery.update(SH_APP, medalLessons());
+  return medals;
+}
+function showMedals(el){
+  var boss = bossEvents(el);
+  const m = updateMedals();
+  if (!m) return;
+  Mastery.showNew(el, m.newly);
+  if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE).concat(window.Quests && Quests.check ? Quests.check() : []).concat(boss), el);
+}
+// A finished boss stage reports once; Try Again replays it only while the stage is still open.
+function bossEvents(el){
+  if (el.id !== 'points-earned' || !currentQuizMeta || !currentQuizMeta.boss || currentQuizMeta.bossDone || !window.Boss) return [];
+  currentQuizMeta.bossDone = true;
+  return Boss.stageResult(SH_APP, quizScore, currentQuizSet.length);
+}
+function bossAgain(){
+  return !!(currentQuizMeta.boss && window.Boss && Boss.isStage(SH_APP));
+}
+function medalBadge(id){
+  return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
+}
+function buildQuizSet(lesson){
+  if(lesson.generate) return GENERATORS[lesson.generate](8);
+  return shuffle(lesson.quiz).map(prepareQuestion);
+}
+function historyQuestion(q){
+  const names = [...String(q.art || '').matchAll(/aria-label="([^"]*)"/g)].map(m => m[1]);
+  return names.length ? `${q.q} [${names.join(', ')}]` : q.q;
+}
+
+function learnHtml(m){
+  return `<div class="learn">
+    <div class="learn-row learn-picked"><b>You picked</b><span class="learn-choice">${m.picked}</span>${m.why ? `<span class="learn-why">Why that's not right: ${m.why}</span>` : ''}</div>
+    <div class="learn-row learn-right"><b>The right answer</b><span class="learn-choice">${m.answer}</span><span class="learn-why">${m.explain}</span></div>
+    ${m.tip ? `<div class="learn-row learn-tip"><b>💡 Tip for next time</b>${m.tip}</div>` : ''}
+  </div>`;
+}
+
+function numberlineWhy(start, jumps, val){
+  const right = start + jumps;
+  if(isNaN(val)) return 'The box was left empty. Always write a number — count the jumps one by one.';
+  if(val === right - 1) return `${val} is one short. You probably counted the starting number ${start} as your first jump. The first jump lands on ${start+1}, not on ${start}.`;
+  if(val < right) return `${val} is too small — you stopped ${right-val} jump${right-val>1?'s':''} too early. You need ${jumps} jumps, not ${jumps-(right-val)}.`;
+  if(val === start + jumps + 1) return `${val} is one too many. You took an extra jump — you need exactly ${jumps} jumps.`;
+  return `${val} is too big — that is ${val-right} more than the answer. Adding ${jumps} to ${start} can only move you ${jumps} steps.`;
+}
+
+const NUMBERLINE_TIP = 'Put your finger on the start number. Do NOT count it. Say "1" as you hop to the next number, then "2", and keep going until you have said the number of jumps. Where your finger stops is the answer.';
+
+function numberlineExplain(start, jumps){
+  const seq = [];
+  for(let k=1;k<=jumps;k++) seq.push(start+k);
+  return `Start at ${start} and take ${jumps} jumps of +1: ${seq.join(', ')}. You land on ${start+jumps}, so ${start} + ${jumps} = ${start+jumps}.`;
+}
+function genNumberlineSet(n){
+  const qs = [];
+  for(let i=0;i<n;i++){
+    const jumps = 3 + Math.floor(Math.random()*7);
+    const start = Math.floor(Math.random()*(100-jumps+1));
+    const mode = i < n/2 ? 'labeled' : 'blank';
+    qs.push({type:'numberline', start, jumps, mode, explain:numberlineExplain(start,jumps)});
+  }
+  return qs;
+}
+
+/* ---- Block Bot SVG ---- */
+function botMarkup(){
+  return `
+  <g class="piece" data-n="1">
+    <rect x="66" y="205" width="20" height="20" rx="4" fill="var(--gold)"/>
+    <rect x="114" y="205" width="20" height="20" rx="4" fill="var(--gold)"/>
+  </g>
+  <g class="piece" data-n="2">
+    <rect x="70" y="160" width="16" height="48" rx="4" fill="var(--accent)"/>
+    <rect x="114" y="160" width="16" height="48" rx="4" fill="var(--accent)"/>
+  </g>
+  <g class="piece" data-n="3">
+    <rect x="50" y="105" width="100" height="65" rx="10" fill="var(--coral)"/>
+    <line x1="50" y1="127" x2="150" y2="127" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>
+    <line x1="50" y1="149" x2="150" y2="149" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>
+    <line x1="83" y1="105" x2="83" y2="170" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>
+    <line x1="117" y1="105" x2="117" y2="170" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>
+  </g>
+  <g class="piece" data-n="4">
+    <rect x="28" y="112" width="16" height="50" rx="6" fill="var(--accent)" transform="rotate(8 36 137)"/>
+  </g>
+  <g class="piece" data-n="5">
+    <rect x="156" y="112" width="16" height="50" rx="6" fill="var(--accent)" transform="rotate(-8 164 137)"/>
+  </g>
+  <g class="piece" data-n="6">
+    <rect x="65" y="55" width="70" height="55" rx="14" fill="var(--surface)" stroke="var(--border)" stroke-width="3"/>
+    <circle cx="86" cy="80" r="6" fill="var(--ink-soft)" class="eye"/>
+    <circle cx="114" cy="80" r="6" fill="var(--ink-soft)" class="eye"/>
+    <path d="M84 96 Q100 104 116 96" stroke="var(--ink-soft)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+  <g class="piece" data-n="7">
+    <line x1="100" y1="55" x2="100" y2="38" stroke="var(--gold)" stroke-width="4"/>
+    <circle cx="100" cy="32" r="8" fill="var(--gold)"/>
+  </g>
+  <g class="piece" data-n="8">
+    <circle cx="100" cy="137" r="14" fill="var(--gold)" opacity="0.9"/>
+    <circle cx="86" cy="80" r="6" fill="var(--accent)"/>
+    <circle cx="114" cy="80" r="6" fill="var(--accent)"/>
+    <circle cx="30" cy="60" r="3" fill="var(--gold)"/>
+    <circle cx="172" cy="70" r="4" fill="var(--coral)"/>
+    <circle cx="150" cy="40" r="3" fill="var(--accent)"/>
+  </g>`;
+}
+/* ---- Number Line ---- */
+function numberLineSVG(start, jumps, mode, revealed){
+  const n = jumps;
+  const W = 640, padX = 36, baseY = revealed ? 92 : 60, H = revealed ? 132 : 92;
+  const x = i => padX + i * (W - 2*padX) / n;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+  if(revealed){
+    for(let i=0;i<n;i++){
+      const x1=x(i), x2=x(i+1), midX=(x1+x2)/2, peakY=baseY-34;
+      svg += `<path d="M${x1},${baseY} Q${midX},${peakY} ${x2},${baseY}" fill="none" stroke="var(--coral)" stroke-width="2.5"/>`;
+      svg += `<text x="${midX}" y="${peakY-6}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--coral)">+1</text>`;
+    }
+  }
+  svg += `<line x1="${x(0)}" y1="${baseY}" x2="${x(n)}" y2="${baseY}" stroke="var(--ink-soft)" stroke-width="2"/>`;
+  for(let i=0;i<=n;i++){
+    const isLast = i === n;
+    const showLabel = revealed || i===0 || (mode==='labeled' && !isLast);
+    svg += `<line x1="${x(i)}" y1="${baseY-6}" x2="${x(i)}" y2="${baseY+6}" stroke="var(--ink-soft)" stroke-width="2"/>`;
+    if(showLabel){
+      svg += `<text x="${x(i)}" y="${baseY+22}" text-anchor="middle" font-size="12" font-weight="700" fill="${isLast?'var(--accent)':'var(--ink)'}">${start+i}</text>`;
+    } else if(isLast){
+      svg += `<text x="${x(i)}" y="${baseY+22}" text-anchor="middle" font-size="16" font-weight="800" fill="var(--accent)">?</text>`;
+    }
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
+function renderNumberlineQuestion(q){
+  const badge = document.getElementById('nline-badge');
+  badge.textContent = q.mode==='labeled' ? '🔍 Guided: watch the numbers grow as you count on' : '🧠 Challenge: figure out the next numbers in your head!';
+  badge.className = 'mode-badge ' + (q.mode==='labeled' ? 'guided' : 'challenge');
+  document.getElementById('nline-svg').innerHTML = numberLineSVG(q.start, q.jumps, q.mode, false);
+  document.getElementById('nline-equation').textContent = `${q.start} + ${q.jumps} =`;
+  const input = document.getElementById('nline-input');
+  input.value = '';
+  input.disabled = false;
+  input.className = 'nline-input';
+  input.onkeydown = (e)=>{ if(e.key==='Enter') checkNumberline(); };
+  document.getElementById('nline-check').disabled = false;
+  setTimeout(()=>input.focus(), 50);
+}
+
+function checkNumberline(){
+  if(answered) return;
+  const q = currentQuizSet[quizIdx];
+  const total = currentQuizSet.length;
+  const input = document.getElementById('nline-input');
+  const val = parseInt(input.value, 10);
+  const correctAns = q.start + q.jumps;
+  answered = true;
+  const correct = val === correctAns;
+  const nlMiss = correct ? null : { q: `${q.start} + ${q.jumps} = ?`, picked: isNaN(val) ? '(blank)' : String(val), why: numberlineWhy(q.start, q.jumps, val), answer: String(correctAns), explain: q.explain, tip: NUMBERLINE_TIP };
+  SH && SH.quizAnswered(historyQuizId, correct, `${q.start} + ${q.jumps} = ?`, isNaN(val) ? '(blank)' : String(val), String(correctAns), window.Recall ? Recall.typed() : false);
+  const helped = !!(window.PowerUps && PowerUps.answered());
+  if(correct){
+    quizScore++;
+  } else {
+    missedQuestions.push(nlMiss);
+  }
+  kit.answer(correct, { helped: helped, exam: currentQuizMeta.id === 'final' });
+  input.disabled = true;
+  input.classList.add(correct ? 'correct' : 'incorrect');
+  document.getElementById('nline-check').disabled = true;
+  document.getElementById('nline-svg').innerHTML = numberLineSVG(q.start, q.jumps, q.mode, true);
+  renderBot(document.getElementById('quiz-bot-svg'), Math.round((quizScore/total)*8));
+  const fb = document.getElementById('q-feedback');
+  fb.innerHTML = correct
+    ? `<div class="feedback good"><strong>Correct! 🎉</strong>${q.explain}</div>`
+    : `<div class="feedback bad"><strong>Not quite — let's learn from this!</strong>${learnHtml(nlMiss)}</div>`;
+  document.getElementById('q-next-btn').classList.remove('hidden');
+}
+
+function renderBot(svgEl, n){
+  svgEl.innerHTML = botMarkup();
+  svgEl.querySelectorAll('.piece').forEach(p=>{
+    if(parseInt(p.dataset.n) <= n) p.classList.add('on');
+  });
+}
+
+/* ---- State ---- */
+let currentLessonIdx = 0;
+let cardIdx = 0;
+let quizIdx = 0;
+let quizScore = 0;
+let answered = false;
+let currentQuizSet = [];
+let currentQuizMeta = null;
+let missedQuestions = [];
+
+const homeScreen = document.getElementById('screen-home');
+const cardsScreen = document.getElementById('screen-cards');
+const quizScreen = document.getElementById('screen-quiz');
+const resultsScreen = document.getElementById('screen-results');
+
+function showScreen(el){
+  [homeScreen, cardsScreen, quizScreen, resultsScreen].forEach(s=>s.classList.add('hidden'));
+  el.classList.remove('hidden');
+  window.scrollTo(0,0);
+  if (window.Nav) Nav.screen(el.id);
+}
+
+function starsFor(pct){
+  if(pct >= 1) return 3;
+  if(pct >= 0.8) return 2;
+  if(pct >= 0.5) return 1;
+  return 0;
+}
+
+function renderHome(){
+  document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' points earned';
+  if (window.Mastery && medals) Mastery.renderChip(medals);
+  renderBot(document.getElementById('hero-bot-svg'), 8);
+  const grid = document.getElementById('lesson-grid');
+  grid.innerHTML = '';
+
+  const finalTotal = LESSONS.length * FINAL_EXAM_PER_LESSON;
+  const finalBest = progress['final'] || 0;
+  const finalCard = document.createElement('button');
+  finalCard.className = 'lesson-card final-card';
+  finalCard.onclick = ()=>startFinalExam();
+  finalCard.innerHTML = `
+    <div class="lesson-emoji">🏆</div>
+    <div class="lesson-info">
+      <span class="final-badge">Mock Exam</span>
+      <h3>Final Mock Exam</h3>
+      <p>${finalTotal} mixed questions from every lesson</p>
+      <div class="stars">${[1,2,3].map(s=>`<span class="${s<=starsFor(finalBest/finalTotal)?'star-on':'star-off'}">★</span>`).join('')}</div>
+    </div>
+    <div class="go-btn">${finalBest>0?'Retry':'Start'}</div>
+  `;
+  grid.appendChild(finalCard);
+
+  const rc = window.Recall ? Recall.homeCard(SH_APP) : null;
+  if(rc){
+    const reviewCard = document.createElement('button');
+    reviewCard.className = 'lesson-card' + (rc.ready ? '' : ' review-empty');
+    reviewCard.disabled = !rc.ready;
+    reviewCard.onclick = () => startReview();
+    reviewCard.innerHTML = `
+      <div class="lesson-emoji">🔁</div>
+      <div class="lesson-info">
+        <h3>${rc.title}</h3>
+        <p>${rc.line}</p>
+      </div>
+      ${rc.ready ? '<div class="go-btn">Start</div>' : ''}
+    `;
+    grid.appendChild(reviewCard);
+  }
+
+  LESSONS.forEach((lesson, i)=>{
+    const total = lesson.generate ? 8 : lesson.quiz.length;
+    const best = progress[lesson.id] || 0;
+    const stars = starsFor(best/total);
+    const card = document.createElement('button');
+    card.className = 'lesson-card';
+    card.onclick = ()=>openLesson(i);
+    card.dataset.searchLesson = i;
+    card.innerHTML = `
+      <div class="lesson-emoji">${lesson.emoji}</div>
+      <div class="lesson-info">
+        <h3>${lesson.title}</h3>
+        <p>${lesson.subtitle}</p>
+        <div class="stars">${[1,2,3].map(s=>`<span class="${s<=stars?'star-on':'star-off'}">★</span>`).join('')}${medalBadge(lesson.id)}</div>
+      </div>
+      <div class="go-btn">${best>0?'Review':'Start'}</div>
+    `;
+    grid.appendChild(card);
+  });
+  showScreen(homeScreen);
+}
+
+function goHome(){ renderHome(); }
+
+function openLesson(i){
+  currentLessonIdx = i;
+  cardIdx = 0;
+  historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].flashcards.length) : null;
+  window.ReadGate && ReadGate.open({ cards: LESSONS[i].flashcards.length, next: 'card-next', start: 'cards-start' });
+  renderCard();
+  showScreen(cardsScreen);
+}
+
+function renderCard(){
+  const lesson = LESSONS[currentLessonIdx];
+  document.getElementById('cards-title').textContent = lesson.title;
+  const fc = lesson.flashcards[cardIdx];
+  SH && SH.cardViewed(historyLessonId, cardIdx + 1);
+  const cardIcon = document.getElementById('card-icon');
+  if(fc.art){ cardIcon.innerHTML = fc.art; cardIcon.classList.add('has-art'); }
+  else { cardIcon.textContent = fc.icon; cardIcon.classList.remove('has-art'); }
+  document.getElementById('card-term').textContent = fc.term;
+  document.getElementById('card-def').textContent = fc.def;
+  document.getElementById('card-prev').disabled = cardIdx === 0;
+  document.getElementById('card-next').disabled = cardIdx === lesson.flashcards.length - 1;
+  window.ReadGate && ReadGate.show(cardIdx);
+  const dots = document.getElementById('card-dots');
+  dots.innerHTML = '';
+  lesson.flashcards.forEach((_, idx)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (idx === cardIdx ? ' active' : '');
+    dots.appendChild(d);
+  });
+}
+
+function cardStep(dir){
+  const lesson = LESSONS[currentLessonIdx];
+  cardIdx = Math.max(0, Math.min(lesson.flashcards.length - 1, cardIdx + dir));
+  renderCard();
+}
+
+function startQuiz(){
+  const lesson = LESSONS[currentLessonIdx];
+  currentQuizSet = buildQuizSet(lesson);
+  currentQuizMeta = {id: lesson.id, title: lesson.title};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  renderQuestion();
+  showScreen(quizScreen);
+}
+
+function startFinalExam(){
+  let qs = [];
+  LESSONS.forEach(l=>{
+    if(l.generate){
+      qs = qs.concat(GENERATORS[l.generate](FINAL_EXAM_PER_LESSON));
+    } else {
+      qs = qs.concat(shuffle(l.quiz).slice(0, FINAL_EXAM_PER_LESSON).map(prepareQuestion));
+    }
+  });
+  currentQuizSet = shuffle(qs);
+  currentQuizMeta = {id:'final', title:'Final Mock Exam'};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  renderQuestion();
+  showScreen(quizScreen);
+}
+
+function startReview(boss){
+  if(!window.Recall) return;
+  currentQuizSet = boss ? Recall.pickBoss(SH_APP, reviewPool(), reviewInfo, Boss.STAGE_SIZE) : Recall.pickDue(SH_APP, reviewPool(), reviewInfo);
+  if(!currentQuizSet.length){ goHome(); return; }
+  currentQuizMeta = {id:'review', title: boss ? Boss.text.stageTitle : Recall.text.reviewTitle, boss: !!boss};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, 'review', currentQuizMeta.title, false, currentQuizSet.length, 'review') : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  renderQuestion();
+  showScreen(quizScreen);
+  window.Army && (boss ? Army.start(currentQuizSet.length, quizScreen) : Army.stop());
+}
+
+function showSentence(sentence){
+  const el = document.getElementById('q-sentence');
+  el.textContent = sentence || '';
+  el.style.display = sentence ? '' : 'none';
+}
+function renderQuestion(){
+  answered = false;
+  document.getElementById('quiz-title').textContent = currentQuizMeta.title;
+  kit.renderLive();
+  const total = currentQuizSet.length;
+  document.getElementById('quiz-progress').style.width = `${(quizIdx/total)*100}%`;
+  renderBot(document.getElementById('quiz-bot-svg'), Math.round((quizScore/total)*8));
+  const q = currentQuizSet[quizIdx];
+  document.getElementById('q-feedback').innerHTML = '';
+  document.getElementById('q-explore').classList.add('hidden');
+  document.getElementById('q-next-btn').classList.add('hidden');
+
+  if(q.type === 'numberline'){
+    document.getElementById('q-text').textContent = `Question ${quizIdx+1} of ${total}: Find the sum.`;
+    showSentence('');
+    document.getElementById('q-art').classList.add('hidden');
+    document.getElementById('q-options').classList.add('hidden');
+    document.getElementById('q-numberline').classList.remove('hidden');
+    renderNumberlineQuestion(q);
+    offerQuestion({ art:q.art, review:false, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:document.getElementById('q-numberline'), options:[], tip:NUMBERLINE_TIP, q:`${q.start} + ${q.jumps} = ?`, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
+    return;
+  }
+
+  document.getElementById('q-numberline').classList.add('hidden');
+  document.getElementById('q-options').classList.remove('hidden');
+  const [prompt, sentence] = q.q.split('\n');
+  document.getElementById('q-text').textContent = `Question ${quizIdx+1} of ${total}: ${prompt}`;
+  showSentence(sentence);
+  const qArt = document.getElementById('q-art');
+  if(q.art){ qArt.innerHTML = q.art; qArt.classList.remove('hidden'); }
+  else { qArt.innerHTML = ''; qArt.classList.add('hidden'); }
+  const opts = document.getElementById('q-options');
+  opts.innerHTML = '';
+  q.options.forEach((opt, idx)=>{
+    const b = document.createElement('button');
+    b.className = 'option';
+    b.textContent = opt;
+    b.onclick = ()=>selectOption(idx);
+    opts.appendChild(b);
+  });
+  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:opts, options:opts.children, correct:q.correct, tip:q.tip, q:q.q, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
+}
+
+function selectOption(idx){
+  if(answered) return exploreOption(idx);
+  answered = true;
+  const q = currentQuizSet[quizIdx];
+  const total = currentQuizSet.length;
+  const buttons = document.querySelectorAll('#q-options .option');
+  buttons.forEach((b, i)=>{
+    if(i === q.correct) b.classList.add('correct');
+    else if(i === idx) b.classList.add('incorrect');
+    if(i === idx) b.disabled = true;
+    else b.classList.add('explorable');
+  });
+  showExploreHint('');
+  const correct = idx === q.correct;
+  const miss = correct ? null : { q: q.q, picked: q.options[idx], why: (q.why || [])[idx] || '', answer: q.options[q.correct], explain: q.explain, tip: q.tip || '' };
+  SH && SH.quizAnswered(historyQuizId, correct, historyQuestion(q), q.options[idx], q.options[q.correct], window.Recall ? Recall.typed() : false);
+  const helped = !!(window.PowerUps && PowerUps.answered());
+  if(correct){
+    quizScore++;
+  } else {
+    missedQuestions.push(miss);
+  }
+  kit.answer(correct, { helped: helped, exam: currentQuizMeta.id === 'final' });
+  renderBot(document.getElementById('quiz-bot-svg'), Math.round((quizScore/total)*8));
+  const fb = document.getElementById('q-feedback');
+  fb.innerHTML = correct
+    ? `<div class="feedback good"><strong>Correct! 🎉</strong>${q.explain}</div>`
+    : `<div class="feedback bad"><strong>Not quite — let's learn from this!</strong>${learnHtml(miss)}</div>`;
+  document.getElementById('q-next-btn').classList.remove('hidden');
+}
+
+function exploreWhy(text){
+  return text.replace(/^(?:You said (?:True|False), but |Pinili mo ang (?:Tama|Mali), pero )(.)/, (m, c)=>c.toUpperCase());
+}
+function showExploreHint(card){
+  const el = document.getElementById('q-explore');
+  el.innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>' + card;
+  el.classList.remove('hidden');
+}
+function exploreOption(i){
+  const q = currentQuizSet[quizIdx];
+  if(!q.options) return;
+  document.querySelectorAll('#q-options .option').forEach((b, n)=>b.classList.toggle('explored', n === i));
+  showExploreHint(i === q.correct
+    ? '<div class="explore-card explore-right"><b>This is the right answer</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + q.explain + '</span>' + '</div>'
+    : '<div class="explore-card"><b>Why not this one?</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + (exploreWhy((q.why||[])[i] || '') || 'This is not the right answer.') + '</span>' + '</div>');
+}
+
+function nextQuestion(){
+  quizIdx++;
+  if(quizIdx >= currentQuizSet.length){
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishQuiz(){
+  const total = currentQuizSet.length;
+  const best = Math.max(progress[currentQuizMeta.id] || 0, quizScore);
+  progress[currentQuizMeta.id] = best;
+  kit.saveProgress(progress);
+  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / currentQuizSet.length), kit.sessionPoints(), kit.bestStreak());
+  window.Fx && Fx.finish(starsFor(quizScore / currentQuizSet.length));
+  renderResults(total);
+  showScreen(resultsScreen);
+}
+
+function renderResults(total){
+  renderBot(document.getElementById('results-bot-svg'), Math.round((quizScore/total)*8));
+  const stars = starsFor(quizScore/total);
+  document.getElementById('results-heading').textContent =
+    stars === 3 ? 'Block Bot Complete!' : stars > 0 ? 'Great Progress!' : 'Keep Building!';
+  document.getElementById('results-score').textContent = `You scored ${quizScore} out of ${total} on ${currentQuizMeta.title}`;
+  document.getElementById('points-earned').textContent = kit.resultLine();
+  showMedals(document.getElementById('points-earned'));
+  document.getElementById('results-stars').innerHTML = [1,2,3].map(s=>`<span class="${s<=stars?'star-on':'star-off'}">★</span>`).join('');
+  const reviewEl = document.getElementById('missed-review');
+  if(missedQuestions.length){
+    reviewEl.innerHTML = '<h3>Questions to Review</h3><div class="missed-list">' +
+      missedQuestions.map(m => `<div class="missed-item"><p class="missed-q">${m.q}</p>${learnHtml(m)}</div>`).join('') +
+      '</div>';
+  } else {
+    reviewEl.innerHTML = '';
+  }
+  reviewEl.classList.toggle('show', missedQuestions.length > 0);
+}
+
+function retryLesson(){
+  if (currentQuizMeta.id === 'review') return startReview(bossAgain());
+  if(currentQuizMeta.id === 'final'){ startFinalExam(); }
+  else { startQuiz(); }
+}
+
+if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
+showMedals(document.getElementById('points-total-badge'));
+window.Search && Search.start({ list: 'lesson-grid', lessons: LESSONS });
+window.Trail && window.Recall && Trail.start({ app: SH_APP, title: SH_TITLE, list: 'lesson-grid', lessons: medalLessons(), review: startReview, final: startFinalExam, finalStars: function () { return starsFor((progress['final'] || 0) / (LESSONS.length * FINAL_EXAM_PER_LESSON)); } });
+window.Nav && Nav.start({ title: 'Block Bot', home: 'screen-home', goHome: goHome, inRound: () => Nav.current() === 'screen-quiz' });
+renderHome();
+if (window.Recall && Recall.wantsReview) startReview();
+else if (window.Recall && window.Boss && Boss.wantsBoss && Boss.isStage(SH_APP)) startReview(true);
+</script>

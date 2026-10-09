@@ -1,0 +1,8 @@
+{
+  "id": "science-detectives",
+  "title": "Science Detectives",
+  "grade": 2,
+  "subject": "science",
+  "pointsKey": "sciencedetectives_points_v1",
+  "progressKey": "sciencedetectives_progress_v1"
+}

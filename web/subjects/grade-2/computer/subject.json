@@ -1,0 +1,8 @@
+{
+  "id": "byte-buddies",
+  "title": "Byte Buddies",
+  "grade": 2,
+  "subject": "computer",
+  "pointsKey": "bytebuddies_points_v1",
+  "progressKey": "bytebuddies_progress_v1"
+}

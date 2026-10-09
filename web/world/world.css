@@ -1,0 +1,294 @@
+/* The 3D world page: a full-screen canvas with a small HUD. Grade 2 gets a bigger joystick (.big). */
+html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; color: #6a2c70;
+  font-family: 'Baloo 2', system-ui, sans-serif; touch-action: none; user-select: none; -webkit-user-select: none; }
+[hidden] { display: none !important; }
+/* fx.js adds a floating sound button on pages without Nav; the world has its own in Settings. */
+#fx-mute { display: none !important; }
+.stage, .stage canvas { position: fixed; inset: 0; display: block; }
+.loading { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center; font-size: 22px; font-weight: 800; }
+
+.w-hud { position: fixed; left: 16px; right: 16px; top: max(14px, env(safe-area-inset-top)); display: flex;
+  justify-content: space-between; align-items: center; gap: 8px; pointer-events: none; }
+.w-hud-right { display: flex; gap: 8px; }
+.w-pill { pointer-events: auto; background: rgba(255,255,255,.92); border: 0; border-radius: 999px; padding: 6px 16px;
+  font: 800 18px 'Baloo 2', system-ui, sans-serif; color: #7a3e8e; box-shadow: 0 4px 0 #f3b6d6; text-decoration: none; cursor: pointer;
+  white-space: nowrap; }
+@media (max-width: 420px) { .w-pill { font-size: 15px; padding: 5px 11px; } }
+
+.w-joy { position: fixed; left: 24px; bottom: max(24px, env(safe-area-inset-bottom)); width: 132px; height: 132px;
+  border-radius: 50%; background: rgba(255,255,255,.45); border: 4px dashed rgba(255,255,255,.95); touch-action: none; }
+.w-joy.big { width: 168px; height: 168px; }
+.w-knob { position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #ffc2e2); box-shadow: 0 5px 0 #f08cc0; display: grid; place-items: center;
+  font-size: 26px; pointer-events: none; }
+.w-joy.big .w-knob { width: 74px; height: 74px; margin: -37px 0 0 -37px; }
+
+.w-act { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) scale(.5); opacity: 0; pointer-events: none;
+  transition: transform .3s cubic-bezier(.3,1.7,.5,1), opacity .2s; background: linear-gradient(#ffe066, #ffb3d9); color: #6a2c70;
+  border: 4px solid #fff; border-radius: 999px; padding: 12px 30px; font: 800 24px 'Baloo 2', system-ui, sans-serif;
+  box-shadow: 0 6px 0 #e58fbf, 0 12px 28px rgba(200,80,150,.3); max-width: calc(100% - 200px); cursor: pointer; }
+.w-act.show { opacity: 1; transform: translateX(-50%) scale(1); pointer-events: auto; }
+@media (max-width: 600px) {
+  .w-act { left: auto; right: 16px; transform: scale(.5); max-width: calc(100% - 190px); font-size: 19px; padding: 10px 18px; }
+  .w-act.show { transform: scale(1); }
+}
+
+.w-waking { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center;
+  background: rgba(255,227,241,.88); font-size: 26px; font-weight: 800; }
+.w-overlay { position: fixed; inset: 0; background: rgba(106,44,112,.35); display: grid; place-items: center; padding: 16px; }
+.w-card { background: #fff; border-radius: 28px; padding: 18px; width: min(560px, 100%); max-height: calc(100vh - 32px);
+  overflow-y: auto; box-shadow: 0 8px 0 #f3b6d6; box-sizing: border-box; }
+.w-card-title { margin: 0 0 12px; text-align: center; font-size: 24px; }
+.w-travel { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.w-travel-btn, .w-btn, .w-choice { font: 800 17px 'Baloo 2', system-ui, sans-serif; border: 0; border-radius: 16px; padding: 10px 12px;
+  background: #fff0f7; color: #6a2c70; box-shadow: 0 3px 0 #f3b6d6; cursor: pointer; text-decoration: none; min-height: 44px; }
+.w-close { display: block; margin: 14px auto 0; }
+.w-credit { margin: 14px 0 0; text-align: center; font-size: 13px; font-weight: 700; color: #6a2c70; opacity: .7; }
+.w-setting { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 10px 0; font-weight: 800; flex-wrap: wrap; }
+.w-setting-options { display: flex; gap: 6px; flex-wrap: wrap; }
+.w-choice[aria-pressed="true"] { background: #ffd166; box-shadow: 0 3px 0 #e0a800; }
+
+.maker { position: fixed; left: 0; right: 0; bottom: 0; max-height: 58%; overflow-y: auto; background: rgba(255,255,255,.96);
+  border-radius: 28px 28px 0 0; padding: 14px 16px max(16px, env(safe-area-inset-bottom)); box-shadow: 0 -6px 24px rgba(200,80,150,.2);
+  box-sizing: border-box; }
+.maker-title { text-align: center; font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+.maker-row { display: block; margin: 8px 0; }
+.maker-label { font-weight: 800; margin-bottom: 4px; }
+.maker-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.maker-opt { font: 800 16px 'Baloo 2', system-ui, sans-serif; border: 3px solid transparent; border-radius: 14px; padding: 6px 12px;
+  background: #fff0f7; color: #6a2c70; cursor: pointer; min-height: 44px; }
+.maker-opt.swatch { width: 44px; padding: 0; }
+.maker-opt[aria-pressed="true"] { border-color: #ff6f91; box-shadow: 0 0 0 3px #ffd6e7; }
+.maker-name { font: 700 18px 'Baloo 2', system-ui, sans-serif; padding: 8px 12px; border-radius: 12px; border: 2px solid #f3b6d6;
+  width: min(260px, 100%); box-sizing: border-box; margin-top: 4px; user-select: text; -webkit-user-select: text; }
+.maker-done { display: block; margin: 14px auto 4px; font: 800 22px 'Baloo 2', system-ui, sans-serif; border: 4px solid #fff;
+  border-radius: 999px; padding: 10px 34px; background: linear-gradient(#ffe066, #ffb3d9); color: #6a2c70; box-shadow: 0 6px 0 #e58fbf; cursor: pointer; }
+
+.resting { z-index: 50; position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; background: #ffe3f1; }
+.resting-card { background: #fff; border-radius: 28px; padding: 24px; text-align: center; max-width: 420px; box-shadow: 0 8px 0 #f3b6d6; }
+.resting-emoji { font-size: 56px; }
+.resting-card h1 { font-size: 26px; margin: 6px 0; }
+.resting-card .w-btn { display: inline-block; margin-top: 10px; }
+@media (prefers-reduced-motion: reduce) { .w-act { transition: none; } }
+
+/* Speech bubble (talk.js). It sits under the top bar (--hud) and scrolls inside itself when the words are long. */
+.talk { --hud: calc(max(14px, env(safe-area-inset-top)) + 54px); --pad: 16px;
+  position: fixed; left: 50%; top: var(--hud); transform: translateX(-50%); width: min(560px, calc(100% - 32px)); box-sizing: border-box;
+  background: #fff; border-radius: 28px; padding: 14px 20px var(--pad); text-align: center; color: #5b2a6b;
+  box-shadow: 0 6px 0 #f3b6d6, 0 14px 30px rgba(200,80,150,.25); z-index: 20; max-height: calc(100% - var(--hud) - 16px);
+  overflow-y: auto; overscroll-behavior: contain; }
+.talk-who { font-weight: 800; color: #7b5cff; font-size: 15px; letter-spacing: .3px; }
+.talk-say { font-size: 21px; font-weight: 800; line-height: 1.3; margin: 6px 0 10px; white-space: pre-line; overflow-wrap: anywhere; }
+.talk-en { font-size: 17px; font-weight: 700; line-height: 1.3; margin: -4px 0 12px; color: #8a5a96; overflow-wrap: anywhere; }
+.talk-sub { font-size: 16px; font-weight: 600; line-height: 1.4; margin: -4px 0 12px; color: #7a4a86; overflow-wrap: anywhere; }
+.talk-sub p { margin: 0 0 6px; }
+.talk-sub.long { text-align: left; background: #fff6fb; border-radius: 16px; padding: 10px 14px 4px; }
+/* The pet teacher (teach.js): her pick in soft red, the right answer in green, then numbered steps. */
+.talk-teach { text-align: left; margin: 0 0 10px; }
+.talk-chip { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0 0 6px; padding: 8px 12px;
+  border-radius: 14px; font-size: 16px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.talk-chip.bad { background: #ffe8ea; color: #a8404f; }
+.talk-chip.good { background: #e3f8e6; color: #1f7a3a; }
+.talk-chip-label { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; opacity: .85; }
+.talk-steps { margin: 8px 0 0; padding: 10px 14px 4px 34px; background: #fff6fb; border-radius: 16px; color: #7a4a86;
+  font-size: 16px; font-weight: 600; line-height: 1.4; }
+.talk-steps li { margin: 0 0 6px; white-space: pre-line; overflow-wrap: anywhere; }
+/* The buttons stay in sight at the bottom of a long bubble while the words scroll. */
+.talk-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: sticky; bottom: calc(-1 * var(--pad));
+  margin: 0 -8px calc(-1 * var(--pad)); padding: 8px 8px var(--pad); background: #fff; }
+.talk-btn { font: 800 17px 'Baloo 2', system-ui, sans-serif; border: 0; border-radius: 999px; padding: 8px 20px; min-height: 44px;
+  background: #fff0f7; color: #6a2c70; box-shadow: 0 4px 0 #f3b6d6; cursor: pointer; }
+.talk-btn.main { background: linear-gradient(#ffe066, #ffb3d9); box-shadow: 0 4px 0 #e58fbf; }
+.talk-row.stack { flex-direction: column; align-items: stretch; position: static; }
+.talk-row.stack .talk-btn { border-radius: 18px; padding: 10px 16px; line-height: 1.3; overflow-wrap: anywhere; }
+@media (max-width: 420px) {
+  .talk { --hud: calc(max(14px, env(safe-area-inset-top)) + 48px); padding: 12px 14px var(--pad); width: calc(100% - 24px); --pad: 14px; }
+  .talk-say { font-size: 19px; }
+  .talk-en { font-size: 16px; }
+  .talk-sub { font-size: 15px; }
+  .talk-btn { font-size: 16px; padding: 8px 16px; }
+}
+/* Phones turned sideways: smaller words, and answers in two columns so they fit. */
+@media (max-height: 520px) {
+  .talk { --hud: calc(max(10px, env(safe-area-inset-top)) + 50px); left: auto; right: 16px; transform: none;
+    width: min(640px, calc(100% - 232px)); padding: 10px 16px var(--pad); --pad: 12px; }
+  .talk-say { font-size: 18px; margin: 4px 0 8px; }
+  .talk-en { font-size: 15px; margin: -4px 0 8px; }
+  .talk-sub { font-size: 14px; margin-bottom: 8px; }
+  .talk-btn { font-size: 15px; min-height: 40px; padding: 6px 16px; }
+  .talk-row.stack { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .talk-row.stack .talk-btn { padding: 6px 12px; }
+  .talk-row.stack .talk-btn:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+.maker-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.maker-tab { font: 800 15px 'Baloo 2', system-ui, sans-serif; border: 3px solid transparent; border-radius: 999px; padding: 4px 12px;
+  background: #fff0f7; color: #6a2c70; cursor: pointer; min-height: 40px; }
+.maker-tab[aria-pressed="true"] { border-color: #ff6f91; background: #ffe0ef; }
+.maker-shop { display: block; margin: 8px auto 0; font: 800 16px 'Baloo 2', system-ui, sans-serif; border: 0; background: none;
+  color: #c2185b; text-decoration: underline; cursor: pointer; min-height: 44px; }
+.bt-line, .bt-have, .bt-note { text-align: center; font-weight: 700; margin: 2px 0; }
+.bt-note { color: #b5442b; }
+.bt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.bt-card { background: #fff7fb; border-radius: 18px; padding: 8px; display: flex; flex-direction: column; gap: 6px; align-items: stretch;
+  box-shadow: 0 3px 0 #f3b6d6; }
+.bt-try { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 3px solid transparent; border-radius: 14px;
+  background: #fff; cursor: pointer; padding: 6px; min-height: 44px; font: 700 14px 'Baloo 2', system-ui, sans-serif; color: #6a2c70; }
+.bt-try[aria-pressed="true"] { border-color: #ff6f91; box-shadow: 0 0 0 3px #ffd6e7; }
+.bt-icon { font-size: 30px; line-height: 1; }
+.bt-price, .bt-owned { text-align: center; font-weight: 800; }
+.bt-owned { color: #2e8b57; }
+.bt-bar { height: 8px; border-radius: 999px; background: #f3e1ea; overflow: hidden; }
+.bt-bar span { display: block; height: 100%; background: linear-gradient(90deg, #ffd166, #ff8fc8); }
+.bt-buy { min-height: 44px; line-height: 1.2; font-size: 15px; padding: 10px 6px; }
+.bt-buy:disabled { opacity: .6; cursor: default; }
+.bt-confirm { margin: 10px 0; padding: 10px; border-radius: 16px; background: #fffbe0; text-align: center; font-weight: 800; }
+.bt-confirm .w-btn { margin: 6px 6px 0; }
+.bt-msg { text-align: center; font-weight: 800; min-height: 1.4em; }
+.w-treat { position: fixed; right: 16px; bottom: 124px; }
+@media (max-height: 520px) { .w-treat { bottom: 92px; } }
+/* Sprint: a round button in the bottom-right corner, under the Treat stack. */
+.w-sprint { position: fixed; right: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: 56px; height: 56px; border: 0;
+  border-radius: 50%; background: rgba(255,255,255,.92); box-shadow: 0 4px 0 #f3b6d6; font-size: 28px; line-height: 1; cursor: pointer; }
+.w-sprint[aria-pressed="true"] { background: #ffd166; box-shadow: 0 0 0 4px #fff3b0, 0 4px 0 #f0a500; }
+.w-stop { position: fixed; right: 16px; top: calc(max(14px, env(safe-area-inset-top)) + 56px); }
+.w-speed { position: fixed; inset: 0; pointer-events: none; opacity: 0; transition: opacity .2s;
+  background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.6) 0deg 1.2deg, transparent 1.2deg 7deg);
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 58%, #000 88%);
+  mask-image: radial-gradient(ellipse at center, transparent 58%, #000 88%); }
+.w-speed.on { opacity: .75; animation: w-speed .3s linear infinite alternate; }
+@keyframes w-speed { to { transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) { .w-speed { display: none; } }
+.w-play { position: fixed; right: 16px; bottom: 180px; }
+.w-emote { position: fixed; right: 16px; bottom: 236px; }
+.w-use { position: fixed; right: 16px; bottom: 292px; }
+.w-playrow, .w-emoterow { position: fixed; right: 16px; bottom: 348px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; max-width: calc(100vw - 32px);
+  max-height: max(44px, calc(100vh - 348px - 72px)); overflow-y: auto; }
+.w-play-item { min-height: 44px; }
+@media (max-height: 520px) {
+  .w-play { bottom: 148px; }
+  .w-emote { bottom: 204px; }
+  .w-use { bottom: 260px; }
+  .w-playrow, .w-emoterow { bottom: 316px; max-height: max(44px, calc(100vh - 316px - 72px)); }
+}
+
+/* Playground games (games3d.js): the pill with the game and the time, the big count, Disguise and Boo!. */
+.g-pill { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 56px); z-index: 12;
+  display: flex; align-items: center; gap: 10px; max-width: calc(100% - 32px); box-sizing: border-box;
+  background: rgba(255,255,255,.94); color: #5b2a6b; border-radius: 999px; padding: 6px 8px 6px 16px;
+  font: 800 16px 'Baloo 2', system-ui, sans-serif; box-shadow: 0 4px 0 #f3b6d6; }
+.g-pill-text { overflow-wrap: anywhere; line-height: 1.25; }
+.g-end { flex: none; font: 800 14px 'Baloo 2', system-ui, sans-serif; border: 0; border-radius: 999px; padding: 6px 12px; min-height: 36px;
+  background: #fff0f7; color: #6a2c70; cursor: pointer; }
+.g-count { position: fixed; inset: 0; z-index: 11; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 45%, #7a3f8c, #2b1238 75%); color: #fff; font: 800 120px 'Baloo 2', system-ui, sans-serif;
+  text-shadow: 0 6px 0 #ff8fc8, 0 10px 30px rgba(120,40,100,.4); }
+.g-count-eyes { font-size: 72px; line-height: 1; text-shadow: none; }
+.g-count-n { line-height: 1.1; }
+.g-hint { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 108px); z-index: 12;
+  max-width: calc(100% - 32px); box-sizing: border-box; padding: 6px 16px; border-radius: 16px; text-align: center;
+  background: #fff6c8; color: #5b2a6b; font: 800 15px 'Baloo 2', system-ui, sans-serif; box-shadow: 0 3px 0 #f0d77a; }
+.g-danger { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+/* The pulse fades a fixed shadow: animating the shadow itself repaints the whole screen every frame. */
+.g-danger::before { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 100px 34px rgba(255,40,70,.8);
+  animation: g-pulse .5s ease-in-out infinite alternate; will-change: opacity; }
+@keyframes g-pulse { from { opacity: .65; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g-danger::before { animation: none; } }
+.g-act { position: fixed; left: 50%; transform: translateX(-50%); bottom: 112px; z-index: 12; font: 800 19px 'Baloo 2', system-ui, sans-serif;
+  border: 0; border-radius: 999px; padding: 10px 22px; min-height: 48px; cursor: pointer; color: #5b2a6b;
+  background: linear-gradient(#ffe066, #ffb3d9); box-shadow: 0 4px 0 #e58fbf; }
+.g-boo { background: linear-gradient(#e3d5ff, #b39dff); box-shadow: 0 4px 0 #8a6fe0; }
+@media (max-width: 420px) { .g-pill { font-size: 14px; } .g-count { font-size: 90px; } .g-hint { font-size: 13px; top: calc(max(14px, env(safe-area-inset-top)) + 116px); } }
+@media (max-height: 520px) { .g-pill { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } .g-hint { top: calc(max(10px, env(safe-area-inset-top)) + 96px); } .g-act { bottom: 90px; } }
+
+/* My Room (world-main.js): a locked earned piece at Tito Tasyo's shows how to earn it instead of a price, and the room's
+   own pills (✅ Done to stand up, 💛 Cheer on a visit) sit under the top bar on the right. */
+.bt-earn { text-align: center; font-weight: 700; font-size: 14px; line-height: 1.3; color: #8a5a96; background: #fff6c8;
+  border-radius: 12px; padding: 6px 8px; overflow-wrap: anywhere; }
+.w-roombar { position: fixed; right: 16px; top: calc(max(14px, env(safe-area-inset-top)) + 56px); display: flex; flex-direction: column;
+  align-items: flex-end; gap: 8px; pointer-events: none; }
+@media (max-height: 520px) { .w-roombar { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } }
+
+/* The Decorate view (decorate.js): a low panel at the bottom, so the room shows above it. Tabs and ✅ Done on top, the
+   cards in one row that scrolls sideways, then the coins with the message, ↻ Turn / 📦 Put away or the Yes/No. */
+.deco { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; background: rgba(255,255,255,.96); border-radius: 22px 22px 0 0;
+  padding: 8px 12px max(8px, env(safe-area-inset-bottom)); box-shadow: 0 -6px 24px rgba(200,80,150,.2); box-sizing: border-box; }
+.deco-top { display: flex; align-items: center; gap: 8px; }
+.deco-tabs { flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.deco-tabs::-webkit-scrollbar { display: none; }
+.deco-tabs .maker-tab { flex: none; min-height: 38px; font-size: 14px; }
+.deco-done { flex: none; font: 800 16px 'Baloo 2', system-ui, sans-serif; border: 3px solid #fff; border-radius: 999px; padding: 2px 16px;
+  min-height: 42px; background: linear-gradient(#ffe066, #ffb3d9); color: #6a2c70; box-shadow: 0 4px 0 #e58fbf; cursor: pointer; }
+.deco-cards { display: flex; gap: 8px; overflow-x: auto; padding: 7px 2px 6px; scroll-snap-type: x proximity; scrollbar-width: thin;
+  scrollbar-color: #f3b6d6 transparent; }
+.deco-cards::-webkit-scrollbar { height: 6px; }
+.deco-cards::-webkit-scrollbar-thumb { background: #f3b6d6; border-radius: 3px; }
+.deco-card { flex: none; width: 112px; height: 80px; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-start; gap: 1px; border: 3px solid transparent; border-radius: 16px; background: #fff7fb; box-shadow: 0 3px 0 #f3b6d6;
+  padding: 3px 6px; cursor: pointer; color: #6a2c70; font: 700 12px/1.15 'Baloo 2', system-ui, sans-serif; overflow: hidden; }
+.deco-card[aria-pressed="true"] { border-color: #ff6f91; box-shadow: 0 0 0 3px #ffd6e7; background: #fff; }
+.deco-card.locked { width: 150px; background: #fffbe8; }
+.deco-icon { font-size: 24px; line-height: 1.1; }
+.deco-name { max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-align: center; }
+.deco-sub { font-size: 11px; font-weight: 800; color: #b5447a; text-align: center; max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden; }
+.deco-card.on .deco-sub, .deco-card.mine .deco-sub { color: #2e8b57; }
+.deco-card.locked .deco-sub { color: #8a5a96; font-weight: 700; }
+.deco-card.locked .deco-name { -webkit-line-clamp: 1; }
+/* Grade 2 names and lines come in pairs: taller, wider cards. */
+.deco.pair .deco-card { width: 150px; height: 118px; }
+.deco.pair .deco-name { -webkit-line-clamp: 3; }
+.deco.pair .deco-card.locked { width: 164px; }
+.deco-have-short { display: none; }
+.deco-bar { display: flex; align-items: center; gap: 8px; min-height: 42px; }
+.deco-have { flex: none; font-weight: 800; font-size: 14px; }
+.deco-msg { flex: 1; min-width: 0; font-weight: 800; font-size: 14px; line-height: 1.2; color: #7a3e8e; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.deco-acts, .deco-ask { flex: none; display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.deco-ask { flex: 1; min-width: 0; justify-content: flex-end; background: #fffbe0; border-radius: 14px; padding: 3px 6px 3px 12px; }
+.deco-ask-text { flex: 1; min-width: 0; font-weight: 800; font-size: 14px; line-height: 1.2; }
+.deco-bar .w-btn { min-height: 38px; padding: 4px 14px; font-size: 15px; }
+/* Short screens (a phone or tablet turned sideways): tabs show their emoji, the cards and words get smaller, so the room
+   keeps most of the screen. */
+@media (max-height: 520px) {
+  .deco { padding: 5px 8px max(5px, env(safe-area-inset-bottom)); border-radius: 16px 16px 0 0; }
+  .deco-tabs { gap: 4px; }
+  .deco-tabs .maker-tab { font-size: 18px; min-height: 34px; min-width: 44px; padding: 0 8px; }
+  .deco-tab-word { display: none; }
+  .deco-done { font-size: 14px; min-height: 34px; padding: 0 12px; }
+  .deco-cards { padding: 4px 2px 3px; gap: 6px; }
+  .deco-card { width: 92px; height: 60px; font-size: 11px; border-radius: 12px; padding: 1px 4px; border-width: 2px; }
+  .deco-card.locked { width: 132px; }
+  .deco-icon { font-size: 18px; }
+  .deco-name { -webkit-line-clamp: 1; }
+  .deco-sub { font-size: 10px; -webkit-line-clamp: 1; }
+  .deco-card.locked .deco-sub { -webkit-line-clamp: 2; }
+  .deco-bar { min-height: 34px; gap: 6px; }
+  .deco-have, .deco-msg, .deco-ask-text { font-size: 12px; }
+  .deco-have-line { display: none; }
+  .deco-have-short { display: inline; }
+  .deco-ask-text { -webkit-line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; font-size: 11px; line-height: 1.15; }
+  .deco-bar .w-btn { min-height: 34px; padding: 2px 10px; font-size: 13px; }
+  /* The message floats at the top, over the sky, so the panel keeps its height. */
+  .deco-msg { position: fixed; top: max(6px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: max-content;
+    max-width: calc(100% - 24px); box-sizing: border-box; padding: 4px 12px; border-radius: 14px; background: rgba(255,255,255,.94);
+    box-shadow: 0 3px 0 #f3b6d6; text-align: center; font-size: 13px; pointer-events: none; }
+  .deco-msg:empty { display: none; }
+  .deco.pair .deco-card { width: 112px; height: 64px; }
+  .deco.pair .deco-card.locked { width: 140px; }
+}
+
+/* Action buttons. Wide screens keep each button where it is (the rail is transparent). On a narrow phone the joystick
+   keeps the left thumb and the buttons stack in one tidy column for the right thumb, above the action button; a button
+   that is hidden leaves no gap. */
+.w-rail { display: contents; }
+@media (max-width: 600px) {
+  .w-rail { position: fixed; right: 12px; bottom: calc(max(24px, env(safe-area-inset-bottom)) + 124px); display: flex;
+    flex-direction: column-reverse; align-items: flex-end; gap: 10px; z-index: 5; }
+  .w-rail > * { position: static; right: auto; left: auto; bottom: auto; width: 68px; min-height: 58px; box-sizing: border-box;
+    display: grid; place-content: center; padding: 4px; border-radius: 20px; text-align: center; white-space: normal;
+    line-height: 1.1; font-size: 14px; }
+  .w-rail > .w-sprint { width: 58px; height: 58px; border-radius: 50%; font-size: 28px; }
+  .w-playrow, .w-emoterow { right: 90px; left: auto; justify-content: flex-end;
+    bottom: calc(max(24px, env(safe-area-inset-bottom)) + 124px); max-width: calc(100vw - 106px);
+    max-height: max(44px, calc(100vh - max(24px, env(safe-area-inset-bottom)) - 124px - 72px)); }
+}

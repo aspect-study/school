@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffe3f1">
+<title>Campus · Study Games</title>
+<link rel="icon" type="image/png" href="../assets/icons/grade5-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="world.css">
+</head>
+<body data-grade="grade5">
+<div class="stage" id="stage"></div>
+<div class="loading" id="loading">Loading the world…</div>
+<div class="resting" id="resting" hidden>
+  <div class="resting-card">
+    <div class="resting-emoji">😴</div>
+    <h1 id="resting-title">The world is resting 😴</h1>
+    <p id="resting-line">Here is the Campus map!</p>
+    <a class="w-btn" id="resting-go" href="../lobby/grade-5.html">🗺️ Back to the lobby</a>
+  </div>
+</div>
+<script src="../engine/lang.js"></script>
+<script src="../engine/storage.js" data-grade="grade5"></script>
+<script src="../engine/learner.js" data-grade="grade5"></script>
+<script src="../engine/clock.js" data-grade="grade5"></script>
+<script src="../engine/study-history.js" data-grade="grade5"></script>
+<script src="../engine/recall.js" data-grade="grade5"></script>
+<script src="../engine/mastery.js" data-grade="grade5"></script>
+<script src="../engine/wallet.js" data-grade="grade5"></script>
+<script src="../engine/quests.js" data-grade="grade5"></script>
+<script src="../engine/boss.js" data-grade="grade5"></script>
+<script src="../engine/bosses.js"></script>
+<script src="../engine/guide.js" data-grade="grade5"></script>
+<script src="../engine/world.js"></script>
+<script src="../engine/subjects.js"></script>
+<script src="../engine/family.js" data-grade="grade5"></script>
+<script src="../engine/fx.js" data-grade="grade5"></script>
+<script src="../engine/study-kit.js" data-grade="grade5"></script>
+<script src="../vendor/three/three.min.js"></script>
+<script src="../vendor/three/rounded-box.js"></script>
+<script src="text.js"></script>
+<script src="layout.js"></script>
+<script src="items.js"></script>
+<script src="pets.js"></script>
+<script src="emotes.js"></script>
+<script src="furniture.js"></script>
+<script src="room.js"></script>
+<script src="trophies.js"></script>
+<script src="house.js"></script>
+<script src="moves.js"></script>
+<script src="moverun.js"></script>
+<script src="look.js"></script>
+<script src="closet.js"></script>
+<script src="prefs.js"></script>
+<script src="walk.js"></script>
+<script src="music.js"></script>
+<script src="sfx.js"></script>
+<script src="progress.js"></script>
+<script src="buddies.js"></script>
+<script src="lines.js"></script>
+<script src="care.js"></script>
+<script src="nudge.js"></script>
+<script src="rides.js"></script>
+<script src="mates.js"></script>
+<script src="matelines.js"></script>
+<script src="matequiz.js"></script>
+<script src="mateboard.js"></script>
+<script src="matemind.js"></script>
+<script src="mategame.js"></script>
+<script src="patintero.js"></script>
+<script src="petlife.js"></script>
+<script src="cheer.js"></script>
+<script src="chat.js"></script>
+<script src="quiz.js"></script>
+<script src="teach.js"></script>
+<script src="loot.js"></script>
+<script src="lesson-files.js"></script>
+<script src="scene.js"></script>
+<script src="build.js"></script>
+<script src="decor.js"></script>
+<script src="cast.js"></script>
+<script src="fort-boss.js"></script>
+<script src="talk.js"></script>
+<script src="ask.js"></script>
+<script src="wear.js"></script>
+<script src="room3d.js"></script>
+<script src="petbody.js"></script>
+<script src="pettricks.js"></script>
+<script src="avatar.js"></script>
+<script src="companion.js"></script>
+<script src="move.js"></script>
+<script src="maker.js"></script>
+<script src="stall.js"></script>
+<script src="boutique.js"></script>
+<script src="petshop.js"></script>
+<script src="toyshop.js"></script>
+<script src="carpenter.js"></script>
+<script src="decorate.js"></script>
+<script src="playbar.js"></script>
+<script src="usebar.js"></script>
+<script src="town.js"></script>
+<script src="folk.js"></script>
+<script src="kin.js"></script>
+<script src="play.js"></script>
+<script src="mates3d.js"></script>
+<script src="games3d.js"></script>
+<script src="loot3d.js"></script>
+<script src="world-main.js"></script>
+<script>
+if (!window.World3D || !World3D.Main) {
+  document.getElementById('loading').hidden = true;
+  document.getElementById('resting').hidden = false;
+}
+</script>
+</body>
+</html>

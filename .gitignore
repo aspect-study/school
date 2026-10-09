@@ -1,0 +1,29 @@
+# Source decks, scans and downloads (multi-GB; the .md extractions are kept)
+*.pdf
+*.pptx
+*.zip
+*.jpg
+*.jpeg
+*.png
+**/extracted/
+**/drive-download-*/
+
+# Teacher decks, textbook extractions and saved test pages: other people's content, with teacher and student names.
+# They stay on the owner's machine only (back them up elsewhere).
+sources/
+
+# Original announcer clips (MLBB, LoL, Valorant); the copies the app uses are in web/assets/sounds
+sounds/
+
+# Tool output
+.gstack/
+*.log
+*.jsonl
+node_modules/
+.claude/settings.local.json
+
+# App icons for the installable lobbies are generated art, not scans
+!web/assets/icons/*.png
+
+# Brainstorm mockups from the visual companion
+.superpowers/

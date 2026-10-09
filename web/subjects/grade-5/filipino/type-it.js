@@ -1,0 +1,23 @@
+StudyKit.content('typeIt', {
+  'Ano ang tawag sa bilang ng pantig sa bawat taludtod ng tula?': [],
+  'Ang <u>kronolohiko</u> ay gumagamit ng mga salitang tulad ng una, pangalawa, at susunod upang ipakita ang pagkakasunod-sunod ng pangyayari. Kung mali, ano ang tamang salita?': [],
+  'Isang teksto tungkol sa buhay ni Jose Rizal, mula sa kaniyang kapanganakan hanggang sa kaniyang kamatayan. Anong hulwaran ito?': [],
+  'Isang teksto kung paano magluto ng kanin: hugasan ang bigas, ilagay ang tubig, at saka lutuin. Anong hulwaran ito?': [],
+  'Aling salita ang wastong gamitin? &ldquo;Tumakbo ___ mabilis si Ana pauwi.&rdquo;': [],
+  'Paano isusulat nang wasto ang <b>masaya</b> + <b>bata</b>?': [],
+  'Paano isusulat nang wasto ang <b>mabait</b> + <b>anak</b>?': [],
+  '&ldquo;Mas mabait ang alaga naming pusa kaysa sa alaga naming aso.&rdquo; Anong antas ng pang-uri ang ginamit?': [],
+  'Ano ang tawag sa mga taong pinaglalaanan mo ng iyong mensahe?': [],
+  'Ano ang tawag sa bahagi ng liham na naglalaman ng tirahan at petsa?': [],
+  'Saan mo hahanapin ang kasaysayan ng Pilipinas?': ['encyclopedia', 'ensayklopidya'],
+  'Sa Alamat ng Mindoro, ano ang dating tawag sa isla?': [],
+  'Ano ang ibig sabihin ng DIY?': ['do it yourself'],
+  'Ayon sa halimbawang diksiyonaryo, ano ang kahulugan ng <b>batugan</b>?': [],
+  'Ilang pantig mayroon sa &ldquo;Ang bata ay mabait&rdquo;?': ['pito'],
+  'Ano ang ibig sabihin ng LRN?': [],
+  'Ito ay pagbati na ginagamit sa pagtatapos ng liham bago ilagay ang pangalan ng sumulat. Anong bahagi ng liham ito?': [],
+  'Ito ay ang pangunahing mensahe, kuwento, o impormasyong nais iparating sa kaibigan. Anong bahagi ng liham ito?': ['katawan'],
+  'Ito ang pagbati sa taong sinusulatan bago simulan ang mensahe. Anong bahagi ng liham ito?': [],
+  'Ito ang pangalan ng sumulat na inilalagay sa hulihan ng liham. Anong bahagi ng liham ito?': [],
+  'Ito ay bahagi ng liham na may talang &ldquo;BF Resort, Las Piñas City, September 24, 2026.&rdquo; Anong bahagi ng liham ito?': []
+});

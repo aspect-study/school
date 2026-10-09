@@ -1,0 +1,841 @@
+<html lang="en">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Page Turners: English 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF7EC;
+  --card:#FFFFFF;
+  --ink:#2B2320;
+  --accent:#4B4FA8;
+  --accent-dark:#2D3070;
+  --accent-soft:#E6E7F7;
+  --gold:#FFB627;
+  --coral:#FF6F59;
+  --muted:#8A7F73;
+  --border:#F0E4D2;
+  --good:#2E9E5B;
+  --bad:#E15555;
+  --shadow: 0 10px 28px rgba(43,35,32,0.10);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15201F;
+    --card:#1E2C2A;
+    --ink:#F5EFE3;
+    --accent:#9EA2F0;
+    --accent-dark:#C9CBFA;
+    --accent-soft:#23243F;
+    --gold:#FFC65C;
+    --coral:#FF8A73;
+    --muted:#B9AE9E;
+    --border:#2C3B39;
+    --good:#4FCB82;
+    --bad:#FF7A7A;
+    --shadow: 0 10px 28px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15201F;
+  --card:#1E2C2A;
+  --ink:#F5EFE3;
+  --accent:#9EA2F0;
+  --accent-dark:#C9CBFA;
+  --accent-soft:#23243F;
+  --gold:#FFC65C;
+  --coral:#FF8A73;
+  --muted:#B9AE9E;
+  --border:#2C3B39;
+  --good:#4FCB82;
+  --bad:#FF7A7A;
+  --shadow: 0 10px 28px rgba(0,0,0,0.35);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
+#app{max-width:720px;margin:0 auto;padding:20px 16px 60px;}
+.screen{display:none;}
+.screen.active{display:block;animation:fadeIn .25s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.hero{
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  color:#fff;
+  border-radius:22px;
+  padding:26px 22px;
+  box-shadow:var(--shadow);
+  margin-bottom:20px;
+}
+/* In dark mode --accent-dark is deliberately LIGHT (it is used as text colour on
+   dark cards). That makes the hero gradient pale, and the hero's white text drops
+   to ~1.4:1 contrast. Darken both stops here so the white text stays readable. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .hero{
+    background:linear-gradient(135deg,
+      color-mix(in srgb, var(--accent) 55%, #0C1414),
+      color-mix(in srgb, var(--accent-dark) 35%, #0C1414));
+  }
+}
+:root[data-theme="dark"] .hero{
+  background:linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 55%, #0C1414),
+    color-mix(in srgb, var(--accent-dark) 35%, #0C1414));
+}
+.hero h1{margin:0 0 6px;font-size:1.7rem;}
+.hero p{margin:0;opacity:.92;line-height:1.5;font-size:.95rem;}
+.hero .badge{
+  display:inline-block;background:rgba(255,255,255,.18);
+  padding:4px 12px;border-radius:999px;font-size:.75rem;font-weight:800;
+  letter-spacing:.04em;margin-bottom:10px;
+}
+
+.card-list{display:flex;flex-direction:column;gap:12px;}
+.item-card{
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  display:flex;align-items:center;gap:14px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  transition:transform .15s ease, border-color .15s ease;
+}
+.item-card:hover{transform:translateY(-2px);border-color:var(--accent);}
+/* Cards are divs (they contain headings, so they cannot be
+   <button>). They carry role=button + tabindex, so give them a visible focus
+   ring for anyone driving the app from the keyboard. */
+.item-card:focus-visible,
+.btn:focus-visible,
+.option:focus-visible{
+  outline:3px solid var(--gold);
+  outline-offset:3px;
+}
+.item-card .icon{
+  width:52px;height:52px;border-radius:14px;
+  background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;
+}
+.item-card .info{flex:1;min-width:0;}
+.item-card .info h3{margin:0 0 3px;font-size:1.05rem;}
+.item-card .info p{margin:0;color:var(--muted);font-size:.82rem;}
+.stars{font-size:.95rem;letter-spacing:1px;color:var(--gold);white-space:nowrap;}
+.stars .off{color:var(--border);}
+
+.final-card{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,var(--accent-soft),var(--card));
+}
+.final-badge{
+  display:inline-block;background:var(--gold);color:#3A2900;
+  font-size:.68rem;font-weight:800;padding:2px 10px;border-radius:999px;
+  margin-bottom:4px;letter-spacing:.03em;
+}
+.strategy-card{border-color:var(--coral);}
+.strategy-card .icon{background:#FFEAE6;}
+
+.topbar{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.topbar h2{margin:0;font-size:1.15rem;flex:1;}
+
+.flash-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;}
+.flashcard{
+  width:100%;min-height:220px;
+  background:var(--card);
+  border:2px solid var(--border);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:26px 22px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+}
+.flashcard h3{margin:6px 0 10px;font-size:1.3rem;color:var(--accent-dark);}
+.flashcard p{margin:0;font-size:1rem;line-height:1.55;}
+.flashcard #flashBack{width:100%;padding-top:12px;border-top:2px dashed var(--border);}
+.flash-nav{display:flex;align-items:center;gap:16px;width:100%;justify-content:space-between;}
+.flash-dots{font-size:.85rem;color:var(--muted);font-weight:700;}
+
+.btn{
+  font-family:'Baloo 2',cursive;
+  border:none;border-radius:14px;
+  padding:13px 22px;font-size:1rem;font-weight:700;
+  cursor:pointer;color:#fff;
+  background:var(--accent);
+  box-shadow:0 6px 0 var(--accent-dark);
+  transition:transform .1s ease;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--accent-dark);}
+.btn.gold{background:var(--gold);box-shadow:0 6px 0 #C98600;color:#3A2900;}
+.btn.gold:active{box-shadow:0 2px 0 #C98600;}
+.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--border);box-shadow:none;}
+.btn.full{width:100%;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.progress-bar{
+  height:10px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:18px;
+}
+.progress-bar .fill{height:100%;background:var(--gold);transition:width .3s ease;}
+
+.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.85rem;color:var(--muted);font-weight:700;}
+.scene-box{
+  background:var(--card);border:2px solid var(--border);border-radius:18px;
+  padding:10px;margin-bottom:16px;box-shadow:var(--shadow);
+}
+.scene-box svg{width:100%;max-width:150px;display:block;margin:0 auto;}
+
+.passage{
+  background:var(--accent-soft);border:2px solid var(--accent);border-radius:16px;
+  padding:16px;margin-bottom:16px;font-size:.95rem;line-height:1.6;
+}
+.passage strong{color:var(--accent-dark);}
+
+.q-card{
+  background:var(--card);border:2px solid var(--border);border-radius:18px;
+  padding:20px;box-shadow:var(--shadow);margin-bottom:16px;
+}
+.q-card h3{margin:0 0 16px;font-size:1.1rem;line-height:1.5;}
+.option{
+  display:block;width:100%;text-align:left;
+  background:var(--bg);border:2px solid var(--border);border-radius:14px;
+  padding:13px 16px;margin-bottom:10px;font-size:.95rem;font-family:'Nunito',sans-serif;
+  cursor:pointer;color:var(--ink);font-weight:700;
+}
+.option:hover{border-color:var(--accent);}
+.option.correct{background:#E5F6EB;border-color:var(--good);color:#1B6B3C;}
+.option.wrong{background:#FCE9E9;border-color:var(--bad);color:#A82F2F;}
+.option:disabled{cursor:default;}
+.option.explorable{border-style:dashed;}
+.option.explored{box-shadow:0 0 0 3px var(--accent-soft);}
+.explore{margin-top:4px;}
+.explore-hint{font-size:.85rem;color:var(--muted);font-weight:700;}
+.explore-card{margin-top:8px;background:var(--card);border:2px solid var(--border);border-left:5px solid var(--bad);border-radius:10px;padding:9px 12px;line-height:1.5;font-size:.88rem;}
+.explore-card.explore-right{border-left-color:var(--good);}
+.explore-card b.learn-label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.explore-card .learn-choice{font-weight:800;}
+.explore-card .learn-why{display:block;margin-top:3px;}
+.explain{
+  margin-top:12px;padding:12px 14px;background:var(--accent-soft);
+  border-radius:12px;font-size:.88rem;line-height:1.5;color:var(--ink);
+}
+
+.results-hero{text-align:center;padding:20px 0;}
+.results-hero .big-stars{font-size:2.2rem;color:var(--gold);letter-spacing:4px;}
+.results-hero h2{margin:8px 0 4px;}
+.results-hero p{color:var(--muted);margin:0 0 16px;}
+.result-actions{display:flex;flex-direction:column;gap:10px;}
+
+.strategy-list{display:flex;flex-direction:column;gap:12px;}
+.tip{
+  background:var(--card);border:2px solid var(--border);border-left:6px solid var(--coral);
+  border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);
+}
+.tip h4{margin:0 0 5px;font-size:.98rem;color:var(--accent-dark);}
+.tip p{margin:0;font-size:.9rem;line-height:1.55;}
+.tip .kicker{font-size:.7rem;font-weight:800;color:var(--coral);text-transform:uppercase;letter-spacing:.05em;}
+
+/* 3-up lesson map on wide screens, so every lesson shows at once.
+   Only the lesson list widens -- flashcards, quiz and results stay narrow. */
+@media (min-width:900px){
+  #app{max-width:1120px;}
+  #app .screen:not(#home){max-width:720px; margin-left:auto; margin-right:auto;}
+  #home > *:not(.card-list){max-width:720px; margin-left:auto; margin-right:auto;}
+  #home .card-list{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; align-items:stretch;}
+  #home .item-card{flex-direction:column; align-items:stretch; height:100%;}
+  #home .item-card .icon{align-self:flex-start;}
+  #home .item-card .info{flex:1;}
+}
+
+/* ---- POINTS ---- */
+.points-total{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.18);color:#fff;
+  padding:6px 14px;border-radius:999px;
+  font-size:.82rem;font-weight:800;margin-top:12px;
+}
+.points-live{color:var(--gold);font-weight:800;white-space:nowrap;}
+.points-live .streak{color:var(--coral);margin-left:4px;}
+.points-earned{font-size:1rem;font-weight:800;color:var(--ink);margin:8px 0 0;}
+/* ---- Learn from a wrong answer ---- */
+.learn{display:flex;flex-direction:column;gap:8px;}
+.learn-title{font-weight:800;}
+.learn-row{background:var(--card);border-radius:10px;padding:9px 12px;border-left:5px solid var(--bad);line-height:1.5;}
+.learn-row b.learn-label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+.learn-row .learn-choice{font-weight:800;}
+.learn-row .learn-why{display:block;margin-top:3px;}
+.learn-right{border-left-color:var(--good);}
+.learn-tip{border-left-color:var(--gold);}
+.missed-review{text-align:left;margin:0 0 18px;padding-top:14px;border-top:1px solid var(--border);}
+.missed-review h3{text-align:center;margin:0 0 10px;font-size:1rem;}
+.missed-list{max-height:420px;overflow-y:auto;}
+.missed-item{background:var(--accent-soft);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:.88rem;}
+.missed-item .missed-q{white-space:pre-line;font-weight:700;margin:0 0 8px;}
+</style>
+
+<div id="app">
+
+  <div id="home" class="screen active">
+    <div class="hero">
+      <span class="badge">English · Grade 5 · First Term</span>
+      <h1>Page Turners 📖</h1>
+      <p>Fill your storybook one correct answer at a time! Study story elements and plot, character traits, conclusions, figurative language, sound devices, predicting, main idea, summarizing, outlining, author&rsquo;s purpose, tone and mood, generalizations, word meanings, the dictionary, nouns and pronouns, fact vs opinion and visual elements &mdash; then take the Mock Exam and read the Exam Strategy guide before your next test.</p>
+      <div class="points-total" id="points-total-badge"></div>
+      <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
+    </div>
+    <div class="card-list" id="homeList"></div>
+  </div>
+
+  <div id="flashScreen" class="screen">
+    <div class="topbar">
+      <h2 id="flashTitle"></h2>
+    </div>
+    <div class="flash-wrap">
+      <div class="flashcard" id="flashCard">
+        <h3 id="flashFront"></h3>
+        <p id="flashBack"></p>
+      </div>
+      <div class="flash-nav">
+        <button class="btn ghost" onclick="prevCard()">◀ Prev</button>
+        <span class="flash-dots" id="flashDots"></span>
+        <button class="btn ghost" id="flashNext" onclick="nextCard()">Next ▶</button>
+      </div>
+      <button class="btn gold full" id="flashStart" onclick="startQuiz()">Start Quiz 📖</button>
+    </div>
+  </div>
+
+  <div id="quizScreen" class="screen">
+    <div class="topbar">
+      <h2 id="quizTitle"></h2>
+    </div>
+    <div class="scene-box"><div id="sceneSvg"></div></div>
+    <div class="progress-bar"><div class="fill" id="quizFill" style="width:0%"></div></div>
+    <div class="quiz-head">
+      <span id="quizCounter"></span>
+      <span id="quizScoreLabel"></span>
+      <span class="points-live" id="points-live"></span>
+    </div>
+    <div id="passageBox"></div>
+    <div class="q-card">
+      <h3 id="qText"></h3>
+      <div id="optionsBox"></div>
+      <div class="explore" id="exploreBox" style="display:none;"></div>
+      <div class="explain" id="explainBox" style="display:none;"></div>
+    </div>
+    <button class="btn full" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next ▶</button>
+  </div>
+
+  <div id="resultsScreen" class="screen">
+    <div class="results-hero">
+      <div class="scene-box" style="max-width:180px;margin:0 auto 14px;"><div id="resultScene"></div></div>
+      <div class="big-stars" id="resultStars"></div>
+      <h2 id="resultTitle"></h2>
+      <p id="resultScore"></p>
+      <div class="points-earned" id="points-earned"></div>
+      <div class="coins-have" data-coins="haveNow"></div>
+    </div>
+    <div class="missed-review" id="missedReview" style="display:none;"></div>
+    <div class="result-actions">
+      <button class="btn full" onclick="retryQuiz()">Try Again 🔁</button>
+      <button class="btn ghost full" onclick="goHome()">📚 More lessons</button>
+    </div>
+  </div>
+
+  <div id="strategyScreen" class="screen">
+    <div class="topbar">
+      <h2>Exam Strategy 🎯</h2>
+    </div>
+    <div class="hero" style="background:linear-gradient(135deg,var(--coral),#C94B3A);">
+      <span class="badge">Before you take the real test</span>
+      <h1 style="font-size:1.35rem;">How to Ace an English Test</h1>
+      <p>These come straight from your First Summative Test and worksheets &mdash; the exact points that cost marks last time.</p>
+    </div>
+    <div class="strategy-list" id="strategyList"></div>
+  </div>
+
+</div>
+
+<script src="../../../engine/lang.js"></script>
+<script src="../../../engine/storage.js" data-grade="grade5"></script>
+<script src="../../../engine/learner.js" data-grade="grade5"></script>
+<script src="../../../engine/clock.js" data-grade="grade5"></script>
+<script src="../../../engine/nav.js" data-grade="grade5"></script>
+<script src="../../../engine/search.js" data-grade="grade5"></script>
+<script src="../../../engine/read-gate.js" data-grade="grade5"></script>
+<script src="../../../engine/study-history.js" data-grade="grade5"></script>
+<script src="../../../engine/wallet.js" data-grade="grade5"></script>
+<script src="../../../engine/fx.js" data-grade="grade5"></script>
+<script src="../../../engine/powerups.js" data-grade="grade5"></script>
+<script src="../../../engine/recall.js" data-grade="grade5"></script>
+<script src="../../../engine/mastery.js" data-grade="grade5"></script>
+<script src="../../../engine/quests.js" data-grade="grade5"></script>
+<script src="../../../engine/boss.js" data-grade="grade5"></script>
+<script src="../../../engine/bosses.js"></script>
+<script src="../../../engine/army.js" data-grade="grade5"></script>
+<script src="../../../engine/family.js" data-grade="grade5"></script>
+<script src="../../../engine/guide.js" data-grade="grade5"></script>
+<script src="../../../engine/trail.js" data-grade="grade5"></script>
+<script src="../../../engine/study-kit.js" data-grade="grade5"></script>
+<script src="lessons/01-elements.js"></script>
+<script src="lessons/02-plot.js"></script>
+<script src="lessons/03-sequence.js"></script>
+<script src="lessons/04-spelling.js"></script>
+<script src="lessons/05-traits.js"></script>
+<script src="lessons/06-conclusions.js"></script>
+<script src="lessons/07-figurative.js"></script>
+<script src="lessons/08-sound.js"></script>
+<script src="lessons/09-predicting.js"></script>
+<script src="lessons/10-mainidea.js"></script>
+<script src="lessons/11-summary.js"></script>
+<script src="lessons/12-outline.js"></script>
+<script src="lessons/13-purpose.js"></script>
+<script src="lessons/14-tone.js"></script>
+<script src="lessons/15-generalize.js"></script>
+<script src="lessons/16-connotation.js"></script>
+<script src="lessons/17-dictionary.js"></script>
+<script src="lessons/18-nouns.js"></script>
+<script src="lessons/19-complement.js"></script>
+<script src="lessons/20-pronouns.js"></script>
+<script src="lessons/21-pronouns2.js"></script>
+<script src="lessons/22-factopinion.js"></script>
+<script src="lessons/23-visual.js"></script>
+<script src="strategy.js"></script>
+<script src="type-it.js"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel', world: 'World', family: 'Family', guide: 'Guide', trail: 'Trail' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+
+const LESSONS = StudyKit.lessons();
+
+// Questions she may answer by typing first (+5 bonus). Value: other accepted answers.
+const TYPE_IT = StudyKit.content('typeIt');
+const FINAL_EXAM_PER_LESSON = 1;
+const SH = window.StudyHistory, SH_APP = 'page-turners', SH_TITLE = 'Page Turners';
+let historyLessonId = null, historyQuizId = null;
+const STORAGE_KEY = 'pageturners_progress_v1';
+
+const kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'pageturners_points_v1', progressKey: STORAGE_KEY });
+let progress = kit.progress();
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+// Recall decides whether this question pays, shows a typing box, and offers power-ups.
+function offerQuestion(pu){
+  if (window.Recall) Recall.ask(pu, SH_APP, typeof TYPE_IT === 'undefined' ? null : TYPE_IT);
+  else if (window.PowerUps) PowerUps.offer(pu);
+}
+function prepareQuestion(q){
+  const order = shuffle(q.options.map((_,i)=>i));
+  const options = order.map(i=>q.options[i]);
+  const correct = order.indexOf(q.correct);
+  const why = q.why ? order.map(i=>q.why[i]) : [];
+  const whyEn = q.whyEn ? order.map(i=>q.whyEn[i]) : [];
+  return {q:q.q, passage:q.passage, options, correct, explain:q.explain, why, whyEn, tip:q.tip, tipEn:q.tipEn};
+}
+// The same fields offerQuestion and SH.quizAnswered use, so the review key and history text match.
+function reviewInfo(q){
+  const answer = q.options[q.correct];
+  return { q:q.q, art:q.art, answer:Recall.textOf(answer), historyQ: q.art ? q.q + ' [' + answer + ']' : q.q, historyAnswer:answer };
+}
+function reviewPool(){
+  return LESSONS.flatMap(l => l.quiz.map(prepareQuestion));
+}
+function medalLessons(){
+  return LESSONS.map(l => ({ id: l.id, title: Recall.textOf(l.title), icon: l.icon, keys: l.quiz.map(prepareQuestion).map(q => Recall.keyOf(SH_APP, reviewInfo(q))) }));
+}
+let medals = null;
+function updateMedals(){
+  if (!window.Mastery || !window.Recall) return null;
+  medals = Mastery.update(SH_APP, medalLessons());
+  return medals;
+}
+function showMedals(el){
+  var boss = bossEvents(el);
+  const m = updateMedals();
+  if (!m) return;
+  Mastery.showNew(el, m.newly);
+  if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE).concat(window.Quests && Quests.check ? Quests.check() : []).concat(boss), el);
+}
+// A finished boss stage reports once; Try Again replays it only while the stage is still open.
+function bossEvents(el){
+  if (el.id !== 'points-earned' || !currentQuizMeta || !currentQuizMeta.boss || currentQuizMeta.bossDone || !window.Boss) return [];
+  currentQuizMeta.bossDone = true;
+  return Boss.stageResult(SH_APP, quizScore, currentQuizSet.length);
+}
+function bossAgain(){
+  return !!(currentQuizMeta.boss && window.Boss && Boss.isStage(SH_APP));
+}
+function medalBadge(id){
+  return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
+}
+function starsFor(pct){
+  if(pct >= 1) return 3;
+  if(pct >= 0.8) return 2;
+  if(pct >= 0.5) return 1;
+  return 0;
+}
+function starString(n){
+  let s='';
+  for(let i=0;i<3;i++) s += i<n ? '★' : '<span class="off">★</span>';
+  return s;
+}
+
+function bookMarkup(n){
+  const show = i => n>=i ? 1 : 0.06;
+  return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 60 L100 72 L180 60 L180 170 L100 182 L20 170 Z" fill="var(--accent-dark)" opacity="${show(1)}"/>
+    <path d="M28 56 L100 68 L100 174 L28 162 Z" fill="#FFFDF6" stroke="#C9B79C" stroke-width="2" opacity="${show(2)}"/>
+    <path d="M172 56 L100 68 L100 174 L172 162 Z" fill="#FFFDF6" stroke="#C9B79C" stroke-width="2" opacity="${show(3)}"/>
+    <g stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity="${show(4)}">
+      <line x1="40" y1="80" x2="88" y2="88"/><line x1="40" y1="96" x2="88" y2="104"/><line x1="40" y1="112" x2="80" y2="119"/>
+    </g>
+    <g stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity="${show(5)}">
+      <line x1="112" y1="88" x2="160" y2="80"/><line x1="112" y1="104" x2="160" y2="96"/><line x1="112" y1="120" x2="152" y2="113"/>
+    </g>
+    <g stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity="${show(6)}">
+      <line x1="40" y1="128" x2="88" y2="136"/><line x1="40" y1="144" x2="72" y2="149"/>
+      <line x1="112" y1="136" x2="160" y2="128"/><line x1="112" y1="152" x2="144" y2="147"/>
+    </g>
+    <path d="M136 60 L136 100 L144 92 L152 100 L152 58" fill="var(--coral)" opacity="${show(7)}"/>
+    <g opacity="${show(8)}">
+      <polygon points="100,14 105,28 120,28 108,37 112,51 100,42 88,51 92,37 80,28 95,28" fill="var(--gold)"/>
+      <circle cx="36" cy="36" r="4" fill="var(--gold)"/>
+      <circle cx="166" cy="30" r="3" fill="var(--coral)"/>
+      <text x="100" y="206" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent-dark)" font-family="Baloo 2, cursive">THE END!</text>
+    </g>
+  </svg>`;
+}
+
+const STRATEGY = StudyKit.content('strategy');
+
+let currentLessonIdx = null;
+let flashIdx = 0;
+let currentQuizSet = [];
+let currentQuizMeta = null;
+let quizIdx = 0;
+let missedQuestions = [];
+function learnEn(text){
+  return text ? '<div class="fb-en"><b>Sa English:</b> ' + text + '</div>' : '';
+}
+function learnHtml(m){
+  return '<div class="learn">' +
+    '<div class="learn-title">Not quite &mdash; let&rsquo;s learn from this!</div>' +
+    '<div class="learn-row learn-picked"><b class="learn-label">You picked</b><span class="learn-choice">' + m.picked + '</span>' +
+      (m.why ? '<span class="learn-why">Why that&rsquo;s not right: ' + m.why + '</span>' + learnEn(m.whyEn) : '') + '</div>' +
+    '<div class="learn-row learn-right"><b class="learn-label">The right answer</b><span class="learn-choice">' + m.answer + '</span>' +
+      '<span class="learn-why">' + m.explain + '</span></div>' +
+    (m.tip ? '<div class="learn-row learn-tip"><b class="learn-label">&#128161; Tip for next time</b>' + m.tip + learnEn(m.tipEn) + '</div>' : '') +
+  '</div>';
+}
+function renderMissedReview(){
+  const el = document.getElementById('missedReview');
+  el.style.display = missedQuestions.length ? 'block' : 'none';
+  el.innerHTML = missedQuestions.length
+    ? '<h3>Questions to Review</h3><div class="missed-list">' +
+      missedQuestions.map(m => '<div class="missed-item"><p class="missed-q">' + m.q + '</p>' + learnHtml(m) + '</div>').join('') + '</div>'
+    : '';
+}
+let quizScore = 0;
+
+function cardKey(e){
+  if(e.key === "Enter" || e.key === " " || e.key === "Spacebar"){
+    e.preventDefault();
+    e.currentTarget.click();
+  }
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (window.Nav) Nav.screen(id);
+}
+function goHome(){ renderHome(); showScreen('home'); }
+
+function renderHome(){
+  document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' points earned';
+  if (window.Mastery && medals) Mastery.renderChip(medals);
+  const list = document.getElementById('homeList');
+  const finalTotal = LESSONS.length * FINAL_EXAM_PER_LESSON;
+  const finalBest = progress['final'] || 0;
+  let html = '';
+
+  html += `<div class="item-card final-card" role="button" tabindex="0" onclick="startFinalExam()" onkeydown="cardKey(event)">
+    <div class="icon">🏆</div>
+    <div class="info">
+      <span class="final-badge">Mock Exam</span>
+      <h3>Full Mock Exam</h3>
+      <p>${finalTotal} mixed questions from all ${LESSONS.length} lessons</p>
+    </div>
+    <div class="stars">${starString(starsFor(finalBest/finalTotal))}</div>
+  </div>`;
+  const rc = window.Recall ? Recall.homeCard(SH_APP) : null;
+  if(rc) html += `<div class="item-card${rc.ready ? '' : ' review-empty'}" role="button" tabindex="0" ${rc.ready ? 'onclick="startReview()" onkeydown="cardKey(event)"' : 'aria-disabled="true"'}>
+    <div class="icon">🔁</div>
+    <div class="info">
+      <h3>${rc.title}</h3>
+      <p>${rc.line}</p>
+    </div>
+  </div>`;
+
+  html += `<div class="item-card strategy-card" role="button" tabindex="0" onclick="showScreen('strategyScreen')" onkeydown="cardKey(event)">
+    <div class="icon">🎯</div>
+    <div class="info">
+      <h3>Exam Strategy</h3>
+      <p>The marks you lost last time, and how to win them back</p>
+    </div>
+  </div>`;
+
+  LESSONS.forEach((l,i)=>{
+    const best = progress[l.id] || 0;
+    html += `<div class="item-card" role="button" tabindex="0" onclick="openLesson(${i})" data-search-lesson="${i}" onkeydown="cardKey(event)">
+      <div class="icon">${l.icon}</div>
+      <div class="info">
+        <h3>${l.title}</h3>
+        <p>${l.subtitle}</p>
+      </div>
+      <div class="stars">${starString(starsFor(best/l.quiz.length))}${medalBadge(l.id)}</div>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+}
+
+function openLesson(i){
+  currentLessonIdx = i;
+  flashIdx = 0;
+  historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].cards.length) : null;
+  document.getElementById('flashTitle').textContent = LESSONS[i].title;
+  window.ReadGate && ReadGate.open({ cards: LESSONS[i].cards.length, next: 'flashNext', start: 'flashStart' });
+  renderFlash();
+  showScreen('flashScreen');
+}
+/* Card and question text may contain simple markup (<b>, entities) written by
+   the lesson author, so these render as HTML, not literal text. Content is
+   author-supplied only — never user input. */
+function renderFlash(){
+  const l = LESSONS[currentLessonIdx];
+  const c = l.cards[flashIdx];
+  SH && SH.cardViewed(historyLessonId, flashIdx + 1);
+  document.getElementById('flashFront').innerHTML = c.front;
+  document.getElementById('flashBack').innerHTML = c.back;
+  document.getElementById('flashDots').textContent = `${flashIdx+1} / ${l.cards.length}`;
+  window.ReadGate && ReadGate.show(flashIdx);
+}
+function nextCard(){
+  const l = LESSONS[currentLessonIdx];
+  flashIdx = (flashIdx+1) % l.cards.length;
+  renderFlash();
+}
+function prevCard(){
+  const l = LESSONS[currentLessonIdx];
+  flashIdx = (flashIdx-1+l.cards.length) % l.cards.length;
+  renderFlash();
+}
+
+function startQuiz(){
+  const l = LESSONS[currentLessonIdx];
+  currentQuizSet = shuffle(l.quiz).map(prepareQuestion);
+  currentQuizMeta = {id:l.id, title:l.title};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  document.getElementById('quizTitle').textContent = l.title;
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+
+function startFinalExam(){
+  let qs = [];
+  LESSONS.forEach(l=>{
+    qs = qs.concat(shuffle(l.quiz).slice(0, FINAL_EXAM_PER_LESSON));
+  });
+  currentQuizSet = shuffle(qs).map(prepareQuestion);
+  currentQuizMeta = {id:'final', title:'Full Mock Exam'};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  document.getElementById('quizTitle').textContent = 'Full Mock Exam';
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+}
+function startReview(boss){
+  if(!window.Recall) return;
+  currentQuizSet = boss ? Recall.pickBoss(SH_APP, reviewPool(), reviewInfo, Boss.STAGE_SIZE) : Recall.pickDue(SH_APP, reviewPool(), reviewInfo);
+  if(!currentQuizSet.length){ goHome(); return; }
+  currentQuizMeta = {id:'review', title: boss ? Boss.text.stageTitle : Recall.text.reviewTitle, boss: !!boss};
+  historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, 'review', currentQuizMeta.title, false, currentQuizSet.length, 'review') : null;
+  quizIdx = 0;
+  quizScore = 0;
+  missedQuestions = [];
+  kit.startRound();
+  document.getElementById('quizTitle').textContent = currentQuizMeta.title;
+  document.getElementById('passageBox').innerHTML = '';
+  renderQuestion();
+  showScreen('quizScreen');
+  window.Army && (boss ? Army.start(currentQuizSet.length, document.getElementById('quizScreen')) : Army.stop());
+}
+
+function renderQuestion(){
+  const total = currentQuizSet.length;
+  const q = currentQuizSet[quizIdx];
+  document.getElementById('quizCounter').textContent = `Question ${quizIdx+1} of ${total}`;
+  document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
+  kit.renderLive();
+  document.getElementById('quizFill').style.width = `${(quizIdx/total)*100}%`;
+  document.getElementById('sceneSvg').innerHTML = bookMarkup(Math.round((quizScore/total)*8));
+  document.getElementById('passageBox').innerHTML = q.passage ? '<div class="passage">' + q.passage + '</div>' : '';
+  document.getElementById('qText').innerHTML = q.q;
+  document.getElementById('explainBox').style.display = 'none';
+  document.getElementById('exploreBox').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'none';
+
+  const box = document.getElementById('optionsBox');
+  box.innerHTML = '';
+  q.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = opt;
+    btn.onclick = ()=>selectOption(i);
+    box.appendChild(btn);
+  });
+  offerQuestion({ art:q.art, quiz:currentQuizSet, exam:currentQuizMeta.id === 'final', before:box, options:box.children, correct:q.correct, tip:q.tip, tipEn:q.tipEn, q:q.q, historyId:historyQuizId, streak:kit.streak(), index:quizIdx, rerender:renderQuestion });
+}
+
+function selectOption(i){
+  const q = currentQuizSet[quizIdx];
+  const buttons = document.querySelectorAll('#optionsBox .option');
+  SH && SH.quizAnswered(historyQuizId, i === q.correct, q.art ? q.q + ' [' + q.options[q.correct] + ']' : q.q, q.options[i], q.options[q.correct], window.Recall ? Recall.typed() : false);
+  buttons.forEach((b,idx)=>{
+    if(idx === q.correct) b.classList.add('correct');
+    else if(idx === i) b.classList.add('wrong');
+    if(idx === i){ b.disabled = true; return; }
+    b.classList.add('explorable');
+    b.onclick = ()=>exploreOption(idx);
+  });
+  const helped = !!(window.PowerUps && PowerUps.answered());
+  if(i === q.correct){
+    quizScore++;
+  }
+  kit.answer(i === q.correct, { helped: helped, exam: currentQuizMeta.id === 'final' });
+  document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
+  document.getElementById('sceneSvg').innerHTML = bookMarkup(Math.round((quizScore/currentQuizSet.length)*8));
+  const explainHtml = q.explain;
+  const miss = i === q.correct ? null : { q:q.q, picked:q.options[i], why:(q.why||[])[i] || '', whyEn:(q.whyEn||[])[i] || '', answer:q.options[q.correct], explain:explainHtml, tip:q.tip || '', tipEn:q.tipEn || '' };
+  if(miss) missedQuestions.push(miss);
+  document.getElementById('explainBox').innerHTML = miss ? learnHtml(miss) : explainHtml;
+  document.getElementById('explainBox').style.display = 'block';
+  document.getElementById('exploreBox').innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>';
+  document.getElementById('exploreBox').style.display = 'block';
+  document.getElementById('nextBtn').style.display = 'block';
+  document.getElementById('nextBtn').textContent = quizIdx < currentQuizSet.length-1 ? 'Next ▶' : 'See Results 🏆';
+}
+
+function exploreOption(i){
+  const q = currentQuizSet[quizIdx];
+  document.querySelectorAll('#optionsBox .option').forEach((b,idx)=>b.classList.toggle('explored', idx === i));
+  const explainHtml = q.explain;
+  const right = i === q.correct;
+  const card = right
+    ? '<div class="explore-card explore-right"><b class="learn-label">This is the right answer</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + explainHtml + '</span></div>'
+    : '<div class="explore-card"><b class="learn-label">Why not this one?</b><span class="learn-choice">' + q.options[i] + '</span><span class="learn-why">' + ((q.why||[])[i] || 'This is not the right answer.') + '</span>' + learnEn((q.whyEn||[])[i]) + '</div>';
+  document.getElementById('exploreBox').innerHTML = '<div class="explore-hint">&#128269; Curious? Tap the other answers to see why.</div>' + card;
+}
+
+function nextQuestion(){
+  if(quizIdx < currentQuizSet.length-1){
+    quizIdx++;
+    renderQuestion();
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz(){
+  const total = currentQuizSet.length;
+  const best = progress[currentQuizMeta.id] || 0;
+  if(quizScore > best) progress[currentQuizMeta.id] = quizScore;
+  kit.saveProgress(progress);
+  SH && SH.quizFinished(historyQuizId, starsFor(quizScore / total), kit.sessionPoints(), kit.bestStreak());
+  window.Fx && Fx.finish(starsFor(quizScore / total));
+  renderResults(total);
+  showScreen('resultsScreen');
+}
+
+function renderResults(total){
+  const pct = quizScore/total;
+  const n = starsFor(pct);
+  document.getElementById('resultScene').innerHTML = bookMarkup(Math.round(pct*8));
+  document.getElementById('resultStars').innerHTML = starString(n);
+  document.getElementById('resultTitle').textContent =
+    n===3 ? 'The End! Perfect Score!' :
+    n===2 ? 'Great Reading!' :
+    n===1 ? 'Good Start!' : 'Keep Practicing!';
+  document.getElementById('resultScore').textContent = `You scored ${quizScore} out of ${total}.`;
+  document.getElementById('points-earned').textContent = kit.resultLine();
+  showMedals(document.getElementById('points-earned'));
+  renderMissedReview();
+}
+
+function retryQuiz(){
+  if (currentQuizMeta.id === 'review') return startReview(bossAgain());
+  if(currentQuizMeta.id === 'final'){ startFinalExam(); }
+  else { startQuiz(); }
+}
+
+function renderStrategy(){
+  const box = document.getElementById('strategyList');
+  box.innerHTML = STRATEGY.map(t=>`
+    <div class="tip">
+      <div class="kicker">${t.kicker}</div>
+      <h4>${t.title}</h4>
+      <p>${t.body}</p>
+    </div>
+  `).join('');
+}
+
+if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
+showMedals(document.getElementById('points-total-badge'));
+window.Search && Search.start({ list: 'homeList', lessons: LESSONS });
+window.Trail && window.Recall && Trail.start({ app: SH_APP, title: SH_TITLE, list: 'homeList', lessons: medalLessons(), review: startReview, final: startFinalExam, finalStars: function () { return starsFor((progress['final'] || 0) / (LESSONS.length * FINAL_EXAM_PER_LESSON)); } });
+window.Nav && Nav.start({ title: 'Page Turners 📖', home: 'home', goHome: goHome, inRound: () => Nav.current() === 'quizScreen' });
+renderHome();
+renderStrategy();
+if (window.Recall && Recall.wantsReview) startReview();
+else if (window.Recall && window.Boss && Boss.wantsBoss && Boss.isStage(SH_APP)) startReview(true);
+</script>

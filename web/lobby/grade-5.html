@@ -1,0 +1,1179 @@
+<html lang="en">
+<meta charset="utf-8">
+<title>Study Games Lobby &mdash; Grade 5</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="grade-5.webmanifest">
+<meta name="theme-color" content="#1B7A79">
+<link rel="icon" type="image/png" href="../assets/icons/grade5-192.png">
+<link rel="apple-touch-icon" href="../assets/icons/grade5-180.png">
+<meta name="apple-mobile-web-app-title" content="Grade 5">
+<meta name="mobile-web-app-capable" content="yes">
+<script data-pwa>
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  addEventListener('load', function(){ navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(function(){}); });
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F1E9;
+    --bg-alt:#EBE6D6;
+    --card:#FFFFFF;
+    --ink:#2B2A22;
+    --ink-soft:#6B6656;
+    --border:rgba(43,42,34,0.12);
+    --shadow:rgba(43,42,34,0.16);
+    --header-accent:#1B7A79;
+    --gold-deep:#8A5E14;
+    --gold-soft:#FBE9C9;
+    --good:#1E7A46; --bad:#B03A2E;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#181712;
+      --bg-alt:#201F19;
+      --card:#221F1A;
+      --ink:#F1EDE0;
+      --ink-soft:#B2AC97;
+      --border:rgba(241,237,224,0.14);
+      --shadow:rgba(0,0,0,0.5);
+      --header-accent:#3FBDBA;
+      --gold-deep:#FCE3B4;
+      --gold-soft:#3A2E15;
+      --good:#7DCEA0; --bad:#F1948A;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#181712;
+    --bg-alt:#201F19;
+    --card:#221F1A;
+    --ink:#F1EDE0;
+    --ink-soft:#B2AC97;
+    --border:rgba(241,237,224,0.14);
+    --shadow:rgba(0,0,0,0.5);
+    --header-accent:#3FBDBA;
+    --gold-deep:#FCE3B4;
+    --gold-soft:#3A2E15;
+    --good:#7DCEA0; --bad:#F1948A;
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 8% 4%, rgba(27,122,121,0.09), transparent 42%),
+      radial-gradient(circle at 94% 90%, rgba(255,182,39,0.10), transparent 42%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', system-ui, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:clamp(20px,5vw,48px) 16px 60px;
+  }
+
+  .wrap{ width:100%; max-width:1120px; }
+
+  .hero{ text-align:center; margin-bottom:clamp(24px,5vw,40px); }
+  .hero-emoji{ font-size:clamp(2.4rem,8vw,3.2rem); line-height:1; margin-bottom:6px; }
+  .hero h1{
+    font-family:'Baloo 2', system-ui, sans-serif;
+    font-weight:700;
+    font-size:clamp(1.9rem,6vw,2.6rem);
+    margin:0;
+    color:var(--header-accent);
+    text-wrap:balance;
+  }
+  .hero p{
+    margin:8px 0 0;
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--ink-soft);
+  }
+  .points-combined{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:var(--gold-soft);
+    color:var(--gold-deep);
+    font-weight:800;
+    font-size:0.92rem;
+    padding:7px 16px;
+    border-radius:999px;
+    margin-top:12px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  @media (min-width:560px){
+    .grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  }
+  @media (min-width:900px){
+    .grid{ grid-template-columns:repeat(3, minmax(0,1fr)); }
+    .subject-card{ gap:12px; padding:16px; }
+    .subject-emoji{ width:52px; height:52px; font-size:1.9rem; }
+  }
+
+  .subject-card{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:18px 20px;
+    text-decoration:none;
+    color:var(--ink);
+    box-shadow:0 14px 32px -16px var(--shadow), 0 2px 0 var(--border);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    border-top:5px solid var(--card-accent);
+  }
+  .subject-card:hover{ transform:translateY(-3px); }
+  .subject-card:active{ transform:translateY(0px) scale(0.99); }
+  .subject-card:focus-visible{ outline:3px solid var(--card-accent); outline-offset:3px; }
+
+  .subject-emoji{
+    font-size:2.2rem;
+    flex:none;
+    width:60px;
+    height:60px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--card-accent-soft);
+  }
+
+  .subject-info{ flex:1; min-width:0; }
+  .subject-tag{
+    font-size:0.72rem;
+    font-weight:800;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .subject-title{
+    font-family:'Baloo 2', system-ui, sans-serif;
+    font-weight:700;
+    font-size:1.3rem;
+    margin-top:2px;
+    line-height:1.2;
+  }
+  .subject-app{
+    font-size:0.82rem;
+    font-weight:800;
+    color:var(--card-accent-ink);
+    margin-top:2px;
+  }
+  .subject-desc{
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin-top:4px;
+    line-height:1.4;
+  }
+  .subject-points{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-size:0.76rem;
+    font-weight:800;
+    color:var(--gold-deep);
+    margin-top:6px;
+  }
+
+  .go-arrow{
+    flex:none;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:var(--card-accent);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .go-arrow svg{ width:18px; height:18px; }
+
+  .fresh-note{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:14px 16px;
+    margin-top:clamp(20px,4vw,28px);
+    font-size:0.88rem;
+    font-weight:600;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .fresh-note .fresh-icon{ font-size:1.2rem; line-height:1.2; flex:none; }
+  .fresh-note b{ color:var(--ink); }
+
+  .footer-note{
+    text-align:center;
+    margin-top:clamp(18px,4vw,26px);
+    font-size:0.85rem;
+    font-weight:700;
+    color:var(--ink-soft);
+  }
+
+  .parent-link{
+    display:block; margin:14px auto 0; padding:6px 10px;
+    background:none; border:0; cursor:pointer;
+    font:inherit; font-size:0.78rem; font-weight:700; color:var(--ink-soft); opacity:0.6;
+  }
+  .credit{ margin:6px 0 0; text-align:center; font-size:0.78rem; font-weight:700; color:var(--ink-soft); }
+  .parent-overlay{
+    position:fixed; inset:0; z-index:50; overflow-y:auto;
+    background:var(--bg); padding:clamp(16px,4vw,32px) 16px 48px;
+  }
+  .parent-overlay[hidden], .parent-overlay [hidden]{ display:none; }
+  .parent-box{ max-width:760px; margin:0 auto; }
+  .parent-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .parent-head h2{ margin:0; font-family:'Baloo 2', system-ui, sans-serif; font-size:1.5rem; color:var(--header-accent); }
+  .p-btn{
+    font:inherit; font-size:0.9rem; font-weight:800; cursor:pointer;
+    padding:9px 14px; border-radius:12px; border:1px solid var(--border);
+    background:var(--card); color:var(--ink);
+  }
+  .p-btn.on{ background:var(--ink); color:var(--bg); }
+  .p-btn.danger{ background:var(--bad); border-color:var(--bad); color:var(--card); }
+  .pin-hint{ text-align:center; font-weight:700; color:var(--ink-soft); }
+  .pin-dots{ display:flex; justify-content:center; gap:14px; margin:24px 0; }
+  .pin-dots span{ width:18px; height:18px; border-radius:50%; border:2px solid var(--ink-soft); }
+  .pin-dots span.fill{ background:var(--ink); border-color:var(--ink); }
+  .pin-dots.shake{ animation:pin-shake 0.35s; }
+  @keyframes pin-shake{ 25%{ transform:translateX(-8px); } 75%{ transform:translateX(8px); } }
+  .pin-pad{ display:grid; grid-template-columns:repeat(3, 72px); gap:12px; justify-content:center; }
+  .pin-pad button{
+    height:64px; cursor:pointer; font:inherit; font-size:1.5rem; font-weight:800;
+    border-radius:16px; border:1px solid var(--border); background:var(--card); color:var(--ink);
+  }
+  .p-section{ background:var(--card); border:1px solid var(--border); border-radius:18px; padding:14px 16px; margin-bottom:14px; }
+  .p-section h3{ margin:0 0 10px; font-size:1rem; }
+  .p-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .p-row + .p-row{ margin-top:10px; }
+  .p-row label{ font-weight:700; }
+  .p-row input, .p-row select{
+    font:inherit; padding:8px; border-radius:10px;
+    border:1px solid var(--border); background:var(--bg); color:var(--ink);
+  }
+  .p-note{ margin:8px 0 0; font-size:0.85rem; font-weight:700; color:var(--ink-soft); }
+  .p-warn{ margin-bottom:14px; padding:10px 14px; border-radius:12px; font-weight:800; background:var(--gold-soft); color:var(--gold-deep); }
+  #paste-text{ width:100%; box-sizing:border-box; font:13px/1.4 monospace; }
+  .h-day{ margin:16px 0 6px; font-family:'Baloo 2', system-ui, sans-serif; font-weight:700; font-size:1.05rem; }
+  .h-day:first-child{ margin-top:0; }
+  .h-item{ display:flex; gap:10px; padding:8px 0; border-top:1px solid var(--border); }
+  .h-time{ flex:none; width:72px; padding-top:2px; font-size:0.85rem; font-weight:800; color:var(--ink-soft); }
+  .h-body{ flex:1; min-width:0; overflow-wrap:anywhere; }
+  .h-body details{ margin-top:6px; }
+  .h-body summary{ cursor:pointer; font-weight:800; color:var(--header-accent); }
+  .h-wrong{ margin:8px 0 0; padding:0; list-style:none; }
+  .h-wrong li{ margin-bottom:8px; font-size:0.9rem; }
+  .h-wrong .pick{ color:var(--bad); }
+  .h-wrong .ans{ color:var(--good); }
+
+  .coin-row{ display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:10px; margin-top:10px; }
+  .coin-row[hidden]{ display:none; }
+  .coin-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--card); border:2px solid var(--gold-soft); color:var(--gold-deep);
+    font-weight:800; font-size:0.92rem; padding:5px 14px; border-radius:999px;
+  }
+  .shop-open{
+    font:inherit; font-size:0.92rem; font-weight:800; cursor:pointer;
+    padding:7px 16px; border-radius:999px; border:0;
+    background:var(--header-accent); color:var(--card);
+  }
+  .shop-open:focus-visible, .shop-buy:focus-visible, .guide-open:focus-visible{ outline:3px solid var(--gold-deep); outline-offset:2px; }
+  .guide-open{
+    font:inherit; font-size:0.92rem; font-weight:800; cursor:pointer;
+    padding:5px 14px; border-radius:999px;
+    background:var(--card); color:var(--header-accent); border:2px solid var(--header-accent);
+  }
+  /* The padding sits inside the box so the sticky search bar meets the top edge. */
+  #shop-overlay{ padding-top:0; }
+  .shop-box{ max-width:920px; margin:0 auto; padding-top:clamp(16px,4vw,32px); }
+  .shop-coins{ margin:0; text-align:center; font-family:'Baloo 2', system-ui, sans-serif; font-size:1.7rem; font-weight:800; color:var(--gold-deep); }
+  .shop-goal{ margin:2px 0 0; text-align:center; font-weight:800; }
+  .shop-intro{ text-align:center; }
+  .shop-search-row{ position:sticky; top:0; z-index:1; margin:18px 0 0; padding:8px 0; background:var(--bg); }
+  .shop-search-wrap{ position:relative; }
+  .shop-search-icon{ position:absolute; left:16px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:1rem; }
+  .shop-search{
+    width:100%; font:inherit; font-size:1rem; font-weight:700; color:var(--ink);
+    padding:12px 18px 12px 46px; border-radius:999px; border:2px solid var(--border); background:var(--card);
+  }
+  .shop-search:focus{ outline:none; border-color:var(--header-accent); }
+  .shop-empty{ margin:28px 0; text-align:center; font-weight:800; color:var(--ink-soft); }
+  /* 3 columns when there is room, 2 on a phone. */
+  .shop-items{
+    display:grid; gap:14px; margin-top:8px;
+    grid-template-columns:repeat(auto-fill, minmax(max(148px, calc((100% - 28px) / 3)), 1fr));
+  }
+  .shop-item{
+    display:flex; flex-direction:column; gap:8px; min-width:0;
+    background:var(--card); border:1.5px solid var(--border); border-radius:20px; padding:14px;
+    box-shadow:0 2px 10px -6px var(--shadow);
+  }
+  .shop-item.can{ border-color:var(--good); }
+  .shop-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  .shop-emoji{
+    flex:none; width:52px; height:52px; border-radius:16px; background:var(--gold-soft);
+    display:flex; align-items:center; justify-content:center; font-size:1.8rem;
+  }
+  .shop-price{
+    flex:none; padding:4px 10px; border-radius:999px; white-space:nowrap;
+    background:var(--gold-soft); color:var(--gold-deep); font-size:0.85rem; font-weight:800;
+  }
+  .shop-name{ font-weight:800; line-height:1.25; overflow-wrap:anywhere; }
+  .shop-note{ font-size:0.8rem; font-weight:600; line-height:1.4; color:var(--ink-soft); overflow-wrap:anywhere; }
+  .shop-foot{ margin-top:auto; padding-top:4px; }
+  .shop-buy{
+    font:inherit; font-weight:800; cursor:pointer;
+    padding:9px 18px; border-radius:12px; border:0; background:var(--good); color:var(--card);
+  }
+  .shop-foot .shop-buy{ width:100%; }
+  .shop-need{ font-size:0.82rem; font-weight:800; color:var(--ink-soft); }
+  .shop-bar{ height:6px; margin-top:6px; border-radius:999px; background:var(--bg-alt); overflow:hidden; }
+  .shop-bar span{ display:block; height:100%; border-radius:inherit; background:var(--header-accent); }
+  .shop-ask{ margin:0 0 4px; text-align:center; font-weight:800; font-size:1.05rem; }
+  .shop-done{ margin:28px 0; text-align:center; font-weight:800; font-size:1.2rem; line-height:1.4; }
+  .shop-actions{ display:flex; justify-content:center; margin-top:18px; }
+  .shop-phone-row{ margin-top:12px; }
+  .shop-phone-row .shop-buy{ margin:0; padding:14px 24px; font-size:1.1rem; }
+
+  @media (prefers-reduced-motion: reduce){
+    .subject-card{ transition:none; }
+  }
+  .world-open{ position:relative; display:flex; align-items:center; justify-content:center; gap:10px; overflow:hidden;
+    width:min(100%,360px); margin:18px auto 14px; padding:16px 28px; border-radius:999px; font-size:clamp(1.25rem,5vw,1.55rem);
+    font-weight:800; letter-spacing:0.02em; text-decoration:none; color:#0b3a63;
+    background:linear-gradient(180deg,#eef9ff,#a8dcff 55%,#6cc0f5); border:3px solid #fff;
+    box-shadow:0 6px 0 #2d7fbf,0 10px 26px rgba(60,150,230,0.5),0 0 0 6px rgba(108,192,245,0.25);
+    animation:world-glow 2.4s ease-in-out infinite; transition:transform .15s; }
+  .world-open::before{ content:''; position:absolute; top:0; bottom:0; width:40%; left:-60%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,0.75),transparent);
+    transform:skewX(-20deg); animation:world-shine 3.6s ease-in-out infinite; }
+  .world-open:hover{ transform:translateY(-2px) scale(1.03); }
+  .world-open:active{ transform:translateY(4px); box-shadow:0 2px 0 #2d7fbf,0 4px 14px rgba(60,150,230,0.45); }
+  .world-open:focus-visible{ outline:4px solid var(--gold-deep,#b8860b); outline-offset:4px; }
+  @keyframes world-glow{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.045); } }
+  @keyframes world-shine{ 0%,55%{ left:-60%; } 100%{ left:130%; } }
+  @media (prefers-reduced-motion: reduce){
+    .world-open, .world-open::before{ animation:none; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-emoji">🎒</div>
+    <h1 id="hero-title">Study Games</h1>
+    <p>Pick a subject and start a fresh run!</p>
+    <a class="world-open" id="world-open" href="../world/grade-5.html">🌍 Play World</a>
+    <div class="points-combined" id="points-combined-badge"></div>
+    <button class="campus-toggle" id="campus-toggle" type="button" hidden></button>
+    <div class="coin-row" id="coin-row" hidden>
+      <span class="coin-badge" id="coin-badge"></span>
+      <button class="shop-open" id="shop-open" type="button"></button>
+      <button class="guide-open" id="coin-guide-open" type="button" data-coins-guide></button>
+    </div>
+  </div>
+
+  <div class="quests" id="quests" hidden></div>
+  <div class="boss" id="boss" hidden></div>
+  <div class="review-due" id="review-due" hidden></div>
+  <button class="map-open" id="map-open" type="button" aria-expanded="false" aria-controls="map-view" hidden></button>
+  <div class="map-view" id="map-view" hidden></div>
+  <div class="campus" id="campus" hidden></div>
+  <div class="grid">
+    <a class="subject-card" data-app="history-explorers" href="../subjects/grade-5/araling-panlipunan/index.html?reset=1" style="--card-accent:#A8451F; --card-accent-soft:#F9E8E0; --card-accent-ink:#6E2A10;">
+      <div class="subject-emoji">⛵</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 14 lessons</div>
+        <div class="subject-title">Araling Panlipunan</div>
+        <div class="subject-app">History Explorers</div>
+        <div class="subject-desc">Origins of the Philippines, history and its sources, barangay, leaders and classes, livelihood and trade, plus beliefs, omens, burial traditions and marriage</div>
+        <div class="subject-points" data-points-key="historyexplorers_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="wikaharian" href="../subjects/grade-5/filipino/index.html?reset=1" style="--card-accent:#B3262E; --card-accent-soft:#F8E1E2; --card-accent-ink:#7A1219;">
+      <div class="subject-emoji">👑</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 20 lessons</div>
+        <div class="subject-title">Filipino</div>
+        <div class="subject-app">Wikaharian</div>
+        <div class="subject-desc">Poetry, stories, myths and legends, adjectives, adverbs, letters, references, multimedia, proper language, and linking words</div>
+        <div class="subject-points" data-points-key="wikaharian_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="math-mastery" href="../subjects/grade-5/math/index.html?reset=1" style="--card-accent:#1B7A79; --card-accent-soft:#D8EEED; --card-accent-ink:#0E4F4E;">
+      <div class="subject-emoji">🧮</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 11 lessons</div>
+        <div class="subject-title">Math</div>
+        <div class="subject-app">Math Mastery</div>
+        <div class="subject-desc">Divisibility, GEMDAS, adding to dividing fractions, ordering decimals, UPAC word problems, and 10 case studies</div>
+        <div class="subject-points" data-points-key="mathmastery_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="page-turners" href="../subjects/grade-5/english/index.html?reset=1" style="--card-accent:#4B4FA8; --card-accent-soft:#E6E7F7; --card-accent-ink:#2D3070;">
+      <div class="subject-emoji">📖</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 23 lessons</div>
+        <div class="subject-title">English</div>
+        <div class="subject-app">Page Turners</div>
+        <div class="subject-desc">Story elements and plot, character traits, conclusions, figurative language, sound devices, predicting, main idea, summarizing, outlining, author&rsquo;s purpose, tone and mood, generalizations, connotation, dictionary skills, nouns and pronouns, fact vs opinion, visual elements</div>
+        <div class="subject-points" data-points-key="pageturners_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="rise-shine" href="../subjects/grade-5/gmrc/index.html?reset=1" style="--card-accent:#C98600; --card-accent-soft:#FBF0D8; --card-accent-ink:#8A5A00;">
+      <div class="subject-emoji">🏅</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 13 lessons</div>
+        <div class="subject-title">GMRC</div>
+        <div class="subject-app">Rise &amp; Shine</div>
+        <div class="subject-desc">Knowing yourself, saving, human dignity, faith, traffic signs &amp; rules, good manners, sacred books, gratitude, e&#8209;waste and devices</div>
+        <div class="subject-points" data-points-key="riseshine_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="rally-ready" href="../subjects/grade-5/pe-health/index.html?reset=1" style="--card-accent:#1F7A5C; --card-accent-soft:#DFF1E8; --card-accent-ink:#0D4A36;">
+      <div class="subject-emoji">🏓</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 18 lessons</div>
+        <div class="subject-title">P.E. &amp; Health</div>
+        <div class="subject-app">Rally Ready</div>
+        <div class="subject-desc">Net and wall games, the ABC skills, the pickleball kitchen rule, stress and healthy coping, bullying, Siyatong, puberty, and the practical skills test</div>
+        <div class="subject-points" data-points-key="rallyready_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="craft-corner" href="../subjects/grade-5/tle/index.html?reset=1" style="--card-accent:#8A4F7D; --card-accent-soft:#F3E8F0; --card-accent-ink:#5C3253;">
+      <div class="subject-emoji">🧵</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 9 lessons</div>
+        <div class="subject-title">TLE</div>
+        <div class="subject-app">Craft Corner</div>
+        <div class="subject-desc">Home furnishings, embroidery, crochet, and hand and machine sewing</div>
+        <div class="subject-points" data-points-key="craftcorner_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="life-lab" href="../subjects/grade-5/science/index.html?reset=1" style="--card-accent:#2E6F9E; --card-accent-soft:#DDEBF5; --card-accent-ink:#1B4668;">
+      <div class="subject-emoji">🔬</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 18 lessons</div>
+        <div class="subject-title">Science</div>
+        <div class="subject-app">Life Lab</div>
+        <div class="subject-desc">Matter and its changes, measuring, the scientific method, microorganisms, plant and animal groups, and plant adaptations</div>
+        <div class="subject-points" data-points-key="lifelab_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+
+    <a class="subject-card" data-app="net-navigators" href="../subjects/grade-5/computer/index.html?reset=1" style="--card-accent:#5B3FC4; --card-accent-soft:#ECE7FB; --card-accent-ink:#33208A;">
+      <div class="subject-emoji">🧭</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 8 lessons</div>
+        <div class="subject-title">Computer</div>
+        <div class="subject-app">Net Navigators</div>
+        <div class="subject-desc">Search engines and keywords, evaluating websites, file sharing and its risks, online storage and permissions, netiquette, chat and instant messages, and discussion boards</div>
+        <div class="subject-points" data-points-key="netnavigators_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+    <a class="subject-card" data-app="rhythm-hues" href="../subjects/grade-5/music-arts/index.html?reset=1" style="--card-accent:#B5326E; --card-accent-soft:#FBE6EF; --card-accent-ink:#7A1645;">
+      <div class="subject-emoji">🎵</div>
+      <div class="subject-info">
+        <div class="subject-tag">Grade 5 &middot; 12 lessons</div>
+        <div class="subject-title">Music &amp; Arts</div>
+        <div class="subject-app">Rhythm &amp; Hues</div>
+        <div class="subject-desc">Precolonial songs, instruments, dances and visual arts, plus the recorder: its history, consorts, parts, care, and the notes from low C to high C</div>
+        <div class="subject-points" data-points-key="rhythmhues_points_v1"></div>
+      </div>
+      <div class="go-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,5 16,12 9,19"/></svg></div>
+    </a>
+  </div>
+
+  <div class="fresh-note">
+    <span class="fresh-icon">⭐</span>
+    <span>Every time you pick a subject here, your <b>stars start empty again</b> &mdash; so you get to earn them all over, not just look at yesterday's score. Your <b>points keep adding up forever</b>, so every correct answer counts.</span>
+  </div>
+
+  <p class="footer-note">Review the lessons first, then take the quiz! 🌟</p>
+  <button class="parent-link" id="parent-open" type="button">🔒 Parent</button>
+  <p class="credit">Made with ❤️ by Tatay Oliver for his daughters</p>
+</div>
+
+<div class="parent-overlay" id="parent-overlay" role="dialog" aria-modal="true" aria-label="Study History" hidden>
+  <div class="parent-box">
+    <div class="parent-head">
+      <h2>Study History</h2>
+      <button class="p-btn" id="parent-close" type="button">✕ Close</button>
+    </div>
+
+    <div id="pin-view">
+      <p class="pin-hint" id="pin-hint">Enter the parent PIN</p>
+      <div class="pin-dots" id="pin-dots"><span></span><span></span><span></span><span></span></div>
+      <div class="pin-pad" id="pin-pad">
+        <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+        <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+        <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+        <button type="button" data-key="clear" aria-label="Delete digit">⌫</button><button type="button">0</button><span></span>
+      </div>
+    </div>
+
+    <div id="history-view" hidden>
+      <div class="p-warn" id="history-missing" hidden>History file missing — copy study-history.js into the same folder as this lobby.</div>
+      <div id="history-body">
+        <div class="p-warn" id="history-full" hidden>History storage is full — export a backup, then delete old entries.</div>
+
+        <div class="p-section" id="clock-section" hidden>
+          <h3>📅 Tablet date</h3>
+          <p class="p-note">The tablet's date looks earlier than the last time it was used, so points and coins are paused. If today's date and time are right, tap the button.</p>
+          <button class="p-btn" type="button" id="clock-fix">The date is right now</button>
+          <p class="p-note" id="clock-msg"></p>
+        </div>
+
+        <div class="p-section">
+          <div class="p-row" id="range-buttons">
+            <button class="p-btn" type="button" data-range="today">Today</button>
+            <button class="p-btn" type="button" data-range="7">Last 7 days</button>
+            <button class="p-btn on" type="button" data-range="30">Last 30 days</button>
+            <button class="p-btn" type="button" data-range="all">All</button>
+            <button class="p-btn" type="button" data-range="custom">Custom</button>
+          </div>
+          <div class="p-row" id="custom-range" hidden>
+            <label>From <input type="date" id="range-from"></label>
+            <label>To <input type="date" id="range-to"></label>
+          </div>
+          <p class="p-note" id="range-msg"></p>
+        </div>
+
+        <div class="p-tabs" id="p-tabs" role="tablist" aria-label="Parent view">
+          <button class="p-tab on" type="button" role="tab" aria-selected="true" data-tab="focus">🎯 Focus</button>
+          <button class="p-tab" type="button" role="tab" aria-selected="false" data-tab="subjects">📚 Subjects</button>
+          <button class="p-tab" type="button" role="tab" aria-selected="false" data-tab="activity">🕒 Activity</button>
+          <button class="p-tab" type="button" role="tab" aria-selected="false" data-tab="rewards">🪙 Rewards</button>
+          <button class="p-tab" type="button" role="tab" aria-selected="false" data-tab="settings">⚙️ Settings</button>
+        </div>
+
+        <div class="p-panel" role="tabpanel" data-panel="focus">
+          <div class="p-section"><div class="p-tiles" id="hist-summary"></div></div>
+          <div class="p-section" id="focus"></div>
+        </div>
+
+        <div class="p-panel" role="tabpanel" data-panel="subjects" hidden>
+          <div class="p-section">
+            <h3>📚 Subjects</h3>
+            <p class="p-note">Every lesson with its medal and how she did in this range. 🔧 means a medal she earned needs a review to keep it.</p>
+            <div id="subjects-list"></div>
+          </div>
+        </div>
+
+        <div class="p-panel" role="tabpanel" data-panel="activity" hidden>
+          <div class="p-section">
+            <div class="p-row">
+              <label>Subject <select id="subject-filter"><option value="">All subjects</option></select></label>
+            </div>
+          </div>
+          <div class="p-section" id="hist-list"></div>
+        </div>
+
+        <div class="p-panel" role="tabpanel" data-panel="rewards" hidden>
+          <div class="p-section" id="test-score">
+            <h3>📝 Real test score</h3>
+            <div class="p-row">
+              <label>Subject <select id="ts-subject"></select></label>
+              <label>Test <input type="text" id="ts-name" maxlength="60" placeholder="e.g. Science ST1"></label>
+            </div>
+            <div class="p-row">
+              <label>Score <input type="number" id="ts-score" min="0" step="1" inputmode="numeric"></label>
+              <label>out of <input type="number" id="ts-total" min="1" step="1" inputmode="numeric"></label>
+              <button class="p-btn" type="button" id="ts-add" disabled>Add coins</button>
+            </div>
+            <p class="p-note">100% = 50 coins · 90% or more = 40 · 80% or more = 30 · below 80% = 10 for trying.</p>
+            <p class="p-note" id="ts-msg"></p>
+          </div>
+        </div>
+
+        <div class="p-panel" role="tabpanel" data-panel="settings" hidden>
+          <div class="p-section" id="learner-section">
+            <h3>🧒 Learner</h3>
+            <div class="p-row">
+              <label>Name <input type="text" id="learner-name" maxlength="30" placeholder="e.g. Ana"></label>
+              <label>Emoji <input type="text" id="learner-emoji" maxlength="8" placeholder="🌻"></label>
+              <label>Child <select id="learner-boy"><option value="0">👧 Girl</option><option value="1">👦 Boy</option></select></label>
+              <button class="p-btn" type="button" id="learner-save">Save</button>
+            </div>
+            <p class="p-note">The name stays on this tablet and in the backups. It is never put on the website.</p>
+            <p class="p-note" id="learner-msg"></p>
+          </div>
+          <div class="p-section" id="account-section">
+            <h3>👤 Account</h3>
+            <p class="p-note">Create the family login, change its password or the parent PIN, or add a child.</p>
+            <div class="p-row"><a class="p-btn" id="account-open" href="../index.html?account=1&amp;back=lobby/grade-5.html">Open Account</a></div>
+          </div>
+          <div class="p-section" id="cloud-section" hidden></div>
+          <div class="p-section">
+            <h3>Backup</h3>
+            <div class="p-row">
+              <button class="p-btn" type="button" id="export-json">Export full backup (.json)</button>
+              <button class="p-btn" type="button" id="export-csv">Export spreadsheet (.csv)</button>
+              <button class="p-btn" type="button" id="copy-backup">Copy full backup</button>
+              <button class="p-btn" type="button" id="import-btn">Import backup</button>
+              <button class="p-btn" type="button" id="paste-btn">Paste backup</button>
+              <button class="p-btn" type="button" id="export-shop">Download shop history (.csv)</button>
+              <input type="file" id="import-file" hidden>
+            </div>
+            <div id="paste-box" hidden>
+              <p class="p-note" id="paste-hint"></p>
+              <textarea id="paste-text" rows="5" spellcheck="false"></textarea>
+              <div class="p-row"><button class="p-btn" type="button" id="paste-import">Import pasted backup</button></div>
+            </div>
+            <p class="p-note" id="backup-age"></p>
+            <p class="p-note">If Export only shows text (for example inside Messenger), use Copy full backup, keep the copied text, then open the new link and use Paste backup.</p>
+            <p class="p-note">The full backup holds the study history, points and coins. Keep a copy off the tablet (for example, email it to yourself).</p>
+            <p class="p-note">Shop purchases older than 7 days are deleted automatically. Download the shop history every week to keep a record.</p>
+            <p class="p-note" id="backup-msg"></p>
+          </div>
+          <div class="p-section">
+            <h3>Delete history</h3>
+            <div class="p-row">
+              <label>From <input type="date" id="del-from"></label>
+              <label>To <input type="date" id="del-to"></label>
+              <button class="p-btn" type="button" id="delete-range">Delete this range</button>
+            </div>
+            <div class="p-row">
+              <button class="p-btn danger" type="button" id="delete-all">Delete everything</button>
+            </div>
+            <p class="p-note" id="delete-msg"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="parent-overlay" id="shop-overlay" role="dialog" aria-modal="true" aria-labelledby="shop-title" hidden>
+  <div class="shop-box">
+    <div class="parent-head">
+      <h2 id="shop-title"></h2>
+      <button class="p-btn" id="shop-close" type="button"></button>
+    </div>
+
+    <div id="shop-list-view">
+      <p class="shop-coins" id="shop-coins"></p>
+      <p class="shop-goal" id="shop-goal"></p>
+      <p class="p-note shop-intro" id="shop-earned"></p>
+      <p class="p-note shop-intro" id="shop-intro"></p>
+      <div class="shop-search-row"><div class="shop-search-wrap">
+        <span class="shop-search-icon" aria-hidden="true">🔍</span>
+        <input class="shop-search" id="shop-search" type="search" autocomplete="off" enterkeyhint="search">
+      </div></div>
+      <div class="shop-items" id="shop-items"></div>
+      <p class="shop-empty" id="shop-empty" aria-live="polite" hidden></p>
+    </div>
+
+    <div id="shop-pin-view" hidden>
+      <p class="shop-ask" id="shop-ask"></p>
+      <div class="shop-actions shop-phone-row"><button class="shop-buy" id="shop-phone" type="button" hidden></button></div>
+      <p class="p-note shop-intro" id="shop-phone-msg" aria-live="polite"></p>
+      <p class="pin-hint" id="shop-pin-hint"></p>
+      <div class="pin-dots" id="shop-pin-dots"><span></span><span></span><span></span><span></span></div>
+      <div class="pin-pad" id="shop-pin-pad">
+        <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+        <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+        <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+        <button type="button" data-key="clear" aria-label="Delete digit">⌫</button><button type="button">0</button><span></span>
+      </div>
+      <div class="shop-actions"><button class="p-btn" id="shop-cancel" type="button"></button></div>
+    </div>
+
+    <div id="shop-done-view" hidden>
+      <p class="shop-done" id="shop-done"></p>
+      <div class="shop-actions"><button class="p-btn" id="shop-back" type="button"></button></div>
+    </div>
+  </div>
+</div>
+
+<script src="../engine/lang.js"></script>
+<script src="../engine/storage.js" data-grade="grade5"></script>
+<script src="../engine/learner.js" data-grade="grade5"></script>
+<script src="../engine/clock.js" data-grade="grade5"></script>
+<script src="../engine/study-history.js" data-grade="grade5"></script>
+<script src="../engine/recall.js" data-grade="grade5"></script>
+<script src="../engine/mastery.js" data-grade="grade5"></script>
+<script src="../engine/wallet.js" data-grade="grade5"></script>
+<script src="../engine/quests.js" data-grade="grade5"></script>
+<script src="../engine/boss.js" data-grade="grade5"></script>
+<script src="../engine/bosses.js"></script>
+<script src="../engine/guide.js" data-grade="grade5"></script>
+<script src="../engine/world.js" data-grade="grade5"></script>
+<script src="../engine/subjects.js"></script>
+<script src="../engine/family.js" data-grade="grade5"></script>
+<script src="../engine/shop-requests.js" data-grade="grade5"></script>
+<script src="../engine/fx.js" data-grade="grade5"></script>
+<script src="../engine/sync-core.js" data-grade="grade5"></script>
+<script src="../engine/firebase-config.js" data-grade="grade5"></script>
+<script src="../engine/firebase-remote.js" data-grade="grade5"></script>
+<script src="../engine/cloud.js" data-grade="grade5"></script>
+<script src="../engine/insights.js" data-grade="grade5"></script>
+<script src="../engine/parent-pin.js" data-grade="grade5"></script>
+<script src="../engine/parent-panel.js" data-grade="grade5"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel', world: 'World', family: 'Family', guide: 'Guide', trail: 'Trail' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+(function(){
+  function showReview(){ if (window.Recall && Recall.renderLobby) Recall.renderLobby(document.getElementById('review-due'), document.querySelectorAll('.subject-card[data-app]')); }
+  showReview();
+  document.addEventListener('cloud-synced', showReview);
+  document.addEventListener('parent-changed', showReview);
+  function showQuests(){
+    var box = document.getElementById('quests');
+    var cards = Array.prototype.map.call(document.querySelectorAll('.subject-card[data-app]'), function(c){
+      var name = c.querySelector('.subject-app') || c.querySelector('.subject-title');
+      return { app: c.getAttribute('data-app'), title: name ? name.textContent.trim() : c.getAttribute('data-app'), href: c.getAttribute('href') };
+    });
+    var events = [];
+    if (window.Boss && Boss.ensure) {
+      events = Boss.ensure(cards);
+      Boss.renderLobby(document.getElementById('boss'), cards);
+    }
+    if (window.Quests && Quests.pick) {
+      Quests.pick(cards);
+      events = Quests.check().concat(events);
+      Quests.renderLobby(box, cards);
+    }
+    if (events.length && window.Fx && Fx.celebrate) Fx.celebrate(events, box.hidden ? document.getElementById('boss') : box);
+  }
+  showQuests();
+  document.addEventListener('cloud-synced', showQuests);
+  window.addEventListener('pageshow', function(e){ if (e.persisted) showQuests(); });
+  function showMap(){ Mastery.renderMap(document.getElementById('map-view'), document.querySelectorAll('.subject-card[data-app]')); }
+  (function(){
+    var btn = document.getElementById('map-open'), view = document.getElementById('map-view');
+    if (!btn || !view || !window.Mastery || !Mastery.renderMap) return;
+    btn.textContent = Mastery.text.mapButton;
+    btn.hidden = false;
+    btn.addEventListener('click', function(){
+      var open = view.hidden;
+      if (open) showMap();
+      view.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('cloud-synced', function(){ if (!view.hidden) showMap(); });
+  })();
+  var STORE = window.Learner ? Learner.storage : localStorage;
+  function getPoints(key){
+    try{ return parseInt(STORE.getItem(key), 10) || 0; }catch(e){ return 0; }
+  }
+  var total = 0;
+  document.querySelectorAll('[data-points-key]').forEach(function(el){
+    var pts = getPoints(el.getAttribute('data-points-key'));
+    total += pts;
+    el.textContent = '⭐ ' + pts + ' pts';
+  });
+  document.getElementById('points-combined-badge').textContent = '⭐ ' + total + ' points earned across all subjects';
+})();
+window.SHOP_TEXT = {
+  coins: function(n){ return '🪙 ' + n + (n === 1 ? ' coin' : ' coins'); },
+  shopButton: '🛒 Shop',
+  guideButton: '❓ How it works',
+  title: 'Reward Shop',
+  close: '✕ Close',
+  intro: 'Every 20 points you earn gives you 1 coin. Pick a reward, then ask a parent to approve it.',
+  goal: function(n, goal){ return n + ' more ' + (n === 1 ? 'coin' : 'coins') + ' to ' + goal + '!'; },
+  earned: function(pts, coins, welcome, spent, bonus){ return '⭐ ' + pts + ' new points → 🪙 ' + coins + ' coins · 🎁 ' + welcome + ' welcome' + (bonus ? ' · ✨ ' + bonus + ' bonus' : '') + ' · 🛒 ' + spent + ' spent'; },
+  allGoals: 'You can get any reward! 🎉',
+  need: function(n){ return n + ' more ' + (n === 1 ? 'coin' : 'coins'); },
+  tomorrow: 'Come back tomorrow',
+  buy: 'Buy',
+  search: 'Search rewards, like ML or Tatay',
+  noMatch: function(q){ return 'No reward matches "' + q + '". Try another word.'; },
+  notes: (function(){
+    var tatay = 'No daily limit. It does not use up your own ML game.';
+    return {
+      ml: 'One match, win or lose. Only after studying. Play time is extra, on top of your normal time.',
+      tatay1: tatay, tatay2: tatay, tatay3: tatay, vs: tatay, duo: tatay,
+      hero: 'Use it on your next ML game with Tatay.',
+      mystery: 'Mommy or Tatay picks a surprise reward for you.',
+      yesday: 'Mommy and Tatay say yes to your plans for the day, within family rules.',
+      pesos: 'Real money! Mommy or Tatay gives you 100 pesos.'
+    };
+  })(),
+  ask: function(item, coins){ return 'Ask a parent to enter the PIN to approve: ' + item + ' for ' + coins + ' coins'; },
+  askPhone: function(item, coins){ return 'Ask a parent to approve: ' + item + ' for ' + coins + ' coins. Tap the green button to send it to their phone.'; },
+  pinHint: 'Parent PIN',
+  wrongPin: 'Wrong PIN',
+  cancel: 'Cancel',
+  done: function(item, left){ return '🎉 Approved! Enjoy your reward: ' + item + '. You have ' + left + (left === 1 ? ' coin' : ' coins') + ' left.'; },
+  saveFail: 'Could not save, so nothing was spent. Please try again.',
+  back: 'Back to the shop',
+  phone: "📱 Ask on parent's phone",
+  waiting: 'Waiting for a parent… Ask your parent to open the parent page on their phone.',
+  declined: 'Your parent said not this time.',
+  short: 'Not enough coins now, so nothing was bought.',
+  expired: 'That request is too old. Ask again.'
+};
+</script>
+<script data-shop>
+(function(){
+  var STORE = window.Learner ? Learner.storage : localStorage;
+  var KEEP_DAYS = 7;
+  var W = window.Wallet, SH = window.StudyHistory, T = window.SHOP_TEXT;
+  if (SH) SH.prunePurchases(KEEP_DAYS);
+  if (!W || !T) return;
+  W.prune(KEEP_DAYS);
+  var $ = function(id){ return document.getElementById(id); };
+  var overlay = $('shop-overlay'), dots = $('shop-pin-dots'), wrap = document.querySelector('.wrap');
+  var pending = null, entered = '', shakeT = null;
+  var C = window.Cloud, R = window.ShopRequests && W ? ShopRequests.create(STORE, Date.now) : null;
+  var asked = null, unwatch = null, phoneOnly = false;
+  var fromWorld = location.hash === '#shop-world';
+  window.ShopReturn = { go: function (url) { location.href = url; } };
+
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function readPoints(){
+    var points = {};
+    document.querySelectorAll('[data-points-key]').forEach(function(card){
+      var key = card.getAttribute('data-points-key');
+      try { points[key] = parseInt(STORE.getItem(key), 10) || 0; } catch (e) { points[key] = 0; }
+    });
+    W.track(points);
+    return points;
+  }
+  function itemById(id){ return W.catalog.filter(function(i){ return i.id === id; })[0]; }
+  function label(item){ return item.emoji + ' ' + item.name; }
+
+  function nextGoal(points){
+    var best = null, bestNeed = 0;
+    W.catalog.forEach(function(item){
+      var c = W.canBuy(item.id, points);
+      if (c.need > 0 && (!best || c.need < bestNeed)){ best = item; bestNeed = c.need; }
+    });
+    return best ? T.goal(bestNeed, best.goal) : T.allGoals;
+  }
+
+  function renderList(){
+    var points = readPoints(), coins = W.balance(points);
+    $('coin-badge').textContent = T.coins(coins);
+    $('shop-coins').textContent = T.coins(coins);
+    $('shop-goal').textContent = nextGoal(points);
+    var e = W.earned(points);
+    $('shop-earned').textContent = T.earned(e.points, e.coins, e.welcome, e.spent, e.bonus);
+    var box = $('shop-items'), typed = $('shop-search').value.trim(), query = typed.toLowerCase();
+    box.textContent = '';
+    var shown = W.catalog.filter(function(item){ return (item.name + ' ' + item.goal).toLowerCase().indexOf(query) >= 0; });
+    shown.forEach(function(item){
+      var c = W.canBuy(item.id, points);
+      var row = el('div', 'shop-item' + (c.ok ? ' can' : ''));
+      row.setAttribute('data-item', item.id);
+      var top = el('div', 'shop-top');
+      top.appendChild(el('div', 'shop-emoji', item.emoji));
+      top.appendChild(el('div', 'shop-price', '🪙 ' + item.coins));
+      row.appendChild(top);
+      row.appendChild(el('div', 'shop-name', item.name));
+      if (T.notes[item.id]) row.appendChild(el('div', 'shop-note', T.notes[item.id]));
+      var foot = el('div', 'shop-foot');
+      if (c.ok){
+        var buy = el('button', 'shop-buy', T.buy);
+        buy.type = 'button';
+        buy.setAttribute('data-buy', item.id);
+        buy.setAttribute('aria-label', T.buy + ': ' + item.name);
+        foot.appendChild(buy);
+      } else {
+        foot.appendChild(el('div', 'shop-need', c.daily ? T.tomorrow : T.need(c.need)));
+        if (!c.daily){
+          var bar = el('div', 'shop-bar'), fill = el('span');
+          fill.style.width = Math.min(100, Math.round(coins / item.coins * 100)) + '%';
+          bar.appendChild(fill);
+          foot.appendChild(bar);
+        }
+      }
+      row.appendChild(foot);
+      box.appendChild(row);
+    });
+    $('shop-empty').hidden = shown.length > 0;
+    $('shop-empty').textContent = shown.length ? '' : T.noMatch(typed);
+  }
+
+  function show(view){
+    ['shop-list-view', 'shop-pin-view', 'shop-done-view'].forEach(function(id){ $(id).hidden = id !== view; });
+  }
+  function backToList(){
+    pending = null;
+    renderList();
+    show('shop-list-view');
+  }
+  function openShop(){
+    $('shop-search').value = '';
+    $('shop-search').placeholder = T.search;
+    $('shop-search').setAttribute('aria-label', T.search);
+    backToList();
+    overlay.hidden = false;
+    wrap.inert = true;
+    $('shop-close').focus();
+  }
+  // Opened from the 3D world (#shop-world): closing the shop by hand walks her back to Shop Plaza there.
+  function closeByHand(){
+    var back = fromWorld;
+    closeShop();
+    if (!back) return;
+    var link = $('world-open'), href = link ? link.getAttribute('href') : '', g = (href.match(/grade-(\d)/) || [])[1];
+    if (!g) return;
+    try { sessionStorage.setItem('world_return_v1', JSON.stringify({ grade: 'grade' + g, app: 'shop' })); } catch (e) {}
+    window.ShopReturn.go(href);
+  }
+
+  function closeShop(){
+    if (overlay.hidden) return;
+    fromWorld = false;
+    pending = null;
+    if (unwatch){ unwatch(); unwatch = null; }
+    asked = null;
+    entered = '';
+    overlay.hidden = true;
+    wrap.inert = false;
+    renderList();
+    $('shop-open').focus({ preventScroll: true });
+  }
+
+  function drawDots(){
+    Array.prototype.forEach.call(dots.children, function(d, i){ d.classList.toggle('fill', i < entered.length); });
+  }
+  function askParent(item){
+    pending = item;
+    entered = '';
+    drawDots();
+    $('shop-ask').textContent = T.ask(label(item), item.coins);
+    $('shop-pin-hint').textContent = T.pinHint;
+    $('shop-phone-msg').textContent = '';
+    // With cloud sync on, only a parent's phone can approve: the PIN pad is not offered.
+    var phone = phoneOnly = !!(R && C && C.signedIn());
+    $('shop-phone').hidden = !phone;
+    ['shop-pin-hint', 'shop-pin-dots', 'shop-pin-pad'].forEach(function(id){ $(id).hidden = phone; });
+    if (phone && T.askPhone) $('shop-ask').textContent = T.askPhone(label(item), item.coins);
+    var waiting = R ? R.waiting().filter(function(r){ return r.item === item.id; })[0] : null;
+    if (waiting){
+      asked = waiting.id;
+      $('shop-phone').hidden = true;
+      $('shop-phone-msg').textContent = T.waiting;
+      if (!unwatch) unwatch = C.watch(ShopRequests.KEY, function(){ C.sync(); });
+    }
+    show('shop-pin-view');
+    $('shop-cancel').focus();
+  }
+  function stopWaiting(){
+    if (unwatch){ unwatch(); unwatch = null; }
+    asked = null;
+    $('shop-phone-msg').textContent = '';
+  }
+  function askPhone(){
+    if (!pending || !R || asked) return;
+    asked = R.ask(pending);
+    if (!asked){ $('shop-phone-msg').textContent = T.saveFail; return; }
+    $('shop-phone').hidden = true;
+    $('shop-phone-msg').textContent = T.waiting;
+    unwatch = C.watch(ShopRequests.KEY, function(){ C.sync(); });
+    C.sync();
+  }
+  function cancelAsk(){
+    if (asked && R){ R.cancel(asked); C.sync(); }
+    stopWaiting();
+    backToList();
+  }
+  // Buys what a parent approved on the phone, after checking the coins again. Runs after every cloud sync,
+  // so an answer that comes while the shop is closed is still bought the next time the lobby syncs.
+  function settle(){
+    if (!R) return;
+    var results = R.settle(function(r){
+      var item = itemById(r.item), points = readPoints();
+      if (!item || !W.canBuy(item.id, points).ok) return 'short';
+      if (!W.buy(item.id, points)) return 'short';
+      if (SH) SH.purchased(item.id, item.name, item.coins, 'phone');
+      return 'done';
+    });
+    if (results.length) C.sync();
+    var mine = asked ? R.get(asked) : null;
+    if (!mine || mine.status === 'waiting' || mine.status === 'approved'){
+      if (results.length && overlay.hidden) renderList();
+      return;
+    }
+    var item = itemById(mine.item);
+    stopWaiting();
+    pending = null;
+    var left = W.balance(readPoints());
+    $('coin-badge').textContent = T.coins(left);
+    if (mine.status === 'done'){
+      if (window.Fx) Fx.purchase();
+      $('shop-done').textContent = T.done(label(item), left);
+    } else {
+      $('shop-done').textContent = mine.status === 'declined' ? T.declined : mine.status === 'expired' ? T.expired : T.short;
+    }
+    show('shop-done-view');
+    $('shop-back').focus();
+  }
+  function approve(){
+    if (asked && R){ R.cancel(asked); stopWaiting(); C.sync(); }
+    var item = pending;
+    pending = null;
+    var points = readPoints();
+    if (!W.canBuy(item.id, points).ok){ backToList(); return; }
+    var bought = W.buy(item.id, points);
+    if (bought && SH) SH.purchased(item.id, item.name, item.coins, 'pin');
+    if (bought && window.Fx) Fx.purchase();
+    var left = W.balance(points);
+    $('coin-badge').textContent = T.coins(left);
+    $('shop-done').textContent = bought ? T.done(label(item), left) : T.saveFail;
+    show('shop-done-view');
+    $('shop-back').focus();
+  }
+  function pressKey(key){
+    if (!pending || phoneOnly) return;
+    if (key === 'clear'){ entered = entered.slice(0, -1); drawDots(); return; }
+    if (entered.length >= 4) return;
+    entered += key;
+    drawDots();
+    if (entered.length < 4) return;
+    if (window.ParentPanel && ParentPanel.checkPin(entered)){ entered = ''; approve(); return; }
+    entered = '';
+    clearTimeout(shakeT);
+    dots.classList.remove('shake');
+    void dots.offsetWidth;
+    dots.classList.add('shake');
+    $('shop-pin-hint').textContent = T.wrongPin;
+    shakeT = setTimeout(function(){
+      dots.classList.remove('shake');
+      drawDots();
+      $('shop-pin-hint').textContent = T.pinHint;
+    }, 1500);
+  }
+
+  $('shop-open').textContent = T.shopButton;
+  $('coin-guide-open').textContent = T.guideButton;
+  $('shop-title').textContent = T.title;
+  $('shop-close').textContent = T.close;
+  $('shop-intro').textContent = T.intro;
+  $('shop-cancel').textContent = T.cancel;
+  $('shop-back').textContent = T.back;
+  $('shop-phone').textContent = T.phone || '';
+  renderList();
+  W.refreshShop = renderList;
+  W.canAfford = function(){
+    var points = readPoints();
+    return W.catalog.some(function(item){ return W.canBuy(item.id, points).ok; });
+  };
+  $('coin-row').hidden = false;
+
+  var GUIDE_SEEN = 'coin_guide_seen_v1', seen = null;
+  try { seen = STORE.getItem(GUIDE_SEEN); } catch (e) {}
+  if (!seen && W.showGuide){
+    W.showGuide();
+    try { STORE.setItem(GUIDE_SEEN, '1'); } catch (e) {}
+  }
+
+  $('shop-open').addEventListener('click', openShop);
+  $('shop-close').addEventListener('click', closeByHand);
+  $('shop-cancel').addEventListener('click', cancelAsk);
+  $('shop-phone').addEventListener('click', askPhone);
+  document.addEventListener('cloud-synced', settle);
+  $('shop-back').addEventListener('click', backToList);
+  $('shop-search').addEventListener('input', renderList);
+  $('shop-items').addEventListener('click', function(ev){
+    var b = ev.target.closest('button[data-buy]');
+    if (b) askParent(itemById(b.getAttribute('data-buy')));
+  });
+  $('shop-pin-pad').addEventListener('click', function(ev){
+    var b = ev.target.closest('button');
+    if (b) pressKey(b.getAttribute('data-key') || b.textContent);
+  });
+  document.addEventListener('keydown', function(ev){
+    if (overlay.hidden) return;
+    if (ev.key === 'Escape') closeByHand();
+    else if (pending && /^[0-9]$/.test(ev.key)) pressKey(ev.key);
+    else if (pending && ev.key === 'Backspace') pressKey('clear');
+  });
+  window.addEventListener('pagehide', closeShop);
+  document.addEventListener('visibilitychange', function(){ if (document.hidden) closeShop(); });
+  if (location.hash === '#shop' || fromWorld) {
+    history.replaceState(null, '', location.pathname + location.search);
+    openShop();
+  }
+})();
+</script>
+<script data-campus>
+(function(){
+  if (!window.World || !World.mount) return;
+  function draw(){ World.mount(document.getElementById('campus'), document.querySelector('.grid'), document.getElementById('campus-toggle')); }
+  draw();
+  document.addEventListener('cloud-synced', draw);
+  document.addEventListener('parent-changed', draw);
+  window.addEventListener('pageshow', function(e){ if (e.persisted) draw(); });
+})();
+</script>
+<script data-world>window.addEventListener('pageshow', function () { try { sessionStorage.removeItem('world_return_v1'); } catch (e) {} });</script>
+<script>
+(function(){
+  var SH = window.StudyHistory, P = window.ParentPanel;
+  if (!P || !SH || !SH.list){
+    document.getElementById('parent-open').addEventListener('click', function(){
+      document.getElementById('parent-overlay').hidden = false;
+      document.getElementById('pin-view').hidden = true;
+      document.getElementById('history-view').hidden = false;
+      document.getElementById('history-missing').hidden = false;
+      document.getElementById('history-body').hidden = true;
+    });
+    document.getElementById('parent-close').addEventListener('click', function(){ document.getElementById('parent-overlay').hidden = true; });
+    return;
+  }
+  P.mount({ history: SH, wallet: window.Wallet, learner: window.Learner, store: window.Learner ? Learner.storage : localStorage, subjects: P.subjectsFromCards(document), lobby: true, onChange: function(){ document.dispatchEvent(new CustomEvent('parent-changed')); } });
+})();
+</script>

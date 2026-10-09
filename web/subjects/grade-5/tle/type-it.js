@@ -1,0 +1,21 @@
+StudyKit.content('typeIt', {
+  'Before making a home furnishing you should think about purpose, materials, design, and safety. What is the FIFTH thing to consider?': [],
+  'Which embroidery tool holds the fabric tight and steady while you stitch?': ['embroidery hoop', 'hoop'],
+  'A design that uses mainly squares and triangles is called a...': ['geometric'],
+  'Which design is made by the size, form, colour, and texture of an object?': ['structural'],
+  'Which crochet tool is used to weave in loose yarn ends?': ['tapestry needle'],
+  'What is the MAIN material used in crochet?': [],
+  'Which tool pulls and forms loops of yarn into stitches?': ['crochet hook', 'hook'],
+  'For TREBLE crochet, how many times do you yarn over before inserting the hook?': ['two', '2', 'two times', '2 times'],
+  'Which stitch is worked the same way as the running stitch, but with LONGER stitches?': ['straight'],
+  'Which stitch fills a shape with stitches worked closely side by side, creating a plump, solidly filled figure?': ['satin'],
+  'The stem stitch is also known by which other name?': ['outline stitch', 'outline'],
+  'In a crochet pattern, what does <b>ch</b> mean?': ['chain stitch'],
+  'What does <b>dc</b> stand for?': [],
+  'Which abbreviation means SLIP STITCH?': ['slst'],
+  'What does <b>dec</b> mean in a crochet pattern?': [],
+  'Which sewing method uses a needle and thread and is done without an electric sewing machine?': [],
+  'Which part of the sewing machine holds the fabric firmly against the feed dogs?': [],
+  'Which needlework technique uses a needle and thread to create decorative designs on fabric?': [],
+  'Which tool is commonly used to make crochet projects?': ['crochet hook', 'hook']
+});

@@ -1,0 +1,947 @@
+<html lang="fil">
+<title>Batang Bayani</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;700;800&display=swap">
+<style>
+  :root{
+    --bg:#FAF3E3;
+    --bg-alt:#F3E9CE;
+    --card:#FFFDF6;
+    --ink:#2B2A1E;
+    --ink-soft:#6B6350;
+    --accent:#F0A93B;
+    --accent-ink:#7A4A05;
+    --accent-soft:#FBE3B6;
+    --teal:#2E8B7A;
+    --teal-deep:#1F5C50;
+    --teal-soft:#DCEFE9;
+    --good:#4C8C4A;
+    --good-soft:#E3F0DE;
+    --bad:#C4552E;
+    --bad-soft:#F6E1D6;
+    --border:rgba(43,42,30,0.14);
+    --shadow:rgba(43,42,30,0.18);
+    --roof:#C4552E;
+    --roof-dark:#9C401F;
+    --wall:#E9C77E;
+    --wall-dark:#C9A25C;
+    --wood:#8B5E34;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#141F1A;
+      --bg-alt:#1B2A23;
+      --card:#1E2E27;
+      --ink:#F1EAD6;
+      --ink-soft:#AEA98F;
+      --accent:#F3B65B;
+      --accent-ink:#FFE1AC;
+      --accent-soft:#3A2E17;
+      --teal:#59BBA3;
+      --teal-deep:#8CD9C4;
+      --teal-soft:#20362F;
+      --good:#8FCB84;
+      --good-soft:#233524;
+      --bad:#E2916C;
+      --bad-soft:#3A2620;
+      --border:rgba(241,234,214,0.16);
+      --shadow:rgba(0,0,0,0.45);
+      --roof:#D46A3A;
+      --roof-dark:#A34C24;
+      --wall:#C9A25C;
+      --wall-dark:#9C7B41;
+      --wood:#6E4A28;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#141F1A;
+    --bg-alt:#1B2A23;
+    --card:#1E2E27;
+    --ink:#F1EAD6;
+    --ink-soft:#AEA98F;
+    --accent:#F3B65B;
+    --accent-ink:#FFE1AC;
+    --accent-soft:#3A2E17;
+    --teal:#59BBA3;
+    --teal-deep:#8CD9C4;
+    --teal-soft:#20362F;
+    --good:#8FCB84;
+    --good-soft:#233524;
+    --bad:#E2916C;
+    --bad-soft:#3A2620;
+    --border:rgba(241,234,214,0.16);
+    --shadow:rgba(0,0,0,0.45);
+    --roof:#D46A3A;
+    --roof-dark:#A34C24;
+    --wall:#C9A25C;
+    --wall-dark:#9C7B41;
+    --wood:#6E4A28;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      repeating-linear-gradient(115deg, transparent 0 22px, rgba(43,42,30,0.025) 22px 23px),
+      repeating-linear-gradient(25deg, transparent 0 22px, rgba(43,42,30,0.025) 22px 23px),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', system-ui, sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) body{
+      background:
+        repeating-linear-gradient(115deg, transparent 0 22px, rgba(241,234,214,0.03) 22px 23px),
+        repeating-linear-gradient(25deg, transparent 0 22px, rgba(241,234,214,0.03) 22px 23px),
+        var(--bg);
+    }
+  }
+  :root[data-theme="dark"] body{
+    background:
+      repeating-linear-gradient(115deg, transparent 0 22px, rgba(241,234,214,0.03) 22px 23px),
+      repeating-linear-gradient(25deg, transparent 0 22px, rgba(241,234,214,0.03) 22px 23px),
+      var(--bg);
+  }
+
+  .app{
+    width:100%;
+    max-width:592px;
+    box-sizing:border-box;
+    padding:clamp(16px,4vw,40px) 16px;
+  }
+
+  .eyebrow{
+    font-family:'Nunito',sans-serif;
+    font-weight:800;
+    font-size:0.78rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--teal-deep);
+    text-align:center;
+    margin:0 0 6px;
+  }
+
+  h1,h2,h3{font-family:'Fredoka', system-ui, sans-serif; text-wrap:balance; margin:0;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:28px;
+    box-shadow:0 18px 40px -18px var(--shadow), 0 2px 0 var(--border);
+    padding:clamp(22px,5vw,36px);
+  }
+
+  .screen{display:none;}
+  .screen.active{display:block; animation:rise 0.4s ease both;}
+  @media (prefers-reduced-motion: reduce){ .screen.active{animation:none;} }
+  @keyframes rise{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---- Home ---- */
+  .hero{text-align:center; margin-bottom:20px;}
+  .hero-title{font-size:clamp(2rem,7vw,2.5rem); font-weight:700; color:var(--accent-ink); line-height:1.05;}
+  .hero-sub{font-size:1.02rem; color:var(--ink-soft); font-weight:700; margin-top:8px;}
+  .hero-scene{width:min(280px,72%); margin:16px auto 4px;}
+
+
+  .lesson-card{padding:16px 18px; margin-bottom:12px;}
+  .lesson-top{display:flex; align-items:center; gap:14px;}
+  .lesson-icon{width:52px; height:52px; flex:none;}
+  .lesson-info{flex:1; min-width:0;}
+  .lesson-tag-label{font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--teal-deep);}
+  .lesson-title{font-family:'Fredoka',sans-serif; font-weight:600; font-size:1.05rem; margin-top:2px; line-height:1.25;}
+  .mini-stars{display:flex; gap:2px; margin-top:6px;}
+  .mini-stars svg{width:15px; height:15px;}
+  .lesson-card .btn{margin-top:14px; padding:12px 16px; font-size:0.98rem; box-shadow:0 4px 0 var(--accent-ink), 0 7px 12px -6px var(--shadow);}
+  .final-card{border:2px solid var(--accent); background:linear-gradient(135deg, var(--accent-soft), var(--card));}
+  .final-badge{color:var(--accent-ink);}
+
+  /* ---- Buttons ---- */
+  .btn{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.1rem;
+    border:none;
+    border-radius:18px;
+    padding:16px 20px;
+    cursor:pointer;
+    color:#3A2707;
+    background:var(--accent);
+    box-shadow:0 6px 0 var(--accent-ink), 0 10px 18px -8px var(--shadow);
+    transition:transform 0.12s ease, box-shadow 0.12s ease;
+    width:100%;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn:active{transform:translateY(3px); box-shadow:0 3px 0 var(--accent-ink), 0 6px 12px -8px var(--shadow);}
+  .btn:focus-visible{outline:3px solid var(--teal-deep); outline-offset:3px;}
+  .btn.secondary{
+    background:transparent;
+    color:var(--teal-deep);
+    box-shadow:none;
+    border:2px solid var(--teal);
+  }
+  .btn.secondary:active{transform:translateY(1px);}
+  .btn-row{display:flex; gap:12px; margin-top:18px;}
+  .btn-row .btn{width:auto; flex:1;}
+
+  /* ---- Flashcards ---- */
+  .flash-dots{display:flex; justify-content:center; gap:8px; margin-bottom:18px;}
+  .flash-dots span{width:8px; height:8px; border-radius:50%; background:var(--border);}
+  .flash-dots span.on{background:var(--teal);}
+  .flash-icon{width:76px; height:76px; margin:0 auto 14px; display:block;}
+  .flash-lesson-label{text-align:center; font-size:0.78rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:14px;}
+  .flash-title{font-size:1.3rem; font-weight:700; color:var(--teal-deep); text-align:center;}
+  .flash-text{font-size:1.12rem; line-height:1.55; text-align:center; margin-top:12px; color:var(--ink);}
+
+  /* ---- Quiz header ---- */
+  .quiz-head{display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .quiz-house-mini{width:56px; height:48px; flex:none;}
+  .quiz-progress{flex:1;}
+  .quiz-progress-label{font-size:0.82rem; font-weight:800; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em;}
+  .track{height:10px; border-radius:6px; background:var(--bg-alt); overflow:hidden; margin-top:6px; border:1px solid var(--border);}
+  .track-fill{height:100%; background:linear-gradient(90deg, var(--teal), var(--accent)); border-radius:6px; transition:width 0.4s ease;}
+
+  .q-kicker{font-size:0.78rem; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color:var(--teal-deep); margin-bottom:8px;}
+  .q-text{font-size:1.35rem; font-weight:700; font-family:'Fredoka',sans-serif; line-height:1.3; margin-bottom:18px;}
+  .q-sentence{background:transparent; border:2px dashed color-mix(in srgb, var(--ink) 35%, transparent); border-radius:14px; padding:14px 16px; font-size:1.2rem; font-weight:700; line-height:1.5; text-align:center; margin:-4px 0 16px; color:var(--ink);}
+
+  .opt{
+    display:flex; align-items:center; gap:12px;
+    width:100%; text-align:left;
+    background:var(--bg-alt);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:14px 16px;
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    color:var(--ink);
+    cursor:pointer;
+    margin-bottom:10px;
+    transition:border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+  }
+  .opt:hover{border-color:var(--teal);}
+  .opt:active{transform:scale(0.99);}
+  .opt:focus-visible{outline:3px solid var(--teal-deep); outline-offset:2px;}
+  .opt .bullet{width:22px; height:22px; flex:none; border-radius:50%; border:2px solid var(--ink-soft); opacity:0.55;}
+  .opt.correct{background:var(--good-soft); border-color:var(--good); color:var(--ink);}
+  .opt.correct .bullet{border-color:var(--good); background:var(--good);}
+  .opt.wrong{background:var(--bad-soft); border-color:var(--bad);}
+  .opt.wrong .bullet{border-color:var(--bad); background:var(--bad);}
+  .opt[disabled]{cursor:default;}
+
+  .tf-row{display:flex; gap:14px;}
+  .tf-btn{
+    flex:1; padding:26px 10px; border-radius:18px; border:2px solid var(--border);
+    background:var(--bg-alt); font-family:'Fredoka',sans-serif; font-weight:600; font-size:1.15rem;
+    display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; color:var(--ink);
+    transition:border-color 0.15s ease, transform 0.1s ease;
+  }
+  .tf-btn svg{width:34px; height:34px;}
+  .tf-btn:hover{border-color:var(--teal);}
+  .tf-btn:active{transform:scale(0.98);}
+  .tf-btn:focus-visible{outline:3px solid var(--teal-deep); outline-offset:2px;}
+  .tf-btn.correct{background:var(--good-soft); border-color:var(--good);}
+  .tf-btn.wrong{background:var(--bad-soft); border-color:var(--bad);}
+  .tf-btn[disabled]{cursor:default;}
+  .opt.explorable, .tf-btn.explorable{border-style:dashed;}
+  .opt.explored, .tf-btn.explored{box-shadow:0 0 0 3px var(--bg-alt);}
+  .explore{margin-top:4px;}
+  .explore-hint{font-size:0.9rem; color:var(--ink-soft); font-weight:700;}
+  .explore-card{margin-top:8px; background:var(--card); border:2px solid var(--border); border-left:5px solid var(--bad); border-radius:12px; padding:9px 12px; font-weight:600; line-height:1.45;}
+  .explore-card.explore-right{border-left-color:var(--good);}
+  .explore-card b{display:block; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft);}
+  .explore-card .learn-choice{font-weight:800;}
+  .explore-card .learn-why{display:block; margin-top:3px; font-weight:500;}
+
+  .feedback{
+    margin-top:16px; padding:14px 16px; border-radius:16px; font-weight:700; font-size:1rem;
+    display:none; align-items:flex-start; gap:10px; line-height:1.45;
+  }
+  .feedback.show{display:flex; animation:pop 0.3s ease both;}
+  @media (prefers-reduced-motion: reduce){ .feedback.show{animation:none;} }
+  @keyframes pop{ from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:none;} }
+  .feedback.good{background:var(--good-soft); color:var(--ink);}
+  .feedback.bad{background:var(--bad-soft); color:var(--ink);}
+  .feedback svg{width:22px; height:22px; flex:none; margin-top:1px;}
+
+  .next-wrap{margin-top:18px; display:none;}
+  .next-wrap.show{display:block;}
+
+  /* ---- Results ---- */
+  #screen-results .card{text-align:center;}
+  .result-house{width:min(220px,60%); margin:6px auto 8px;}
+  .stars{display:flex; justify-content:center; gap:6px; margin:10px 0 4px;}
+  .stars svg{width:38px; height:38px;}
+  .result-score{font-size:1.5rem; font-weight:700; font-family:'Fredoka',sans-serif; color:var(--accent-ink); margin-top:6px;}
+  .result-msg{font-size:1.08rem; color:var(--ink-soft); font-weight:700; margin-top:8px; line-height:1.5;}
+
+  /* ---- Missed questions review ---- */
+  .missed-review{display:none; text-align:left; margin-top:18px; padding-top:16px; border-top:1px solid var(--border);}
+  .missed-review.show{display:block;}
+  .missed-review h3{font-size:1rem; font-family:'Fredoka',sans-serif; color:var(--ink); margin:0 0 10px; text-align:center;}
+  .missed-list{max-height:340px; overflow-y:auto; padding-right:2px;}
+  .missed-item{display:flex; gap:10px; align-items:flex-start; background:var(--bg-alt); border-radius:12px; padding:12px 14px; margin-bottom:10px;}
+  .missed-item svg{width:18px; height:18px; flex:none; margin-top:2px; color:var(--bad);}
+  .missed-item .missed-q{white-space:pre-line; font-weight:700; color:var(--ink); margin:0 0 4px; line-height:1.4; font-size:0.96rem;}
+  .missed-item .missed-explain{color:var(--ink-soft); margin:0; line-height:1.4; font-size:0.9rem; font-weight:500;}
+
+  /* ---- Points & streak ---- */
+  .points-total{display:inline-flex; align-items:center; gap:6px; background:var(--accent-soft); color:var(--accent-ink); font-weight:800; font-size:0.85rem; padding:6px 14px; border-radius:999px; margin-top:10px;}
+  .quiz-progress-label-row{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .points-live{font-size:0.78rem; font-weight:800; color:var(--accent-ink); white-space:nowrap;}
+  .points-live .streak{color:var(--bad); margin-left:4px;}
+  .points-earned{font-size:1rem; font-weight:800; color:var(--accent-ink); margin-top:6px;}
+
+  /* ---- House SVG piece reveal ---- */
+  .piece{opacity:0; transform:scale(0.4); transform-box:fill-box; transform-origin:center; transition:opacity 0.35s ease, transform 0.35s cubic-bezier(.34,1.56,.64,1);}
+  .piece.revealed{opacity:1; transform:scale(1);}
+  @media (prefers-reduced-motion: reduce){ .piece{transition:opacity 0.2s ease;} .piece.revealed{transform:none;} }
+  .piece.base{opacity:1; transform:none; transition:none;}
+
+/* 3-up lesson map on wide screens, so every lesson shows at once.
+   Only the lesson list widens -- flashcards, quiz and results stay narrow. */
+@media (min-width:900px){
+  .app{max-width:1152px;}
+  .app section:not(#screen-home){max-width:560px; margin-left:auto; margin-right:auto;}
+  #screen-home > *:not(#home-list){max-width:560px; margin-left:auto; margin-right:auto;}
+  #home-list{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; align-items:stretch;}
+  #home-list .lesson-card{margin-bottom:0; height:100%; display:flex; flex-direction:column;}
+  #home-list .lesson-top{flex:1; align-items:flex-start;}
+}
+  /* ---- Learn from a wrong answer ---- */
+  .learn{display:flex; flex-direction:column; gap:8px; width:100%;}
+  .learn-title{font-weight:800;}
+  .learn-row{background:var(--card); border-radius:12px; padding:9px 12px; border-left:5px solid var(--bad); font-weight:600; line-height:1.45;}
+  .learn-row b{display:block; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-soft);}
+  .learn-row .learn-choice{font-weight:800;}
+  .learn-row .learn-why{display:block; margin-top:3px; font-weight:500;}
+  .learn-right{border-left-color:var(--good);}
+  .learn-tip{border-left-color:#E0A526;}
+  .missed-item .learn{margin-top:6px; font-size:0.9rem;}
+  #points-earned{white-space:pre-line;}
+</style>
+
+<div class="app">
+  <p class="eyebrow">Makabansa 2 &middot; Ang Ating Komunidad</p>
+
+  <!-- HOME / LESSON MAP -->
+  <section id="screen-home" class="screen active">
+    <div class="hero">
+      <h1 class="hero-title">Batang Bayani</h1>
+      <p class="hero-sub">Piliin ang aralin at simulan ang pagsusulit! Nagbabago ang ayos ng tanong at sagot sa bawat pagsubok, kaya kailangan mong talagang alamin ang sagot &mdash; hindi lang tandaan ang pagkakasunod-sunod nito. Subukan ang Pangwakas na Pagsusulit kapag natapos mo na ang lahat ng aralin!</p>
+      <div class="points-total" id="points-total-badge"></div>
+      <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
+      <svg class="hero-scene" viewBox="0 0 300 150" role="img" aria-label="Mga bahay-kubo sa isang komunidad">
+        <circle cx="245" cy="35" r="18" fill="var(--accent)" opacity="0.9"/>
+        <g>
+          <rect x="30" y="90" width="46" height="40" fill="var(--wall-dark)"/>
+          <polygon points="24,90 53,60 82,90" fill="var(--roof-dark)"/>
+        </g>
+        <g>
+          <rect x="95" y="70" width="62" height="60" fill="var(--wall)"/>
+          <polygon points="86,70 126,32 166,70" fill="var(--roof)"/>
+          <rect x="118" y="98" width="16" height="32" fill="var(--wood)"/>
+        </g>
+        <g>
+          <rect x="175" y="94" width="44" height="36" fill="var(--wall-dark)"/>
+          <polygon points="169,94 197,66 225,94" fill="var(--roof-dark)"/>
+        </g>
+        <rect x="0" y="130" width="300" height="4" fill="var(--teal)" opacity="0.5"/>
+      </svg>
+    </div>
+    <div id="home-list"></div>
+  </section>
+
+  <!-- FLASHCARDS -->
+  <section id="screen-flash" class="screen">
+    <div class="card">
+      <p class="flash-lesson-label" id="flash-lesson-label"></p>
+      <div class="flash-dots" id="flash-dots"></div>
+      <div id="flash-body"></div>
+      <div class="btn-row">
+        <button class="btn secondary" id="btn-flash-prev">Bumalik</button>
+        <button class="btn" id="btn-flash-next">Susunod</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="screen">
+    <div class="card">
+      <div class="quiz-head">
+        <svg class="quiz-house-mini" viewBox="0 0 120 100" role="img" aria-label="Gusaling itinatayo sa aralin">
+          <g id="house-mini"></g>
+        </svg>
+        <div class="quiz-progress">
+          <div class="quiz-progress-label-row">
+            <div class="quiz-progress-label" id="q-count">Tanong 1 sa 8</div>
+            <div class="points-live" id="points-live"></div>
+          </div>
+          <div class="track"><div class="track-fill" id="track-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="q-kicker" id="q-kicker">Piliin ang tamang sagot</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-sentence" id="q-sentence" style="display:none"></div>
+      <div id="q-options"></div>
+      <div class="explore" id="q-explore" style="display:none;"></div>
+      <div class="feedback" id="q-feedback"></div>
+      <div class="next-wrap" id="next-wrap">
+        <button class="btn" id="btn-next">Susunod &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="screen-results" class="screen">
+    <div class="card">
+      <h2 style="font-size:1.5rem;color:var(--teal-deep);">Tapos na ang Pagsusulit!</h2>
+      <svg class="result-house" viewBox="0 0 120 100" role="img" aria-label="Ang natapos na bahay ng aralin">
+        <g id="house-final"></g>
+      </svg>
+      <div class="stars" id="stars"></div>
+      <div class="result-score" id="result-score"></div>
+      <div class="points-earned" id="points-earned"></div>
+      <div class="coins-have" data-coins="haveNow"></div>
+      <p class="result-msg" id="result-msg"></p>
+      <div class="missed-review" id="missed-review"></div>
+      <div class="btn-row">
+        <button class="btn secondary" id="btn-retry">Ulitin ang Aralin</button>
+        <button class="btn" id="btn-go-home">Listahan ng Aralin</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="../../../engine/lang.js"></script>
+<script src="../../../engine/storage.js" data-grade="grade2"></script>
+<script src="../../../engine/learner.js" data-grade="grade2"></script>
+<script src="../../../engine/clock.js" data-grade="grade2"></script>
+<script src="../../../engine/nav.js" data-grade="grade2"></script>
+<script src="../../../engine/search.js" data-grade="grade2"></script>
+<script src="../../../engine/read-gate.js" data-grade="grade2"></script>
+<script src="../../../engine/study-history.js" data-grade="grade2"></script>
+<script src="../../../engine/wallet.js" data-grade="grade2"></script>
+<script src="../../../engine/fx.js" data-grade="grade2"></script>
+<script src="../../../engine/powerups.js" data-grade="grade2"></script>
+<script src="../../../engine/recall.js" data-grade="grade2"></script>
+<script src="../../../engine/mastery.js" data-grade="grade2"></script>
+<script src="../../../engine/quests.js" data-grade="grade2"></script>
+<script src="../../../engine/boss.js" data-grade="grade2"></script>
+<script src="../../../engine/bosses.js"></script>
+<script src="../../../engine/army.js" data-grade="grade2"></script>
+<script src="../../../engine/family.js" data-grade="grade2"></script>
+<script src="../../../engine/guide.js" data-grade="grade2"></script>
+<script src="../../../engine/trail.js" data-grade="grade2"></script>
+<script src="../../../engine/study-kit.js" data-grade="grade2"></script>
+<script src="lessons/01-ano-ang-komunidad.js"></script>
+<script src="lessons/02-batayang-impormasyon-ng-komunidad.js"></script>
+<script src="lessons/03-kahalagahan-ng-komunidad.js"></script>
+<script src="lessons/04-klima-at-panahon.js"></script>
+<script src="lessons/05-lokasyon-ng-komunidad-ayon-sa-kapaligira.js"></script>
+<script src="lessons/06-lawak-at-populasyon-ng-komunidad.js"></script>
+<script src="lessons/07-anyong-lupa.js"></script>
+<script src="lessons/08-anyong-tubig.js"></script>
+<script src="lessons/09-mga-simbolo-sa-mapa.js"></script>
+<script src="lessons/10-pangalawang-direksiyon.js"></script>
+<script src="lessons/11-mga-taong-naninirahan-sa-komunidad.js"></script>
+<script src="lessons/12-mga-institusyong-panlipunan.js"></script>
+<script src="lessons/13-gawain-at-tungkulin-ng-mga-bumubuo-sa-ko.js"></script>
+<script src="lessons/14-gawain-at-tungkulin-ng-bata-sa-komunidad.js"></script>
+<script src="type-it.js"></script>
+<script data-file-check>
+(function(){
+  var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel', world: 'World', family: 'Family', guide: 'Guide', trail: 'Trail' };
+  var missing = [];
+  document.querySelectorAll('script[src]').forEach(function(s){
+    var file = s.getAttribute('src').replace(/^.*\//, ''), name = GLOBALS[file.replace(/\.js$/, '')];
+    if (name && !window[name]) missing.push(file);
+  });
+  if (!missing.length) return;
+  function show(){
+    var bar = document.createElement('div');
+    bar.id = 'file-check';
+    bar.setAttribute('role', 'alert');
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b91c1c;color:#fff;font:600 15px/1.4 system-ui,sans-serif;padding:10px 16px;text-align:center';
+    bar.textContent = '⚠️ Missing or broken file: ' + missing.join(', ') + '. Check that the engine folder is complete.';
+    document.body.appendChild(bar);
+  }
+  if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+
+  var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,13 9,18 20,6"/></svg>';
+  var X_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>';
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  // Recall decides whether this question pays, shows a typing box, and offers power-ups.
+  function offerQuestion(pu){
+    if (window.Recall) Recall.ask(pu, SH_APP, typeof TYPE_IT === 'undefined' ? null : TYPE_IT);
+    else if (window.PowerUps) PowerUps.offer(pu);
+  }
+  function prepareQuestion(item){
+    if (item.type === 'mc') return { type:'mc', q:item.q, options: shuffle(item.options), good:item.good, bad:item.bad, tip:item.tip };
+    return item;
+  }
+  function buildQuizSet(lesson){
+    return shuffle(lesson.quiz).map(prepareQuestion);
+  }
+
+  // The same fields offerQuestion and SH.quizAnswered use, so the review key and history text match.
+  function reviewInfo(item){
+    var right = item.type === 'tf' ? null : item.options.filter(function(o){ return o.correct; })[0];
+    var answer = item.type === 'tf' ? (item.answer ? SH_TRUE : SH_FALSE) : (right || {}).text;
+    return { q: item.q, art: undefined, answer: right ? Recall.textOf(right.text) : '',
+      historyQ: item.q, historyAnswer: answer };
+  }
+  function reviewPool(){
+    return [].concat.apply([], lessons.map(function(l){ return l.quiz.map(prepareQuestion); }));
+  }
+  function medalLessons(){
+    return lessons.map(function(l){
+      var id = Recall.textOf(l.title);
+      return { id: id, title: id, icon: '', keys: l.quiz.map(prepareQuestion).map(function(q){ return Recall.keyOf(SH_APP, reviewInfo(q)); }) };
+    });
+  }
+  var medals = null;
+  function updateMedals(){
+    if (!window.Mastery || !window.Recall) return null;
+    medals = Mastery.update(SH_APP, medalLessons());
+    return medals;
+  }
+  function showMedals(el){
+    var boss = bossEvents(el);
+    var m = updateMedals();
+    if (!m) return;
+    Mastery.showNew(el, m.newly);
+    if (window.Fx && Fx.celebrate) Fx.celebrate(Mastery.events(m, el.id === 'points-earned' && Recall.fixed ? Recall.fixed() : 0, SH_TITLE).concat(window.Quests && Quests.check ? Quests.check() : []).concat(boss), el);
+  }
+  // A finished boss stage reports once; Try Again replays it only while the stage is still open.
+  function bossEvents(el){
+    if (el.id !== 'points-earned' || !currentQuizMeta || !currentQuizMeta.boss || currentQuizMeta.bossDone || !window.Boss) return [];
+    currentQuizMeta.bossDone = true;
+    return Boss.stageResult(SH_APP, score, currentQuizSet.length);
+  }
+  function bossAgain(){
+    return !!(currentQuizMeta.boss && window.Boss && Boss.isStage(SH_APP));
+  }
+  function medalBadge(l){
+    var id = window.Recall ? Recall.textOf(l.title) : '';
+    return medals && medals.lessons[id] ? Mastery.badge(medals.lessons[id]) : '';
+  }
+
+  var SH = window.StudyHistory, SH_APP = 'batang-bayani', SH_TITLE = 'Batang Bayani', SH_TRUE = 'Tama', SH_FALSE = 'Mali';
+  var historyLessonId = null, historyQuizId = null;
+  var STORAGE_KEY = 'batangbayani_progress_v1';
+  var kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'batangbayani_points_v1', progressKey: STORAGE_KEY, liveLabel: 'puntos (points)' });
+  var progress = kit.progress();
+
+  var FINAL_EXAM_PER_LESSON = 3;
+
+  function starsFor(pct){
+    if (pct >= 1) return 3;
+    if (pct >= 0.8) return 2;
+    if (pct >= 0.5) return 1;
+    return 0;
+  }
+
+  /* ================= LESSONS ================= */
+  var lessons = StudyKit.lessons();
+
+  var TYPE_IT = StudyKit.content('typeIt');
+
+  /* ================= House SVG ================= */
+  function houseMarkup(){
+    return ''
+      + '<rect class="piece base" data-piece="0" x="0" y="90" width="120" height="4" fill="var(--teal)" opacity="0.45"/>'
+      + '<g class="piece" data-piece="1"><rect x="34" y="70" width="6" height="22" fill="var(--wood)"/><rect x="80" y="70" width="6" height="22" fill="var(--wood)"/></g>'
+      + '<g class="piece" data-piece="2"><rect x="28" y="64" width="64" height="8" fill="var(--wood)"/></g>'
+      + '<g class="piece" data-piece="3"><rect x="30" y="42" width="26" height="24" fill="var(--wall-dark)"/></g>'
+      + '<g class="piece" data-piece="4"><rect x="64" y="42" width="26" height="24" fill="var(--wall)"/></g>'
+      + '<g class="piece" data-piece="5"><polygon points="24,42 60,14 60,42" fill="var(--roof-dark)"/></g>'
+      + '<g class="piece" data-piece="6"><polygon points="60,42 60,14 96,42" fill="var(--roof)"/></g>'
+      + '<g class="piece" data-piece="7"><rect x="52" y="50" width="14" height="16" fill="var(--wood)"/><circle cx="63" cy="58" r="1.4" fill="var(--accent-soft)"/></g>'
+      + '<g class="piece" data-piece="8"><rect x="59" y="4" width="2" height="12" fill="var(--wood)"/><polygon points="61,4 75,9 61,14" fill="var(--teal)"/></g>';
+  }
+  document.getElementById('house-mini').innerHTML = houseMarkup();
+  document.getElementById('house-final').innerHTML = houseMarkup();
+
+  function resetHouse(){
+    document.querySelectorAll('.piece[data-piece]:not([data-piece="0"])').forEach(function(el){ el.classList.remove('revealed'); });
+  }
+  function starsMarkup(filledCount, total){
+    var out = '';
+    for (var i = 1; i <= total; i++){
+      var filled = i <= filledCount;
+      out += '<svg viewBox="0 0 24 24" fill="' + (filled ? 'var(--accent)' : 'none') + '" stroke="var(--accent)" stroke-width="' + (total > 3 ? '2' : '1.6') + '"><polygon points="12,2 15,9 22,9.5 16.5,14.2 18.5,21.5 12,17.5 5.5,21.5 7.5,14.2 2,9.5 9,9"/></svg>';
+    }
+    return out;
+  }
+
+  /* ================= Screens ================= */
+  var screens = ['home','flash','quiz','results'];
+  function showScreen(name){
+    screens.forEach(function(s){
+      document.getElementById('screen-'+s).classList.toggle('active', s === name);
+    });
+    if (window.Nav) Nav.screen(name);
+  }
+
+  /* ================= Home ================= */
+  function renderHome(){
+    document.getElementById('points-total-badge').textContent = '⭐ ' + kit.totalPoints() + ' na puntos (points)';
+    if (window.Mastery && medals) Mastery.renderChip(medals);
+    var list = document.getElementById('home-list');
+    var finalTotal = lessons.length * FINAL_EXAM_PER_LESSON;
+    var finalBest = progress['final'] || 0;
+    var finalStars = starsFor(finalBest / finalTotal);
+    var finalCard = '<div class="card lesson-card final-card">' +
+      '<div class="lesson-top">' +
+        '<svg class="lesson-icon" viewBox="0 0 76 76"><circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><polygon points="38,14 44,30 61,31 47,41 52,58 38,48 24,58 29,41 15,31 32,30" fill="var(--accent)"/></svg>' +
+        '<div class="lesson-info">' +
+          '<div class="lesson-tag-label final-badge">Pangwakas na Pagsusulit</div>' +
+          '<div class="lesson-title">Buong Balik-Aral</div>' +
+          '<div class="mini-stars">' + starsMarkup(finalStars, 3) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<button class="btn" id="btn-final-exam">' + (finalBest > 0 ? 'Ulitin ang Pagsusulit' : 'Simulan') + '</button>' +
+    '</div>';
+
+    var lessonCards = lessons.map(function(l, i){
+      var total = l.quiz.length;
+      var best = progress[i] || 0;
+      var stars = starsFor(best / total);
+      return '<div class="card lesson-card" data-search-lesson="' + i + '">' +
+        '<div class="lesson-top">' +
+          '<svg class="lesson-icon" viewBox="0 0 76 76">' + l.icon + '</svg>' +
+          '<div class="lesson-info">' +
+            '<div class="lesson-tag-label">' + l.tag + '</div>' +
+            '<div class="lesson-title">' + l.title + '</div>' +
+            '<div class="mini-stars">' + starsMarkup(stars, 3) + medalBadge(l) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<button class="btn" data-lesson="' + i + '">' + (best > 0 ? 'Ulitin ang Aralin' : 'Simulan') + '</button>' +
+      '</div>';
+    }).join('');
+
+    var rc = window.Recall ? Recall.homeCard(SH_APP) : null;
+    var reviewCard = rc ? '<div class="card lesson-card' + (rc.ready ? '' : ' review-empty') + '">' +
+      '<div class="lesson-top">' +
+        '<svg class="lesson-icon" viewBox="0 0 76 76"><circle cx="38" cy="38" r="34" fill="var(--accent-soft)"/><text x="38" y="50" font-size="34" text-anchor="middle">🔁</text></svg>' +
+        '<div class="lesson-info">' +
+          '<div class="lesson-tag-label">' + rc.line + '</div>' +
+          '<div class="lesson-title">' + rc.title + '</div>' +
+        '</div>' +
+      '</div>' +
+      (rc.ready ? '<button class="btn" id="btn-review">Start</button>' : '') +
+    '</div>' : '';
+    list.innerHTML = finalCard + reviewCard + lessonCards;
+    var reviewBtn = document.getElementById('btn-review');
+    if (reviewBtn) reviewBtn.addEventListener('click', function () { startReview(); });
+
+    document.getElementById('btn-final-exam').addEventListener('click', function(){
+      startFinalExam();
+    });
+    list.querySelectorAll('button[data-lesson]').forEach(function(b){
+      b.addEventListener('click', function(){
+        currentLesson = parseInt(b.getAttribute('data-lesson'), 10);
+        flashIdx = 0;
+        historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, currentLesson, lessons[currentLesson].title, lessons[currentLesson].flashcards.length) : null;
+        window.ReadGate && ReadGate.open({ cards: lessons[currentLesson].flashcards.length, next: 'btn-flash-next' });
+        renderFlash();
+        showScreen('flash');
+      });
+    });
+  }
+  function goHome(){ renderHome(); showScreen('home'); }
+  document.getElementById('btn-go-home').addEventListener('click', goHome);
+
+  /* ================= Flashcards ================= */
+  var currentLesson = 0;
+  var flashIdx = 0;
+  function renderFlash(){
+    var lesson = lessons[currentLesson];
+    var f = lesson.flashcards[flashIdx];
+    SH && SH.cardViewed(historyLessonId, flashIdx + 1);
+    document.getElementById('flash-lesson-label').textContent = lesson.title;
+    document.getElementById('flash-body').innerHTML =
+      '<svg class="flash-icon" viewBox="0 0 76 76">' + f.icon + '</svg>' +
+      '<h3 class="flash-title">' + f.title + '</h3>' +
+      '<p class="flash-text">' + f.text + '</p>';
+    document.getElementById('flash-dots').innerHTML = lesson.flashcards.map(function(_, i){
+      return '<span class="' + (i === flashIdx ? 'on' : '') + '"></span>';
+    }).join('');
+    document.getElementById('btn-flash-prev').style.visibility = flashIdx === 0 ? 'hidden' : 'visible';
+    document.getElementById('btn-flash-next').textContent = flashIdx === lesson.flashcards.length - 1 ? 'Simulan ang Pagsusulit' : 'Susunod';
+    window.ReadGate && ReadGate.show(flashIdx);
+  }
+  document.getElementById('btn-flash-prev').addEventListener('click', function(){
+    if (flashIdx > 0){ flashIdx--; renderFlash(); }
+  });
+  document.getElementById('btn-flash-next').addEventListener('click', function(){
+    var lesson = lessons[currentLesson];
+    if (flashIdx < lesson.flashcards.length - 1){ flashIdx++; renderFlash(); }
+    else { startQuiz(); }
+  });
+
+  /* ================= Quiz ================= */
+  var qIdx = 0, score = 0, answered = false;
+  var currentQuizSet = [];
+  var currentQuizMeta = null;
+  var missedQuestions = [];
+
+  function revealProgress(){
+    var n = Math.round((score / currentQuizSet.length) * 8);
+    for (var p = 1; p <= 8; p++){
+      document.querySelectorAll('[data-piece="' + p + '"]').forEach(function(el){
+        el.classList.toggle('revealed', p <= n);
+      });
+    }
+  }
+
+  function startQuiz(){
+    var lesson = lessons[currentLesson];
+    currentQuizSet = buildQuizSet(lesson);
+    currentQuizMeta = { id: currentLesson, title: lesson.title };
+    historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
+    qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetHouse();
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function startFinalExam(){
+    var qs = [];
+    lessons.forEach(function(l){
+      qs = qs.concat(shuffle(l.quiz).slice(0, FINAL_EXAM_PER_LESSON).map(prepareQuestion));
+    });
+    currentQuizSet = shuffle(qs);
+    currentQuizMeta = { id: 'final', title: 'Pangwakas na Pagsusulit' };
+    historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
+    qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetHouse();
+    showScreen('quiz');
+    renderQuestion();
+  }
+
+  function startReview(boss){
+    if (!window.Recall) return;
+    currentQuizSet = boss ? Recall.pickBoss(SH_APP, reviewPool(), reviewInfo, Boss.STAGE_SIZE) : Recall.pickDue(SH_APP, reviewPool(), reviewInfo);
+    if (!currentQuizSet.length){ goHome(); return; }
+    currentQuizMeta = { id: 'review', title: boss ? Boss.text.stageTitle : Recall.text.reviewTitle, boss: !!boss };
+    historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, 'review', currentQuizMeta.title, false, currentQuizSet.length, 'review') : null;
+    qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetHouse();
+    showScreen('quiz');
+    window.Army && (boss ? Army.start(currentQuizSet.length, document.getElementById('screen-quiz')) : Army.stop());
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    answered = false;
+    var item = currentQuizSet[qIdx];
+    document.getElementById('q-count').textContent = 'Tanong ' + (qIdx + 1) + ' sa ' + currentQuizSet.length + (currentQuizMeta.id === 'final' ? ' — ' + currentQuizMeta.title : '');
+    document.getElementById('track-fill').style.width = Math.round((qIdx / currentQuizSet.length) * 100) + '%';
+    kit.renderLive();
+    document.getElementById('q-kicker').textContent = item.type === 'tf' ? 'Tama o Mali?' : 'Piliin ang tamang sagot';
+    var qText = item.q.replace(/&ldquo;/g,'“').replace(/&rdquo;/g,'”').replace(/&rsquo;/g,'’').replace(/&mdash;/g,'—').replace(/&amp;/g,'&');
+    var parts = qText.split('\n');
+    document.getElementById('q-text').textContent = parts[0];
+    var sentenceEl = document.getElementById('q-sentence');
+    sentenceEl.textContent = parts[1] || '';
+    sentenceEl.style.display = parts[1] ? '' : 'none';
+    var fb = document.getElementById('q-feedback');
+    fb.className = 'feedback'; fb.innerHTML = '';
+    document.getElementById('q-explore').style.display = 'none';
+    document.getElementById('next-wrap').classList.remove('show');
+
+    var optWrap = document.getElementById('q-options');
+    optWrap.innerHTML = '';
+
+    if (item.type === 'tf'){
+      var row = document.createElement('div');
+      row.className = 'tf-row';
+      var trueBtn = document.createElement('button');
+      trueBtn.className = 'tf-btn'; trueBtn.innerHTML = CHECK_ICON + '<span>Tama</span>';
+      var falseBtn = document.createElement('button');
+      falseBtn.className = 'tf-btn'; falseBtn.innerHTML = X_ICON + '<span>Mali</span>';
+      trueBtn.addEventListener('click', function(){ handleTF(true, trueBtn); });
+      falseBtn.addEventListener('click', function(){ handleTF(false, falseBtn); });
+      row.appendChild(trueBtn); row.appendChild(falseBtn);
+      optWrap.appendChild(row);
+    } else {
+      item.options.forEach(function(opt){
+        var b = document.createElement('button');
+        b.className = 'opt';
+        b.innerHTML = '<span class="bullet"></span><span>' + opt.text + '</span>';
+        b.addEventListener('click', function(){ handleMC(opt, b, optWrap); });
+        optWrap.appendChild(b);
+      });
+    }
+    offerQuestion({ quiz: currentQuizSet, exam: currentQuizMeta.id === 'final', before: optWrap,
+      options: item.type === 'tf' ? [] : optWrap.querySelectorAll('.opt'), correct: item.type === 'tf' ? -1 : item.options.findIndex(function(o){ return o.correct; }),
+      tip: item.tip, tipEn: item.tipEn, q: item.q, historyId: historyQuizId, streak: kit.streak(), index: qIdx, rerender: renderQuestion });
+  }
+
+  function lockOptions(chosen){
+    document.querySelectorAll('.opt, .tf-btn').forEach(function(el){
+      if (el === chosen) el.disabled = true;
+      else el.classList.add('explorable');
+    });
+    showExploreHint('');
+  }
+
+  var EXPLORE = { hint:'&#128269; Gusto mong malaman? Pindutin ang ibang sagot para makita kung bakit.', right:'Ito ang tamang sagot', wrong:'Bakit hindi ito?', fallback:'Hindi ito ang tamang sagot.' };
+  function exploreWhy(text){
+    return text.replace(/^(?:You said (?:True|False), but |Pinili mo ang (?:Tama|Mali), pero )(.)/, function(m, c){ return c.toUpperCase(); });
+  }
+  function showExploreHint(card){
+    var el = document.getElementById('q-explore');
+    el.innerHTML = '<div class="explore-hint">' + EXPLORE.hint + '</div>' + card;
+    el.style.display = 'block';
+  }
+  function exploreCard(btnEl, isRight, choice, text){
+    document.querySelectorAll('.opt, .tf-btn').forEach(function(el){ el.classList.toggle('explored', el === btnEl); });
+    showExploreHint('<div class="explore-card' + (isRight ? ' explore-right' : '') + '"><b>' + (isRight ? EXPLORE.right : EXPLORE.wrong) + '</b>' +
+      '<span class="learn-choice">' + choice + '</span><span class="learn-why">' + text + '</span></div>');
+  }
+  function exploreMC(opt, btnEl){
+    var item = currentQuizSet[qIdx];
+    exploreCard(btnEl, opt.correct, decode(opt.text), decode(opt.correct ? item.bad : (exploreWhy(opt.why || '') || EXPLORE.fallback)));
+  }
+  function exploreTF(choice, btnEl){
+    var item = currentQuizSet[qIdx];
+    var isRight = choice === item.answer;
+    exploreCard(btnEl, isRight, choice ? SH_TRUE : SH_FALSE, decode(isRight ? item.bad : (exploreWhy(item.why || '') || EXPLORE.fallback)));
+  }
+
+  var LEARN = { title:'Hindi tama &mdash; alamin natin kung bakit!', picked:'Ang pinili mo', why:'Bakit mali', right:'Ang tamang sagot', tip:'Tip sa susunod' };
+  function decode(str){
+    return String(str)
+      .replace(/&ldquo;/g,'\u201C').replace(/&rdquo;/g,'\u201D')
+      .replace(/&rsquo;/g,'\u2019').replace(/&mdash;/g,'\u2014').replace(/&amp;/g,'&');
+  }
+  function learnHtml(m){
+    return '<div class="learn">' +
+      '<div class="learn-title">' + LEARN.title + '</div>' +
+      '<div class="learn-row learn-picked"><b>' + LEARN.picked + '</b><span class="learn-choice">' + m.picked + '</span>' +
+        (m.why ? '<span class="learn-why">' + LEARN.why + ': ' + m.why + '</span>' : '') + '</div>' +
+      '<div class="learn-row learn-right"><b>' + LEARN.right + '</b><span class="learn-choice">' + m.answer + '</span>' +
+        '<span class="learn-why">' + m.explain + '</span></div>' +
+      (m.tip ? '<div class="learn-row learn-tip"><b>&#128161; ' + LEARN.tip + '</b>' + m.tip + '</div>' : '') +
+    '</div>';
+  }
+
+  function showFeedback(isCorrect, picked, answer, pickedWhy){
+    var item = currentQuizSet[qIdx];
+    SH && SH.quizAnswered(historyQuizId, isCorrect, item.q, picked, answer, window.Recall ? Recall.typed() : false);
+    var fb = document.getElementById('q-feedback');
+    fb.className = 'feedback show ' + (isCorrect ? 'good' : 'bad');
+    var miss = isCorrect ? null : { q: decode(item.q), picked: decode(picked), why: pickedWhy ? decode(pickedWhy) : '', answer: decode(answer), explain: decode(item.bad), tip: item.tip ? decode(item.tip) : '' };
+    fb.innerHTML = isCorrect ? CHECK_ICON + '<span>' + decode(item.good) + '</span>' : X_ICON + learnHtml(miss);
+    document.getElementById('next-wrap').classList.add('show');
+    var helped = !!(window.PowerUps && PowerUps.answered());
+    if (isCorrect){
+      score++;
+    } else {
+      missedQuestions.push(miss);
+    }
+    kit.answer(isCorrect, { helped: helped, exam: currentQuizMeta.id === 'final' });
+    revealProgress();
+  }
+
+  function handleMC(opt, btnEl, optWrap){
+    if (answered) return exploreMC(opt, btnEl);
+    answered = true;
+    lockOptions(btnEl);
+    var item = currentQuizSet[qIdx];
+    optWrap.querySelectorAll('.opt').forEach(function(el, i){
+      var thisOpt = item.options[i];
+      if (thisOpt.correct) el.classList.add('correct');
+      else if (el === btnEl) el.classList.add('wrong');
+    });
+    showFeedback(opt.correct, opt.text, (item.options.filter(function(o){ return o.correct; })[0] || {}).text, opt.why);
+  }
+
+  function handleTF(choice, chosenBtn){
+    if (answered) return exploreTF(choice, chosenBtn);
+    answered = true;
+    lockOptions(chosenBtn);
+    var correct = currentQuizSet[qIdx].answer;
+    var isRight = (choice === correct);
+    chosenBtn.classList.add(isRight ? 'correct' : 'wrong');
+    if (!isRight){
+      var rightBtn = (correct === true) ? chosenBtn.parentElement.children[0] : chosenBtn.parentElement.children[1];
+      rightBtn.classList.add('correct');
+    }
+    showFeedback(isRight, choice ? SH_TRUE : SH_FALSE, correct ? SH_TRUE : SH_FALSE, currentQuizSet[qIdx].why);
+  }
+
+  document.getElementById('btn-next').addEventListener('click', function(){
+    if (qIdx < currentQuizSet.length - 1){ qIdx++; renderQuestion(); }
+    else { finishQuiz(); }
+  });
+
+  function finishQuiz(){
+    document.getElementById('track-fill').style.width = '100%';
+    var total = currentQuizSet.length;
+    var starCount = starsFor(score / total);
+    SH && SH.quizFinished(historyQuizId, starCount, kit.sessionPoints(), kit.bestStreak());
+    window.Fx && Fx.finish(starCount);
+    var best = Math.max(progress[currentQuizMeta.id] || 0, score);
+    progress[currentQuizMeta.id] = best;
+    kit.saveProgress(progress);
+    document.getElementById('stars').innerHTML = starsMarkup(starCount, 3);
+    document.getElementById('result-score').textContent = 'Nakuha mo ang ' + score + ' sa ' + total + ' na tanong sa ' + currentQuizMeta.title + '!';
+    var ptsLine = '⭐ +' + kit.sessionPoints() + ' puntos sa pagsubok na ito';
+    if (kit.bestStreak() >= StudyKit.RULES.STREAK_BONUS_AT) ptsLine += ' · 🔥 pinakamahabang sunod-sunod: ' + kit.bestStreak() + '!';
+    document.getElementById('points-earned').textContent = ptsLine + '\n' + kit.resultLine();
+    showMedals(document.getElementById('points-earned'));
+    var msg;
+    if (starCount === 3) msg = 'Ikaw ay isang tunay na Bayani ng Komunidad! Kumpleto ang iyong bahay!';
+    else if (starCount === 2) msg = 'Magaling! Halos tapos na ang bahay ng aralin — subukan muli para makumpleto ito!';
+    else msg = 'Magandang simula! Balikan natin ang aralin at subukan muli — kaya mo yan!';
+    document.getElementById('result-msg').textContent = msg;
+    var reviewEl = document.getElementById('missed-review');
+    if (missedQuestions.length){
+      reviewEl.innerHTML = '<h3>Mga Tanong na Dapat Balikan</h3><div class="missed-list">' +
+        missedQuestions.map(function(m){
+          return '<div class="missed-item">' + X_ICON + '<div><p class="missed-q">' + m.q + '</p>' + learnHtml(m) + '</div></div>';
+        }).join('') +
+        '</div>';
+    } else {
+      reviewEl.innerHTML = '';
+    }
+    reviewEl.classList.toggle('show', missedQuestions.length > 0);
+    showScreen('results');
+  }
+
+  document.getElementById('btn-retry').addEventListener('click', function(){
+    if (currentQuizMeta.id === 'review') return startReview(bossAgain());
+    if (currentQuizMeta.id === 'final') startFinalExam();
+    else startQuiz();
+  });
+
+  if (window.Recall) Recall.tidy(SH_APP, reviewPool(), reviewInfo, SH ? SH.list() : []);
+  showMedals(document.getElementById('points-total-badge'));
+  window.Search && Search.start({ list: 'home-list', lessons: lessons });
+  window.Trail && window.Recall && Trail.start({ app: SH_APP, title: SH_TITLE, list: 'home-list', lessons: medalLessons(), review: startReview, final: startFinalExam, finalStars: function () { return starsFor((progress['final'] || 0) / (lessons.length * FINAL_EXAM_PER_LESSON)); } });
+  window.Nav && Nav.start({ title: 'Batang Bayani', home: 'home', goHome: goHome, inRound: function () { return Nav.current() === 'quiz'; } });
+  renderHome();
+  if (window.Recall && Recall.wantsReview) startReview();
+  else if (window.Recall && window.Boss && Boss.wantsBoss && Boss.isStage(SH_APP)) startReview(true);
+})();
+</script>
