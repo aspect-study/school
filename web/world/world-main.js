@@ -827,6 +827,33 @@
       S.camera.setViewOffset(cw, ch, 0, ch / 2 - (4 + band / 2), cw, ch);
       ctl.fixed({ x: at.x + Math.sin(yaw) * Math.cos(up) * d, y: at.y + Math.sin(up) * d, z: at.z + Math.cos(yaw) * Math.cos(up) * d, at: at });
     }
+    // The maker and the shops: her whole self (and what she tries on) is centred in the screen above their panel.
+    var fitPanel = null, fitWatch = null, fitDist = 0;
+    function portraitFit() {
+      var cv = S.renderer.domElement, cw = cv.clientWidth || 1, ch = cv.clientHeight || 1;
+      var band = Math.max(60, Math.min(ch, fitPanel.getBoundingClientRect().top) - 8), tan = Math.tan(S.camera.fov * Math.PI / 360);
+      fitDist = Math.max(4.4 / (tan * band / ch), 4 / (tan * cw / ch), 18);
+      S.camera.setViewOffset(cw, ch, 0, ch / 2 - (4 + band / 2), cw, ch);
+    }
+    function portraitCamera() {
+      var panel = (maker || stall) && !deco ? doc.querySelector('.maker') : null;
+      if (panel === fitPanel) return fitPanel ? fitDist : 0;
+      if (fitWatch) fitWatch.disconnect();
+      fitWatch = null;
+      root.removeEventListener('resize', portraitFit);
+      fitPanel = panel;
+      if (!panel) {
+        S.camera.clearViewOffset();
+        return 0;
+      }
+      portraitFit();
+      root.addEventListener('resize', portraitFit);
+      if (root.ResizeObserver) {
+        fitWatch = new root.ResizeObserver(portraitFit);
+        fitWatch.observe(panel);
+      }
+      return fitDist;
+    }
     // A tap while decorating: what it meets in the room goes to the Decorate view (never tap-to-walk or her pet).
     function decoTap(cx, cy) {
       var r = S.renderer.domElement.getBoundingClientRect();
@@ -1056,8 +1083,9 @@
         me.group.visible = !hiddenMe && !deco;
         if (maker || stall) {
           me.group.rotation.y += dt * 0.8;
-          ctl.portrait();
+          ctl.portrait(portraitCamera());
         } else {
+          portraitCamera();
           me.group.rotation.y = st.face;
           ctl.camera(dt);
         }

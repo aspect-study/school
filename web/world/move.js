@@ -195,12 +195,15 @@
 
     // The character maker's view: in front of her, looking a little low so she sits above the panel. Inside a room the
     // camera stops at the wall and looks down at the same angle.
-    function portrait() {
-      camPos.set(st.x + Math.sin(st.face) * 18, 4, st.z + Math.cos(st.face) * 18);
+    // With dist (portraitFit in world-main), the camera is level with her and that far away; the view offset keeps her
+    // in the part of the screen above the panel.
+    function portrait(dist) {
+      var far = dist || 18;
+      camPos.set(st.x + Math.sin(st.face) * far, 4, st.z + Math.cos(st.face) * far);
       clampIn(camPos);
       var d = Math.hypot(camPos.x - st.x, camPos.z - st.z);
       S.camera.position.copy(camPos);
-      S.camera.lookAt(st.x, 4 - 6 * d / 18, st.z);
+      S.camera.lookAt(st.x, dist ? 3.6 : 4 - 6 * d / 18, st.z);
     }
 
     // b = { minX, maxX, minZ, maxZ }: her room. The camera looks down more there (and the drag turns it within
