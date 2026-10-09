@@ -340,11 +340,10 @@
       var coinsPaused = function () { return !!(root.Clock && root.Clock.paused()); };
       stallKind = kind;
       var home3 = kind === 'carpenter';
-      // At Tito Tasyo's she turns her back to the workshop, so the camera sees her, the display stand and him behind.
-      if (home3) {
-        var ty = L.props(grade).tasyo;
-        ctl.teleport(ctl.state.x, ctl.state.z, Math.atan2(ctl.state.x - ty.x, ctl.state.z - ty.z));
-      }
+      // At every shop she turns her back to the keeper, so the camera sees her, the display stand and the keeper behind
+      // instead of looking through the stalls.
+      var keeper = L.props(grade)[{ boutique: 'lana', petshop: 'kiko', toyshop: 'pilo', carpenter: 'tasyo' }[kind]];
+      if (keeper) ctl.teleport(ctl.state.x, ctl.state.z, Math.atan2(ctl.state.x - keeper.x, ctl.state.z - keeper.z));
       stall = (kind === 'petshop' ? W.PetShop : kind === 'toyshop' ? W.ToyShop : home3 ? W.Carpenter : W.Boutique).open({
         doc: doc, T: T, grade: grade, look: worn(look),
         owned: function () { return home3 ? houseOwned() : W.Closet.read(store); },
