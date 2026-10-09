@@ -85,7 +85,7 @@
     chart.setAttribute('aria-label', 'Questions answered per day, ' + s.daily[0].day + ' to ' + s.daily[s.daily.length - 1].day);
     $('axis').textContent = '';
     $('axis').appendChild(el('span', '', s.daily[0].day));
-    $('axis').appendChild(el('span', '', 'max ' + max));
+    $('axis').appendChild(el('span', '', s.daily.some(function (d) { return d.answered; }) ? 'max ' + max : ''));
     $('axis').appendChild(el('span', '', s.daily[s.daily.length - 1].day));
 
     var subjects = $('subjects');
@@ -126,8 +126,10 @@
     var owner = OWNER && OWNER !== 'OWNER_UID' && u.uid === OWNER && String(u.email).toLowerCase() === OWNER_EMAIL;
     if (!owner) {
       show('denied-view');
-      $('denied-note').textContent = 'Signed in as ' + (u.email || 'this account') + '. Your UID is ' + u.uid +
-        '. To make it the owner, paste it into web/admin/admin-config.js and firebase/firestore.rules, then publish both.';
+      var setup = !OWNER || OWNER === 'OWNER_UID';
+      $('denied-note').textContent = 'Signed in as ' + (u.email || 'this account') + '. ' + (setup && String(u.email).toLowerCase() === OWNER_EMAIL
+        ? 'Your UID is ' + u.uid + '. To make it the owner, paste it into web/admin/admin-config.js and firebase/firestore.rules, then publish both.'
+        : 'This page is for the owner only.');
       say('');
       return;
     }
