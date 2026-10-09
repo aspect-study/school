@@ -100,8 +100,8 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   wardrobe items for Hard questions.
 - Owner dashboard (sub-project 1 of 3): built, a private page at `/admin/` (`web/admin/`) showing families, children,
   activity, questions per day, subjects and last sync, read from Firebase through the owner clause in the rules and
-  `FirebaseRemote.adminRemote()`. It still needs the owner's live steps from plan Task 7 (owner UID into
-  `admin-config.js` and the rules, paste the rules in the Firebase console, check it live). Still to do: error
+  `FirebaseRemote.adminRemote()`. Live since 2026-10-09 (owner UID set in `admin-config.js` and the published rules).
+  Still unchecked: a wrong password is refused, a family account sees "Not allowed". Still to do: error
   reporting hook, Vercel Web Analytics link, parent progress dashboard, play-world time tracking.
 
 ## Parked or excluded (ask the owner before starting)
