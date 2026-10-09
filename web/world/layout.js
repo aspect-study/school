@@ -172,6 +172,15 @@
     return { boxes: boxes, circles: circles };
   }
 
+  // Is the camera at (x, z) inside a building, stall or house? Trees and small props never pull the camera in.
+  function wallAt(obs, x, z) {
+    for (var i = 0; i < obs.boxes.length; i++) {
+      var b = obs.boxes[i];
+      if (Math.abs(x - b.x) < b.hx + 0.5 && Math.abs(z - b.z) < b.hz + 0.5) return true;
+    }
+    return false;
+  }
+
   function blocked(obs, bounds, x, z, r) {
     if (x - r < bounds.minX || x + r > bounds.maxX || z - r < bounds.minZ || z + r > bounds.maxZ) return true;
     for (var i = 0; i < obs.boxes.length; i++) {
@@ -325,7 +334,7 @@
     PLAYER_R: PLAYER_R, STREET: STREET, BUILDING: BUILDING, APPS: APPS, GRADES: GRADES, PLACE_ORDER: PLACE_ORDER, PLACE_EMOJI: PLACE_EMOJI, ROOM_DOORSTEP: ROOM_DOORSTEP,
     gradeOf: gradeOf, places: places, props: props, buildings: buildings, paths: paths, onPath: onPath, trees: trees,
     talkTrees: talkTrees, buddies: buddies, jesusSpot: jesusSpot, sisterSpots: sisterSpots, rideSpots: rideSpots, freeSpot: freeSpot, walkways: walkways,
-    obstacles: obstacles, blocked: blocked, interactables: interactables, nearest: nearest, spots: spots, spawnFor: spawnFor, route: route, appUrl: appUrl
+    obstacles: obstacles, blocked: blocked, wallAt: wallAt, interactables: interactables, nearest: nearest, spots: spots, spawnFor: spawnFor, route: route, appUrl: appUrl
   };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;

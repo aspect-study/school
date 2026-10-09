@@ -331,3 +331,12 @@ test('the kids\' walkways: every path point joins up to the plaza, and every pla
     assert.equal(w.hangouts[0].id, 'playground');
   }
 });
+
+test('the camera sees a building as a wall, but not a tree or a post', () => {
+  const obs = L.obstacles('grade5');
+  const b = L.buildings('grade5')[0];
+  assert.equal(L.wallAt(obs, b.x, b.z), true);
+  assert.equal(L.wallAt(obs, b.door.x, b.door.z), false, 'the doorstep is outside');
+  const tree = obs.circles[obs.circles.length - 30];
+  assert.equal(L.wallAt({ boxes: [], circles: obs.circles }, tree.x, tree.z), false);
+});

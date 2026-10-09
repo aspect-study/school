@@ -100,6 +100,7 @@
         if (home) return !maker && !stall && !overlay && !talking && (pal.hit(x, y) || roomTap(x, y));
         return !maker && !stall && !overlay && !talking && (pal.hit(x, y) || loot.hit(x, y));
       },
+      wall: function (x, z) { return L.wallAt(obs, x, z); },
       zoom: W.Prefs.ZOOM_MIN,
       canZoom: canZoom
     });

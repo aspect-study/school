@@ -156,7 +156,13 @@
       o.fortHref = D.snapshot().fort.href;
       return out(o);
     }
-    if (mode === 'back') { o.state = D.state(); return out(o); }
+    if (mode === 'back') {
+      D.pause();
+      for (var bt = 0; bt < 30; bt++) D.tick(0.1);
+      o.state = D.state();
+      o.view = D.view();
+      return out(o);
+    }
     var fortSpot = function () { return World3D.Layout.interactables('grade5').filter(function (x) { return x.id === 'fort'; })[0]; };
     if (mode === 'fort') {
       D.pause();

@@ -69,6 +69,7 @@ try {
   assert.deepEqual(back.errors, [], 'back: page errors');
   assert.equal(back.makerOpen, false, 'a made character skips the maker');
   assert.equal(back.state.near, 'life-lab', 'back from a game, she stands outside its door');
+  assert.ok(back.view.dist < 15 / 0.45 - 5, 'the camera stops short of the building behind her: ' + back.view.dist);
   console.log('ok back at the door');
 
   const snd = run('sounds', stageWorld('sounds', 5, SEEDED), 'sounds');

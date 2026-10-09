@@ -8,6 +8,7 @@
   var PITCH = [0.12, 0.85], IN_PITCH = [0.6, 1.1], IN_START = 0.8;
 
   // o = { win, canvas, joy, knob, tapWalk, blocked(x, z), tapHit(x, y) → true when the tap was used (her pet),
+  //       wall(x, z) → true inside a building (the camera stops short of it),
   //       zoom (saved zoom), onZoom(z) (save it), canZoom() (zoom while frozen, e.g. on a ride) }
   function create(S, o) {
     var THREE = S.THREE, Walk = W.Walk, win = o.win;
@@ -179,9 +180,19 @@
       p.z = Math.max(boxed.minZ + BOX_IN, Math.min(boxed.maxZ - BOX_IN, p.z));
     }
 
+    // Behind her, but never inside a wall: from the first wall on the way back, the camera stops a little short of it.
+    function clearDist(dist, pitch) {
+      var sx = Math.sin(st.yaw) * Math.cos(pitch), sz = Math.cos(st.yaw) * Math.cos(pitch);
+      for (var t = 2; t < dist; t += 1) {
+        if (o.wall(st.x + sx * t, st.z + sz * t)) return Math.max(3, t - 2);
+      }
+      return dist;
+    }
+
     // Behind her at the zoomed distance; with fixed(v) set, at v looking at v.at (the Decorate view).
     function camera(dt, snap) {
       var dist = CAM_DIST / st.zoom, pitch = st.pitch;
+      if (o.wall && !fixedView && !boxed) dist = clearDist(dist, pitch);
       if (fixedView) camPos.set(fixedView.x, fixedView.y, fixedView.z);
       else {
         camPos.set(st.x + Math.sin(st.yaw) * dist * Math.cos(pitch), 2.5 + Math.sin(pitch) * dist,
