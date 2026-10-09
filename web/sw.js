@@ -26,6 +26,7 @@ const PRECACHE = [
   'engine/fx.js',
   'engine/guide.js',
   'engine/insights.js',
+  'engine/install.js',
   'engine/lang.js',
   'engine/learner.js',
   'engine/mastery.js',

@@ -24,7 +24,7 @@ const ENGLISH_ONLY = new Set(['sprint', 'stop', 'go', 'mirror', 'signpost', 'clo
   'tabs.me', 'tabs.clothes', 'tabs.hats', 'tabs.accessories', 'tabs.face', 'tabs.hair',
   'maker.none', 'maker.hairs.braids', 'maker.hairs.ponytail', 'maker.hairs.curly',
   'maker.eyesNames.round', 'maker.eyesNames.sleepy', 'maker.eyesNames.sparkly', 'maker.eyesNames.smiley',
-  'goIn', 'goOut', 'visitAte', 'visitKuya', 'visitBunso', 'visitSister', 'visitBrother', 'decorate', 'done', 'study', 'sit', 'cheerPill', 'turn', 'putAway', 'tasyoGo', 'yay',
+  'zoomIn', 'zoomOut', 'goIn', 'goOut', 'visitAte', 'visitKuya', 'visitBunso', 'visitSister', 'visitBrother', 'decorate', 'done', 'study', 'sit', 'cheerPill', 'turn', 'putAway', 'tasyoGo', 'yay',
   'tabs.furniture', 'tabs.wall', 'tabs.fun', 'tabs.room', 'tabs.earned', 'credit',
   // The earn line put in {how} is already a pair on Grade 2.
   'locked']);
@@ -138,7 +138,7 @@ test('the Sprint and Stop buttons have their words', () => {
 test('My Room, Tito Tasyo and the trophies have their words', () => {
   for (const g of ['grade5', 'grade2']) {
     const T = TEXT[g];
-    for (const k of ['goIn', 'goOut', 'visitAte', 'visitKuya', 'visitBunso', 'visitSister', 'visitBrother', 'decorate', 'done', 'study', 'sit', 'cheerPill', 'turn', 'putAway',
+    for (const k of ['zoomIn', 'zoomOut', 'goIn', 'goOut', 'visitAte', 'visitKuya', 'visitBunso', 'visitSister', 'visitBrother', 'decorate', 'done', 'study', 'sit', 'cheerPill', 'turn', 'putAway',
       'tasyoGo', 'yay', 'locked', 'tasyo', 'tasyoHello', 'noRoom', 'grew', 'earnedPop', 'trophyUp', 'desk', 'deskDone', 'toGo', 'myRoom']) assert.ok(T[k], g + ' ' + k);
     for (const k of ['furniture', 'wall', 'fun', 'room', 'earned']) assert.ok(T.tabs[k], g + ' tabs.' + k);
     assert.ok(T.locked.includes('{how}'));

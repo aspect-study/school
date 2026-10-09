@@ -17,7 +17,7 @@
     petshopGo: "🦜 Open Mang Kiko's Pet Stall", petsMore: "🦜 More at Mang Kiko's", treat: '🍪 Treat',
     play: '🎾 Play', free: '🎁 Free',
     toyshopGo: "🎈 Open Kuya Pilo's Toy Stall", toysMore: "🎈 More at Kuya Pilo's", use: '✨ Use', emote: '😊 Emote',
-    sprint: 'Sprint', stop: '⏹️ Stop',
+    sprint: 'Sprint', zoomIn: 'Zoom in', zoomOut: 'Zoom out', stop: '⏹️ Stop',
     goIn: '🚪 Go in', goOut: '🚪 Go out', visitAte: "👀 Visit Ate's room", visitKuya: "👀 Visit Kuya's room", visitBunso: "👀 Visit Bunso's room",
     visitSister: "👀 Visit your sister's room", visitBrother: "👀 Visit your brother's room",
     decorate: '🛠️ Decorate', done: '✅ Done', study: '✏️ Study', sit: '🪑 Sit', cheerPill: '💛 Cheer', turn: '↻ Turn',

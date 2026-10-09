@@ -451,7 +451,7 @@ try {
   assert.equal(fam.riding, 'swings');
   assert.equal(fam.stillRiding, 'swings', 'the swing goes on until Stop');
   assert.equal(fam.stopShown, true, 'Stop shows while it loops');
-  assert.ok(Math.abs(fam.rideZoom - 0.9) < 1e-9, 'she can zoom while she rides: ' + fam.rideZoom);
+  assert.ok(Math.abs(fam.rideZoom - 0.45 / 0.9) < 1e-9, 'she can zoom while she rides: ' + fam.rideZoom);
   assert.equal(fam.stopAfterTap, false, 'Stop hides once tapped');
   assert.equal(fam.rodeDone, null, 'after Stop she lands');
   assert.deepEqual(fam.rideSounds, ['ride-start', 'swing', 'swing', 'swing', 'swing', 'swing', 'swing', 'swing', 'ride-land'],
@@ -476,7 +476,7 @@ try {
   // Sprint makes her 1.4x as fast and turns off when she stops; the wheel and a pinch zoom, kept on the device.
   const ctlRun = run('controls', stageWorld('controls', 5, AVATAR_SCRIPT), 'controls');
   assert.deepEqual(ctlRun.errors, [], 'controls: page errors');
-  assert.equal(ctlRun.startZoom, 1);
+  assert.equal(ctlRun.startZoom, 0.45, 'the world starts zoomed all the way out');
   assert.equal(ctlRun.pressed, 'true');
   assert.equal(ctlRun.armed, true, 'sprint stays on while she stands');
   assert.ok(Math.abs(ctlRun.ran / ctlRun.walked - 1.4) < 0.05, 'sprint is 1.4x: ' + ctlRun.ran + ' vs ' + ctlRun.walked);
@@ -488,13 +488,15 @@ try {
   assert.ok(Math.abs(ctlRun.dist - 10) < 0.5, 'the camera comes in to 15 / 1.5: ' + ctlRun.dist);
   assert.ok(Math.abs(ctlRun.pinchZoom - 1.2) < 1e-9, 'pinching 200px to 160px zooms 1.5x to 1.2x: ' + ctlRun.pinchZoom);
   assert.equal(ctlRun.pinchYaw, true, 'a pinch does not turn the camera');
-  assert.equal(ctlRun.savedZoom, ctlRun.pinchZoom, 'zoom is saved on the device');
-  const ZOOMED = AVATAR_SCRIPT + '<script>Learner.storage.setItem("world3d_device_v1", JSON.stringify({ v: 1, quality: "auto", music: true, steps: true, zoom: 0.45 }));</script>';
+  assert.equal(ctlRun.gauge, Math.round((ctlRun.pinchZoom - 0.45) / 1.05 * 100) + '%', 'the gauge shows the zoom level');
+  assert.ok(Math.abs(ctlRun.afterOut - ctlRun.pinchZoom / 1.2) < 1e-9, 'the − button zooms out a step');
+  assert.ok(Math.abs(ctlRun.afterIn - ctlRun.pinchZoom) < 1e-9, 'the + button zooms in a step');
+  const ZOOMED = AVATAR_SCRIPT + '<script>Learner.storage.setItem("world3d_device_v1", JSON.stringify({ v: 1, quality: "auto", music: true, steps: true, zoom: 1.5 }));</script>';
   const zoomed = run('zoomed', stageWorld('zoomed', 5, ZOOMED), 'zoomed');
   assert.deepEqual(zoomed.errors, [], 'zoomed: page errors');
-  assert.equal(zoomed.view.zoom, 0.45, 'the saved zoom comes back');
+  assert.equal(zoomed.view.zoom, 0.45, 'an old saved zoom does not matter: the world still starts zoomed out');
   assert.ok(Math.abs(zoomed.view.dist - 15 / 0.45) < 0.5, 'wide view: ' + zoomed.view.dist);
-  console.log('ok sprint, wheel and pinch zoom, zoom kept');
+  console.log('ok sprint, wheel and pinch zoom, zoom gauge, starts zoomed out');
 
   // Lola Lana's Boutique: try on two things and close (her look comes back), buy a cap with 100 coins, then take it
   // off and put it back on at the mirror.
@@ -704,7 +706,7 @@ try {
   assert.deepEqual(hs.blue, ['home-wall-blue', 'home-wall-blue'], 'blue walls, saved');
   assert.equal(hs.decoClosed, true);
   assert.equal(hs.decoPetAfter.resting, false, 'Done: her pet follows her again');
-  assert.ok(hs.doneDist < 16, 'the camera comes back down: ' + hs.doneDist);
+  assert.ok(Math.abs(hs.doneDist - hs.doneNominal) < 1, 'the camera comes back down to its zoomed distance: ' + hs.doneDist);
   assert.deepEqual(hs.doneSee, ['e'], 'only the wall behind her (she faces the shelf) stays see-through');
   assert.deepEqual(hs.doneHud, [false, false]);
   assert.ok(hs.doneWalk > 0.5, 'she walks again: ' + hs.doneWalk);

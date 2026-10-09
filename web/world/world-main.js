@@ -54,6 +54,7 @@
   }
 
   function start() {
+    var ZOOM_STEP = 1.2;
     var L = W.Layout, prefs = W.Prefs.readPrefs(store), quality = W.Prefs.startQuality(prefs);
     var S = W.Scene.create($('stage'), quality);
     var world = W.Build.build(S, grade, T);
@@ -99,10 +100,10 @@
         if (home) return !maker && !stall && !overlay && !talking && (pal.hit(x, y) || roomTap(x, y));
         return !maker && !stall && !overlay && !talking && (pal.hit(x, y) || loot.hit(x, y));
       },
-      zoom: prefs.zoom,
-      canZoom: function () { return !maker && !stall && !overlay && !deco && (!talking || !!play.riding()); },
-      onZoom: function (z) { prefs = W.Prefs.savePrefs(store, Object.assign(prefs, { zoom: z })); }
+      zoom: W.Prefs.ZOOM_MIN,
+      canZoom: canZoom
     });
+    function canZoom() { return !maker && !stall && !overlay && !deco && (!talking || !!play.riding()); }
     var pal = W.Companion.create({
       S: S, canvas: S.renderer.domElement, sound: sound, sfx: petSound,
       blocked: function (x, z, r) { return home ? roomBlocked(x, z, r) : L.blocked(obs, bounds, x, z, r) || (!!games && games.blocked(x, z, r)); },
@@ -987,14 +988,22 @@
       cheerPill.hidden = true;
       roomBar.appendChild(done);
       roomBar.appendChild(cheerPill);
+      var zoomBox = el('div', 'w-zoom'), zoomFill = el('span'), zoomTrack = el('div', 'w-zoom-track', '');
+      zoomBox.setAttribute('role', 'group');
+      zoomTrack.appendChild(zoomFill);
+      var zoomIn = button('w-zoom-btn', '+', function () { if (canZoom()) ctl.zoom(ctl.state.zoom * ZOOM_STEP); });
+      var zoomOut = button('w-zoom-btn', '−', function () { if (canZoom()) ctl.zoom(ctl.state.zoom / ZOOM_STEP); });
+      zoomIn.setAttribute('aria-label', T.zoomIn);
+      zoomOut.setAttribute('aria-label', T.zoomOut);
+      [zoomIn, zoomTrack, zoomOut].forEach(function (n) { zoomBox.appendChild(n); });
       var rail = el('div', 'w-rail');
       rail.id = 'w-rail';
       rail.appendChild(sprint);
       rail.appendChild(treat);
-      [speed, top, joy, actBtn, rail, stop, roomBar, waking].forEach(function (n) { doc.body.appendChild(n); });
+      [speed, top, joy, actBtn, rail, stop, roomBar, waking, zoomBox].forEach(function (n) { doc.body.appendChild(n); });
       return {
         joy: joy, knob: knob, act: actBtn, waking: waking, actFor: null,
-        treat: treat, sprint: sprint, stop: stop, speed: speed, done: done, cheer: cheerPill, deco: decoPill,
+        treat: treat, sprint: sprint, stop: stop, speed: speed, zoomBox: zoomBox, zoomFill: zoomFill, zoomShown: -1, done: done, cheer: cheerPill, deco: decoPill,
         show: function (on) {
           top.hidden = !on; joy.hidden = !on; actBtn.hidden = !on; treat.hidden = !on; sprint.hidden = !on;
           if (!on) { stop.hidden = true; done.hidden = true; cheerPill.hidden = true; decoPill.hidden = true; speed.classList.remove('on'); }
@@ -1011,6 +1020,13 @@
       if (near) { hud.act.removeAttribute('tabindex'); hud.act.removeAttribute('aria-hidden'); }
       else { hud.act.tabIndex = -1; hud.act.setAttribute('aria-hidden', 'true'); }
       if (near) sound('cardRead');
+    }
+
+    function showZoom(z) {
+      var pct = Math.round((z - W.Prefs.ZOOM_MIN) / (W.Prefs.ZOOM_MAX - W.Prefs.ZOOM_MIN) * 100);
+      if (pct === hud.zoomShown) return;
+      hud.zoomShown = pct;
+      hud.zoomFill.style.height = pct + '%';
     }
 
     function tick(dt) {
@@ -1063,6 +1079,9 @@
       if (hud.treat.hidden !== hideTreat) hud.treat.hidden = hud.sprint.hidden = hideTreat;
       if (hud.sprint.getAttribute('aria-pressed') !== pressed) hud.sprint.setAttribute('aria-pressed', pressed);
       if (hud.speed.classList.contains('on') !== (!!st.sprint && st.mag > 0)) hud.speed.classList.toggle('on');
+      var zoomOn = canZoom();
+      if (hud.zoomBox.hidden === zoomOn) hud.zoomBox.hidden = !zoomOn;
+      showZoom(st.zoom);
       if (hud.stop.hidden === play.stoppable()) hud.stop.hidden = !play.stoppable();
       var showDone = !!seat && free, showCheer = !!(home && home.visit) && free, showDeco = !!(home && !home.visit) && free && !seat;
       if (hud.done.hidden === showDone) hud.done.hidden = !showDone;

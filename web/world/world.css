@@ -150,6 +150,14 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 .w-sprint { position: fixed; right: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: 56px; height: 56px; border: 0;
   border-radius: 50%; background: rgba(255,255,255,.92); box-shadow: 0 4px 0 #f3b6d6; font-size: 28px; line-height: 1; cursor: pointer; }
 .w-sprint[aria-pressed="true"] { background: #ffd166; box-shadow: 0 0 0 4px #fff3b0, 0 4px 0 #f0a500; }
+/* Zoom gauge: + at the top, the level in the middle (full = zoomed in), − at the bottom; on the left edge, clear of the joystick. */
+.w-zoom { position: fixed; left: 12px; top: 50%; transform: translateY(-50%); z-index: 5; display: flex; flex-direction: column;
+  align-items: center; gap: 8px; padding: 8px; border-radius: 999px; background: rgba(255,255,255,.88); box-shadow: 0 3px 0 #f3b6d6; }
+.w-zoom[hidden] { display: none; }
+.w-zoom-btn { width: 40px; height: 40px; border: 0; border-radius: 50%; background: #fff0f7; color: #a63d78; font: 800 24px/1 'Baloo 2', system-ui, sans-serif; cursor: pointer; }
+.w-zoom-track { position: relative; width: 10px; height: 84px; border-radius: 999px; background: #f3e1ea; overflow: hidden; }
+.w-zoom-track span { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, #ff8fc8, #ffd166); }
+@media (max-height: 520px) { .w-zoom-track { height: 40px; } }
 .w-stop { position: fixed; right: 16px; top: calc(max(14px, env(safe-area-inset-top)) + 56px); }
 .w-speed { position: fixed; inset: 0; pointer-events: none; opacity: 0; transition: opacity .2s;
   background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.6) 0deg 1.2deg, transparent 1.2deg 7deg);

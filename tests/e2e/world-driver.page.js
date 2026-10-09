@@ -101,6 +101,7 @@
     o.decoPetAfter = D.pet.state();
     D.tick(1);
     o.doneDist = D.view().dist;
+    o.doneNominal = 15 / D.view().zoom;
     o.doneSee = DD.seeThrough();
     o.doneHud = [document.querySelector('.w-joy').hidden, pill.hidden];
     o.doneWalk = walk();
@@ -616,7 +617,7 @@
       for (var r = 0; r < 55; r++) D.tick(0.1);
       o.stillRiding = D.riding();
       o.stopShown = stopShown();
-      document.querySelector('canvas').dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true, cancelable: true }));
+      document.querySelector('canvas').dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true }));
       o.rideZoom = D.view().zoom;
       D.stopRide();
       o.stopAfterTap = stopShown();
@@ -953,7 +954,7 @@
       D.tick(0.1);
       o.pressedAfter = sprintBtn.getAttribute('aria-pressed');
       o.speedAfter = document.querySelector('.w-speed').classList.contains('on');
-      for (var w = 0; w < 12; w++) canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true }));
+      for (var w = 0; w < 20; w++) canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true, cancelable: true }));
       o.wheelZoom = D.view().zoom;
       for (var c = 0; c < 40; c++) D.tick(0.1);
       o.dist = D.view().dist;
@@ -968,11 +969,14 @@
       o.pinchYaw = D.view().yaw === yaw;
       pe('pointerup', 12, 460);
       pe('pointerup', 11, 300);
-      var saved = function () { return JSON.parse(Learner.storage.getItem('world3d_device_v1') || '{}').zoom; };
-      waitFor(function () { return saved() === o.pinchZoom; }, function () {
-        o.savedZoom = saved();
-        out(o);
-      });
+      D.tick(0.1);
+      var fill = document.querySelector('.w-zoom-track span');
+      o.gauge = fill.style.height;
+      document.querySelectorAll('.w-zoom-btn')[1].click();
+      o.afterOut = D.view().zoom;
+      document.querySelectorAll('.w-zoom-btn')[0].click();
+      o.afterIn = D.view().zoom;
+      out(o);
       return;
     }
     if (mode === 'zoomed') {
