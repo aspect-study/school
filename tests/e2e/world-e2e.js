@@ -475,12 +475,13 @@ try {
   assert.deepEqual([fam.sisHome.back, fam.sisHome.game, fam.sisHome.x, fam.sisHome.z], [false, false, fam.sisSpot.x, fam.sisSpot.z], 'to her spot by the gate');
   console.log('ok sister cheers, a looping ride and Stop, the slide, the 10-minute nudge');
 
-  // Sprint makes her 1.4x as fast and turns off when she stops; the wheel and a pinch zoom, kept on the device.
+  // A tap on 🏃 while she moves makes her 1.4x as fast, a tap while she stands does nothing, and it turns off when she stops; the wheel and a pinch zoom, kept on the device.
   const ctlRun = run('controls', stageWorld('controls', 5, AVATAR_SCRIPT), 'controls');
   assert.deepEqual(ctlRun.errors, [], 'controls: page errors');
   assert.equal(ctlRun.startZoom, 0.45, 'the world starts zoomed all the way out');
-  assert.equal(ctlRun.pressed, 'true');
-  assert.equal(ctlRun.armed, true, 'sprint stays on while she stands');
+  assert.equal(ctlRun.pressedStill, 'false', 'a tap on the run button while she stands does nothing');
+  assert.equal(ctlRun.armedStill, false);
+  assert.equal(ctlRun.pressed, 'true', 'a tap while she moves starts a run');
   assert.ok(Math.abs(ctlRun.ran / ctlRun.walked - 1.4) < 0.05, 'sprint is 1.4x: ' + ctlRun.ran + ' vs ' + ctlRun.walked);
   assert.equal(ctlRun.speedOn, true, 'speed lines while she runs');
   assert.equal(ctlRun.pressedBrief, 'true', 'a moment\'s pause (changing keys) keeps sprint on');
@@ -493,6 +494,8 @@ try {
   assert.equal(ctlRun.gauge, Math.round((ctlRun.pinchZoom - 0.45) / 1.05 * 100) + '%', 'the gauge shows the zoom level');
   assert.ok(Math.abs(ctlRun.afterOut - ctlRun.pinchZoom / 1.2) < 1e-9, 'the − button zooms out a step');
   assert.ok(Math.abs(ctlRun.afterIn - ctlRun.pinchZoom) < 1e-9, 'the + button zooms in a step');
+  assert.ok(Math.abs(ctlRun.rowOut - 1 / 1.2) < 1e-9, 'the settings card has a − that zooms out a step: ' + ctlRun.rowOut);
+  assert.ok(Math.abs(ctlRun.rowIn - 1) < 1e-9, 'and a + that zooms back in');
   const ZOOMED = AVATAR_SCRIPT + '<script>Learner.storage.setItem("world3d_device_v1", JSON.stringify({ v: 1, quality: "auto", music: true, steps: true, zoom: 1.5 }));</script>';
   const zoomed = run('zoomed', stageWorld('zoomed', 5, ZOOMED), 'zoomed');
   assert.deepEqual(zoomed.errors, [], 'zoomed: page errors');

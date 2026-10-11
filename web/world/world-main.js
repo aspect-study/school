@@ -36,6 +36,7 @@
   function english(sign) { return sign.split(' · ').pop(); }
 
   function resting() {
+    try { if (session) session.setItem('world_failed_v1', '1'); } catch (e) {}
     $('loading').hidden = true;
     $('stage').hidden = true;
     $('resting-title').textContent = T.resting;
@@ -55,6 +56,7 @@
 
   function start() {
     var ZOOM_STEP = 1.2;
+    var coarse = !!(root.matchMedia && root.matchMedia('(pointer: coarse)').matches);
     var L = W.Layout, prefs = W.Prefs.readPrefs(store), quality = W.Prefs.startQuality(prefs);
     var S = W.Scene.create($('stage'), quality);
     var world = W.Build.build(S, grade, T);
@@ -66,6 +68,7 @@
     var mine = W.Look.read(store, myBoy), look = mine.look;
     var me = null, near = null, maker = null, stall = null, stallKind = null, overlay = null, lost = false, before = null, talking = false, shown = null, riding = false;
     var music = W.Music.create(root), slow = W.Prefs.fpsWatch(30, 3), clock = new S.THREE.Clock(), t = 0;
+    var stamina = W.Stamina.create();
     var sfx = W.Sfx.create(root), stepT = 0, wasMoving = false, plaza = L.places(grade).plaza;
     sfx.setOn(!(root.Fx && root.Fx.muted()), prefs.steps);
     // Her pet's events (companion.js, from petlife's heard list) as sounds.
@@ -1108,6 +1111,16 @@
         row.appendChild(helper);
         card.appendChild(row);
       }
+      var zoomRow = el('div', 'w-setting'), zoomButtons = el('div', 'w-setting-options');
+      zoomRow.appendChild(el('span', '', T.zoom));
+      var zoomOutBtn = button('w-choice', '−', function () { ctl.zoom(ctl.state.zoom / ZOOM_STEP); });
+      var zoomInBtn = button('w-choice', '+', function () { ctl.zoom(ctl.state.zoom * ZOOM_STEP); });
+      zoomOutBtn.setAttribute('aria-label', T.zoomOut);
+      zoomInBtn.setAttribute('aria-label', T.zoomIn);
+      zoomButtons.appendChild(zoomOutBtn);
+      zoomButtons.appendChild(zoomInBtn);
+      zoomRow.appendChild(zoomButtons);
+      card.appendChild(zoomRow);
       card.appendChild(button('w-btn w-parents', T.parents, function () { closeOverlay(); openSection('parent'); }));
       card.appendChild(el('p', 'w-credit', T.credit));
       card.appendChild(button('w-btn w-close', T.close, closeOverlay));
@@ -1137,7 +1150,10 @@
       actBtn.setAttribute('aria-hidden', 'true');
       var treat = button('w-pill w-treat', T.treat, function () { if (!maker && !stall && !overlay && !talking && !riding) pal.treat(); });
       var sprint = button('w-sprint', '🏃', function () {
-        if (!maker && !stall && !overlay && !talking) ctl.sprint(!ctl.state.sprint);
+        if (!maker && !stall && !overlay && !talking) {
+          var next = W.Stamina.sprintTap({ sprinting: ctl.state.sprint, moving: ctl.state.mag > 0, tired: stamina.state().tired });
+          if (next !== null) ctl.sprint(next);
+        }
         sprint.setAttribute('aria-pressed', ctl.state.sprint ? 'true' : 'false');
       });
       sprint.id = 'sprint';
@@ -1262,7 +1278,7 @@
       if (hud.treat.hidden !== hideTreat) hud.treat.hidden = hud.sprint.hidden = hideTreat;
       if (hud.sprint.getAttribute('aria-pressed') !== pressed) hud.sprint.setAttribute('aria-pressed', pressed);
       if (hud.speed.classList.contains('on') !== (!!st.sprint && st.mag > 0)) hud.speed.classList.toggle('on');
-      var zoomOn = canZoom();
+      var zoomOn = W.Hud.zoomShown(canZoom(), coarse);
       if (hud.zoomBox.hidden === zoomOn) hud.zoomBox.hidden = !zoomOn;
       showZoom(st.zoom);
       if (hud.stop.hidden === play.stoppable()) hud.stop.hidden = !play.stoppable();
@@ -1580,6 +1596,7 @@
 
     $('loading').hidden = true;
     frame();
+    try { if (session) session.removeItem('world_failed_v1'); } catch (e) {}
     fire('world-ready');
   }
 
