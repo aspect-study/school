@@ -5,6 +5,7 @@
   'use strict';
 
   var GRADES = [5, 2];
+  var SOON_GRADES = [1, 3, 4, 6];
   var EMOJIS = ['\uD83C\uDF3B', '\uD83E\uDD8B', '\uD83D\uDC31', '\uD83D\uDC36', '\uD83E\uDD84', '\u2B50', '\uD83C\uDF08', '\uD83D\uDC3C'];
   var NAME_MAX = 30;
 
@@ -159,9 +160,11 @@
     b.setAttribute('data-emoji', e);
     $('kid-emojis').appendChild(b);
   });
-  GRADES.forEach(function (g) {
-    var b = el('button', 'chip', 'Grade ' + g);
+  GRADES.concat(SOON_GRADES).sort(function (a, b) { return a - b; }).forEach(function (g) {
+    var soon = SOON_GRADES.indexOf(g) >= 0;
+    var b = el('button', 'chip', 'Grade ' + g + (soon ? ' · soon' : ''));
     b.type = 'button';
+    b.disabled = soon;
     b.setAttribute('data-grade', String(g));
     $('kid-grades').appendChild(b);
   });

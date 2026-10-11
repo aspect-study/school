@@ -79,6 +79,7 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   .link{ border:0; background:none; padding:6px 0; color:var(--muted); font-weight:700; text-decoration:underline; align-self:flex-start; }
   .chips{ display:flex; flex-wrap:wrap; gap:8px; }
   .chip{ padding:8px 14px; border-radius:999px; border:2px solid #D8D3C6; background:#fff; font-size:20px; font-weight:800; }
+  .chip:disabled{ opacity:.5; cursor:default; border-style:dashed; }
   .chip.on{ border-color:var(--teal); background:var(--teal); color:#fff; }
   #acct-guest, #acct-signed{ display:flex; flex-direction:column; gap:10px; }
   #acct-guest[hidden], #acct-signed[hidden]{ display:none; }
