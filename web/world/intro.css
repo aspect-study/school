@@ -19,9 +19,9 @@
 .i-word { position: relative; display: flex; align-items: baseline; justify-content: center; padding: 1vmin 3vmin 3vmin;
   font-weight: 800; font-size: min(22vmin, 15.5vw); line-height: 1; white-space: nowrap; }
 
-.i-3d { position: relative; display: inline-block; margin-right: .03em; color: #b86a00; -webkit-text-stroke: .11em #0b2a80; paint-order: stroke fill;
-  text-shadow: .02em .02em #c97a00, .04em .04em #c97a00, .06em .06em #bd7000, .08em .08em #b36500, .1em .1em #a85a00, .12em .12em #9c5000, .14em .14em #8e4800; }
-.i-3d::before { content: attr(data-t); position: absolute; left: 0; top: 0; -webkit-text-stroke: 0; text-shadow: none;
+.i-3d { position: relative; display: inline-block; margin-right: .03em; color: #b86a00; 
+  text-shadow: 0.055em 0.000em 0 #0b2a80, 0.051em 0.021em 0 #0b2a80, 0.039em 0.039em 0 #0b2a80, 0.021em 0.051em 0 #0b2a80, 0.000em 0.055em 0 #0b2a80, -0.021em 0.051em 0 #0b2a80, -0.039em 0.039em 0 #0b2a80, -0.051em 0.021em 0 #0b2a80, -0.055em 0.000em 0 #0b2a80, -0.051em -0.021em 0 #0b2a80, -0.039em -0.039em 0 #0b2a80, -0.021em -0.051em 0 #0b2a80, -0.000em -0.055em 0 #0b2a80, 0.021em -0.051em 0 #0b2a80, 0.039em -0.039em 0 #0b2a80, 0.051em -0.021em 0 #0b2a80, .02em .02em #c97a00, .04em .04em #c97a00, .06em .06em #bd7000, .08em .08em #b36500, .1em .1em #a85a00, .12em .12em #9c5000, .14em .14em #8e4800; }
+.i-3d::before { content: attr(data-t); position: absolute; left: 0; top: 0; text-shadow: none;
   background: linear-gradient(#fff3a0, #ffd22e 55%, #ffa800); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .go .i-3d { animation: i-slam .6s cubic-bezier(.2, .9, .3, 1.15) .95s both; }
 .go .i-word { animation: i-shake .35s ease-out 1.55s; }
