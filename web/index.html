@@ -14,7 +14,7 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
 <link rel="icon" type="image/png" href="assets/icons/grade5-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{ --paper:#F4F1E9; --ink:#2B2A26; --muted:#6B6860; --teal:#1B7A79; --pink:#D9667B; --bad:#B42318; }
   *{ box-sizing:border-box; }
@@ -27,10 +27,12 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   #backdrop{ position:fixed; inset:0; width:100%; height:100%; border:0; z-index:-2; pointer-events:none; opacity:0; transition:opacity .8s; }
   #backdrop.on{ opacity:1; }
   body::before{ content:''; position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(244,241,233,.4); }
-  main{ background:rgba(244,241,233,.78); border-radius:24px; padding:20px; align-self:flex-start; }
+  main{ background:rgba(255,255,255,.84); border:4px solid #fff; border-radius:28px; padding:22px 20px; align-self:flex-start;
+    box-shadow:0 8px 0 rgba(27,122,121,.28), 0 18px 32px rgba(0,0,0,.12); }
   main.busy{ opacity:.6; pointer-events:none; }
-  h1{ font-family:'Baloo 2',system-ui,sans-serif; font-size:clamp(30px,6vw,44px); margin:0; text-align:center; }
-  h2{ font-family:'Baloo 2',system-ui,sans-serif; font-size:26px; margin:0 0 4px; }
+  h1{ font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-weight:700; font-size:clamp(36px,9vw,52px); margin:0; text-align:center; letter-spacing:.5px;
+    color:#FFD23F; -webkit-text-stroke:7px #12307A; paint-order:stroke fill; text-shadow:0 5px 0 #12307A, 0 9px 10px rgba(18,48,122,.35); }
+  h2{ font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:26px; margin:0 0 4px; }
   h3{ margin:18px 0 4px; font-size:18px; }
   section{ display:flex; flex-direction:column; gap:10px; }
   section[hidden]{ display:none; }
@@ -40,11 +42,37 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   input{ font:inherit; font-size:18px; padding:12px 14px; border-radius:12px; border:2px solid #D8D3C6; background:#fff; color:var(--ink); }
   input:focus-visible{ outline:3px solid var(--teal); outline-offset:1px; }
   button{ font:inherit; cursor:pointer; color:var(--ink); }
+  .big, .cta, .btn2, .choices a{ transition:transform .14s cubic-bezier(.3,1.7,.5,1), box-shadow .14s ease-out; -webkit-tap-highlight-color:transparent; }
   .big{
-    padding:14px 18px; border-radius:16px; border:3px solid var(--teal); background:#fff; box-shadow:0 4px 0 var(--teal);
-    font-family:'Baloo 2',system-ui,sans-serif; font-size:22px; font-weight:800; text-align:left;
+    padding:14px 18px; border-radius:22px; border:4px solid var(--teal); background:#fff; box-shadow:0 5px 0 var(--teal);
+    font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:22px; font-weight:600; text-align:left;
   }
-  .big:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--teal); }
+  .big:active{ transform:translateY(5px); box-shadow:none; }
+  .cta{
+    display:flex; align-items:center; justify-content:center; gap:14px; width:100%; padding:20px 18px; border-radius:28px;
+    border:4px solid #C98400; background:linear-gradient(#FFE56B,#FFC21A); box-shadow:0 8px 0 #B97A00, 0 14px 20px rgba(185,122,0,.3);
+    color:#12307A; font-family:'Fredoka','Baloo 2',system-ui,sans-serif; animation:cta-bob 2.4s ease-in-out infinite;
+  }
+  .cta-icon{ font-size:44px; line-height:1; filter:drop-shadow(0 3px 0 rgba(185,122,0,.45)); }
+  .cta-text{ display:flex; flex-direction:column; align-items:flex-start; line-height:1.05; }
+  .cta-text b{ font-size:clamp(26px,7vw,34px); font-weight:700; text-shadow:0 2px 0 rgba(255,255,255,.65); }
+  .cta-text small{ font-size:16px; font-weight:600; opacity:.8; }
+  .cta:active{ transform:translateY(8px); box-shadow:none; animation:none; }
+  .pair{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px; }
+  .btn2{
+    padding:12px 10px; border-radius:22px; border:3px solid #9DB4E8; background:#fff; box-shadow:0 4px 0 #C7D5F5; color:#2B4C9B;
+    font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:17px; font-weight:600; text-align:center; line-height:1.15;
+  }
+  .btn2:active{ transform:translateY(4px); box-shadow:none; }
+  .parent-zone{ margin-top:8px; padding:14px 16px; border-radius:22px; border:3px solid #B9CCFF; background:#E8EFFF; display:flex; flex-direction:column; gap:6px; }
+  .parent-zone h3{ margin:0; font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:18px; font-weight:600; color:#2B4C9B; }
+  .parent-zone .note{ color:#3A4560; font-size:15px; }
+  @keyframes cta-bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-4px); } }
+  @media (hover:hover){
+    .cta:hover{ transform:translateY(-3px) scale(1.01); animation:none; }
+    .btn2:hover, .big:hover{ transform:translateY(-2px); }
+  }
+  @media (prefers-reduced-motion: reduce){ .cta{ animation:none; } .big, .cta, .btn2, .choices a{ transition:none; } }
   .big.ghost{ border-color:#C9C3B4; box-shadow:0 4px 0 #C9C3B4; }
   .big:disabled{ opacity:.5; cursor:default; }
   .link{ border:0; background:none; padding:6px 0; color:var(--muted); font-weight:700; text-decoration:underline; align-self:flex-start; }
@@ -56,14 +84,14 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   #kid-list{ margin:0; padding-left:20px; font-weight:700; }
   .choices{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
   .choices a{
-    display:flex; align-items:center; gap:14px; padding:18px 20px; border-radius:18px; text-decoration:none;
-    background:#fff; color:var(--ink); border:3px solid var(--accent); box-shadow:0 4px 0 var(--accent);
-    font-family:'Baloo 2',system-ui,sans-serif; font-size:24px; font-weight:800;
+    display:flex; align-items:center; gap:14px; padding:18px 20px; border-radius:26px; text-decoration:none;
+    background:#fff; color:var(--ink); border:4px solid var(--accent); box-shadow:0 5px 0 var(--accent);
+    font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:24px; font-weight:600;
   }
-  .choices a:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--accent); }
+  .choices a:active{ transform:translateY(5px); box-shadow:none; }
   .choices img{ width:56px; height:56px; border-radius:14px; }
-  a.parent-page{ align-self:center; color:var(--muted); font-weight:700; }
-  .credit{ margin:0; text-align:center; font-size:13px; font-weight:700; color:var(--muted); }
+  a.parent-page{ align-self:flex-start; color:#2B4C9B; font-weight:700; padding:4px 0; }
+  .credit{ margin:6px auto 0; text-align:center; font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:15px; font-weight:500; color:#5A5750; }
 </style>
 </head>
 <body>
@@ -73,11 +101,16 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   <p class="msg" id="msg" aria-live="polite"></p>
 
   <section id="welcome-view" hidden>
-    <button class="big" type="button" id="go-signin">🔑 Sign in</button>
-    <button class="big" type="button" id="go-register">✨ Create family account</button>
-    <button class="big ghost" type="button" id="go-play">🎮 Play without an account</button>
-    <p class="note">With an account, progress is backed up and the children's tablets and your phone stay in sync.</p>
-    <a class="parent-page" href="parent/">🔒 Parent page (for a parent's phone)</a>
+    <button class="cta" type="button" id="go-play"><span class="cta-icon" aria-hidden="true">🚀</span><span class="cta-text"><b>Start Adventure</b><small>Play as guest</small></span></button>
+    <div class="pair">
+      <button class="btn2" type="button" id="go-signin">🔑 Sign in</button>
+      <button class="btn2" type="button" id="go-register">✨ Create family account</button>
+    </div>
+    <div class="parent-zone">
+      <h3>🔒 Parent Zone</h3>
+      <p class="note">With an account, progress is backed up and the children's tablets and your phone stay in sync.</p>
+      <a class="parent-page" href="parent/">Parent page (for a parent's phone)</a>
+    </div>
   </section>
 
   <section id="signin-view" hidden>
