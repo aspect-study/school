@@ -180,7 +180,7 @@ try {
   assert.equal(a.log.noName, 'Type the name.');
   assert.equal(a.log.noGrade, 'Pick the grade.');
   assert.equal(a.log.noKind, 'Pick girl or boy.');
-  assert.match(a.log.added, /^Added .*Ana · Grade 5 · Girl\.$/);
+  assert.match(a.log.added, /^Saved .*Ana · Grade 5 · Girl. Add another child, or tap Done.$/);
   assert.ok(a.log.addedBea.includes('Bea'));
   assert.equal(a.log.listed, 3);
   assert.equal(a.log.pick, 'pick-view');
@@ -226,7 +226,7 @@ try {
   assert.deepEqual(d.errors, [], 'guest errors');
   assert.equal(d.log.stepError, undefined, d.log.stepError);
   assert.equal(d.log.play, 'play-view');
-  assert.deepEqual(d.log.links, ['world/grade-5.html', 'world/grade-2.html']);
+  assert.deepEqual(d.log.links, ['world/grade-2.html', 'world/grade-5.html']);
   assert.equal(d.log.callsAfterPlay, 0, 'playing without an account calls nothing');
   assert.equal(d.log.backTo, 'welcome-view');
   assert.equal(d.log.forgotEmpty, 'Type the family email first, then tap Forgot password.');

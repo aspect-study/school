@@ -5,6 +5,7 @@
   'use strict';
 
   var GRADES = [5, 2];
+  var UNLOCK_MS = 10 * 60 * 1000;
   var SOON_GRADES = [1, 3, 4, 6];
   var EMOJIS = ['\uD83C\uDF3B', '\uD83E\uDD8B', '\uD83D\uDC31', '\uD83D\uDC36', '\uD83E\uDD84', '\u2B50', '\uD83C\uDF08', '\uD83D\uDC3C'];
   var NAME_MAX = 30;
@@ -231,11 +232,14 @@
       var k = { id: id, profile: profile };
       kids.push(k);
       renderChildren();
-      say('Added ' + label(k) + '.');
+      say('Saved ' + label(k) + '. Add another child, or tap Done.');
     }, function () { return 'Could not save the child. ' + OFFLINE; });
   });
 
-  $('kid-done').addEventListener('click', function () { if (accountMode) renderAccount(); else renderPick(); });
+  $('kid-done').addEventListener('click', function () {
+    if ($('kid-name').value.trim()) { say('Tap Save this child first, or clear the name to skip.', true); return; }
+    if (accountMode) renderAccount(); else renderPick();
+  });
 
   // ---- who uses this tablet ----
   function renderPick() {
@@ -312,6 +316,11 @@
 
   if (!accountMode) { show('welcome-view'); return; }
 
+  // The Parent panel or parent page just took the PIN in this tab; asking again would be redundant.
+  function recentlyUnlocked() {
+    try { return Date.now() - Number(root.sessionStorage.getItem('parent_unlocked_v1')) < UNLOCK_MS; } catch (e) { return false; }
+  }
+
   function unlock() {
     pinReady.then(function () {
       if (!Pin.check($('lock-pin').value)) { $('lock-pin').value = ''; say('That PIN is not right.', true); return; }
@@ -322,7 +331,7 @@
   $('lock-go').addEventListener('click', unlock);
   $('lock-pin').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') unlock(); });
   $('lock-back').setAttribute('href', backTarget(root.location.search) || (L.current() ? L.lobby() : 'index.html'));
-  show('lock-view');
+  if (recentlyUnlocked()) renderAccount(); else show('lock-view');
   // Only the first answer: later sign-ins from this page are handled by their own buttons.
   var heard = false;
   FR.onAuth(function (u) {

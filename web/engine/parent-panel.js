@@ -73,7 +73,10 @@
       entered += key;
       draw();
       if (entered.length < 4) return;
-      if (checkPin(entered)) { entered = ''; draw(); o.onUnlock(); return; }
+      if (checkPin(entered)) {
+        try { root.sessionStorage.setItem('parent_unlocked_v1', String(Date.now())); } catch (e) {}
+        entered = ''; draw(); o.onUnlock(); return;
+      }
       entered = '';
       clearTimeout(shakeT);
       o.dots.classList.remove('shake');
