@@ -765,7 +765,7 @@
         $('learner-name').value = me.name;
         $('learner-emoji').value = me.emoji;
         $('learner-boy').value = me.boy ? '1' : '0';
-        $('hero-title').textContent = me.name ? (me.emoji ? me.emoji + ' ' : '') + 'Hi, ' + me.name + '!' : 'Study Games';
+        $('hero-title').textContent = me.name ? (me.emoji ? me.emoji + ' ' : '') + 'Hi, ' + me.name + '!' : '3DSkuwela';
       }
       $('learner-save').addEventListener('click', function () {
         L.update({ name: $('learner-name').value, emoji: $('learner-emoji').value, boy: $('learner-boy').value === '1' });

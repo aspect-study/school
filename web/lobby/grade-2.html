@@ -1,6 +1,6 @@
 <html lang="fil">
 <meta charset="utf-8">
-<title>Study Games Lobby</title>
+<title>3DSkuwela Lobby</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
 <link rel="manifest" href="grade-2.webmanifest">
@@ -52,7 +52,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   .wrap{ width:100%; max-width:1120px; }
 
   .hero{ text-align:center; margin-bottom:clamp(24px,5vw,40px); }
-  .hero-emoji{ font-size:clamp(2.4rem,8vw,3.2rem); line-height:1; margin-bottom:6px; }
+  .hero-logo{ border-radius:22%; display:block; margin:0 auto 6px; width:clamp(110px,28vw,160px); height:auto; }
   .hero h1{
     font-family:'Baloo 2', system-ui, sans-serif;
     font-weight:700;
@@ -351,8 +351,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
 <div class="wrap">
   <div class="hero">
-    <div class="hero-emoji">🎒</div>
-    <h1 id="hero-title">Study Games</h1>
+    <img class="hero-logo" src="../assets/icons/grade5-512.png" alt="3DSkuwela logo">
+    <h1 id="hero-title">3DSkuwela</h1>
     <p data-en="Pick a subject and start the game!">Piliin ang paksa at simulan ang laro!</p>
     <a class="world-open" id="world-open" href="../world/grade-2.html">🌍 Play World</a>
     <div class="points-combined" id="points-combined-badge"></div>

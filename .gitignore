@@ -5,6 +5,7 @@
 *.jpg
 *.jpeg
 *.png
+!web/assets/logo-3dskuwela.png
 **/extracted/
 **/drive-download-*/
 

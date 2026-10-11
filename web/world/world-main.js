@@ -1633,7 +1633,7 @@
   }
 
   W.Main = true;
-  $('loading').textContent = T.loading;
+  $('loading-text').textContent = T.loading;
   var fonts = doc.fonts && doc.fonts.load ? doc.fonts.load('800 70px "Baloo 2"') : null;
   var wait = new Promise(function (r) { root.setTimeout(r, 1500); });
   (fonts ? Promise.race([fonts, wait]) : wait).then(boot, boot);

@@ -428,6 +428,7 @@ const PRECACHE = [
   'assets/icons/grade5-180.png',
   'assets/icons/grade5-192.png',
   'assets/icons/grade5-512.png',
+  'assets/logo-3dskuwela.png',
   'assets/sounds/dominating.mp3',
   'assets/sounds/double-kill.mp3',
   'assets/sounds/first-blood.mp3',

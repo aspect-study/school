@@ -81,7 +81,7 @@ try {
   assert.equal(r.coins, expectedCoins, 'coins unchanged');
   assert.deepEqual([...r.history].sort(), ['old-1', 'old-2'], 'history unchanged');
   assert.equal(r.guideSeen, '1', 'the coin guide is not shown again');
-  assert.equal(r.titleBefore, 'Study Games', 'no greeting until a parent sets her name');
+  assert.equal(r.titleBefore, '3DSkuwela', 'no greeting until a parent sets her name');
   assert.equal(r.title, '🌻 Hi, Ana!');
   assert.equal(r.saved.name, 'Ana');
   assert.deepEqual(r.old, OLD, 'old keys kept as a safety net');
