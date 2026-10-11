@@ -22,6 +22,13 @@ function browser(...files) {
   return win;
 }
 
+test('Cloud always has hold, even when sync is off', () => {
+  const win = browser('storage.js', 'cloud.js');
+  assert.equal(typeof win.Cloud.hold, 'function');
+  win.Cloud.hold(true);
+  win.Cloud.hold(false);
+});
+
 test('the parent page can build a wallet and a history on a child\'s in-memory space', () => {
   const win = browser('storage.js', 'study-history.js', 'wallet.js');
   const s = win.StudyStore.memorySpace('kid');

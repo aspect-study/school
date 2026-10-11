@@ -14,7 +14,8 @@
   root.Cloud = {
     sync: function () { return Promise.resolve(); },
     signedIn: function () { return false; },
-    watch: function () { return function () {}; }
+    watch: function () { return function () {}; },
+    hold: function () {}
   };
   var L = root.Learner, Core = root.SyncCore, FR = root.FirebaseRemote;
   if (!L || !Core || !FR || !root.FIREBASE_CONFIG || !L.current() || root.location.protocol === 'file:') return;
@@ -22,7 +23,7 @@
   var me = L.current();
   var space = L.storage;
   var device = root.StudyStore.raw;
-  var connected = false, user = null, busy = false, again = false, choice = null, timer = null, typedEmail = '', signingIn = false;
+  var connected = false, user = null, busy = false, again = false, choice = null, timer = null, typedEmail = '', signingIn = false, held = false, heldMissed = false;
   var status = { text: '', error: false };
 
   // The Firebase login belongs to the whole device, so one sign-in covers both lobbies.
@@ -65,6 +66,7 @@
   }
 
   function runSync() {
+    if (held) { heldMissed = true; return Promise.resolve(); }
     if (!user || choice) return Promise.resolve();
     // A sync asked for during a round (for example a shop request) runs right after it.
     if (busy) { again = true; return Promise.resolve(); }
@@ -208,6 +210,11 @@
   }
 
   root.Cloud.sync = runSync;
+  // The 3D world holds its sync while a page runs in its frame (that page syncs itself), then catches up once.
+  root.Cloud.hold = function (on) {
+    held = !!on;
+    if (!held && heldMissed) { heldMissed = false; runSync(); }
+  };
   root.Cloud.signedIn = function () { return !!user && !choice; };
   root.Cloud.watch = function (key, onChange) { return user ? FR.remote(user.uid).watch(me.id, key, onChange) : function () {}; };
 
