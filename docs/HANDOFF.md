@@ -153,7 +153,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   one game per commit, hits at the start in brackets (3356 in all on 2026-10-11):
   - [x] Net Navigators (Computer 5) [240]
   - [x] Wikaharian (Filipino 5) [364]
-  - [ ] Rise & Shine (GMRC 5) [121]
+  - [x] Rise & Shine (GMRC 5) [121]
   - [ ] Craft Corner (TLE 5) [149]
   - [ ] Life Lab (Science 5) [344]
   - [ ] History Explorers (AP 5) [406]

@@ -1,7 +1,7 @@
 StudyKit.content('typeIt', {
-  'It is the situation in which a family is forced to leave their home because of war and must find a safe place to live.': [],
-  'It is the situation in which a young child works long hours every day instead of going to school.': ['child labor'],
+  'This happens when war drives a family out of their home and they must look for a safe place to stay.': [],
+  'This happens when a young child spends long hours working each day and misses school because of it.': ['child labor'],
   'What is this?': ['traffic light'],
-  'Which is the sacred book of Christians?': ['Bible'],
-  'Which is the sacred book of Muslims?': ['Quran', 'Qur\'an']
+  'Christians read and honor this sacred book. What is it called?': ['Bible'],
+  'Muslims read and honor this sacred book. What is it called?': ['Quran', 'Qur\'an']
 });
