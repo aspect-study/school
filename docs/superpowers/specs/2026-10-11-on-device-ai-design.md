@@ -31,7 +31,7 @@ does today when the AI is off, unsupported or not downloaded.
 ## First task: the spike (before any plan task that depends on it)
 
 On one of the girls' tablets, load the chosen ONNX build and record: download size, time to first answer, answer speed,
-memory use, whether WebGPU initialises, and the quality of 10 sample explanations built from real lessons. The results
+memory use, whether WebGPU initialises, and the quality of 6 sample explanations (3 per grade) built from lesson-style facts. The results
 pick the model repo, the quantisation and the speed thresholds below, and are written back into this spec. If the
 tablets cannot run it acceptably, stop and re-brainstorm (smaller model, one tablet only, or the laptop route).
 
@@ -41,7 +41,7 @@ tablets cannot run it acceptably, stop and re-brainstorm (smaller model, one tab
 
 The only file games and the parent panel talk to.
 
-- `Ai.state()` returns `off | unsupported | downloading | ready | failed`, plus `progress` (0-1) while downloading.
+- `Ai.state()` returns `off | unsupported | downloading | waiting | ready | failed` (`waiting` = holding for Wi-Fi), plus `progress` (0-1) while downloading.
 - `Ai.ready()` is true only when the state is `ready` for this device.
 - `Ai.explain(request, done)` where `request` is the grounded facts (see Prompt) and `done(err, text)` is called once.
   Returns a handle with `cancel()`.
@@ -75,11 +75,11 @@ after an interruption and starts only on Wi-Fi: `navigator.connection` is used w
 
 Built by a pure function in `web/engine/ai-prompt.js` (new, testable in Node) from lesson data only:
 
-- the question, the right answer, the option the child picked, that option's `why`, the question's `tip`, and the
-  lesson's flashcards for the same topic;
+- the question, the right answer, the option the child picked, that option's `why`, the right answer's `explain`, and
+  the question's `tip` (the fields every game already has for a missed question; flashcards are not sent);
 - the instruction: explain simply in English in 2-3 short sentences for a child in grade N, use only these facts, do not
   add new facts, do not ask questions, no links;
-- if there is nothing to ground on (no `why`, no `tip`, no cards), `Ai` is not offered for that question.
+- if there is nothing to ground on (no `why`, `explain` or `tip`), `Ai` is not offered for that question.
 
 Grade N is the learner's grade, so Grade 2 gets shorter words than Grade 5.
 
@@ -102,8 +102,9 @@ word from a small blocklist. A dropped answer shows "Try the lesson's explanatio
 All 17 games have the wrong-answer panel; 13 of them get the button. The wiring follows the existing per-game hook contract (like `Nav.screen`,
 `Power`, `Trail.start`):
 
-- A new engine file `web/engine/ai-explain.js` draws the button and the answer card (class `ai-card`, styled like
-  `explore-card`) and is called by each game with the question's data when the wrong-answer panel opens.
+- A new engine file `web/engine/ai-explain.js` draws the button and the answer card (class `ai-card`). Each game makes one
+  call, `AiExplain.offer(miss, panel)`, right after it fills its wrong-answer panel; the box lives inside that panel, so the
+  next question clears it with no extra hook.
 - Label: **Explain it another way**. The answer card is headed **Helper's answer** so it is clear it is not the lesson's
   own text. Under it: **Thanks, got it** and **Try again** (at most 2 retries per question).
 - Hidden entirely when `Ai.ready()` is false, when the learner's switch is off, or in a Filipino game.
@@ -112,7 +113,7 @@ All 17 games have the wrong-answer panel; 13 of them get the button. The wiring 
 
 ## Files
 
-New: `web/engine/ai.js`, `ai-worker.js`, `ai-prompt.js`, `ai-explain.js`; vendored Transformers.js under `web/vendor/`.
+New: `web/engine/ai.js`, `ai-runtime.js` (the worker wrapper), `ai-worker.js`, `ai-prompt.js`, `ai-explain.js`; vendored Transformers.js under `web/vendor/`.
 Changed: `web/engine/parent-panel.js` (AI helper row); the 13 English-language games (17 minus Kuwentista, Batang
 Bayani, History Explorers and Wikaharian) call `AiExplain`; `web/sw.js` precache (not the model files). After adding or removing files under `web/`, run
 `node tools/update-precache.js`. A new test enforces that every English game wires the button and no Filipino game does.
