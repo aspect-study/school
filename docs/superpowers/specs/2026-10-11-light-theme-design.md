@@ -43,17 +43,18 @@ own `</style>`, so it wins on equal specificity without `!important`. It uses ea
 (`--accent`, `--card`, `--ink`, with fallbacks), mixing tints with `color-mix(in srgb, …)` as the pages already do.
 
 - **Lesson rows** (`.item-card`, Math `.lesson-card`): border 3 px in a light tint of the game colour
-  (`color-mix(in srgb, var(--accent) 28%, #fff)`), bottom border 6 px in a deeper tint, radius 20 px, no drop shadow; the
+  (`color-mix(in srgb, var(--accent) 28%, #fff)`), radius 20 px, and a 5 px solid bottom edge in a deeper tint drawn as a
+  `box-shadow` (like the pages' chunky `.btn`), replacing the soft drop shadow; the
   icon tile (`.item-card .icon`, Math `.lesson-emoji`) gets a pastel tint of the game colour and 14 px radius; the title
   takes the game colour darkened (`color-mix(in srgb, var(--accent) 70%, #000)`).
-- **Press feel:** `:active` moves the row down 4 px and shrinks the bottom border to 2 px (the total height stays the
-  same, so the list does not jump); hover keeps today's border colour change, without the lift.
+- **Press feel:** `:active` moves the row down 3 px and shrinks the edge to 2 px; the edge is a shadow, so the rows
+  below never move. Hover keeps a border colour change, without today's lift. The empty Review row does not press.
 - **Special rows keep their meaning:** the mock exam row keeps its gold border (`.final-card`), the strategy row its
   coral border (`.strategy-card`); only their width and press edge change.
-- **Answers** (`.option`): the same 3 px border and 6 px tinted bottom edge, radius 16 px, font weight 700, the same
-  press feel. `.option.correct`, `.option.wrong` / Math `.option.incorrect`, `:disabled`, `.explorable` (dashed) and
-  `.explored` keep their current colours and win over the polish (the polish rules are written so these states still
-  apply: state rules re-declare `border-color`).
+- **Answers** (`.option`): the same 3 px border and a 4 px tinted shadow edge, radius 16 px, font weight 700, the same
+  press feel; a right answer's edge is green and a wrong one's red. `.option.correct`, `.option.wrong` / Math `.option.incorrect`, `:disabled`, `.explorable` (dashed) and
+  `.explored` keep their current colours and win over the polish (the page's two-class state rules outrank the polish's
+  one-class rules; an explored answer keeps its ring).
 - **Reduced motion:** no transform on press.
 - **Not touched:** the hero banner, the quiz header and progress bar, the big `.btn` buttons (already chunky),
   flashcards, results and the nav bar.
