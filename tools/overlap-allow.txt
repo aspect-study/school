@@ -9,3 +9,15 @@ a e i o u
 1 2 3 4 5 6 7
 this that these those
 capital letters a b c
+# Official lesson titles from the class decks.
+Using a Search Engine
+# Named rules and fixed step sequences a test asks for by name.
+Respect Other People’s Time
+Don’t Abuse Your Power
+Make Yourself Look Good Online
+Respect Other People’s Privacy
+Read Think Check Send
+Think Before You Share
+# Answer-key phrases a test expects word for word.
+Tallest mountain in the Philippines
+Author of Noli Me Tangere

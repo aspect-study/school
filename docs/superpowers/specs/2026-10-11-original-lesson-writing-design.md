@@ -29,8 +29,10 @@ deck's facts and terms; write every sentence fresh."** The full rules live in a 
   short unavoidable phrases only: a term, a name, a title, a list of terms, or a definition's core phrase of a few
   words (e.g. "Ang **komunidad** ay pangkat ng mga tao…" with the rest of the sentence new).
 - Invented people and scenes use the play-world cast first (Lola Lana, Kuya Pilo, Tito Tasyo, Mang Kiko, Mayor Mimi,
-  Professor Hoot, Bunny, the playmates Tagpi, Lila, Kidlat, Pandesal, Mingming and their pets) and everyday Filipino
-  names to fill in (Aling Nena, Mang Ben, Bea, Paolo…). Family words (Nanay, Tatay, Lolo, Ate, Kuya) are used
+  Professor Hoot, Bunny; the playmate kids Migo, Bea, Luna, Tomas, Jun; their pets Tagpi the puppy, Lila the bunny,
+  Kidlat the fox, Pandesal the hamster, Mingming the kitten — pets may appear as pets, never as people) and everyday
+  Filipino names to fill in (Aling Nena, Mang Ben, Paolo…). Adults (Lola Lana, Kuya Pilo, Tito Tasyo, Mang Kiko, Mayor
+  Mimi, Professor Hoot) play adult roles; students are the kids or everyday names. Family words (Nanay, Tatay, Lolo, Ate, Kuya) are used
   generically. The sisters' real names never appear in lesson text.
 - **Math:** new numbers and a new story; the same concept, number of steps, digit counts, regrouping or borrowing,
   decimal places and fraction type. Every new answer is computed twice, and `explain` follows the source's method.

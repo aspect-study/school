@@ -16,8 +16,10 @@ public, so a lesson keeps the source's **facts and terms** and writes **every se
   term, a name, a title, a list of terms, or a definition's core phrase of a few words ("Ang **komunidad** ay pangkat
   ng mga tao…" with the rest of the sentence new).
 - Invented people and scenes: the play-world cast first (Lola Lana, Kuya Pilo, Tito Tasyo, Mang Kiko, Mayor Mimi,
-  Professor Hoot, Bunny, the playmates Tagpi, Lila, Kidlat, Pandesal, Mingming and their pets), everyday Filipino names
-  to fill in (Aling Nena, Mang Ben, Bea, Paolo). Nanay, Tatay, Lolo, Ate and Kuya only in a general sense. Never the
+  Professor Hoot, Bunny; the playmate kids Migo, Bea, Luna, Tomas, Jun; their pets Tagpi the puppy, Lila the bunny,
+  Kidlat the fox, Pandesal the hamster, Mingming the kitten — pets may appear as pets, never as people), everyday
+  Filipino names to fill in (Aling Nena, Mang Ben, Paolo). Adults (Lola Lana, Kuya Pilo, Tito Tasyo, Mang Kiko, Mayor
+  Mimi, Professor Hoot) play adult roles; students are the kids or everyday names. Nanay, Tatay, Lolo, Ate and Kuya only in a general sense. Never the
   kids' real names.
 - **Math:** new numbers and a new story; the same concept, number of steps, digit counts, regrouping or borrowing,
   decimal places and fraction type. Work every answer out twice. `explain` follows the source's method.
@@ -44,12 +46,12 @@ These "source" lines are made up for the examples.
 
 **GMRC situation (apply a value to a new case)**
 - Source: "Your classmate dropped her baon. What should you do?"
-- Ours: "Kidlat's lunchbox spilled on the way to the playground. What is the kind thing for you to do?" with the same
+- Ours: "Migo's lunchbox spilled on the way to the playground. What is the kind thing for you to do?" with the same
   right choice (help pick it up and share) and wrong choices that test the same value.
 
 **Story (English 5, sequence)**
 - The class story stays in the class book. The lesson gets a 📖 card ("In *the class story*, a boy loses his kite,
-  searches the town and learns to ask for help") and an original passage about Pandesal the puppy losing a ball, with
+  searches the town and learns to ask for help") and an original passage about Tagpi the puppy losing a ball, with
   the sequence questions asked about the new passage.
 
 ## Checking
