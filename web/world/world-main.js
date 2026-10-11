@@ -69,6 +69,7 @@
     var me = null, near = null, maker = null, stall = null, stallKind = null, overlay = null, lost = false, before = null, talking = false, shown = null, riding = false;
     var music = W.Music.create(root), slow = W.Prefs.fpsWatch(30, 3), clock = new S.THREE.Clock(), t = 0;
     var stamina = W.Stamina.create();
+    var beatT = 0;
     var sfx = W.Sfx.create(root), stepT = 0, wasMoving = false, plaza = L.places(grade).plaza;
     sfx.setOn(!(root.Fx && root.Fx.muted()), prefs.steps);
     // Her pet's events (companion.js, from petlife's heard list) as sounds.
@@ -1159,6 +1160,9 @@
       sprint.id = 'sprint';
       sprint.setAttribute('aria-label', T.sprint);
       sprint.setAttribute('aria-pressed', 'false');
+      var heart = el('div', 'w-pill w-heart', '❤️');
+      heart.id = 'heart';
+      heart.hidden = true;
       var stop = button('w-pill w-stop', T.stop, function () {
         play.stop();
         stop.hidden = true;
@@ -1196,14 +1200,15 @@
       var rail = el('div', 'w-rail');
       rail.id = 'w-rail';
       rail.appendChild(sprint);
+      rail.appendChild(heart);
       rail.appendChild(treat);
       [speed, top, joy, actBtn, rail, stop, roomBar, waking, zoomBox].forEach(function (n) { doc.body.appendChild(n); });
       return {
         joy: joy, knob: knob, act: actBtn, waking: waking, actFor: null, coins: coinsPill, quests: questsPill,
-        treat: treat, sprint: sprint, stop: stop, speed: speed, zoomBox: zoomBox, zoomFill: zoomFill, zoomShown: -1, done: done, cheer: cheerPill, deco: decoPill,
+        treat: treat, sprint: sprint, heart: heart, heartDur: '', heartText: '❤️', stop: stop, speed: speed, zoomBox: zoomBox, zoomFill: zoomFill, zoomShown: -1, done: done, cheer: cheerPill, deco: decoPill,
         show: function (on) {
           top.hidden = !on; joy.hidden = !on; actBtn.hidden = !on; treat.hidden = !on; sprint.hidden = !on;
-          if (!on) { stop.hidden = true; done.hidden = true; cheerPill.hidden = true; decoPill.hidden = true; speed.classList.remove('on'); }
+          if (!on) { heart.hidden = true; stop.hidden = true; done.hidden = true; cheerPill.hidden = true; decoPill.hidden = true; speed.classList.remove('on'); }
         }
       };
     }
@@ -1224,6 +1229,22 @@
       if (pct === hud.zoomShown) return;
       hud.zoomShown = pct;
       hud.zoomFill.style.height = pct + '%';
+    }
+
+    function showHeart(s, dt, hide) {
+      var on = s.heart > 0 && !hide, label = s.tired ? '❤️ ' + T.breath : '❤️';
+      if (hud.heart.hidden === on) hud.heart.hidden = !on;
+      if (hud.heartText !== label) { hud.heartText = label; hud.heart.textContent = label; }
+      var dur = W.Stamina.pulseSeconds(s.heart).toFixed(2) + 's';
+      if (hud.heartDur !== dur) { hud.heartDur = dur; hud.heart.style.animationDuration = dur; }
+      var off = s.tired ? 'true' : 'false';
+      if (hud.sprint.getAttribute('aria-disabled') !== off) hud.sprint.setAttribute('aria-disabled', off);
+      var gap = W.Stamina.beatGap(s.heart);
+      if (gap === null || hide) beatT = 0;
+      else if ((beatT -= dt) <= 0) {
+        sfx.play('heartbeat', { gain: 0.4 });
+        beatT = gap;
+      }
     }
 
     function tick(dt) {
@@ -1274,8 +1295,11 @@
       });
       riding = !!pose;
       // Every frame: only changed values are written, as each write makes the browser restyle the page.
+      var heartNow = stamina.tick(dt, { running: !!st.sprint && st.mag > 0 && !pose, still: st.mag === 0 || !!pose, paused: games.playing() });
+      if (heartNow.tired && st.sprint) ctl.sprint(false);
       var hideTreat = !free || !!pose, pressed = st.sprint ? 'true' : 'false';
       if (hud.treat.hidden !== hideTreat) hud.treat.hidden = hud.sprint.hidden = hideTreat;
+      showHeart(heartNow, dt, hideTreat);
       if (hud.sprint.getAttribute('aria-pressed') !== pressed) hud.sprint.setAttribute('aria-pressed', pressed);
       if (hud.speed.classList.contains('on') !== (!!st.sprint && st.mag > 0)) hud.speed.classList.toggle('on');
       var zoomOn = W.Hud.zoomShown(canZoom(), coarse);

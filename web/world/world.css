@@ -157,6 +157,18 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 .w-sprint { position: fixed; right: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: 56px; height: 56px; border: 0;
   border-radius: 50%; background: rgba(255,255,255,.92); box-shadow: 0 4px 0 #f3b6d6; font-size: 28px; line-height: 1; cursor: pointer; }
 .w-sprint[aria-pressed="true"] { background: #ffd166; box-shadow: 0 0 0 4px #fff3b0, 0 4px 0 #f0a500; }
+.w-sprint[aria-disabled="true"] { opacity: .45; }
+/* The heart: left of the run button on wide screens; the rail puts it above the button on a narrow phone. */
+.w-heart { position: fixed; right: 80px; bottom: calc(max(24px, env(safe-area-inset-bottom)) + 12px); z-index: 5;
+  animation: w-heart 1.2s ease-in-out infinite; }
+.w-heart[hidden] { display: none; }
+@keyframes w-heart { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@media (prefers-reduced-motion: reduce) { .w-heart { animation: none; } }
+/* On a mid-width screen the tired label could reach the centred action button: sit beside Treat instead. */
+@media (min-width: 601px) and (max-width: 760px) {
+  .w-heart { right: 136px; bottom: 124px; }
+}
+@media (min-width: 601px) and (max-width: 760px) and (max-height: 520px) { .w-heart { bottom: 92px; } }
 /* Zoom gauge: + at the top, the level in the middle (full = zoomed in), − at the bottom; on the left edge, clear of the joystick. */
 .w-zoom { position: fixed; left: 12px; top: 50%; transform: translateY(-50%); z-index: 5; display: flex; flex-direction: column;
   align-items: center; gap: 8px; padding: 8px; border-radius: 999px; background: rgba(255,255,255,.88); box-shadow: 0 3px 0 #f3b6d6; }
@@ -306,6 +318,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
     display: grid; place-content: center; padding: 4px; border-radius: 20px; text-align: center; white-space: normal;
     line-height: 1.1; font-size: 14px; }
   .w-rail > .w-sprint { width: 58px; height: 58px; border-radius: 50%; font-size: 28px; }
+  .w-rail > .w-heart { width: auto; min-height: 0; padding: 2px 10px; border-radius: 999px; font-size: 13px; }
   .w-playrow, .w-emoterow { right: 90px; left: auto; justify-content: flex-end;
     bottom: calc(max(24px, env(safe-area-inset-bottom)) + 124px); max-width: calc(100vw - 106px);
     max-height: max(44px, calc(100vh - max(24px, env(safe-area-inset-bottom)) - 124px - 72px)); }

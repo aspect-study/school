@@ -496,6 +496,14 @@ try {
   assert.ok(Math.abs(ctlRun.afterIn - ctlRun.pinchZoom) < 1e-9, 'the + button zooms in a step');
   assert.ok(Math.abs(ctlRun.rowOut - 1 / 1.2) < 1e-9, 'the settings card has a − that zooms out a step: ' + ctlRun.rowOut);
   assert.ok(Math.abs(ctlRun.rowIn - 1) < 1e-9, 'and a + that zooms back in');
+  assert.equal(ctlRun.heartShown, true, 'the heart shows while she runs');
+  assert.equal(ctlRun.stillRunning, true, 'she can still run after 4 seconds');
+  assert.equal(ctlRun.tiredSprint, false, 'after about 10 seconds the heart is full and she walks');
+  assert.ok(ctlRun.tiredText.indexOf('Catching breath') >= 0, 'the heart says she is catching her breath: ' + ctlRun.tiredText);
+  assert.equal(ctlRun.tiredDisabled, 'true', 'the run button is greyed while she is tired');
+  assert.equal(ctlRun.tapWhileTired, false, 'a tap does nothing while she is tired');
+  assert.equal(ctlRun.calmHidden, true, 'the heart goes away once it is calm');
+  assert.equal(ctlRun.calmDisabled, 'false', 'and the run button is back');
   const ZOOMED = AVATAR_SCRIPT + '<script>Learner.storage.setItem("world3d_device_v1", JSON.stringify({ v: 1, quality: "auto", music: true, steps: true, zoom: 1.5 }));</script>';
   const zoomed = run('zoomed', stageWorld('zoomed', 5, ZOOMED), 'zoomed');
   assert.deepEqual(zoomed.errors, [], 'zoomed: page errors');

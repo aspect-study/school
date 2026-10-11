@@ -1001,6 +1001,30 @@
       document.querySelector('[aria-label="Zoom in"].w-choice').click();
       o.rowIn = D.view().zoom / zoomBefore;
       document.querySelector('.w-close').click();
+      D.teleport('gate');
+      D.closeTalk();
+      key('keydown', 'w');
+      D.tick(0.1);
+      sprintBtn.click();
+      for (var hi = 0; hi < 40; hi++) {
+        if (hi % 10 === 0) { D.teleport('gate'); D.closeTalk(); }
+        D.tick(0.1);
+      }
+      o.heartShown = !document.getElementById('heart').hidden;
+      o.stillRunning = D.view().sprint;
+      for (var hj = 0; hj < 60; hj++) {
+        if (hj % 10 === 0) { D.teleport('gate'); D.closeTalk(); }
+        D.tick(0.1);
+      }
+      o.tiredSprint = D.view().sprint;
+      o.tiredText = document.getElementById('heart').textContent;
+      o.tiredDisabled = sprintBtn.getAttribute('aria-disabled');
+      sprintBtn.click();
+      o.tapWhileTired = D.view().sprint;
+      key('keyup', 'w');
+      for (var hk = 0; hk < 60; hk++) D.tick(0.1);
+      o.calmHidden = document.getElementById('heart').hidden;
+      o.calmDisabled = sprintBtn.getAttribute('aria-disabled');
       out(o);
       return;
     }
