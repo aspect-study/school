@@ -84,7 +84,7 @@ The start page shows a slow animated 3D town (`web/world/backdrop.html`, random 
 is purely visual and falls back to the plain page when 3D cannot run.
 
 - **Her character:** made once in the character maker; the mirror in her room changes the look later. A joystick or tap-to-walk moves
-  her, Sprint makes her 40% faster, and pinch or the mouse wheel zooms.
+  her, a tap on the run button while she moves makes her 40% faster (standing does nothing; running too long fills a heart), and pinch or the mouse wheel zooms.
 - **The games are buildings.** Each door opens that game; its building gets decorations as its lessons earn medals.
   Quick travel jumps between places.
 - **Characters:** Mayor Mimi (welcome, sparkle trail, the 10-minute nudge), a subject buddy at each door and Professor

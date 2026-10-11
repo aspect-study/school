@@ -16,8 +16,9 @@ can run without limit.
 - On a touch device (`(pointer: coarse)`) the zoom box (`.w-zoom`, `web/world/world-main.js` `buildHud`) is never shown.
   She zooms by pinching (`web/world/move.js`). A mouse or laptop keeps the slider.
 - The ⚙️ card gets a Zoom row with − and + buttons for anyone who cannot pinch. They call `ctl.zoom` with the same
-  `ZOOM_STEP` the slider uses, and skip the `canZoom()` guard, which is false while the card (an overlay) is open.
-  The existing `onZoom` saves the result.
+  `ZOOM_STEP` the slider's buttons use. `ctl.zoom` has no guard of its own, and the row skips the `canZoom()` check,
+  which is false while the card (an overlay) is open. Like the slider's buttons it does not save the zoom (the world
+  always starts zoomed out).
 
 ### 2. 🏃 tap while moving
 
@@ -42,8 +43,10 @@ browser). State: `heart` from 0 to 1 and `tired`.
   as it is today. Stamina only matters in free roaming.
 - In `world-main.js` `tick`: call `stamina.tick`, and when `tired` call `ctl.sprint(false)`. A 🏃 tap while tired is
   ignored.
-- The ❤️ is a new element in `#w-rail`, above 🏃. It shows while `heart > 0` or she is running. A CSS keyframe pulses
-  it, and `animation-duration` follows the heart (about 1.2 s empty, 0.35 s full).
+- The ❤️ is a new pill in `#w-rail`. On wide screens, where each button is placed on its own, it sits to the left of
+  🏃. On a narrow phone, where the rail is one column, it sits just above 🏃. It shows while `heart > 0` (she is
+  running or recovering). A CSS keyframe pulses it, and `animation-duration` follows the heart (about 1.2 s empty,
+  0.35 s full).
 - While tired, 🏃 is greyed (`aria-disabled`) and shows the label "catching breath" (new key in `text.js`, English
   only like the other world buttons).
 - Sound: while `heart > 0.66` and not paused, `sfx('heartbeat')` plays quietly (about 0.4 gain), with the gap between

@@ -66,7 +66,15 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   `docs/superpowers/specs/2026-10-09-sound-packs-design.md`, `docs/superpowers/plans/2026-10-09-sound-packs.md`.
 - English first (2026-10-09): outside the Filipino, Makabansa and Araling Panlipunan games, Grade 2 text (messages, talks, labels, shop) shows English only. The 🇵🇭 Filipino switch (lobby, ☰ menu, world Settings; `study_fil_helper_v1`, `web/engine/lang.js`) brings the Filipino pairs back. Modules get their words through `Lang.localize` / `Lang.both()`; `tests/e2e/english-first-e2e.js` scans for leftover Filipino.
 - Play World is the lobby hero button (2026-10-09); on a phone the world's action buttons sit in one right-hand column (`.w-rail`).
-- World controls: Sprint button, looping rides with a Stop pill (the slide stays one run), pinch / wheel zoom.
+- World controls: 🏃 run button (a tap while she moves makes her 40% faster, a tap while standing does nothing, running too long fills a heart; see the next bullet), looping rides with a Stop pill (the slide stays one run), pinch / wheel zoom.
+- HUD tidy-up and stamina (2026-10-11, sub-project D part 1): on a touch device the zoom slider is gone (she pinches);
+  ⚙️ has a Zoom row with − and +. 🏃 starts only while she moves (a tap while standing does nothing) and still stops
+  with her. Running fills a heart (`web/world/stamina.js`): about 8 s of running fills it, walking calms it in about
+  6 s, standing in about 3 s. A ❤️ pill by 🏃 shows while the heart is above 0 and pulses faster as it fills, the
+  existing heartbeat sound plays quietly in the last third, and at full she walks ("Catching breath", 🏃 greyed) until
+  it is at or below 0.3. Free roaming only: a playmate game (`games.playing()`) pauses it. Spec and plan:
+  `docs/superpowers/specs/2026-10-11-hud-tidy-design.md`, `docs/superpowers/plans/2026-10-11-hud-tidy.md`. Tablet
+  check pending (no slider on the real tablet, how the heart timing feels).
 - Playground playmates: 6 named friends + 3 new kids each visit; they ride, join her rides, follow when invited, roam
   the whole map, and ask one study or fun question per talk (study answers saved with 0 points).
 - Living world (2026-10-09): world characters no longer stand still. Buddies, Hoot, Bunny, Mimi and the four shop
@@ -132,8 +140,8 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
-- **App inside the world, sub-project D** (from the 2026-10-11 brainstorm; brainstorm first): HUD tidy-up and lazy
-  loading after measuring the tablet.
+- **App inside the world, sub-project D** (from the 2026-10-11 brainstorm; brainstorm first): lazy loading
+  after measuring the tablet (the HUD tidy-up is done).
 - **Wardrobe 5b, My Yard:** the same square-and-place system outdoors around My Little House (split from 5 on
   2026-10-08). Brainstorm first.
 
