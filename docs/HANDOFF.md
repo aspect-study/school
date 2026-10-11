@@ -150,7 +150,12 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 ## Next
 
 - **Lesson audit** (rewrite text that copies a source; `docs/lesson-writing.md`, "Rewording an existing question"),
-  one game per commit, hits at the start in brackets (3356 in all on 2026-10-11):
+  one game per commit, hits at the start in brackets (3356 in all on 2026-10-11).
+  **Stopped 2026-10-12** by the owner (token cost). The unticked games stay as they are; don't audit them, not even
+  when a new deck arrives. The rule applies to new lessons only: new lesson files must pass
+  `node tools/source-overlap.js <new files>`. Open owner questions: Wikaharian dagat vs ilog (Mang Felipe) and "Nagmamahal," lagda vs bating
+  pangwakas; Craft Corner half double crochet steps (deck = single crochet) and the "twisted twice" line in double
+  treble.
   - [x] Net Navigators (Computer 5) [240]
   - [x] Wikaharian (Filipino 5) [364]
   - [x] Rise & Shine (GMRC 5) [121]
