@@ -1150,12 +1150,25 @@
       actBtn.tabIndex = -1;
       actBtn.setAttribute('aria-hidden', 'true');
       var treat = button('w-pill w-treat', T.treat, function () { if (!maker && !stall && !overlay && !talking && !riding) pal.treat(); });
-      var sprint = button('w-sprint', '🏃', function () {
+      var skipClick = 0;
+      function pressSprint() {
         if (!maker && !stall && !overlay && !talking) {
           var next = W.Stamina.sprintTap({ sprinting: ctl.state.sprint, moving: ctl.state.mag > 0, tired: stamina.state().tired });
           if (next !== null) ctl.sprint(next);
         }
         sprint.setAttribute('aria-pressed', ctl.state.sprint ? 'true' : 'false');
+      }
+      var sprint = button('w-sprint', '🏃', function () {
+        if (skipClick) skipClick = 0;
+        else pressSprint();
+      });
+      // Touch browsers (iOS above all) often send no click for a tap made while another finger holds the joystick, so a
+      // pointer press acts at once; the click that follows it is skipped, and a keyboard click still works.
+      sprint.addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        skipClick = 1;
+        root.setTimeout(function () { skipClick = 0; }, 700);
+        pressSprint();
       });
       sprint.id = 'sprint';
       sprint.setAttribute('aria-label', T.sprint);

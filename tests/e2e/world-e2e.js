@@ -479,8 +479,12 @@ try {
   const ctlRun = run('controls', stageWorld('controls', 5, AVATAR_SCRIPT), 'controls');
   assert.deepEqual(ctlRun.errors, [], 'controls: page errors');
   assert.equal(ctlRun.startZoom, 0.45, 'the world starts zoomed all the way out');
-  assert.equal(ctlRun.pressedStill, 'false', 'a tap on the run button while she stands does nothing');
-  assert.equal(ctlRun.armedStill, false);
+  assert.equal(ctlRun.pressedStill, 'true', 'a tap on the run button while she stands arms the run');
+  assert.equal(ctlRun.armedStill, true);
+  assert.equal(ctlRun.armedKept, true, 'an armed run stays on while she stands');
+  assert.equal(ctlRun.pointerPress, true, 'a finger press on the run button acts at once, with no click needed');
+  assert.equal(ctlRun.pointerThenClick, true, 'the click after a press does not toggle it a second time');
+  assert.equal(ctlRun.pointerOff, false, 'a second press ends the run');
   assert.equal(ctlRun.pressed, 'true', 'a tap while she moves starts a run');
   assert.ok(Math.abs(ctlRun.ran / ctlRun.walked - 1.4) < 0.05, 'sprint is 1.4x: ' + ctlRun.ran + ' vs ' + ctlRun.walked);
   assert.equal(ctlRun.speedOn, true, 'speed lines while she runs');

@@ -953,6 +953,16 @@
       o.pressedStill = sprintBtn.getAttribute('aria-pressed');
       D.tick(0.1);
       o.armedStill = D.view().sprint;
+      for (var as = 0; as < 5; as++) D.tick(0.1);
+      o.armedKept = D.view().sprint;
+      sprintBtn.click();
+      sprintBtn.dispatchEvent(new PointerEvent('pointerdown', { pointerId: 21, bubbles: true, cancelable: true }));
+      o.pointerPress = D.view().sprint;
+      sprintBtn.click();
+      o.pointerThenClick = D.view().sprint;
+      sprintBtn.dispatchEvent(new PointerEvent('pointerdown', { pointerId: 22, bubbles: true, cancelable: true }));
+      sprintBtn.click();
+      o.pointerOff = D.view().sprint;
       D.teleport('gate');
       D.closeTalk();
       key('keydown', 'w');

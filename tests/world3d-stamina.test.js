@@ -53,9 +53,9 @@ test('pulse and beat timings follow the heart', () => {
   near(S.beatGap(1), 0.35);
 });
 
-test('a tap on the run button: starts only while moving, ends a run, ignored when still or tired', () => {
+test('a tap on the run button: starts a run (also while standing), ends a run, ignored when tired', () => {
   assert.equal(S.sprintTap({ sprinting: false, moving: true, tired: false }), true);
-  assert.equal(S.sprintTap({ sprinting: false, moving: false, tired: false }), null, 'standing still: nothing');
+  assert.equal(S.sprintTap({ sprinting: false, moving: false, tired: false }), true, 'standing still: armed, she runs once she moves');
   assert.equal(S.sprintTap({ sprinting: false, moving: true, tired: true }), null, 'tired: nothing');
   assert.equal(S.sprintTap({ sprinting: true, moving: true, tired: false }), false, 'a tap ends the run');
   assert.equal(S.sprintTap({ sprinting: true, moving: false, tired: true }), false, 'a run can always be ended');

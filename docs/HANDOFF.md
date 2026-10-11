@@ -66,9 +66,9 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   `docs/superpowers/specs/2026-10-09-sound-packs-design.md`, `docs/superpowers/plans/2026-10-09-sound-packs.md`.
 - English first (2026-10-09): outside the Filipino, Makabansa and Araling Panlipunan games, Grade 2 text (messages, talks, labels, shop) shows English only. The 🇵🇭 Filipino switch (lobby, ☰ menu, world Settings; `study_fil_helper_v1`, `web/engine/lang.js`) brings the Filipino pairs back. Modules get their words through `Lang.localize` / `Lang.both()`; `tests/e2e/english-first-e2e.js` scans for leftover Filipino.
 - Play World is the lobby hero button (2026-10-09); on a phone the world's action buttons sit in one right-hand column (`.w-rail`).
-- World controls: 🏃 run button (a tap while she moves makes her 40% faster, a tap while standing does nothing, running too long fills a heart; see the next bullet), looping rides with a Stop pill (the slide stays one run), pinch / wheel zoom.
+- World controls: 🏃 run button (a tap makes her 40% faster: while she stands it arms the run, which starts when she moves; acts on pointer-down so a tap beside a held joystick works on iOS; running too long fills a heart; see the next bullet), looping rides with a Stop pill (the slide stays one run), pinch / wheel zoom.
 - HUD tidy-up and stamina (2026-10-11, sub-project D part 1): on a touch device the zoom slider is gone (she pinches);
-  ⚙️ has a Zoom row with − and +. 🏃 starts only while she moves (a tap while standing does nothing) and still stops
+  ⚙️ has a Zoom row with − and +. 🏃 can be armed while she stands (changed 2026-10-11) and still stops
   with her. Running fills a heart (`web/world/stamina.js`): about 8 s of running fills it, walking calms it in about
   6 s, standing in about 3 s. A ❤️ pill by 🏃 shows while the heart is above 0 and pulses faster as it fills, the
   existing heartbeat sound plays quietly in the last third, and at full she walks ("Catching breath", 🏃 greyed) until

@@ -171,7 +171,10 @@
 
     // Sprint stays armed while she stands; it switches off once she has stood still for STOP_GRACE after moving, so
     // changing keys or swinging the joystick through its middle does not end it.
-    function sprint(on) { st.sprint = !!on && !frozen; }
+    function sprint(on) {
+      st.sprint = !!on && !frozen;
+      if (st.sprint) moved = false;
+    }
 
     // Keeps a point inside the room (box(b)): where a tap sends her, and the character maker's camera.
     function clampIn(p) {

@@ -37,7 +37,7 @@
   // s = { sprinting, moving, tired }: the next sprint value for a tap on the run button, or null to ignore the tap.
   function sprintTap(s) {
     if (s.sprinting) return false;
-    return s.moving && !s.tired ? true : null;
+    return s.tired ? null : true;
   }
 
   var exported = { create: create, pulseSeconds: pulseSeconds, beatGap: beatGap, sprintTap: sprintTap, CALM: CALM, BEAT_FROM: BEAT_FROM };
