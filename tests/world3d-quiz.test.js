@@ -1,39 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const vm = require('node:vm');
-const { APPS, appFile, worldFile, engineFile } = require('./paths.js');
+const { APPS, worldFile, engineFile } = require('./paths.js');
 const { lessons } = require('./content.js');
 const { keyOf } = require(engineFile('recall.js'));
 const Q = require(worldFile('quiz.js'));
-
-// Stands in for Recall.textOf (the browser's innerHTML → textContent). Both sides use it, so keys can be compared.
-const NAMED = { ldquo: '“', rdquo: '”', lsquo: '‘', rsquo: '’', mdash: '—', ndash: '–', minus: '−', hellip: '…', middot: '·', lt: '<', gt: '>', quot: '"', rarr: '→', uarr: '↑', darr: '↓', sup3: '³', nbsp: ' ', amp: '&' };
-const textOf = (s) => String(s == null ? '' : s).replace(/<[^>]*>/g, '')
-  .replace(/&#x([0-9a-f]+);/gi, (m, h) => String.fromCodePoint(parseInt(h, 16)))
-  .replace(/&#(\d+);/g, (m, d) => String.fromCodePoint(Number(d)))
-  .replace(/&([a-z0-9]+);/gi, (m, n) => (n in NAMED ? NAMED[n] : m));
-
-// Cuts `function name(...) { ... }` out of a page by counting braces.
-function extract(html, name) {
-  const start = html.indexOf('function ' + name + '(');
-  let i = html.indexOf('{', start);
-  for (let depth = 0; i < html.length; i++) {
-    if (html[i] === '{') depth++;
-    else if (html[i] === '}' && --depth === 0) break;
-  }
-  return html.slice(start, i + 1);
-}
-
-function gameReviewInfo(id) {
-  const html = fs.readFileSync(appFile(id), 'utf8');
-  const tf = html.match(/SH_TRUE = '([^']*)', SH_FALSE = '([^']*)'/);
-  const names = ['decode', 'historyQuestion', 'reviewInfo'].filter((n) => html.includes('function ' + n + '('));
-  names.forEach((n) => assert.equal(html.split('function ' + n + '(').length, 2, id + ' has one ' + n));
-  const src = names.map((n) => extract(html, n)).join('\n');
-  const ctx = vm.createContext({ Recall: { textOf }, SH_TRUE: tf ? tf[1] : 'True', SH_FALSE: tf ? tf[2] : 'False' });
-  return vm.runInContext(src + '\nreviewInfo', ctx);
-}
+const { textOf, gameReviewInfo } = require('./game-keys.js');
 
 test('every game except Math Mastery can be asked in the world', () => {
   assert.deepEqual(Object.keys(Q.SHAPES).sort(), APPS.map((a) => a.id).filter((id) => id !== 'math-mastery').sort(),

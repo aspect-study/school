@@ -224,6 +224,8 @@ sources/<grade>/<subject>/   the lesson decks the games were built from, and the
 tools/update-precache.js     lists every file under web/ in the offline cache (and rebuilds world/lesson-files.js)
 tools/world-sounds.js        makes the 3D world's sound clips
 tools/kid-sounds.js          makes the Happy Chimes clips (original, generated: node tools/kid-sounds.js)
+tools/source-overlap.js      lists lesson text that copies a source in sources/ (owner's PC only)
+tools/review-keys.js         keeps review progress when an audit rewords questions (snapshot / check)
 firebase/firestore.rules     who may read and write the cloud copy (paste into Firebase → Firestore → Rules)
 web/admin/                   owner dashboard at /admin/ (sign in with the owner account; not linked, not cached offline)
 tests/                       unit tests (node:test) and headless-Chrome end-to-end tests
@@ -283,7 +285,7 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 - New questions need an explanation for each wrong option (`why`) and a tip (`tip`); the tests enforce this.
 - Math Mastery's lessons generate fresh numbers each time, so they stay in its page; its case studies and walkthroughs are data files.
 - Keep the correct answer from usually being the longest option, and keep true/false answers roughly half and half.
-- Follow the class deck's wording and facts, even where an outside source says something different.
+- Follow the class deck's facts and terms, even where an outside source says something different, but write every sentence fresh: see `docs/lesson-writing.md`, and run `node tools/source-overlap.js <lesson files>` until it reports 0 hits.
 
 **A new subject or grade** (for example Grade 6 Math):
 

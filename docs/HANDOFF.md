@@ -128,6 +128,11 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   icon, the shop's phone request from the world, a sync seen on the phone page while she stays in the world).
 - Gifts and monsters at the hangout places: question-gated, 1/2/3 coins, at most 15 world coins a day, found-only
   wardrobe items for Hard questions.
+- Original lesson writing (2026-10-11): lessons keep the deck's facts and terms, every sentence fresh
+  (`docs/lesson-writing.md`); `tools/source-overlap.js` checks lesson text against `sources/` (7-word runs, whole
+  4-word sentences); a reworded question's `was` field carries its review box over (`Recall.renamesOf`). Spec and
+  plan: `docs/superpowers/specs/2026-10-11-original-lesson-writing-design.md`,
+  `docs/superpowers/plans/2026-10-11-original-lesson-writing.md`.
 - Owner dashboard (sub-project 1 of 3): built, a private page at `/admin/` (`web/admin/`) showing families, children,
   activity, questions per day, subjects and last sync, read from Firebase through the owner clause in the rules and
   `FirebaseRemote.adminRemote()`. Live since 2026-10-09 (owner UID set in `admin-config.js` and the published rules).
@@ -144,6 +149,25 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
+- **Lesson audit** (rewrite text that copies a source; `docs/lesson-writing.md`, "Rewording an existing question"),
+  one game per commit, hits at the start in brackets (3356 in all on 2026-10-11):
+  - [ ] Net Navigators (Computer 5) [240]
+  - [ ] Wikaharian (Filipino 5) [364]
+  - [ ] Rise & Shine (GMRC 5) [121]
+  - [ ] Craft Corner (TLE 5) [149]
+  - [ ] Life Lab (Science 5) [344]
+  - [ ] History Explorers (AP 5) [406]
+  - [ ] Page Turners (English 5) [302]
+  - [ ] Kuwentista (Filipino 2) [121]
+  - [ ] Word Train (English 2) [104]
+  - [ ] Growing Good (GMRC 2) [246]
+  - [ ] Rhythm & Hues (Music & Arts 5) [275]
+  - [ ] Byte Buddies (Computer 2) [208]
+  - [ ] Rally Ready (P.E. & Health 5) [168]
+  - [ ] Batang Bayani (Makabansa 2) [99]
+  - [ ] Science Detectives (Science 2) [81]
+  - [ ] Math Mastery (Math 5) [81]
+  - [ ] Block Bot (Math 2) [47]
 - **Lazy loading, sub-project D part 2 (parked 2026-10-11):** no slowness has been felt on the tablet, so nothing to
   fix yet. The world page loads 97 scripts, about 1.7 MB of JS (three.min.js 608 KB, world-main.js 80 KB) and 2.8 MB of
   sounds; the service worker precaches them, so after the first visit the cost is parse and start-up. Decided in the

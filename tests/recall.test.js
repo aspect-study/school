@@ -3,7 +3,7 @@ process.env.TZ = 'Asia/Manila';
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { APPS, engineFile, appFile } = require('./paths.js');
-const { create, matches, normalize, keyOf, REST_DAYS, TYPED_BONUS, BOX_DAYS, GAP_BONUS, REVIEW_SIZE, TEXT } = require(engineFile('recall.js'));
+const { create, matches, normalize, keyOf, renamesOf, REST_DAYS, TYPED_BONUS, BOX_DAYS, GAP_BONUS, REVIEW_SIZE, TEXT } = require(engineFile('recall.js'));
 
 function memory(initial) {
   const data = Object.assign({}, initial);
@@ -651,4 +651,59 @@ test('status: new before any answer, resting in its box until due, then due (the
   assert.deepEqual(r.status('k'), { status: 'rest', box: 1 }, 'missed today: box 1, due tomorrow');
   now.days(1);
   assert.deepEqual(r.status('k'), { status: 'due', box: 1 });
+});
+
+const hashPart = (k) => k.slice(k.indexOf('|') + 1);
+
+test('renamesOf maps a stem to its old hash, and drops stems that appear twice', () => {
+  const lessons = [
+    { quiz: [{ q: 'New A', was: 'abc123' }, { q: 'Same', was: 'aaaa' }, { q: 'Plain' }] },
+    { quiz: [{ q: 'Same' }, { q: 'Bad', was: 'XYZ!' }, { q: 'Num', was: 12 }] },
+    { generate: true },
+  ];
+  const r = renamesOf(lessons);
+  assert.equal(r['New A'], 'abc123');
+  assert.equal(r.Same, undefined, 'a stem used twice is ambiguous');
+  assert.equal(r.Bad, undefined, 'not a hex hash');
+  assert.equal(r.Num, undefined, 'not a string');
+  assert.equal(r.Plain, undefined);
+});
+
+test('tidy moves a reworded question\'s box to its new key and retires the old one', () => {
+  const s = memory(), old = { q: 'Old stem', a: 'A' }, now = { q: 'New stem', a: 'A' };
+  setItem(s, 'a', old, 4, '2026-10-09', 5);
+  const oldKey = keyOf('a', info(old)), newKey = keyOf('a', info(now));
+  const r = create(s, clock(2026, 10, 2), 'grade5');
+  r.tidy('a', [now], info, [], false, { 'New stem': hashPart(oldKey) });
+  const it = items(s);
+  assert.equal(it[newKey].box, 4);
+  assert.equal(it[newKey].due, '2026-10-09');
+  assert.equal(it[newKey].t, 5);
+  assert.equal(it[oldKey].gone, true);
+});
+
+test('tidy never overwrites a box the new key already has', () => {
+  const s = memory(), old = { q: 'Old stem', a: 'A' }, now = { q: 'New stem', a: 'A' };
+  setItem(s, 'a', old, 4, '2026-10-09');
+  setItem(s, 'a', now, 1, '2026-10-02');
+  const r = create(s, clock(2026, 10, 2), 'grade5');
+  r.tidy('a', [now], info, [], false, { 'New stem': hashPart(keyOf('a', info(old))) });
+  assert.equal(items(s)[keyOf('a', info(now))].box, 1);
+});
+
+test('tidy carries a box over even when it keeps unmatched boxes', () => {
+  const s = memory(), old = { q: 'Old stem', a: 'A' }, now = { q: 'New stem', a: 'A' };
+  setItem(s, 'a', old, 3, '2026-10-05');
+  const oldKey = keyOf('a', info(old));
+  create(s, clock(2026, 10, 2), 'grade5').tidy('a', [now], info, [], true, { 'New stem': hashPart(oldKey) });
+  assert.equal(items(s)[keyOf('a', info(now))].box, 3);
+  assert.ok(!items(s)[oldKey].gone, 'kept while some lessons did not load');
+});
+
+test('tidy without renames retires the old box and gives the new question none', () => {
+  const s = memory(), old = { q: 'Old stem', a: 'A' }, now = { q: 'New stem', a: 'A' };
+  setItem(s, 'a', old, 4, '2026-10-09');
+  create(s, clock(2026, 10, 2), 'grade5').tidy('a', [now], info, []);
+  assert.equal(items(s)[keyOf('a', info(now))], undefined);
+  assert.equal(items(s)[keyOf('a', info(old))].gone, true);
 });

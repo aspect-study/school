@@ -1,0 +1,11 @@
+# Phrases a lesson may share with a source word for word: official titles, fixed term lists, anthem or song lines.
+# One phrase per line, written plainly; the tool normalises case, accents and punctuation. Lines starting with # are notes.
+# Generic quiz instructions and fixed sequences (not anyone's writing).
+What should you do
+The statement is correct
+None of the choices is correct
+Fill in the blank
+a e i o u
+1 2 3 4 5 6 7
+this that these those
+capital letters a b c

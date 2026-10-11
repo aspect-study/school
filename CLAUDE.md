@@ -34,5 +34,7 @@ built, what is parked and what is pending. Read both before starting new work.
 - Grade 2 text pairs "Filipino · English"; buttons are English only. 3D world floating signs show the English half.
 - Filipino must be correct: write "puwede" and "natutuhan"; never "tunog tama"; never "bagay" for "fits"; the Filipino
   half carries the full meaning on its own.
-- Lessons follow the class deck's wording and facts, even where another source differs. Read picture-only slides,
-  check what a lesson already covers before adding, and never leave two right answers in one question.
+- Lessons follow the class deck's facts and terms, even where another source differs, but every sentence is written
+  fresh (`docs/lesson-writing.md`). Run `node tools/source-overlap.js <new lesson files>` before handing over a
+  lesson; it must report 0 hits. Read picture-only slides, check what a lesson already covers before adding, and
+  never leave two right answers in one question.

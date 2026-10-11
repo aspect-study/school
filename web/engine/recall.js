@@ -93,6 +93,21 @@
     return app + '|' + hash(String(info.q) + '|' + String(info.art || '') + '|' + String(info.answer || ''));
   }
 
+  // A reworded question carries was: '<old hash>'; this maps its stem to that hash. A stem used by two questions is
+  // left out, since it cannot tell which one was reworded.
+  function renamesOf(lessons) {
+    var seen = Object.create(null), out = Object.create(null);
+    (lessons || []).forEach(function (l) {
+      ((l && l.quiz) || []).forEach(function (item) {
+        if (!item || typeof item.q !== 'string') return;
+        seen[item.q] = (seen[item.q] || 0) + 1;
+        if (typeof item.was === 'string' && /^[0-9a-f]{1,8}$/.test(item.was)) out[item.q] = item.was;
+      });
+    });
+    Object.keys(out).forEach(function (q) { if (seen[q] > 1) delete out[q]; });
+    return out;
+  }
+
   function normalize(text) {
     return String(text == null ? '' : text).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -323,13 +338,19 @@
 
       // Seeds box 1 from her recent wrong answers and drops boxes for questions this game no longer has.
       // A dropped box stays as a newer "gone" copy, so a sync with an older copy cannot bring it back.
-      tidy: function (app, questions, info, entries, keepAll) {
+      tidy: function (app, questions, info, entries, keepAll, renames) {
         if (!questions.length) return;
         var state = load(), keys = {}, byText = {}, changed = false, prefix = app + '|';
         questions.forEach(function (q) {
           var i = info(q), key = keyOf(app, i);
           keys[key] = true;
           byText[plain(i.historyQ) + '\n' + plain(i.historyAnswer)] = key;
+        });
+        if (renames) questions.forEach(function (q) {
+          var i = info(q), h = renames[i.q], key = keyOf(app, i), from = h ? state.items[prefix + h] : null;
+          if (!from || prefix + h === key || !valid(from) || valid(state.items[key])) return;
+          state.items[key] = { box: from.box, due: from.due, t: from.t };
+          changed = true;
         });
         if (!keepAll) Object.keys(state.items).forEach(function (k) {
           var it = state.items[k];
@@ -517,8 +538,8 @@
     // A lesson file that failed to load must not cost her that lesson's boxes.
     core.tidy = function (app, questions, info, entries) {
       var tags = doc.querySelectorAll('script[src*="lessons/"]').length;
-      var loaded = win.StudyKit && win.StudyKit.lessons ? win.StudyKit.lessons().length : tags;
-      return tidy(app, questions, info, entries, loaded < tags);
+      var list = win.StudyKit && win.StudyKit.lessons ? win.StudyKit.lessons() : null;
+      return tidy(app, questions, info, entries, (list ? list.length : tags) < tags, list ? renamesOf(list) : null);
     };
     core.textOf = function (html) {
       var d = doc.createElement('div');
@@ -526,10 +547,11 @@
       return d.textContent;
     };
     core.keyOf = keyOf;
+    core.renamesOf = renamesOf;
     return core;
   }
 
-  var exported = { create: create, matches: matches, normalize: normalize, keyOf: keyOf, TEXT: TEXT,
+  var exported = { create: create, matches: matches, normalize: normalize, keyOf: keyOf, renamesOf: renamesOf, TEXT: TEXT,
     REST_DAYS: REST_DAYS, TYPED_BONUS: TYPED_BONUS, BOX_DAYS: BOX_DAYS, GAP_BONUS: GAP_BONUS, REVIEW_SIZE: REVIEW_SIZE, SEED_DAYS: SEED_DAYS };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
