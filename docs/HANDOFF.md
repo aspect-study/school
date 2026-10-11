@@ -137,11 +137,20 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 ## Parked or excluded (ask the owner before starting)
 
 - **Wardrobe 4, particle trails and auras:** excluded by the owner 2026-10-07. Do not build.
+- **On-device AI helper (parked 2026-10-11):** Gemma 4 E2B in the tablet browser (WebGPU), "Explain it another way" after a
+  wrong answer, parent switch in the lobby Settings tab, English only. Spec and plan are written, no code yet; resume at
+  plan Task 1 (the spike page, run on the girls' tablets). Sub-project 2 (pet teacher chat in the world) comes after.
+  `docs/superpowers/specs/2026-10-11-on-device-ai-design.md`, `docs/superpowers/plans/2026-10-11-on-device-ai.md`.
 
 ## Next
 
-- **App inside the world, sub-project D** (from the 2026-10-11 brainstorm; brainstorm first): lazy loading
-  after measuring the tablet (the HUD tidy-up is done).
+- **Lazy loading, sub-project D part 2 (parked 2026-10-11):** no slowness has been felt on the tablet, so nothing to
+  fix yet. The world page loads 97 scripts, about 1.7 MB of JS (three.min.js 608 KB, world-main.js 80 KB) and 2.8 MB of
+  sounds; the service worker precaches them, so after the first visit the cost is parse and start-up. Decided in the
+  brainstorm: measure before changing anything. Proposed, not yet approved: a `?perf=1` panel on the world page (time
+  to first screen and to world-ready, script time, average and worst frame rate over 10 s, slowest scripts, cached or
+  not; no storage, no effect without the flag), with the alternatives of saving the numbers in the parent area or
+  syncing them to the cloud. Resume at that question if the world ever feels slow.
 - **Wardrobe 5b, My Yard:** the same square-and-place system outdoors around My Little House (split from 5 on
   2026-10-08). Brainstorm first.
 
