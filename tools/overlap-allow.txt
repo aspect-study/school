@@ -11,6 +11,13 @@ this that these those
 capital letters a b c
 # Official lesson titles from the class decks.
 Using a Search Engine
+Pang-abay na Panang-ayon at Panalungat
+Di-berbal na Hudyat
+Pagsagot ng Enrolment Form
+Panandang Nag-uugnay ng Idea
+Antas ng Pang-uri
+Lahing Naiiba, Lahing Katangi-tangi
+Pang-uring Pamilang na Palansak
 # Named rules and fixed step sequences a test asks for by name.
 Respect Other People’s Time
 Don’t Abuse Your Power
@@ -21,3 +28,9 @@ Think Before You Share
 # Answer-key phrases a test expects word for word.
 Tallest mountain in the Philippines
 Author of Noli Me Tangere
+Personal na Impormasyon ng Mag-aaral
+# Filipino discourse markers taught as fixed terms.
+Ilan sa mga ito
+Kung ako ang tatanungin
+# Fixed Filipino term lists.
+lantay, pahambing, at pasukdol
