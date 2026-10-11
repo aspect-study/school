@@ -6,10 +6,10 @@ const { APPS, LOBBIES, appFile, lobbyFile } = require('./paths.js');
 const count = (html, s) => html.split(s).length - 1;
 
 for (const app of APPS) {
-  test(app.id + ' loads the date guard right after learner.js', () => {
+  test(app.id + ' loads the date guard right after learner.js and embed.js', () => {
     const html = fs.readFileSync(appFile(app.id), 'utf8');
     const learner = '<script src="../../../engine/learner.js" data-grade="grade' + app.grade + '"></script>';
-    assert.equal(count(html, learner + '\n<script src="../../../engine/clock.js" data-grade="grade' + app.grade + '"></script>'), 1);
+    assert.equal(count(html, learner + '\n<script src="../../../engine/embed.js"></script>\n<script src="../../../engine/clock.js" data-grade="grade' + app.grade + '"></script>'), 1);
   });
 }
 
@@ -17,7 +17,7 @@ for (const grade of Object.keys(LOBBIES)) {
   test('grade ' + grade + ' lobby loads the date guard and offers the parent fix', () => {
     const html = fs.readFileSync(lobbyFile(grade), 'utf8');
     const learner = '<script src="../engine/learner.js" data-grade="grade' + grade + '"></script>';
-    assert.equal(count(html, learner + '\n<script src="../engine/clock.js" data-grade="grade' + grade + '"></script>'), 1);
+    assert.equal(count(html, learner + '\n<script src="../engine/embed.js"></script>\n<script src="../engine/home.js" data-grade="grade' + grade + '"></script>\n<script src="../engine/clock.js" data-grade="grade' + grade + '"></script>'), 1);
     assert.equal(count(html, '<div class="p-section" id="clock-section" hidden>'), 1);
     assert.equal(count(html, '<button class="p-btn" type="button" id="clock-fix">The date is right now</button>'), 1);
   });

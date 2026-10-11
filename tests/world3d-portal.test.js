@@ -118,10 +118,16 @@ test('a close message asking for the shop passes it on', () => {
   r.portal.open('life-lab', HREF, '#7bd88f', 'Science');
   r.msg({ type: 'portal-close', then: 'shop' });
   assert.equal(r.log.at(-1), 'closed:shop');
+  for (const then of ['lobby', 'account']) {
+    const t = rig();
+    t.portal.open('shop', HREF, '#7bd88f', 'Shop');
+    t.msg({ type: 'portal-close', then });
+    assert.equal(t.log.at(-1), 'closed:' + then);
+  }
   const s = rig();
   s.portal.open('life-lab', HREF, '#7bd88f', 'Science');
   s.msg({ type: 'portal-close', then: 'elsewhere' });
-  assert.equal(s.log.at(-1), 'closed:undefined', 'only the shop is passed on');
+  assert.equal(s.log.at(-1), 'closed:undefined', 'only known next steps are passed on');
 });
 
 test('messages from another window or origin, or while closed, are ignored', () => {

@@ -33,6 +33,7 @@
   }
 
   var OPEN_MS = 600, CLOSE_MS = 400, LOAD_MS = 8000;
+  var THEN = ['shop', 'lobby', 'account'];
 
   function create(o) {
     var state = 'closed', url = null, home = null, glide = null, timer = null;
@@ -118,7 +119,7 @@
       },
       message: function (evt) {
         if (state !== 'open' || !acceptMessage(evt, o.view.win(), o.origin)) return;
-        close(evt.data.then === 'shop' ? 'shop' : undefined, false);
+        close(THEN.indexOf(evt.data.then) >= 0 ? evt.data.then : undefined, false);
       },
       isOpen: function () { return state !== 'closed'; },
       state: function () { return state; },
@@ -170,7 +171,7 @@
   }
 
   var exported = { ease: ease, closer: closer, embedUrl: embedUrl, acceptMessage: acceptMessage, create: create, view: view,
-    OPEN_MS: OPEN_MS, CLOSE_MS: CLOSE_MS, LOAD_MS: LOAD_MS };
+    OPEN_MS: OPEN_MS, CLOSE_MS: CLOSE_MS, LOAD_MS: LOAD_MS, THEN: THEN };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

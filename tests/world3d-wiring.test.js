@@ -26,7 +26,7 @@ for (const [n, page] of Object.entries(WORLDS)) {
   test('world grade ' + n + ' has a resting card and a last-resort check', () => {
     const html = fs.readFileSync(web(page), 'utf8');
     for (const id of ['stage', 'loading', 'resting', 'resting-title', 'resting-line', 'resting-go']) assert.ok(html.includes('id="' + id + '"'), id);
-    assert.ok(html.includes('href="../lobby/grade-' + n + '.html"'), 'the resting card goes to this grade\'s lobby');
+    assert.ok(html.includes('href="../lobby/grade-' + n + '.html?stay=1"'), 'the resting card opens the lobby, which then stays');
     const last = html.lastIndexOf('<script>');
     assert.ok(last > html.lastIndexOf('<script src='), 'the check runs after every script');
     assert.ok(html.slice(last).includes('World3D.Main'), 'shows the resting card if world-main.js never loaded');

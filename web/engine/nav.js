@@ -39,17 +39,6 @@
     try { return JSON.parse(win.sessionStorage.getItem(WORLD_RETURN)); } catch (e) { return null; }
   }
 
-  // Inside the world's frame (web/world/portal.js) a game opens with ?embed=1; leaving it closes the frame.
-  function isEmbedded(win) {
-    try { return /[?&]embed=1(&|$)/.test(win.location.search) && !!win.parent && win.parent !== win; } catch (e) { return false; }
-  }
-
-  function closeMessage(url) {
-    return /#shop$/.test(url) ? { type: 'portal-close', then: 'shop' } : { type: 'portal-close' };
-  }
-
-  function targetOrigin(origin) { return origin && origin !== 'null' ? origin : '*'; }
-
   // The rules, with no DOM: o = { home, lobby, away?, goHome, back?, inRound, go(url), ask(proceed, stay), history }.
   // away: where ← and 🏠 leave the game to (the world when she came from it); the shop always opens in the lobby.
   // History holds at most two entries per game: the game home, plus one {nav: id} entry for whatever inner screen is showing.
@@ -132,7 +121,7 @@
     var pending = null, returnFocus = null;
 
     // Read at load: StudyKit drops the query on ?reset=1 but keeps embed=1, so a reload stays embedded.
-    var embedded = isEmbedded(win);
+    var E = win.Embed, embedded = !!(E && E.isEmbedded(win));
     if (embedded) doc.documentElement.setAttribute('data-embed', '');
 
     var api = {
@@ -140,7 +129,7 @@
       away: homeUrl(grade, worldReturn(win)),
       embedded: embedded,
       go: embedded
-        ? function (url) { win.parent.postMessage(closeMessage(url), targetOrigin(win.location.origin)); }
+        ? function (url) { E.close(win, E.closeMessage(url).then); }
         : function (url) { win.location.href = url; },
       start: start,
       screen: function (id) { if (ctl) ctl.screen(id); },
@@ -314,8 +303,7 @@
     return api;
   }
 
-  var exported = { TEXT: TEXT, lobbyUrl: lobbyUrl, homeUrl: homeUrl, WORLD_RETURN: WORLD_RETURN, controller: controller,
-    isEmbedded: isEmbedded, closeMessage: closeMessage, targetOrigin: targetOrigin };
+  var exported = { TEXT: TEXT, lobbyUrl: lobbyUrl, homeUrl: homeUrl, WORLD_RETURN: WORLD_RETURN, controller: controller };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

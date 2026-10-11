@@ -1,8 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const { engineFile, lobbyFile } = require('./paths.js');
-const { forwardTo, sectionOf, SECTIONS } = require(engineFile('home.js'));
+const { engineFile, lobbyFile, web, WORLDS } = require('./paths.js');
+const { forwardTo, sectionOf, SECTIONS, worldFailed, FAILED_KEY } = require(engineFile('home.js'));
 
 const HTTP = { protocol: 'https:', search: '', hash: '' };
 
@@ -19,6 +19,24 @@ test('the lobby stays without 3D, inside the frame, with ?stay=1, on a lobby sec
   assert.equal(forwardTo(Object.assign({}, HTTP, { search: '?stay=10' }), 'grade5', true, false), '../world/grade-5.html');
   for (const s of SECTIONS) assert.equal(forwardTo(Object.assign({}, HTTP, { hash: '#' + s }), 'grade5', true, false), null, s);
   assert.equal(forwardTo(Object.assign({}, HTTP, { protocol: 'file:' }), 'grade5', true, false), null);
+});
+
+test('worldFailed is true only when the tab flag is "1"', () => {
+  const store = (v) => ({ getItem: (k) => (k === FAILED_KEY ? v : null) });
+  assert.equal(FAILED_KEY, 'world_failed_v1');
+  assert.equal(worldFailed(store('1')), true);
+  assert.equal(worldFailed(store('0')), false);
+  assert.equal(worldFailed(store('true')), false);
+  assert.equal(worldFailed(store(null)), false);
+  assert.equal(worldFailed({ getItem: () => { throw new Error('blocked'); } }), false);
+  assert.equal(worldFailed(undefined), false);
+  assert.equal(worldFailed(null), false);
+});
+
+test('the world page uses the same failure key as home.js', () => {
+  const src = fs.readFileSync(web('world/world-main.js'), 'utf8');
+  assert.ok(src.includes("'" + FAILED_KEY + "'"));
+  for (const page of Object.values(WORLDS)) assert.ok(fs.readFileSync(web(page), 'utf8').includes("'" + FAILED_KEY + "'"), page);
 });
 
 test('the frame shows the named lobby section, the shop when unnamed', () => {
