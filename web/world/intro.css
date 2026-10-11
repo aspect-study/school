@@ -1,0 +1,53 @@
+/* 3DSkuwela opening animation, played over the world while it loads. See intro.js. */
+.i-overlay { position: fixed; inset: 0; z-index: 99999; pointer-events: none; overflow: hidden; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 42%, #1b58e0 0%, #0b3399 46%, #061a55 100%);
+  font-family: 'Baloo 2', 'Arial Rounded MT Bold', system-ui, sans-serif; }
+.i-overlay.go { animation: i-out .7s ease-in 3.3s forwards; }
+
+.i-rays { position: absolute; left: 50%; top: 42%; width: 240vmax; height: 240vmax; margin: -120vmax 0 0 -120vmax; opacity: 0;
+  background: repeating-conic-gradient(rgba(255, 226, 122, .26) 0 6deg, transparent 6deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 38%); mask-image: radial-gradient(circle, #000 0%, transparent 38%); }
+.go .i-rays { animation: i-fade 1s ease-out .1s forwards, i-spin 12s linear infinite; }
+
+.i-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2.5vmin; }
+.go .i-card { animation: i-fly .75s cubic-bezier(.6, 0, 1, .6) 3.25s forwards; }
+
+.i-logo { width: min(30vmin, 220px); height: auto; border-radius: 22%;
+  box-shadow: 0 0 0 .6vmin rgba(255, 255, 255, .9), 0 0 6vmin rgba(255, 210, 80, .75), 0 2vmin 4vmin rgba(0, 0, 0, .4); }
+.go .i-logo { animation: i-pop .85s cubic-bezier(.2, 1.5, .4, 1) .25s both; }
+
+.i-word { position: relative; display: flex; align-items: baseline; justify-content: center; padding: 1vmin 3vmin 3vmin;
+  font-weight: 800; font-size: min(22vmin, 15.5vw); line-height: 1; white-space: nowrap; }
+
+.i-3d { position: relative; display: inline-block; margin-right: .03em; color: #b86a00; -webkit-text-stroke: .11em #0b2a80; paint-order: stroke fill;
+  text-shadow: .02em .02em #c97a00, .04em .04em #c97a00, .06em .06em #bd7000, .08em .08em #b36500, .1em .1em #a85a00, .12em .12em #9c5000, .14em .14em #8e4800; }
+.i-3d::before { content: attr(data-t); position: absolute; left: 0; top: 0; -webkit-text-stroke: 0; text-shadow: none;
+  background: linear-gradient(#fff3a0, #ffd22e 55%, #ffa800); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.go .i-3d { animation: i-slam .6s cubic-bezier(.2, .9, .3, 1.15) .95s both; }
+.go .i-word { animation: i-shake .35s ease-out 1.55s; }
+
+.i-sk { display: inline-flex; }
+.i-sk span { display: inline-block; color: #fff;
+  text-shadow: 0 .03em 0 #ff8a2b, 0 .06em 0 #e5702a, 0 .1em .08em rgba(0, 0, 0, .35); }
+.go .i-sk span { animation: i-rise .55s cubic-bezier(.2, 1.6, .4, 1) calc(1.45s + var(--i) * .07s) both; }
+
+.i-word::after { content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 22%; opacity: 0; transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .7), transparent);
+  -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent); }
+.go .i-word::after { animation: i-shine .9s ease-in-out 2.35s; }
+
+.i-spark { position: absolute; width: 3.4vmin; height: 3.4vmin; opacity: 0; background: #fff3a0;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+.go .i-spark { animation: i-twinkle 1.1s ease-in-out var(--d) 2 forwards; }
+
+@keyframes i-fade { to { opacity: 1; } }
+@keyframes i-spin { to { transform: rotate(360deg); } }
+@keyframes i-pop { 0% { opacity: 0; transform: scale(0) rotate(-14deg); } 100% { opacity: 1; transform: none; } }
+@keyframes i-slam { 0% { opacity: 0; transform: translateY(-38vmin) scale(3.2); }
+  70% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+@keyframes i-shake { 20% { transform: translate(-.6vmin, .5vmin); } 40% { transform: translate(.5vmin, -.4vmin); } 60% { transform: translate(-.3vmin, .3vmin); } 80% { transform: translate(.2vmin, -.1vmin); } }
+@keyframes i-rise { 0% { opacity: 0; transform: translateY(.9em) scale(.6); } 100% { opacity: 1; transform: none; } }
+@keyframes i-shine { 0% { opacity: 1; left: -40%; } 100% { opacity: 1; left: 120%; } }
+@keyframes i-twinkle { 0%, 100% { opacity: 0; transform: scale(.2) rotate(0); } 50% { opacity: 1; transform: scale(1) rotate(45deg); } }
+@keyframes i-fly { to { transform: scale(2.6); opacity: 0; filter: blur(.8vmin); } }
+@keyframes i-out { to { opacity: 0; visibility: hidden; } }

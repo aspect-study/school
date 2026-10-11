@@ -76,6 +76,8 @@ const PRECACHE = [
   'world/grade-5.html',
   'world/house.js',
   'world/hud.js',
+  'world/intro.css',
+  'world/intro.js',
   'world/items.js',
   'world/kin.js',
   'world/layout.js',

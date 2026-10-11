@@ -14,13 +14,14 @@ for (const [n, page] of Object.entries(WORLDS)) {
   test('world grade ' + n + ' loads its scripts in order', () => {
     const html = fs.readFileSync(web(page), 'utf8');
     assert.match(html.slice(0, 1024), /<meta charset="utf-8">/i);
-    assert.deepEqual([...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]), ORDER);
+    assert.deepEqual([...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]), ['intro.js'].concat(ORDER), 'the opening animation script comes first');
     for (const f of WORLD_ENGINES) {
       const tag = NO_GRADE.includes(f) ? '<script src="../engine/' + f + '.js"></script>' : '<script src="../engine/' + f + '.js" data-grade="' + grade + '"></script>';
       assert.ok(html.includes(tag), f + (NO_GRADE.includes(f) ? ' loads without data-grade (pure helpers only)' : ' has data-grade'));
     }
     assert.ok(html.includes('<body data-grade="' + grade + '">'));
     assert.ok(html.includes('<link rel="stylesheet" href="world.css">'));
+    assert.ok(html.includes('<link rel="stylesheet" href="intro.css">'));
   });
 
   test('world grade ' + n + ' has a resting card and a last-resort check', () => {
