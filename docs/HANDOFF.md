@@ -154,7 +154,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   - [x] Net Navigators (Computer 5) [240]
   - [x] Wikaharian (Filipino 5) [364]
   - [x] Rise & Shine (GMRC 5) [121]
-  - [ ] Craft Corner (TLE 5) [149]
+  - [x] Craft Corner (TLE 5) [149]
   - [ ] Life Lab (Science 5) [344]
   - [ ] History Explorers (AP 5) [406]
   - [ ] Page Turners (English 5) [302]
