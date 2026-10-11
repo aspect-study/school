@@ -10,7 +10,7 @@ function keys(o, prefix = '') {
 const at = (o, k) => k.split('.').reduce((v, p) => v[p], o);
 
 // Buttons are English on both grades; names are names.
-const ENGLISH_ONLY = new Set(['sprint', 'stop', 'go', 'mirror', 'signpost', 'close', 'lobby', 'toLobby', 'settings', 'on', 'off',
+const ENGLISH_ONLY = new Set(['sprint', 'stop', 'go', 'mirror', 'signpost', 'close', 'toLobby', 'settings', 'parents', 'on', 'off',
   'qualityNames.auto', 'qualityNames.high', 'qualityNames.low', 'maker.done',
   'maker.bodies.girl', 'maker.bodies.boy', 'maker.hairs.pigtails', 'maker.hairs.bob', 'maker.hairs.short',
   'petshopGo', 'petsMore', 'treat', 'tabs.pet', 'tabs.pets', 'tabs.gear',

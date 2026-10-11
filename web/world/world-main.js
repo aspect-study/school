@@ -105,6 +105,7 @@
       canZoom: canZoom
     });
     function canZoom() { return !maker && !stall && !overlay && !deco && (!talking || !!play.riding()); }
+    function calm() { return !maker && !overlay && !talking && !stall && !deco && !portal.isOpen(); }
     var pal = W.Companion.create({
       S: S, canvas: S.renderer.domElement, sound: sound, sfx: petSound,
       blocked: function (x, z, r) { return home ? roomBlocked(x, z, r) : L.blocked(obs, bounds, x, z, r) || (!!games && games.blocked(x, z, r)); },
@@ -204,7 +205,7 @@
         return kind === 'review' ? plain + '&review=1' : town.doorHref(app, plain);
       },
       open: function (app, href) { leaving(app); openGame(app, href); },
-      shop: function () { debug.go(lobbyUrl + '#shop-world'); },
+      shop: function () { openSection('shop'); },
       stall: function (kind) { openStall(kind); },
       cheer: function (x, z) { world.cheer(x, 4.5, z); },
       changed: refresh, teach: teacher
@@ -286,8 +287,10 @@
         music.stop();
         sfx.stopAll(0);
         root.cancelAnimationFrame(rafId);
+        if (root.Cloud && root.Cloud.hold) root.Cloud.hold(true);
         return;
       }
+      if (root.Cloud && root.Cloud.hold) root.Cloud.hold(false);
       paused = false;
       clock.getDelta();
       if (wantMusic()) music.start();
@@ -316,9 +319,16 @@
       cancel: function (id) { root.clearTimeout(id); },
       instant: function () { return portalInstant || reduced(); },
       onClosed: function (then) {
+        if (learnerChanged()) return;
         refresh();
+        upkeep();
         welcome(W.Prefs.readReturn(session));
-        if (then === 'shop') root.setTimeout(function () { debug.go(lobbyUrl + '#shop-world'); }, 300);
+        // After the history step back has landed, so the next page or frame is not undone by it.
+        root.setTimeout(function () {
+          if (then === 'shop') openSection('shop');
+          else if (then === 'lobby') debug.go(lobbyUrl + '?stay=1');
+          else if (then === 'account') debug.go('../index.html?account=1');
+        }, 300);
       },
       fallback: function (href) { debug.go(href); }
     });
@@ -327,6 +337,79 @@
       var b = L.buildings(grade).filter(function (x) { return x.app === app; })[0];
       portal.open(app, href, b ? b.roof : '#ffb84d', b ? english(b.sign) : english(T.places.boss));
     }
+    // The town's buildings as the lobby's subject cards, for the quests and the weekly boss.
+    function subjectCards() {
+      return W.Progress.cards(grade, L, root.Subjects).map(function (c) { return { app: c.app, title: c.name, href: c.href }; });
+    }
+    function questState() {
+      var s = { done: 0, total: 0, streak: 0 };
+      try {
+        var list = root.Quests.state().list;
+        s.total = list.length;
+        s.done = list.filter(function (q) { return q.done; }).length;
+        s.streak = root.Quests.streak().days;
+      } catch (e) {}
+      return s;
+    }
+    function showPills() {
+      var q = questState(), coins = 0;
+      try { coins = root.Wallet ? root.Wallet.balanceStored() : 0; } catch (e) {}
+      var p = W.Hud.pills({ coins: coins, done: q.done, total: q.total, streak: q.streak });
+      if (hud.coins.textContent !== p.coins) hud.coins.textContent = p.coins;
+      if (hud.quests.textContent !== p.quests) hud.quests.textContent = p.quests;
+    }
+    // The lobby used to do this when it opened; home is the world now.
+    function upkeep() {
+      var cards = subjectCards(), events = [];
+      try { if (root.Boss && root.Boss.ensure) events = root.Boss.ensure(cards) || []; } catch (e) {}
+      try {
+        if (root.Quests && root.Quests.pick) {
+          root.Quests.pick(cards);
+          events = root.Quests.check().concat(events);
+        }
+      } catch (e) {}
+      showPills();
+      if (events.length && root.Fx && root.Fx.celebrate) root.Fx.celebrate(events, hud.quests);
+    }
+    var SECTION_TITLE = { shop: 'Shop', coins: 'Coins', parent: T.parents };
+    function openSection(name) { portal.open(name, lobbyUrl + '#' + name, '#ffb84d', SECTION_TITLE[name] || name); }
+    function openQuests() {
+      var cards = subjectCards(), title = (root.Quests && root.Quests.text && root.Quests.text.title) || '🎯';
+      var card = openOverlay(title), box = el('div', 'w-quests');
+      card.appendChild(box);
+      if (root.Quests && root.Quests.renderLobby) root.Quests.renderLobby(box, cards);
+      box.addEventListener('click', function (e) {
+        var a = e.target.closest ? e.target.closest('a[href]') : null;
+        if (!a) return;
+        e.preventDefault();
+        var href = a.getAttribute('href');
+        var c = cards.filter(function (x) { return href.indexOf(x.href.split('?')[0]) === 0; })[0];
+        closeOverlay();
+        if (!c) return;
+        leaving(c.app);
+        openGame(c.app, href);
+      });
+      card.appendChild(button('w-btn w-close', T.close, closeOverlay));
+      focusFirst(card);
+    }
+    var learnerId = meL ? meL.id : null;
+    // A different child picked in the parent area: this world belongs to someone else now.
+    function learnerChanged() {
+      var now = null;
+      try { now = root.Learner && root.Learner.current ? root.Learner.current() : null; } catch (e) {}
+      if ((now ? now.id : null) === learnerId) return false;
+      if (now) root.location.reload();
+      else debug.go('../index.html');
+      return true;
+    }
+    doc.addEventListener('cloud-synced', function () { refresh(); upkeep(); });
+    var dayNow = today();
+    root.setInterval(function () {
+      if (today() === dayNow) return;
+      dayNow = today();
+      refresh();
+      upkeep();
+    }, 30000);
     root.addEventListener('message', function (e) { portal.message(e); });
     root.addEventListener('popstate', function (e) { portal.popstate(e.state); });
     function refresh() {
@@ -1025,6 +1108,7 @@
         row.appendChild(helper);
         card.appendChild(row);
       }
+      card.appendChild(button('w-btn w-parents', T.parents, function () { closeOverlay(); openSection('parent'); }));
       card.appendChild(el('p', 'w-credit', T.credit));
       card.appendChild(button('w-btn w-close', T.close, closeOverlay));
       focusFirst(card);
@@ -1032,13 +1116,16 @@
 
     function buildHud() {
       var top = el('div', 'w-hud'), right = el('div', 'w-hud-right');
-      top.appendChild(el('div', 'w-pill', '🌍 ' + T.title));
-      var lobbyLink = el('a', 'w-pill', T.lobby);
-      lobbyLink.href = lobbyUrl;
-      lobbyLink.addEventListener('click', function () { W.Prefs.clearReturn(session); });
+      var coinsPill = button('w-pill w-coins', '🪙', function () { if (calm()) openSection('coins'); });
+      coinsPill.id = 'hud-coins';
+      var questsPill = button('w-pill w-quests-pill', '🎯', function () { if (calm()) openQuests(); });
+      questsPill.id = 'hud-quests';
+      var left = el('div', 'w-hud-left');
+      left.appendChild(coinsPill);
+      left.appendChild(questsPill);
+      top.appendChild(left);
       var gear = button('w-pill', T.settings, function () { if (!maker && !overlay && !talking && !stall) openSettings(); });
       gear.setAttribute('aria-label', T.settingsTitle);
-      right.appendChild(lobbyLink);
       right.appendChild(gear);
       top.appendChild(right);
       var joy = el('div', 'w-joy' + (W.Layout.GRADES[grade].bigJoystick ? ' big' : ''));
@@ -1096,7 +1183,7 @@
       rail.appendChild(treat);
       [speed, top, joy, actBtn, rail, stop, roomBar, waking, zoomBox].forEach(function (n) { doc.body.appendChild(n); });
       return {
-        joy: joy, knob: knob, act: actBtn, waking: waking, actFor: null,
+        joy: joy, knob: knob, act: actBtn, waking: waking, actFor: null, coins: coinsPill, quests: questsPill,
         treat: treat, sprint: sprint, stop: stop, speed: speed, zoomBox: zoomBox, zoomFill: zoomFill, zoomShown: -1, done: done, cheer: cheerPill, deco: decoPill,
         show: function (on) {
           top.hidden = !on; joy.hidden = !on; actBtn.hidden = !on; treat.hidden = !on; sprint.hidden = !on;
@@ -1318,6 +1405,7 @@
     });
 
     refresh();
+    upkeep();
     dress(worn(look));
     var ret = W.Prefs.readReturn(session);
     if (!mine.made) openMaker();
@@ -1485,6 +1573,9 @@
       close: function (then) { return portal.close(then); },
       instant: function (on) { portalInstant = !!on; }
     };
+    debug.section = openSection;
+    debug.openQuests = openQuests;
+    debug.pills = function () { return { coins: hud.coins.textContent, quests: hud.quests.textContent }; };
     debug.ready = true;
 
     $('loading').hidden = true;

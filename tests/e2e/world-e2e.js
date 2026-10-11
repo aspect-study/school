@@ -172,7 +172,7 @@ try {
   const rest = run('resting', stageWorld('resting', 5, noGl), 'resting');
   assert.equal(rest.resting, true, 'no 3D: the resting card shows');
   assert.equal(rest.loadingHidden, true);
-  assert.equal(rest.href, '../lobby/grade-5.html');
+  assert.equal(rest.href, '../lobby/grade-5.html?stay=1');
   assert.equal(rest.title, 'The world is resting 😴');
   console.log('ok resting card');
 
@@ -193,8 +193,9 @@ try {
   const item = lessons('life-lab').flatMap((l) => l.quiz).find((q) => !q.art && !/[<&]/.test(q.q + q.options.join('')));
   const answer = item.options[item.correct];
   const key = keyOf('life-lab', { q: item.q, answer });
+  // The world picks quests on load; two due history-explorers items take the review quest, or page-turners would get it and Bookie's review would stay in the game.
   const TALK = '<script>Learner.storage.setItem("avatar_v1", JSON.stringify({ v: 1, body: "girl", skin: 0, hair: "bob", hairColor: 0, outfit: 0, pet: "chick", petName: "", t: 5 }));'
-    + 'var __items = {}; __items[' + JSON.stringify(key) + '] = { box: 2, due: "2026-01-01", t: 1 }; __items["page-turners|feed"] = { box: 1, due: "2026-01-01", t: 1 };'
+    + 'var __items = {}; __items[' + JSON.stringify(key) + '] = { box: 2, due: "2026-01-01", t: 1 }; __items["page-turners|feed"] = { box: 1, due: "2026-01-01", t: 1 }; __items["history-explorers|a"] = { box: 1, due: "2026-01-01", t: 1 }; __items["history-explorers|b"] = { box: 1, due: "2026-01-01", t: 1 };'
     + 'Learner.storage.setItem("review_v1", JSON.stringify({ v: 1, items: __items }));'
     + 'window.__key = ' + JSON.stringify(key) + '; window.__answer = ' + JSON.stringify(answer) + ';</script>';
   const talkFile = stageWorld('talk', 5, TALK);

@@ -5,8 +5,8 @@
   var BUTTONS = {
     mimiTalk: '💬 Talk to Mayor Mimi', goTrail: 'Go ▶', later: 'Later', counter: '🛍️ Open the shop',
     fortGo: '⚔️ Enter the Boss Fort!', seeBoss: '🎉 See the boss!', openChest: '🎁 Open!', fortClosed: '💤 Boss Fort',
-    go: 'Go to {name}!', mirror: '🪞 Change my look', signpost: '⚡ Quick travel', close: 'Close', lobby: '🏠 Lobby',
-    toLobby: '🗺️ Back to the lobby', settings: '⚙️', on: 'On', off: 'Off',
+    go: 'Go to {name}!', mirror: '🪞 Change my look', signpost: '⚡ Quick travel', close: 'Close',
+    toLobby: '🗺️ Back to the lobby', settings: '⚙️', parents: '🔒 For parents', on: 'On', off: 'Off',
     more: '💬 More', ask: '❓ Ask me!', bye: '👋 Bye', next: '❓ Next question', talkTo: '💬 Talk to {name}',
     listen: '🌳 Listen to the tree', reviewGame: '🔁 Review in the game', bunny: 'Bunny',
     hug: '🤗 Hug', cheerAgain: '💌 Another cheer',

@@ -10,6 +10,13 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 .w-hud { position: fixed; left: 16px; right: 16px; top: max(14px, env(safe-area-inset-top)); display: flex;
   justify-content: space-between; align-items: center; gap: 8px; pointer-events: none; }
 .w-hud-right { display: flex; gap: 8px; }
+.w-hud-left { display: flex; gap: 6px; }
+.w-quests .quests-title { display: none; }
+.w-quests .quests-list { margin: 0 0 10px; display: grid; gap: 8px; }
+.w-quests .quests-list li { font-weight: 700; }
+.w-quests .quests-list a { color: inherit; }
+.w-quests .quests-streak { margin: 0 0 10px; font-weight: 700; }
+.w-parents { margin-top: 8px; }
 .w-pill { pointer-events: auto; background: rgba(255,255,255,.92); border: 0; border-radius: 999px; padding: 6px 16px;
   font: 800 18px 'Baloo 2', system-ui, sans-serif; color: #7a3e8e; box-shadow: 0 4px 0 #f3b6d6; text-decoration: none; cursor: pointer;
   white-space: nowrap; }
