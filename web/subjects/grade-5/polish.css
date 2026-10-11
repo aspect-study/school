@@ -1,0 +1,86 @@
+/* Grade 5 games: a gentle, playful finish for lesson rows and answers. Loaded after each page's own styles; every
+   colour comes from the page's --accent (and --gold, --coral, --good, --bad), so each game keeps its own colour.
+   The bottom edge is a solid shadow, like the pages' .btn, so a pressed row never moves the rows below it. */
+.item-card,
+.lesson-card {
+  border: 3px solid color-mix(in srgb, var(--accent) 28%, #fff);
+  border-radius: 20px;
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--accent) 45%, #fff);
+  transition: transform .08s ease, box-shadow .08s ease, border-color .15s ease;
+}
+.item-card:hover,
+.lesson-card:hover {
+  transform: none;
+  border-color: color-mix(in srgb, var(--accent) 55%, #fff);
+}
+.lesson-card.case-done:hover {
+  border-color: var(--good);
+}
+.item-card:active,
+.lesson-card:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--accent) 45%, #fff);
+}
+.item-card.final-card,
+.lesson-card.final-card {
+  border-color: var(--gold);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--gold) 60%, #fff);
+}
+.item-card.strategy-card,
+.lesson-card.walk-card {
+  border-color: var(--coral);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--coral) 50%, #fff);
+}
+.item-card.final-card:active,
+.lesson-card.final-card:active {
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--gold) 60%, #fff);
+}
+.item-card.strategy-card:active,
+.lesson-card.walk-card:active {
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--coral) 50%, #fff);
+}
+.item-card.review-empty:active,
+.lesson-card.review-empty:active {
+  transform: none;
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--accent) 45%, #fff);
+}
+.item-card .icon,
+.lesson-emoji {
+  background: color-mix(in srgb, var(--accent) 14%, #fff);
+  border-radius: 14px;
+}
+.item-card.strategy-card .icon {
+  background: color-mix(in srgb, var(--coral) 14%, #fff);
+}
+.item-card .info h3,
+.lesson-info h3 {
+  color: color-mix(in srgb, var(--accent) 70%, #000);
+}
+
+.option {
+  border: 3px solid color-mix(in srgb, var(--accent) 22%, #fff);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--accent) 38%, #fff);
+  font-weight: 700;
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.option:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 38%, #fff);
+}
+.option.correct:not(.explored) {
+  box-shadow: 0 4px 0 var(--good);
+}
+.option.wrong:not(.explored),
+.option.incorrect:not(.explored) {
+  box-shadow: 0 4px 0 var(--bad);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item-card,
+  .lesson-card,
+  .option { transition: none; }
+  .item-card:active,
+  .lesson-card:active,
+  .option:not(:disabled):active { transform: none; }
+}

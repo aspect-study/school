@@ -2,11 +2,13 @@
 <title>Math Mastery</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
+  color-scheme:light;
   --bg:#FFF7EC; --surface:#FFFFFF; --surface2:#FFEFD9;
   --ink:#2B2320; --ink-soft:#8A7F73;
   --accent:#1B7A79; --accent-ink:#FFFFFF;
@@ -15,26 +17,6 @@
   --border:#F0E4D2;
   --shadow: 0 8px 24px rgba(43,35,32,0.14);
   --radius:20px;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#15201F; --surface:#1E2C2A; --surface2:#243836;
-    --ink:#F5EFE3; --ink-soft:#B9AE9E;
-    --accent:#3FBDBA; --accent-ink:#0E1B1A;
-    --gold:#FFC65C; --coral:#FF8A73;
-    --good:#4FCB82; --bad:#FF7A7A;
-    --border:#2C3B39;
-    --shadow: 0 8px 24px rgba(0,0,0,0.4);
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#15201F; --surface:#1E2C2A; --surface2:#243836;
-  --ink:#F5EFE3; --ink-soft:#B9AE9E;
-  --accent:#3FBDBA; --accent-ink:#0E1B1A;
-  --gold:#FFC65C; --coral:#FF8A73;
-  --good:#4FCB82; --bad:#FF7A7A;
-  --border:#2C3B39;
-  --shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
 *{box-sizing:border-box}
 body{
@@ -307,6 +289,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 .missed-item{background:var(--surface2); border-radius:12px; padding:12px 14px; margin-bottom:10px; font-size:0.9rem;}
 .missed-item .missed-q{font-weight:700; margin:0 0 8px;}
 </style>
+<link rel="stylesheet" href="../polish.css">
 
 <div class="app">
 

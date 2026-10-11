@@ -133,7 +133,6 @@
 
     // Read at load: StudyKit drops the query on ?reset=1 but keeps embed=1, so a reload stays embedded.
     var embedded = isEmbedded(win);
-    if (embedded) doc.documentElement.setAttribute('data-theme', 'light');
     if (embedded) doc.documentElement.setAttribute('data-embed', '');
 
     var api = {

@@ -4,7 +4,7 @@
 (function () {
   var r = {
     embedded: !!(window.Nav && Nav.embedded),
-    theme: document.documentElement.getAttribute('data-theme'),
+    background: getComputedStyle(document.body).backgroundColor,
     lobbyItem: document.getElementById('nav-lobby') ? document.getElementById('nav-lobby').textContent : null,
     errors: window.__e2eErrors || []
   };

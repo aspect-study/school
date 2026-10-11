@@ -44,6 +44,12 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   `docs/superpowers/plans/2026-10-09-boy-players.md`.
   - Known gaps: newest-wins compares each device's own clock, so a tablet whose clock runs ahead wins over later real
     changes; a phone parent page left open picks up a PIN changed elsewhere only after it signs in again or is reopened. `index.html?account=1` now asks for the parent PIN first (`lock-view`, 2026-10-09).
+- Light theme everywhere (2026-10-11): the 17 games and both lobbies are always light (no dark-mode CSS;
+  `color-scheme: light`), so a dark-mode tablet no longer turns them into dark dashboards; the phone parent page and
+  `/admin/` still follow the phone's dark mode. Grade 5 games share `web/subjects/grade-5/polish.css`: lesson rows and
+  answers have a thick border tinted with the game's colour and a press-down edge. `tests/light-theme.test.js` guards
+  both. Spec and plan: `docs/superpowers/specs/2026-10-11-light-theme-design.md`,
+  `docs/superpowers/plans/2026-10-11-light-theme.md`.
 
 **3D world** (`web/world`, opened from 🌸 Play World in each lobby)
 - Phases 1-4: character maker, a building per game with medal decorations, Mayor Mimi + sparkle trail, subject buddies
@@ -116,8 +122,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
-- **App inside the world, sub-projects A, C, D** (from the 2026-10-11 brainstorm; brainstorm each first): A, lock games
-  and lobbies to light (today they follow the device's dark mode) and restyle; C, sign-in goes straight to the world
+- **App inside the world, sub-projects C, D** (from the 2026-10-11 brainstorm; brainstorm each first): C, sign-in goes straight to the world
   with the shop, quests, search, settings and the PIN-gated parent area as overlays (lobby stays as the no-WebGL
   fallback); D, HUD tidy-up and lazy loading after measuring the tablet.
 - **Wardrobe 5b, My Yard:** the same square-and-place system outdoors around My Little House (split from 5 on

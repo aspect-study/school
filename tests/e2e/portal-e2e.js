@@ -1,5 +1,5 @@
 // A game inside the 3D world: the Science door glides in, the world stops and blurs, the real game runs in the frame
-// in embed mode (light theme, Back to town), ← on the game home closes it, and ✕ closes it at once, also from a quiz.
+// in embed mode (Back to town), ← on the game home closes it, and ✕ closes it at once, also from a quiz.
 // Run: node tests/e2e/portal-e2e.js
 const assert = require('node:assert/strict');
 const { spawn } = require('node:child_process');
@@ -71,7 +71,8 @@ function check(r) {
   assert.ok(r.game, 'the game ran inside the frame');
   assert.deepEqual(r.game.errors, [], 'game page errors');
   assert.equal(r.game.embedded, true, 'the game knows it is in the frame');
-  assert.equal(r.game.theme, 'light', 'the game is locked to light inside the frame');
+  const bg = (r.game.background.match(/\d+/g) || []).slice(0, 3).map(Number);
+  assert.ok(bg.length === 3 && bg.every((c) => c > 200), 'the game inside the frame is light: ' + r.game.background);
   assert.equal(r.game.lobbyItem, '🏠 Back to town');
   assert.equal(r.closed, true, '← on the game home closed the frame');
   assert.equal(r.frameGone, true);

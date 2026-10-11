@@ -381,6 +381,7 @@ const PRECACHE = [
   'subjects/grade-5/pe-health/strategy.js',
   'subjects/grade-5/pe-health/subject.json',
   'subjects/grade-5/pe-health/type-it.js',
+  'subjects/grade-5/polish.css',
   'subjects/grade-5/science/index.html',
   'subjects/grade-5/science/lessons/01-whatmatter.js',
   'subjects/grade-5/science/lessons/02-matter.js',

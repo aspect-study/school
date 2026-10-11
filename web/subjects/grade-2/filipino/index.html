@@ -2,11 +2,13 @@
 <meta charset="utf-8">
 <title>Kuwentista</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
+  color-scheme:light;
   --bg:#FBF6EC; --surface:#FFFFFF; --surface2:#FBEADF;
   --ink:#2B2440; --ink-soft:#6A6083;
   --accent:#D6467E; --accent-ink:#FFFFFF;
@@ -15,26 +17,6 @@
   --border:#F0DCC7;
   --shadow: 0 8px 24px rgba(214,70,126,0.14);
   --radius:20px;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#1D1626; --surface:#2A2036; --surface2:#352840;
-    --ink:#F5EEFB; --ink-soft:#C3B6D6;
-    --accent:#F073A0; --accent-ink:#1D1626;
-    --gold:#F5C168; --navy:#7FA6D6;
-    --good:#4FCB84; --bad:#F0766B;
-    --border:#443652;
-    --shadow: 0 8px 24px rgba(0,0,0,0.4);
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#1D1626; --surface:#2A2036; --surface2:#352840;
-  --ink:#F5EEFB; --ink-soft:#C3B6D6;
-  --accent:#F073A0; --accent-ink:#1D1626;
-  --gold:#F5C168; --navy:#7FA6D6;
-  --good:#4FCB84; --bad:#F0766B;
-  --border:#443652;
-  --shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
 *{box-sizing:border-box}
 body{

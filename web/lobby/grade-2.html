@@ -2,6 +2,7 @@
 <meta charset="utf-8">
 <title>Study Games Lobby</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <link rel="manifest" href="grade-2.webmanifest">
 <meta name="theme-color" content="#D9667B">
 <link rel="icon" type="image/png" href="../assets/icons/grade2-192.png">
@@ -31,38 +32,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     --gold-soft:#FBE9C9;
     --good:#1E7A46; --bad:#B03A2E;
     color-scheme: light;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#181712;
-      --bg-alt:#201F19;
-      --card:#221F1A;
-      --ink:#F1EDE0;
-      --ink-soft:#B2AC97;
-      --border:rgba(241,237,224,0.14);
-      --shadow:rgba(0,0,0,0.5);
-      --header-accent:#F1A0B0;
-      --gold:#F5C06E;
-      --gold-deep:#FCE3B4;
-      --gold-soft:#3A2E15;
-      --good:#7DCEA0; --bad:#F1948A;
-      color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#181712;
-    --bg-alt:#201F19;
-    --card:#221F1A;
-    --ink:#F1EDE0;
-    --ink-soft:#B2AC97;
-    --border:rgba(241,237,224,0.14);
-    --shadow:rgba(0,0,0,0.5);
-    --header-accent:#F1A0B0;
-    --gold:#F5C06E;
-    --gold-deep:#FCE3B4;
-    --gold-soft:#3A2E15;
-    --good:#7DCEA0; --bad:#F1948A;
-    color-scheme: dark;
   }
 
   *{box-sizing:border-box;}

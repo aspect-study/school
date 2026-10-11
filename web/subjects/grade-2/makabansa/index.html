@@ -2,10 +2,12 @@
 <title>Batang Bayani</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;700;800&display=swap">
 <style>
   :root{
+    color-scheme:light;
     --bg:#FAF3E3;
     --bg-alt:#F3E9CE;
     --card:#FFFDF6;
@@ -29,56 +31,6 @@
     --wall-dark:#C9A25C;
     --wood:#8B5E34;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#141F1A;
-      --bg-alt:#1B2A23;
-      --card:#1E2E27;
-      --ink:#F1EAD6;
-      --ink-soft:#AEA98F;
-      --accent:#F3B65B;
-      --accent-ink:#FFE1AC;
-      --accent-soft:#3A2E17;
-      --teal:#59BBA3;
-      --teal-deep:#8CD9C4;
-      --teal-soft:#20362F;
-      --good:#8FCB84;
-      --good-soft:#233524;
-      --bad:#E2916C;
-      --bad-soft:#3A2620;
-      --border:rgba(241,234,214,0.16);
-      --shadow:rgba(0,0,0,0.45);
-      --roof:#D46A3A;
-      --roof-dark:#A34C24;
-      --wall:#C9A25C;
-      --wall-dark:#9C7B41;
-      --wood:#6E4A28;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#141F1A;
-    --bg-alt:#1B2A23;
-    --card:#1E2E27;
-    --ink:#F1EAD6;
-    --ink-soft:#AEA98F;
-    --accent:#F3B65B;
-    --accent-ink:#FFE1AC;
-    --accent-soft:#3A2E17;
-    --teal:#59BBA3;
-    --teal-deep:#8CD9C4;
-    --teal-soft:#20362F;
-    --good:#8FCB84;
-    --good-soft:#233524;
-    --bad:#E2916C;
-    --bad-soft:#3A2620;
-    --border:rgba(241,234,214,0.16);
-    --shadow:rgba(0,0,0,0.45);
-    --roof:#D46A3A;
-    --roof-dark:#A34C24;
-    --wall:#C9A25C;
-    --wall-dark:#9C7B41;
-    --wood:#6E4A28;
-  }
 
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -93,20 +45,6 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]) body{
-      background:
-        repeating-linear-gradient(115deg, transparent 0 22px, rgba(241,234,214,0.03) 22px 23px),
-        repeating-linear-gradient(25deg, transparent 0 22px, rgba(241,234,214,0.03) 22px 23px),
-        var(--bg);
-    }
-  }
-  :root[data-theme="dark"] body{
-    background:
-      repeating-linear-gradient(115deg, transparent 0 22px, rgba(241,234,214,0.03) 22px 23px),
-      repeating-linear-gradient(25deg, transparent 0 22px, rgba(241,234,214,0.03) 22px 23px),
-      var(--bg);
   }
 
   .app{

@@ -2,10 +2,12 @@
 <meta charset="utf-8">
 <title>Byte Buddies</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Righteous&family=Rubik:wght@400;500;700&display=swap">
 <style>
   :root{
+    color-scheme:light;
     --bg:#EEF1F4;
     --bg-alt:#E2E7EC;
     --card:#FFFFFF;
@@ -30,58 +32,6 @@
     --case-dark:#8A94A0;
     --screen-glow:#7FE6D8;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#12161C;
-      --bg-alt:#1A1F27;
-      --card:#181D25;
-      --ink:#E9EDF2;
-      --ink-soft:#98A3B3;
-      --accent:#4FD3E3;
-      --accent-ink:#B9F1F6;
-      --accent-soft:#193238;
-      --indigo:#8B8FEF;
-      --indigo-deep:#C2C4FA;
-      --indigo-soft:#252A4D;
-      --amber:#F5C06E;
-      --amber-deep:#FCE3B4;
-      --amber-soft:#3A2E15;
-      --good:#7BC98F;
-      --good-soft:#1F3324;
-      --bad:#E2897E;
-      --bad-soft:#3A2320;
-      --border:rgba(233,237,242,0.14);
-      --shadow:rgba(0,0,0,0.5);
-      --case:#4A5563;
-      --case-dark:#2E3742;
-      --screen-glow:#3FCBBC;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#12161C;
-    --bg-alt:#1A1F27;
-    --card:#181D25;
-    --ink:#E9EDF2;
-    --ink-soft:#98A3B3;
-    --accent:#4FD3E3;
-    --accent-ink:#B9F1F6;
-    --accent-soft:#193238;
-    --indigo:#8B8FEF;
-    --indigo-deep:#C2C4FA;
-    --indigo-soft:#252A4D;
-    --amber:#F5C06E;
-    --amber-deep:#FCE3B4;
-    --amber-soft:#3A2E15;
-    --good:#7BC98F;
-    --good-soft:#1F3324;
-    --bad:#E2897E;
-    --bad-soft:#3A2320;
-    --border:rgba(233,237,242,0.14);
-    --shadow:rgba(0,0,0,0.5);
-    --case:#4A5563;
-    --case-dark:#2E3742;
-    --screen-glow:#3FCBBC;
-  }
 
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -96,20 +46,6 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]) body{
-      background:
-        radial-gradient(circle at 10% 6%, rgba(79,211,227,0.1), transparent 42%),
-        radial-gradient(circle at 92% 90%, rgba(139,143,239,0.1), transparent 42%),
-        var(--bg);
-    }
-  }
-  :root[data-theme="dark"] body{
-    background:
-      radial-gradient(circle at 10% 6%, rgba(79,211,227,0.1), transparent 42%),
-      radial-gradient(circle at 92% 90%, rgba(139,143,239,0.1), transparent 42%),
-      var(--bg);
   }
 
   .app{ width:100%; max-width:592px; box-sizing:border-box; padding:clamp(16px,4vw,40px) 16px; }

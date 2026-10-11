@@ -2,10 +2,12 @@
 <title>Word Train</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Comic+Neue:wght@400;700&display=swap">
 <style>
   :root{
+    color-scheme:light;
     --bg:#F1EFE8;
     --bg-alt:#E7E3D6;
     --card:#FFFEFA;
@@ -29,56 +31,6 @@
     --track:#6B6F76;
     --wood:#8B5E34;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#181C24;
-      --bg-alt:#20242E;
-      --card:#1D212A;
-      --ink:#EDEBE2;
-      --ink-soft:#A6ABBB;
-      --accent:#E8746F;
-      --accent-ink:#FFD3CE;
-      --accent-soft:#3A2224;
-      --blue:#6FA8D6;
-      --blue-deep:#9FC6E8;
-      --blue-soft:#20303F;
-      --yellow:#F0C572;
-      --yellow-deep:#FBE2A8;
-      --yellow-soft:#39301A;
-      --good:#8DC79A;
-      --good-soft:#213328;
-      --bad:#E2917F;
-      --bad-soft:#3A241F;
-      --border:rgba(237,235,226,0.16);
-      --shadow:rgba(0,0,0,0.45);
-      --track:#9A9FA8;
-      --wood:#A87B4E;
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#181C24;
-    --bg-alt:#20242E;
-    --card:#1D212A;
-    --ink:#EDEBE2;
-    --ink-soft:#A6ABBB;
-    --accent:#E8746F;
-    --accent-ink:#FFD3CE;
-    --accent-soft:#3A2224;
-    --blue:#6FA8D6;
-    --blue-deep:#9FC6E8;
-    --blue-soft:#20303F;
-    --yellow:#F0C572;
-    --yellow-deep:#FBE2A8;
-    --yellow-soft:#39301A;
-    --good:#8DC79A;
-    --good-soft:#213328;
-    --bad:#E2917F;
-    --bad-soft:#3A241F;
-    --border:rgba(237,235,226,0.16);
-    --shadow:rgba(0,0,0,0.45);
-    --track:#9A9FA8;
-    --wood:#A87B4E;
-  }
 
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -92,18 +44,6 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]) body{
-      background:
-        repeating-linear-gradient(90deg, transparent 0 38px, rgba(237,235,226,0.035) 38px 40px),
-        var(--bg);
-    }
-  }
-  :root[data-theme="dark"] body{
-    background:
-      repeating-linear-gradient(90deg, transparent 0 38px, rgba(237,235,226,0.035) 38px 40px),
-      var(--bg);
   }
 
   .app{ width:100%; max-width:592px; box-sizing:border-box; padding:clamp(16px,4vw,40px) 16px; }
