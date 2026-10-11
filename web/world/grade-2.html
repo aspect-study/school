@@ -19,7 +19,7 @@
     <div class="resting-emoji">😴</div>
     <h1 id="resting-title">The village is resting 😴</h1>
     <p id="resting-line">Here is the village map!</p>
-    <a class="w-btn" id="resting-go" href="../lobby/grade-2.html">🗺️ Back to the lobby</a>
+    <a class="w-btn" id="resting-go" href="../lobby/grade-2.html?stay=1">🗺️ Back to the lobby</a>
   </div>
 </div>
 <script src="../engine/lang.js"></script>
@@ -39,6 +39,10 @@
 <script src="../engine/family.js" data-grade="grade2"></script>
 <script src="../engine/fx.js" data-grade="grade2"></script>
 <script src="../engine/study-kit.js" data-grade="grade2"></script>
+<script src="../engine/sync-core.js" data-grade="grade2"></script>
+<script src="../engine/firebase-config.js" data-grade="grade2"></script>
+<script src="../engine/firebase-remote.js" data-grade="grade2"></script>
+<script src="../engine/cloud.js" data-grade="grade2"></script>
 <script src="../vendor/three/three.min.js"></script>
 <script src="../vendor/three/rounded-box.js"></script>
 <script src="text.js"></script>
@@ -112,9 +116,12 @@
 <script src="games3d.js"></script>
 <script src="loot3d.js"></script>
 <script src="portal.js"></script>
+<script src="hud.js"></script>
+<script src="stamina.js"></script>
 <script src="world-main.js"></script>
 <script>
 if (!window.World3D || !World3D.Main) {
+  try { sessionStorage.setItem('world_failed_v1', '1'); } catch (e) {}
   document.getElementById('loading').hidden = true;
   document.getElementById('resting').hidden = false;
 }
