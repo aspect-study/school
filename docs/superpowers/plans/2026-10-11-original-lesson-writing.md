@@ -955,7 +955,7 @@ git add tools/source-overlap.js tools/overlap-allow.txt && git commit -m 'Add so
 
 **Files:**
 - Create: `docs/lesson-writing.md`
-- Modify: `CLAUDE.md:37-38`, `README.md:223-225` and `README.md:283`, `docs/HANDOFF.md` ("Next")
+- Modify: `CLAUDE.md:37-38`, `README.md` (tools list after the `tools/kid-sounds.js` line; the "Adding content" wording line), `docs/HANDOFF.md` ("Next")
 
 - [ ] **Step 1: Write `docs/lesson-writing.md`**
 
