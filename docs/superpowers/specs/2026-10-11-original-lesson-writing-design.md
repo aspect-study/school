@@ -90,13 +90,14 @@ Plain Node, no npm dependencies, run on the owner's PC (`sources/` is untracked,
 a new key (hash of stem, art and answer), so it would lose its box and its medal progress.
 
 - A rewritten question carries `was: '<old hash>'`, the hash part of its old review key (`app|<hash>`), computed by
-  the audit before the rewrite from the stem, art and correct answer exactly as that game's `info()` builds them
-  (the plan reads each game family's `info()` and mirrors it in a small Node helper, checked against keys the browser
-  produces in one e2e run).
+  the audit before the rewrite with the game's own `reviewInfo`, cut out of its page and run in Node (the method
+  `tests/world3d-quiz.test.js` already uses, moved into `tests/game-keys.js`).
 - In `tidy`, before old boxes are marked `gone`: for each question with `was`, when `app|<was>` has a live box and the
   new key has none, the old box's `box` and `due` are copied to the new key with `t: now()`. The old box is then marked
   `gone` as usual.
-- `tidy` reads `q.was` from the raw question object, so no game's `info()` hook changes.
+- The games' `prepareQuestion` copies only some fields, so `tidy` never sees `was` on the questions it gets. Instead
+  `Recall.renamesOf(StudyKit.lessons())` maps each stem to its `was` hash (a stem used by two questions is left out),
+  and the browser wrapper passes that map to `tidy`. No game page changes.
 - Every device reaches the same result; sync's newest-wins keeps it. Medals, boss counts and Practice these read the
   new key.
 - `was` fields can be removed later; a leftover one does nothing.
@@ -140,7 +141,7 @@ Check coverage → read every slide → write under the new rules → checker on
 - Recall unit test: `was` copies box and due to the new key, marks the old one `gone`, never overwrites an existing
   new box, and a question without `was` behaves as today.
 - Wiring test: any `was` field in a lesson is a well-formed hash (1-8 lowercase hex digits, the FNV-1a output of
-  `hash()` in `recall.js`).
+  `hash()` in `recall.js`), differs from the question's key now, and sits on a stem used once in the game.
 
 ## Out of scope
 
