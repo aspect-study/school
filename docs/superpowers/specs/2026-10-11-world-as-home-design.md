@@ -38,8 +38,10 @@ moved to `tests/embed.test.js`); `nav.js` uses `root.Embed`. `closeMessage` is e
   `#parent`, `#shop-world`). The grade comes from the lobby page's `data-grade`.
 - `canRun(doc)`: a WebGL context can be made on a test canvas (the same check as `world-main.js`'s `canRun`, minus the
   Three.js check, since the lobby does not load Three.js).
-- In the browser, at the top of each lobby page (first script after `storage.js`/`learner.js`), it calls
-  `location.replace(url)` when `forwardTo` returns a URL, before the lobby draws.
+- In the browser, right after `learner.js` in each lobby (the lobbies load their engine files together near the end
+  of the page), it calls `location.replace(url)` when `forwardTo` returns a URL, before the lobby's own scripts run;
+  a brief flash of the lobby is possible. `forwardTo` never forwards a `file:` page (like `cloud.js`, which never syncs
+  there), so the existing `file://` lobby e2e scripts keep the lobby.
 
 ### World page (`web/world/grade-*.html`, `world-main.js`)
 
@@ -112,8 +114,7 @@ When `Embed.isEmbedded(window)`:
     `?stay=1` it stays; in the world the 🪙 pill shows the seeded balance and the 🎯 pill the quest count; Bunny's counter
     opens the shop section in the frame and its ✕ closes it; ⚙️ → For parents shows the PIN pad in the frame; the quests
     card lists 3 quests and its first link opens that game in the frame.
-  - The lobby-based e2e scripts (`lobby-e2e`, `sisters-e2e`, `guide-e2e`'s lobby case, `backup-e2e`, `migration-e2e`,
-    `file-check-e2e`, `account-e2e` where it lands on a lobby) open the lobby with `?stay=1` or expect the forward.
+  - The lobby-based e2e scripts load lobbies from `file://`, which never forward, so they are unchanged.
   - `world-e2e`, `portal-e2e`, `apps-e2e` (both grades) still pass; the `world-e2e` cases that used the 🏠 Lobby pill or
     `#shop-world` are updated.
 - Owner tablet check: sign-in lands in the world; the home-screen icon opens the world; coins and quests in the HUD;
