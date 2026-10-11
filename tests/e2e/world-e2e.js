@@ -59,7 +59,8 @@ try {
   assert.deepEqual([fresh.at.x, fresh.at.z], [0, 84], 'she starts at the gate');
   assert.equal(fresh.near, 'life-lab');
   assert.equal(fresh.act, '🔬 Go to Science!');
-  assert.equal(fresh.went, '../subjects/grade-5/science/index.html?reset=1', 'the door opens the lobby card\'s page');
+  assert.equal(fresh.went, '../subjects/grade-5/science/index.html?reset=1&embed=1', 'the door opens the lobby card\'s page in the frame');
+  assert.equal(fresh.portalOpen, true);
   assert.deepEqual([fresh.ret.grade, fresh.ret.app], ['grade5', 'life-lab']);
   assert.ok(fresh.ret.before && fresh.ret.before.at > 0, 'the door keeps what she had, for her pet to celebrate');
   assert.deepEqual([fresh.park.x, fresh.park.z], [-48, 44], 'quick travel lands in the park');
@@ -115,7 +116,7 @@ try {
   assert.equal(prog.trail.to, 'life-lab');
   assert.ok(prog.trail.count > 10, 'the sparkle trail is drawn');
   assert.deepEqual(prog.trailAfterArrive, { to: null, count: 0 }, 'the trail goes out when she arrives');
-  assert.equal(prog.doorWent, '../subjects/grade-5/science/index.html?reset=1&boss=1', 'the door keeps the guide\'s link');
+  assert.equal(prog.doorWent, '../subjects/grade-5/science/index.html?reset=1&boss=1&embed=1', 'the door keeps the guide\'s link');
   assert.equal(prog.fortHref, '../subjects/grade-5/science/index.html?reset=1&boss=1', 'the fort opens the next boss stage');
   console.log('ok medals, markers, Mimi, trail, fort');
 

@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { engineFile } = require('./paths.js');
 const { layout, height, buddySpot, pct, readView, saveView, lessonParam, indexOfId, medals, nextStop, pathHtml, cardHtml,
-  lobbyUrl, TEXT, KEY, ROW, TOP } = require(engineFile('trail.js'));
+  lobbyUrl, leaveHome, TEXT, KEY, ROW, TOP } = require(engineFile('trail.js'));
 
 function memory(initial) {
   const data = Object.assign({}, initial);
@@ -110,4 +110,20 @@ test('Grade 2 screen-reader labels pair every medal, polish and next-stop word, 
 test('home goes to the grade lobby, like the 🏠 button', () => {
   assert.equal(lobbyUrl('grade2'), '../../../lobby/grade-2.html');
   assert.equal(lobbyUrl('grade5'), '../../../lobby/grade-5.html');
+});
+
+test('the home stop leaves through Nav in the world frame, and to the lobby otherwise', () => {
+  const went = [];
+  const framed = { Nav: { embedded: true, lobby: '../../../lobby/grade-5.html', go: (u) => went.push(u) }, location: { href: '' } };
+  leaveHome(framed, 'grade5');
+  assert.deepEqual(went, ['../../../lobby/grade-5.html']);
+  assert.equal(framed.location.href, '');
+
+  const page = { Nav: { embedded: false, go: () => went.push('nav') }, location: { href: '' } };
+  leaveHome(page, 'grade2');
+  assert.equal(page.location.href, '../../../lobby/grade-2.html');
+  const bare = { location: { href: '' } };
+  leaveHome(bare, 'grade5');
+  assert.equal(bare.location.href, '../../../lobby/grade-5.html');
+  assert.equal(went.length, 1);
 });

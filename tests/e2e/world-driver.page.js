@@ -126,11 +126,12 @@
       D.teleport('life-lab');
       o.near = D.state().near;
       o.act = text('#act');
-      var went = null;
-      D.go = function (u) { went = u; };
+      D.portal.instant(true);
       D.act();
-      o.went = went;
+      o.went = D.portal.url();
+      o.portalOpen = D.portal.isOpen();
       o.ret = JSON.parse(sessionStorage.getItem('world_return_v1'));
+      D.portal.close();
       D.openTravel();
       document.querySelector('[data-spot="park"]').click();
       o.park = D.state();
@@ -147,12 +148,12 @@
       o.mimiText = D.talkText();
       document.querySelector('.talk-btn.main').click();
       o.trail = D.trail();
-      var went = null;
-      D.go = function (u) { went = u; };
+      D.portal.instant(true);
       D.teleport('life-lab');
       o.trailAfterArrive = D.trail();
       D.act();
-      o.doorWent = went;
+      o.doorWent = D.portal.url();
+      D.portal.close();
       o.fortHref = D.snapshot().fort.href;
       return out(o);
     }

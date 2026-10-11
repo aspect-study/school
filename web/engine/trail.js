@@ -128,6 +128,11 @@
   // Same address as the 🏠 button in nav.js.
   function lobbyUrl(grade) { return '../../../lobby/grade-' + (grade === 'grade2' ? '2' : '5') + '.html'; }
 
+  function leaveHome(win, grade) {
+    if (win.Nav && win.Nav.embedded) win.Nav.go(win.Nav.lobby);
+    else win.location.href = lobbyUrl(grade);
+  }
+
   var UI_CSS =
     '[data-trail-hidden]{display:none !important;}' +
     '.trail-path[hidden],.trail-toggle[hidden]{display:none !important;}' +
@@ -189,7 +194,7 @@
       if (s.kind === 'boss') return o.review(true);
       if (s.kind === 'review') return o.review();
       if (s.kind === 'mock') return o.final();
-      if (s.kind === 'home') { win.location.href = lobbyUrl(grade); return; }
+      if (s.kind === 'home') { leaveHome(win, grade); return; }
       var i = indexOfId(o.lessons, s.lesson);
       if (i >= 0) openAt(i);
     }
@@ -344,7 +349,7 @@
 
   var exported = { layout: layout, height: height, buddySpot: buddySpot, pct: pct, readView: readView, saveView: saveView,
     lessonParam: lessonParam, indexOfId: indexOfId, medals: medals, nextStop: nextStop, pathHtml: pathHtml, cardHtml: cardHtml,
-    lobbyUrl: lobbyUrl, TEXT: TEXT, KEY: KEY, ROW: ROW, TOP: TOP };
+    lobbyUrl: lobbyUrl, leaveHome: leaveHome, TEXT: TEXT, KEY: KEY, ROW: ROW, TOP: TOP };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

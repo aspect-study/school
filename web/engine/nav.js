@@ -9,13 +9,13 @@
   var TEXT = {
     grade5: {
       back: 'Back', home: 'Go to the lobby', menu: 'Menu',
-      lessons: '📚 Lessons', lobby: '🏠 Lobby', soundOn: '🔊 Sound on', soundOff: '🔇 Sound off', soundPack: '🎵 Sounds', shop: '🪙 Shop',
+      lessons: '📚 Lessons', lobby: '🏠 Lobby', town: '🏠 Back to town', homeTown: 'Back to town', soundOn: '🔊 Sound on', soundOff: '🔇 Sound off', soundPack: '🎵 Sounds', shop: '🪙 Shop',
       leaveTitle: 'Leave the quiz?', leaveBody: 'Points you earned are kept.',
       keep: 'Keep playing', leave: 'Leave'
     },
     grade2: {
       back: 'Back', home: 'Go to the lobby', menu: 'Menu',
-      lessons: '📚 Lessons · Mga Aralin', lobby: '🏠 Lobby', soundOn: '🔊 Sound on · May tunog',
+      lessons: '📚 Lessons · Mga Aralin', lobby: '🏠 Lobby', town: '🏠 Back to town', homeTown: 'Back to town', soundOn: '🔊 Sound on · May tunog',
       soundOff: '🔇 Sound off · Walang tunog', soundPack: '🎵 Sounds · Mga tunog', shop: '🪙 Shop · Tindahan',
       leaveTitle: 'Leave the quiz? · Aalis ka na ba sa pagsusulit?',
       leaveBody: 'Points you earned are kept. · Hindi mawawala ang puntos mo.',
@@ -38,6 +38,17 @@
   function worldReturn(win) {
     try { return JSON.parse(win.sessionStorage.getItem(WORLD_RETURN)); } catch (e) { return null; }
   }
+
+  // Inside the world's frame (web/world/portal.js) a game opens with ?embed=1; leaving it closes the frame.
+  function isEmbedded(win) {
+    try { return /[?&]embed=1(&|$)/.test(win.location.search) && !!win.parent && win.parent !== win; } catch (e) { return false; }
+  }
+
+  function closeMessage(url) {
+    return /#shop$/.test(url) ? { type: 'portal-close', then: 'shop' } : { type: 'portal-close' };
+  }
+
+  function targetOrigin(origin) { return origin && origin !== 'null' ? origin : '*'; }
 
   // The rules, with no DOM: o = { home, lobby, away?, goHome, back?, inRound, go(url), ask(proceed, stay), history }.
   // away: where ← and 🏠 leave the game to (the world when she came from it); the shop always opens in the lobby.
@@ -90,6 +101,7 @@
     '#nav-bar{align-self:stretch;width:100%;position:sticky;top:0;z-index:9000;display:flex;align-items:center;gap:6px;min-height:52px;box-sizing:border-box;' +
       'padding:4px 8px;padding-top:max(4px,env(safe-area-inset-top));background:var(--card,var(--surface,#fff));color:var(--ink,#1d1d1f);' +
       'border-bottom:3px solid var(--accent,#2E6F9E);box-shadow:0 2px 8px rgba(0,0,0,.08);}' +
+    'html[data-embed] #nav-bar{padding-right:64px;}' +
     '.gnav-btn{min-width:44px;height:44px;border-radius:12px;border:none;background:transparent;color:inherit;font:inherit;font-size:1.4rem;' +
       'line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}' +
     '.gnav-btn:hover,.gnav-item:hover{background:rgba(127,127,127,.14);}' +
@@ -119,10 +131,18 @@
     var ctl = null, sheet = null, dialog = null, menuBtn = null, soundBtn = null, packBtn = null, keepBtn = null;
     var pending = null, returnFocus = null;
 
+    // Read at load: StudyKit drops the query on ?reset=1 but keeps embed=1, so a reload stays embedded.
+    var embedded = isEmbedded(win);
+    if (embedded) doc.documentElement.setAttribute('data-theme', 'light');
+    if (embedded) doc.documentElement.setAttribute('data-embed', '');
+
     var api = {
       lobby: lobbyUrl(grade),
       away: homeUrl(grade, worldReturn(win)),
-      go: function (url) { win.location.href = url; },
+      embedded: embedded,
+      go: embedded
+        ? function (url) { win.parent.postMessage(closeMessage(url), targetOrigin(win.location.origin)); }
+        : function (url) { win.location.href = url; },
       start: start,
       screen: function (id) { if (ctl) ctl.screen(id); },
       current: function () { return ctl ? ctl.current() : null; }
@@ -211,7 +231,7 @@
       menuBtn.setAttribute('aria-controls', 'nav-sheet');
       bar.appendChild(button('nav-back', 'gnav-btn', '←', t.back, function () { ctl.back(); }));
       bar.appendChild(name);
-      bar.appendChild(button('nav-home', 'gnav-btn', '🏠', t.home, function () { ctl.home(); }));
+      bar.appendChild(button('nav-home', 'gnav-btn', '🏠', embedded ? t.homeTown : t.home, function () { ctl.home(); }));
       bar.appendChild(menuBtn);
 
       sheet = doc.createElement('div');
@@ -222,7 +242,7 @@
       panel.setAttribute('role', 'menu');
       var items = [
         button('nav-lessons', 'gnav-item', t.lessons, null, pick(function () { ctl.lessons(); })),
-        button('nav-lobby', 'gnav-item', t.lobby, null, pick(function () { ctl.home(); }))
+        button('nav-lobby', 'gnav-item', embedded ? t.town : t.lobby, null, pick(function () { ctl.home(); }))
       ];
       if (win.Fx && win.Fx.setMuted) {
         soundBtn = button('nav-sound', 'gnav-item', '', null, function () { win.Fx.setMuted(!win.Fx.muted()); renderSound(); });
@@ -295,7 +315,8 @@
     return api;
   }
 
-  var exported = { TEXT: TEXT, lobbyUrl: lobbyUrl, homeUrl: homeUrl, WORLD_RETURN: WORLD_RETURN, controller: controller };
+  var exported = { TEXT: TEXT, lobbyUrl: lobbyUrl, homeUrl: homeUrl, WORLD_RETURN: WORLD_RETURN, controller: controller,
+    isEmbedded: isEmbedded, closeMessage: closeMessage, targetOrigin: targetOrigin };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { engineFile } = require('./paths.js');
-const { controller, lobbyUrl, homeUrl, WORLD_RETURN, TEXT } = require(engineFile('nav.js'));
+const { controller, lobbyUrl, homeUrl, WORLD_RETURN, TEXT, isEmbedded, closeMessage, targetOrigin } = require(engineFile('nav.js'));
 
 // A stand-in for window.history: records calls; back() lands on the game-home entry (state null).
 function setup(over = {}) {
@@ -202,4 +202,34 @@ test('nav reads the same return key the world writes', () => {
 test('the menu has a sound-pack label in both grades, paired in Grade 2', () => {
   assert.equal(TEXT.grade5.soundPack, '🎵 Sounds');
   assert.equal(TEXT.grade2.soundPack, '🎵 Sounds · Mga tunog');
+});
+
+test('a game is embedded only with ?embed=1 and inside another window', () => {
+  const top = { location: { search: '?embed=1' } };
+  top.parent = top;
+  assert.equal(isEmbedded(top), false, 'opened on its own, even with the flag');
+  const framed = { location: { search: '?reset=1&embed=1' }, parent: {} };
+  assert.equal(isEmbedded(framed), true);
+  assert.equal(isEmbedded({ location: { search: '?embed=10' }, parent: {} }), false);
+  assert.equal(isEmbedded({ location: { search: '' }, parent: {} }), false);
+  assert.equal(isEmbedded({ get location() { throw new Error('blocked'); } }), false);
+});
+
+test('leaving an embedded game asks the world to close the frame; the shop asks for the shop after', () => {
+  assert.deepEqual(closeMessage('../../../world/grade-5.html'), { type: 'portal-close' });
+  assert.deepEqual(closeMessage('../../../lobby/grade-5.html'), { type: 'portal-close' });
+  assert.deepEqual(closeMessage('../../../lobby/grade-5.html#shop'), { type: 'portal-close', then: 'shop' });
+});
+
+test('the close message goes to the page\'s own origin; file pages (origin "null") use *', () => {
+  assert.equal(targetOrigin('https://study-game.example'), 'https://study-game.example');
+  assert.equal(targetOrigin('null'), '*');
+  assert.equal(targetOrigin(undefined), '*');
+});
+
+test('both grades have the embedded labels, English only', () => {
+  for (const g of ['grade5', 'grade2']) {
+    assert.equal(TEXT[g].town, '🏠 Back to town');
+    assert.equal(TEXT[g].homeTown, 'Back to town');
+  }
 });

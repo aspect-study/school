@@ -103,6 +103,7 @@ const PRECACHE = [
   'world/pettricks.js',
   'world/play.js',
   'world/playbar.js',
+  'world/portal.js',
   'world/prefs.js',
   'world/progress.js',
   'world/quiz.js',

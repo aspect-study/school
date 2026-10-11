@@ -192,7 +192,7 @@
     var town = W.Town.create({
       S: S, built: world, grade: grade, T: T, store: store, session: session,
       leave: leaving,
-      go: function (url) { debug.go(url); }, sound: sound, busy: busy, today: today,
+      go: function (url) { openGame('boss', url); }, sound: sound, busy: busy, today: today,
       isBusy: occupied,
       quiet: function () { return kin.visiting(); }
     });
@@ -203,7 +203,7 @@
         var b = L.buildings(grade).filter(function (x) { return x.app === app; })[0], plain = L.appUrl(grade, b.folder);
         return kind === 'review' ? plain + '&review=1' : town.doorHref(app, plain);
       },
-      open: function (app, href) { leaving(app); debug.go(href); },
+      open: function (app, href) { leaving(app); openGame(app, href); },
       shop: function () { debug.go(lobbyUrl + '#shop-world'); },
       stall: function (kind) { openStall(kind); },
       cheer: function (x, z) { world.cheer(x, 4.5, z); },
@@ -274,6 +274,61 @@
       sister: kin.player
     });
     var nudge = W.Nudge.create(), nudgeDue = false;
+    // A game inside the world (portal.js). portalInstant: the e2e driver skips the camera glide.
+    var portalInstant = false;
+    function reduced() {
+      try { return !!(root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { return false; }
+    }
+    function pauseWorld(on) {
+      hud.show(!on);
+      if (on) {
+        paused = true;
+        music.stop();
+        sfx.stopAll(0);
+        root.cancelAnimationFrame(rafId);
+        return;
+      }
+      paused = false;
+      clock.getDelta();
+      if (wantMusic()) music.start();
+      frame();
+    }
+    var portal = W.Portal.create({
+      camera: {
+        get: function () {
+          var p = S.camera.position;
+          return { pos: { x: p.x, y: p.y, z: p.z }, look: { x: ctl.state.x, y: 3.4, z: ctl.state.z } };
+        },
+        set: function (pose) {
+          S.camera.position.set(pose.pos.x, pose.pos.y, pose.pos.z);
+          S.camera.lookAt(pose.look.x, pose.look.y, pose.look.z);
+        }
+      },
+      render: function () { if (!lost) S.render(); },
+      freeze: function (on) { ctl.freeze(on || talking || gameFreeze); },
+      pauseWorld: pauseWorld,
+      view: W.Portal.view(doc, T.close, function () { portal.close(); }),
+      history: root.history,
+      origin: root.location.protocol === 'file:' ? 'null' : root.location.origin,
+      raf: function (fn) { root.requestAnimationFrame(fn); },
+      now: function () { return root.performance.now(); },
+      later: function (fn, ms) { return root.setTimeout(fn, ms); },
+      cancel: function (id) { root.clearTimeout(id); },
+      instant: function () { return portalInstant || reduced(); },
+      onClosed: function (then) {
+        refresh();
+        welcome(W.Prefs.readReturn(session));
+        if (then === 'shop') root.setTimeout(function () { debug.go(lobbyUrl + '#shop-world'); }, 300);
+      },
+      fallback: function (href) { debug.go(href); }
+    });
+    // The frame takes the building's roof colour and sign; the fort has no building, so gold.
+    function openGame(app, href) {
+      var b = L.buildings(grade).filter(function (x) { return x.app === app; })[0];
+      portal.open(app, href, b ? b.roof : '#ffb84d', b ? english(b.sign) : english(T.places.boss));
+    }
+    root.addEventListener('message', function (e) { portal.message(e); });
+    root.addEventListener('popstate', function (e) { portal.popstate(e.state); });
     function refresh() {
       sister = sisterHouse();
       town.refresh();
@@ -323,10 +378,10 @@
     }
 
     function act() {
-      if (!near || maker || overlay || talking || stall || deco) return;
+      if (!near || maker || overlay || talking || stall || deco || portal.isOpen()) return;
       if (near.kind === 'door') {
         leaving(near.app);
-        debug.go(town.doorHref(near.app, L.appUrl(grade, near.folder)));
+        openGame(near.app, town.doorHref(near.app, L.appUrl(grade, near.folder)));
       } else if (near.kind === 'mirror') openMaker();
       else if (near.kind === 'house-in') goIn(null);
       else if (near.kind === 'house-visit') { if (sister) goIn(sister); }
@@ -1176,10 +1231,10 @@
 
     // The next frame is asked for first, so one failing frame cannot freeze the world. The first failure is still
     // thrown (outside the loop) so it shows up as a page error.
-    var frameFailed = false;
+    var frameFailed = false, rafId = 0;
     function frame() {
       if (paused) return;
-      root.requestAnimationFrame(frame);
+      rafId = root.requestAnimationFrame(frame);
       try {
         tick(Math.min(clock.getDelta(), 0.05));
         if (!lost) S.render();
@@ -1205,7 +1260,7 @@
 
     function wantMusic() { return prefs.music && !(root.Fx && root.Fx.muted()); }
     function unlockMusic() {
-      if (wantMusic()) music.start();
+      if (wantMusic() && !portal.isOpen()) music.start();
       if (music.running()) {
         ['pointerdown', 'pointerup', 'keydown'].forEach(function (ev) { doc.removeEventListener(ev, unlockMusic); });
       }
@@ -1227,7 +1282,7 @@
         sfx.stopAll(0);
       }
       else {
-        if (wantMusic()) music.start();
+        if (wantMusic() && !portal.isOpen()) music.start();
         refresh();
       }
     });
@@ -1238,6 +1293,10 @@
       }
     });
     doc.addEventListener('keydown', function (e) {
+      if (portal.isOpen()) {
+        if (e.key === 'Escape') portal.close();
+        return;
+      }
       if (e.key === 'Escape' && useBar.isOpen()) { useBar.close(); return; }
       if (e.key === 'Escape' && bar.isOpen()) { bar.close(); return; }
       if (e.key === 'Escape' && stall) {
@@ -1420,6 +1479,12 @@
 
     // The e2e driver stops the frame loop once it has its answer, so software rendering does not eat the time budget.
     debug.pause = function () { paused = true; };
+    debug.paused = function () { return paused; };
+    debug.portal = {
+      isOpen: portal.isOpen, state: portal.state, url: portal.url,
+      close: function (then) { return portal.close(then); },
+      instant: function (on) { portalInstant = !!on; }
+    };
     debug.ready = true;
 
     $('loading').hidden = true;

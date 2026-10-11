@@ -29,7 +29,7 @@
     var search = win.location ? win.location.search : '';
     if (/(^|[?&])reset=1(&|$)/.test(search)) {
       if (win.StudyHistory) win.StudyHistory.appOpened(opts.app, opts.title);
-      if (win.history && win.history.replaceState) win.history.replaceState(null, '', win.location.pathname + win.location.hash);
+      if (win.history && win.history.replaceState) win.history.replaceState(null, '', win.location.pathname + (/[?&]embed=1(&|$)/.test(search) ? '?embed=1' : '') + win.location.hash);
     }
 
     function renderLive() {

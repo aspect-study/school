@@ -39,7 +39,7 @@ function makeWorkDir(name) {
 // extraArgs: more Chrome flags, e.g. WEBGL_ARGS for the 3D world.
 function dumpDom(profileDir, file, suffix, waitMs, extraArgs) {
   if (!CHROME) throw new Error('Chrome or Edge not found');
-  const url = pathToFileURL(file).href + (suffix || '');
+  const url = (/^https?:/.test(file) ? file : pathToFileURL(file).href) + (suffix || '');
   const wait = waitMs ? ['--virtual-time-budget=' + waitMs] : [];
   return execFileSync(CHROME, [
     '--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check',

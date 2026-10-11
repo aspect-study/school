@@ -114,8 +114,9 @@ game skips starting sync in embed mode and the world runs one sync round after `
 - The 10-minute nudge and playmate timers pause while the frame is open.
 - Midnight while the frame is open: the daily refresh runs on close.
 - No WebGL: unchanged. The world is "resting" and the lobby is used.
-- Offline with the game not cached: the 8 s timeout falls back to a full page change, which shows the browser's offline
-  page exactly as today.
+- Offline with the game not cached (rare: the service worker precaches every game): the browser's offline page shows
+  inside the frame, because an iframe fires `load` for an error page too, and ✕ closes it. The 8 s timeout covers a
+  frame that never loads at all: it puts the world back (camera, frame loop, movement) and opens the plain page.
 
 ## Testing
 
@@ -127,9 +128,10 @@ game skips starting sync in embed mode and the world runs one sync round after `
   - `portal.js`: `ease` endpoints and midpoint, `embedUrl` with and without an existing query, `acceptMessage` rejects
     a wrong source, a wrong origin and an unknown type, and the open/close state machine ignores a second `open`.
 - E2E, new `tests/e2e/portal-e2e.js`: open the Grade 5 world, walk to the Science door, Go in; the iframe appears with
-  `embed=1`, the canvas is blurred and the frame loop is stopped. Answer one question, press ← until the frame closes;
-  the HUD shows the new total, the loop runs again and `WorldDebug.portal.isOpen()` is false. Also check that the ✕
-  button closes it at once.
+  `embed=1`, the canvas is blurred and the frame loop is stopped; the game is in embed mode (light, Back to town). ← on
+  the game home closes the frame, the HUD comes back, the loop runs again and no history entry is left. ✕ closes it at
+  once, also from a quiz screen and after visiting a lesson, without stepping past the world. (The world HUD has no coin
+  total; points earned in the frame are checked by the tablet check.)
 - `node tests/e2e/world-e2e.js` still passes. `node tools/update-precache.js` adds `portal.js`.
 - Owner tablet check: the glide's smoothness, the frame size on the tablet and the phone, the back gesture and the pet
   celebration after closing.

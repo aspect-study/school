@@ -152,6 +152,11 @@ test('stars reset on a new day, and stay for the rest of the same day', () => {
   assert.deepEqual(again.kit.progress(), { a: 2 });
 });
 
+test('?reset=1 inside the world frame keeps embed=1 so a reload stays embedded', () => {
+  const { log } = page({ search: '?reset=1&embed=1' });
+  assert.deepEqual(log.filter((l) => l[0] === 'replaceState'), [['replaceState', '/school/subjects/grade-5/gmrc/index.html?embed=1#top']]);
+});
+
 test('opening from the lobby with ?reset=1 logs the visit and drops the flag from the address', () => {
   const { log } = page({ search: '?reset=1' });
   assert.deepEqual(log.filter((l) => l[0] === 'appOpened' || l[0] === 'replaceState'),

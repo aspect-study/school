@@ -1,6 +1,6 @@
 # Handoff
 
-Where the project stands. Updated 2026-10-09. Working rules are in `CLAUDE.md`; what the app does is in `README.md`.
+Where the project stands. Updated 2026-10-11. Working rules are in `CLAUDE.md`; what the app does is in `README.md`.
 Keep this page current: when a feature lands, move it to "Built", and add new ideas under "Parked" or "Next".
 
 ## Project
@@ -94,6 +94,14 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   walkway in Decorate (she stays hidden) and at the desk hops onto it at shoulder size if small or sits by the stool,
   and a Grade 2 trophy bubble is one line. Owner decisions: keep `noRoom` "para dito"; keep the inside camera (looks
   down, walls in its way see-through). Merged into `main` 2026-10-08.
+- Games inside the world (2026-10-11): a door, a buddy's "Let's go" or the Boss Fort opens the real game page in a
+  framed iframe over the paused, blurred town (`web/world/portal.js`); the game runs with `?embed=1` (`Nav.embedded`):
+  ←/🏠 on the game home, the menu's 🏠 Back to town and the lesson path's home stop close the frame, ☰ Shop closes it
+  and opens the lobby shop, and the game is locked to light inside. Closing replays her pet's welcome without a reload
+  and steps back over every history entry the game added. The lobby and the phone page still open games as pages.
+  Accepted gap: offline with a game not cached shows the browser's offline page inside the frame (✕ closes it). Spec
+  and plan: `docs/superpowers/specs/2026-10-11-games-in-world-design.md`, `docs/superpowers/plans/2026-10-11-games-in-world.md`.
+  Tablet check pending (glide smoothness, frame size on phone and tablet, the back gesture after a quiz, the pet's welcome).
 - Gifts and monsters at the hangout places: question-gated, 1/2/3 coins, at most 15 world coins a day, found-only
   wardrobe items for Hard questions.
 - Owner dashboard (sub-project 1 of 3): built, a private page at `/admin/` (`web/admin/`) showing families, children,
@@ -108,6 +116,10 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
+- **App inside the world, sub-projects A, C, D** (from the 2026-10-11 brainstorm; brainstorm each first): A, lock games
+  and lobbies to light (today they follow the device's dark mode) and restyle; C, sign-in goes straight to the world
+  with the shop, quests, search, settings and the PIN-gated parent area as overlays (lobby stays as the no-WebGL
+  fallback); D, HUD tidy-up and lazy loading after measuring the tablet.
 - **Wardrobe 5b, My Yard:** the same square-and-place system outdoors around My Little House (split from 5 on
   2026-10-08). Brainstorm first.
 
