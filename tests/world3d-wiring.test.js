@@ -61,18 +61,8 @@ for (const n of Object.keys(WORLDS)) {
 
   test('grade ' + n + ' lobby forgets the world door, so 🏠 in a game opened from the lobby comes back here', () => {
     const html = fs.readFileSync(lobbyFile(n), 'utf8');
-    const snippet = "<script data-world>window.addEventListener('pageshow', function () { try { sessionStorage.removeItem('world_return_v1'); } catch (e) {} });</script>";
+    const snippet = "<script data-world>window.addEventListener('pageshow', function () { if (window.Embed && Embed.isEmbedded(window)) return; try { sessionStorage.removeItem('world_return_v1'); } catch (e) {} });</script>";
     assert.equal(html.split(snippet).length - 1, 1);
     assert.ok(html.indexOf(snippet) > html.indexOf('<script data-file-check>'), 'after the file check');
-  });
-}
-
-for (const n of Object.keys(WORLDS)) {
-  test('grade ' + n + ' lobby shop opened from the world sends her back to Shop Plaza when she closes it', () => {
-    const html = fs.readFileSync(lobbyFile(n), 'utf8');
-    const shop = html.slice(html.indexOf('<script data-shop>'), html.indexOf('</script>', html.indexOf('<script data-shop>')));
-    assert.ok(shop.includes("location.hash === '#shop-world'"), 'opens the shop for #shop-world');
-    assert.ok(shop.includes("app: 'shop'"), 'returns to the shop place');
-    assert.ok(shop.includes('window.ShopReturn = { go: function (url) { location.href = url; } };'), 'the e2e can watch where it goes');
   });
 }

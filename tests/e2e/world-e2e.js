@@ -168,22 +168,6 @@ try {
   assert.deepEqual([back2.state.x, back2.state.z], [54, 0], 'back from the shop she stands in Shop Plaza');
   console.log('ok back in Shop Plaza');
 
-  // The lobby shop opened from the world sends her back when she closes it.
-  const lobbyDriver = 'addEventListener("pageshow", function () { setTimeout(function () {'
-    + 'var went = null; ShopReturn.go = function (u) { went = u; };'
-    + 'var open = !document.getElementById("shop-overlay").hidden;'
-    + 'document.getElementById("shop-close").click();'
-    + 'var pre = document.createElement("pre"); pre.id = "e2e-out";'
-    + 'pre.textContent = JSON.stringify({ open: open, went: went, ret: JSON.parse(sessionStorage.getItem("world_return_v1")), errors: window.__e2eErrors || [] });'
-    + 'document.body.appendChild(pre); }, 0); });';
-  const lobbyFile5 = stage(path.join(work, 'lobby'), LOBBIES[5].page, appendDriver(fs.readFileSync(lobbyFile(5), 'utf8'), lobbyDriver), ENGINE_FILES);
-  const shop = readOutput(dumpDom(path.join(work, 'profile-lobby'), lobbyFile5, '#shop-world', 3000));
-  assert.deepEqual(shop.errors, [], 'lobby: page errors');
-  assert.equal(shop.open, true, '#shop-world opens the shop');
-  assert.equal(shop.went, '../world/grade-5.html', 'closing it goes back to the world');
-  assert.deepEqual(shop.ret, { grade: 'grade5', app: 'shop' });
-  console.log('ok lobby shop and back');
-
   const noGl = '<script>HTMLCanvasElement.prototype.getContext = function () { return null; };</script>';
   const rest = run('resting', stageWorld('resting', 5, noGl), 'resting');
   assert.equal(rest.resting, true, 'no 3D: the resting card shows');

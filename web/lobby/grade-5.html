@@ -694,6 +694,8 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <script src="../engine/lang.js"></script>
 <script src="../engine/storage.js" data-grade="grade5"></script>
 <script src="../engine/learner.js" data-grade="grade5"></script>
+<script src="../engine/embed.js"></script>
+<script src="../engine/home.js" data-grade="grade5"></script>
 <script src="../engine/clock.js" data-grade="grade5"></script>
 <script src="../engine/study-history.js" data-grade="grade5"></script>
 <script src="../engine/recall.js" data-grade="grade5"></script>
@@ -716,6 +718,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 <script src="../engine/parent-pin.js" data-grade="grade5"></script>
 <script src="../engine/parent-panel.js" data-grade="grade5"></script>
 <script src="../engine/install.js" data-grade="grade5"></script>
+<script src="../engine/lobby-embed.js"></script>
 <script data-file-check>
 (function(){
   var GLOBALS = { storage: 'StudyStore', learner: 'Learner', nav: 'Nav', 'study-history': 'StudyHistory', wallet: 'Wallet', fx: 'Fx', powerups: 'PowerUps', recall: 'Recall', 'study-kit': 'StudyKit', 'sync-core': 'SyncCore', 'firebase-config': 'FIREBASE_CONFIG', cloud: 'Cloud', 'firebase-remote': 'FirebaseRemote', 'shop-requests': 'ShopRequests', subjects: 'Subjects', 'parent-panel': 'ParentPanel', world: 'World', family: 'Family', guide: 'Guide', trail: 'Trail' };
@@ -743,6 +746,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   document.addEventListener('cloud-synced', showReview);
   document.addEventListener('parent-changed', showReview);
   function showQuests(){
+    if (window.Embed && Embed.isEmbedded(window)) return;
     var box = document.getElementById('quests');
     var cards = Array.prototype.map.call(document.querySelectorAll('.subject-card[data-app]'), function(c){
       var name = c.querySelector('.subject-app') || c.querySelector('.subject-title');
@@ -843,8 +847,6 @@ window.SHOP_TEXT = {
   var pending = null, entered = '', shakeT = null;
   var C = window.Cloud, R = window.ShopRequests && W ? ShopRequests.create(STORE, Date.now) : null;
   var asked = null, unwatch = null, phoneOnly = false;
-  var fromWorld = location.hash === '#shop-world';
-  window.ShopReturn = { go: function (url) { location.href = url; } };
 
   function el(tag, cls, text){
     var e = document.createElement(tag);
@@ -934,20 +936,8 @@ window.SHOP_TEXT = {
     wrap.inert = true;
     $('shop-close').focus();
   }
-  // Opened from the 3D world (#shop-world): closing the shop by hand walks her back to Shop Plaza there.
-  function closeByHand(){
-    var back = fromWorld;
-    closeShop();
-    if (!back) return;
-    var link = $('world-open'), href = link ? link.getAttribute('href') : '', g = (href.match(/grade-(\d)/) || [])[1];
-    if (!g) return;
-    try { sessionStorage.setItem('world_return_v1', JSON.stringify({ grade: 'grade' + g, app: 'shop' })); } catch (e) {}
-    window.ShopReturn.go(href);
-  }
-
   function closeShop(){
     if (overlay.hidden) return;
-    fromWorld = false;
     pending = null;
     if (unwatch){ unwatch(); unwatch = null; }
     asked = null;
@@ -1087,13 +1077,13 @@ window.SHOP_TEXT = {
 
   var GUIDE_SEEN = 'coin_guide_seen_v1', seen = null;
   try { seen = STORE.getItem(GUIDE_SEEN); } catch (e) {}
-  if (!seen && W.showGuide){
+  if (!seen && W.showGuide && !(window.Embed && Embed.isEmbedded(window))){
     W.showGuide();
     try { STORE.setItem(GUIDE_SEEN, '1'); } catch (e) {}
   }
 
   $('shop-open').addEventListener('click', openShop);
-  $('shop-close').addEventListener('click', closeByHand);
+  $('shop-close').addEventListener('click', closeShop);
   $('shop-cancel').addEventListener('click', cancelAsk);
   $('shop-phone').addEventListener('click', askPhone);
   document.addEventListener('cloud-synced', settle);
@@ -1109,13 +1099,13 @@ window.SHOP_TEXT = {
   });
   document.addEventListener('keydown', function(ev){
     if (overlay.hidden) return;
-    if (ev.key === 'Escape') closeByHand();
+    if (ev.key === 'Escape') closeShop();
     else if (pending && /^[0-9]$/.test(ev.key)) pressKey(ev.key);
     else if (pending && ev.key === 'Backspace') pressKey('clear');
   });
   window.addEventListener('pagehide', closeShop);
   document.addEventListener('visibilitychange', function(){ if (document.hidden) closeShop(); });
-  if (location.hash === '#shop' || fromWorld) {
+  if (location.hash === '#shop') {
     history.replaceState(null, '', location.pathname + location.search);
     openShop();
   }
@@ -1131,7 +1121,7 @@ window.SHOP_TEXT = {
   window.addEventListener('pageshow', function(e){ if (e.persisted) draw(); });
 })();
 </script>
-<script data-world>window.addEventListener('pageshow', function () { try { sessionStorage.removeItem('world_return_v1'); } catch (e) {} });</script>
+<script data-world>window.addEventListener('pageshow', function () { if (window.Embed && Embed.isEmbedded(window)) return; try { sessionStorage.removeItem('world_return_v1'); } catch (e) {} });</script>
 <script>
 (function(){
   var SH = window.StudyHistory, P = window.ParentPanel;
