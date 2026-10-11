@@ -71,13 +71,14 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 - **Weekly boss:** every Monday the lobby picks a boss: 4 games (3 for Grade 2) where review is most needed. Each stage is a 3-question review inside that game, due questions first, then her weakest boxes (those rest and pay 0 points). 2 of 3 right clears a stage, and she can retry. Every stage cleared pays 10 coins at once. At least half cleared by Sunday pays 4 coins when the next week starts.
 - **Boss army:** each week one of 6 cute bosses (`bosses.js`) leads the boss round. In a boss stage a strip shows him and one minion per question; a right answer pops a minion, a wrong one makes it giggle. The last stage pops the boss. In the 3D world he waits on his own little stage beside the Boss Fort with his minions and, once every stage is cleared, plays a finale with a treasure chest (once a week, `world3d_v1.bossWin`).
 - **Date guard:** when the tablet's clock reads more than an hour earlier than the latest time it has seen, points and coins pause, a banner says so, and Parent → 📅 Tablet date → "The date is right now" clears it.
-- **Campus map:** the lobby opens on a map (Grade 5 Campus, Grade 2 Bayan). Every game is a building that gets a flag, a banner and a gold roof as all its lessons reach Bronze, Silver and Gold. ⚔️, ❗ and 🔁 show a boss stage, an open quest and due review; the shop sparkles when a reward is affordable, and the Boss Arena counts stages cleared. Her buddy (picked once, free) walks to the building she taps. 📋 List shows the cards, and the lobby remembers the choice.
+- **Campus map:** the lobby (when 3D cannot run) opens on a map (Grade 5 Campus, Grade 2 Bayan). Every game is a building that gets a flag, a banner and a gold roof as all its lessons reach Bronze, Silver and Gold. ⚔️, ❗ and 🔁 show a boss stage, an open quest and due review; the shop sparkles when a reward is affordable, and the Boss Arena counts stages cleared. Her buddy (picked once, free) walks to the building she taps. 📋 List shows the cards, and the lobby remembers the choice.
 - **Sisters (family presence):** with the cloud on, each lobby's map shows her sister's buddy by the gate (glowing while she is playing, 💌 when she has new big moments). Tapping it shows her last 5 big moments (medals, boss stages, all 3 quests, streaks) and 6 one-tap cheers; a cheer pops up on her sister's tablet after the next sync. Never scores or coins, never free text; cheers earn nothing; 10 a day.
 
 ## The 3D world
 
 **🌸 Play World** in each lobby opens a walkable Three.js world (`web/world/grade-5.html`, `grade-2.html`). A tablet
-that cannot do 3D gets a resting card with a link back to the lobby.
+that cannot do 3D gets a resting card with a link back to the lobby. With 3D, every lobby link forwards to the 3D
+world; `?stay=1` keeps the lobby (the world's resting card uses it).
 
 The start page shows a slow animated 3D town (`web/world/backdrop.html`, random Campus or Bayan) behind its buttons; it
 is purely visual and falls back to the plain page when 3D cannot run.
@@ -160,7 +161,7 @@ All progress lives in the browser's `localStorage` on each device, and the devic
 
 - Each device (and each website address) has its own data. Use **Export full backup / Import backup** to move it.
 - Everything a child saves belongs to her **learner profile**: it is stored under `learner/<id>/…`, not under a grade. Her coins, history and stars stay with her when she moves up a grade, and a younger sibling who later plays the same game on the same device starts fresh. `web/engine/learner.js` owns this.
-- The device remembers its child, so `index.html` goes straight to her lobby. A new device shows **Welcome**: 🔑 Sign in
+- The device remembers its child, so `index.html` goes straight to her lobby (which forwards to the 3D world when 3D can run). A new device shows **Welcome**: 🔑 Sign in
   (then "Who uses this tablet?"), ✨ Create family account (email + password, then add each child with her name, emoji
   and grade, then pick who uses this tablet), or 🎮 Play without an account (pick the grade; nothing is sent anywhere).
   Forgot password sends Firebase's reset email. Add children and Who uses this tablet? have a Back button. On a tablet that already has a child, Create family account skips Add children: her progress uploads at the next sync, and only her siblings are added with Add a child. `web/engine/account.js` runs it.
@@ -262,6 +263,7 @@ node tests/e2e/sisters-e2e.js        # her sister's buddy, card, cheers and the 
 node tests/e2e/guide-e2e.js          # guide bubble on the map; lesson path, toggle, search and ?lesson= in games
 node tests/e2e/world-e2e.js          # 3D world: maker, doors, 🏠 back, quick travel, medals, markers, Mimi's trail, fort, shop and back, buddies, Ask me!, the pet teacher after a wrong answer, gifts and monsters (coins, a found item, a helper), playmates (talk, questions, invite), playground games (tag with the red edge, hide-and-seek with her eyes covered, disguise and Boo!, a friend asking, her sister playing), Patintero (run, be tagged, guard the middle line, tag back), Hoot, Bunny, trees, Jesus's greeting and comfort, sister cheers, rides (looping until Stop, the slide one run), the 10-minute nudge stopping a ride, sprint, wheel and pinch zoom, the boss at the fort and his finale, Lola Lana's boutique (try-on, buy) and the mirror's wardrobe tabs, Mang Kiko's pet stall (try, buy, pat, treat, sleep, tricks, fetch) and the mirror's Pet tab, Kuya Pilo's toy stall (props, emotes), My Room (go in, Decorate: place, move, turn, put away, buy; Tito Tasyo's workshop; the desk; a trophy; growing with medals and earned pieces; her sister's room, view only, and a cheer), world sounds
 node tests/e2e/portal-e2e.js         # a game inside the world (served over a local http server): the door glides in, the town blurs, the game runs in the frame in embed mode, ← and ✕ close it, ✕ from a quiz leaves no stale history entry
+node tests/e2e/home-e2e.js           # world as home (local http server): the lobby forwards to the world, coin and quest pills, shop / parent area / coin guide in the frame, quests card, ?stay=1 keeps the lobby
 node tests/e2e/nav-e2e.js            # top bar: Back, Home, Menu and the leave-the-quiz check
 node tests/e2e/search-e2e.js         # lesson search: filter, nothing-found line, redraw, clear, Enter
 node tests/e2e/read-gate-e2e.js      # reviewer lock: Start Quiz waits until every card was shown

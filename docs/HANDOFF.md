@@ -108,6 +108,16 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   Accepted gap: offline with a game not cached shows the browser's offline page inside the frame (✕ closes it). Spec
   and plan: `docs/superpowers/specs/2026-10-11-games-in-world-design.md`, `docs/superpowers/plans/2026-10-11-games-in-world.md`.
   Tablet check pending (glide smoothness, frame size on phone and tablet, the back gesture after a quiz, the pet's welcome).
+- World as home (2026-10-11): a lobby page forwards to the world when 3D can run (`web/engine/home.js`; never inside
+  the frame, with `?stay=1`, for a lobby section, or on `file:` pages). The world syncs (`cloud.js`, held while a frame
+  is open via `Cloud.hold`) and runs the lobby's daily upkeep (`Quests.pick`, `Boss.ensure`, `Quests.check`). HUD: 🪙
+  coins (opens the coin guide) and 🎯 quests with the streak (opens a quests card whose links open the game in the
+  frame); the 🏠 Lobby pill is gone. Bunny's counter opens the reward shop and ⚙️ → 🔒 For parents the PIN-gated parent
+  area, both as lobby sections in the frame (`?embed=1#shop|#coins|#parent`, `web/engine/lobby-embed.js`); the parent
+  area's Account and 🏫 Open the lobby page leave the frame. A different child picked in the parent area reloads the
+  world. Embed helpers live in `web/engine/embed.js`. Spec and plan: `docs/superpowers/specs/2026-10-11-world-as-home-design.md`,
+  `docs/superpowers/plans/2026-10-11-world-as-home.md`. Tablet check pending (sign-in lands in the world, the home-screen
+  icon, the shop's phone request from the world, a sync seen on the phone page while she stays in the world).
 - Gifts and monsters at the hangout places: question-gated, 1/2/3 coins, at most 15 world coins a day, found-only
   wardrobe items for Hard questions.
 - Owner dashboard (sub-project 1 of 3): built, a private page at `/admin/` (`web/admin/`) showing families, children,
@@ -122,9 +132,8 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
-- **App inside the world, sub-projects C, D** (from the 2026-10-11 brainstorm; brainstorm each first): C, sign-in goes straight to the world
-  with the shop, quests, search, settings and the PIN-gated parent area as overlays (lobby stays as the no-WebGL
-  fallback); D, HUD tidy-up and lazy loading after measuring the tablet.
+- **App inside the world, sub-project D** (from the 2026-10-11 brainstorm; brainstorm first): HUD tidy-up and lazy
+  loading after measuring the tablet.
 - **Wardrobe 5b, My Yard:** the same square-and-place system outdoors around My Little House (split from 5 on
   2026-10-08). Brainstorm first.
 
