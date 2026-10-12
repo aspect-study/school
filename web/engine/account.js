@@ -209,7 +209,15 @@
     show('children-view');
     var list = $('kid-list');
     list.textContent = '';
-    kids.forEach(function (k) { list.appendChild(el('li', '', label(k))); });
+    kids.forEach(function (k) {
+      var li = el('li', '', label(k) + ' ');
+      var del = el('button', 'link', 'Delete');
+      del.type = 'button';
+      del.setAttribute('data-delete', k.id);
+      del.addEventListener('click', function () { askDelete(k, del); });
+      li.appendChild(del);
+      list.appendChild(li);
+    });
     var me = accountMode && L.current();
     var mine = me && !kids.some(function (k) { return k.id === me.id; });
     $('kid-note').hidden = !mine;
@@ -218,6 +226,32 @@
     $('kid-name').value = '';
     form = { emoji: EMOJIS[0], grade: 0, boy: null };
     drawForm();
+  }
+
+  // The first tap asks; the second one, within five seconds, deletes.
+  function askDelete(k, btn) {
+    if (btn.getAttribute('data-sure') !== '1') {
+      btn.setAttribute('data-sure', '1');
+      btn.textContent = 'Delete ' + ((k.profile && k.profile.name) || 'this child') + ' and all progress? Tap again';
+      setTimeout(function () { btn.removeAttribute('data-sure'); btn.textContent = 'Delete'; }, 5000);
+      return;
+    }
+    work('Deleting…', function () {
+      return remote().deleteLearner(k.id).then(function () { removeLocal(k.id); });
+    }, function () {
+      kids = kids.filter(function (x) { return x.id !== k.id; });
+      renderChildren();
+      say('Deleted ' + label(k) + '.');
+    }, function () { return 'Could not delete the child. ' + OFFLINE; });
+  }
+  function removeLocal(id) {
+    var prefix = 'learner/' + id + '/', gone = [];
+    try {
+      for (var i = 0; i < raw.length; i++) if (raw.key(i).indexOf(prefix) === 0) gone.push(raw.key(i));
+      gone.forEach(function (key) { raw.removeItem(key); });
+      var device = JSON.parse(raw.getItem('learners_v1'));
+      if (device && device.current === id) raw.setItem('learners_v1', JSON.stringify({ v: 1, current: null }));
+    } catch (e) {}
   }
 
   $('kid-add').addEventListener('click', function () {

@@ -47,6 +47,23 @@
           return snap.docs.map(function (d) { return { id: d.id, profile: parse(d.data().json) }; });
         });
       },
+      // The client SDK cannot delete a document's sub-collections with it, so each one is emptied first.
+      deleteLearner: function (id) {
+        function emptied(name) {
+          return F.getDocs(sub(id, name)).then(function (snap) {
+            var chunks = [];
+            for (var i = 0; i < snap.docs.length; i += 400) chunks.push(snap.docs.slice(i, i + 400));
+            return chunks.reduce(function (chain, chunk) {
+              return chain.then(function () {
+                var batch = F.writeBatch(db);
+                chunk.forEach(function (d) { batch.delete(d.ref); });
+                return batch.commit();
+              });
+            }, Promise.resolve());
+          });
+        }
+        return Promise.all(['state', 'counters', 'history'].map(emptied)).then(function () { return F.deleteDoc(learnerDoc(id)); });
+      },
       pull: function (id, ms, historyMs) {
         var historyFrom = Math.max(ms, historyMs || 0);
         return Promise.all([F.getDoc(learnerDoc(id)), since(id, 'state', ms), since(id, 'counters', ms), since(id, 'history', historyFrom)]).then(function (r) {

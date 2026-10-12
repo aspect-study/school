@@ -31,6 +31,7 @@ const FAKE = `(function (root) {
       return {
         learners: function () { var u = me(db()); return Promise.resolve(Object.keys(u.learners).map(function (id) { return { id: id, profile: u.learners[id] }; })); },
         merge: function (id, key, local, fn) { var d = db(), u = me(d); u.learners[id] = fn(local, u.learners[id] || null); save(d); return Promise.resolve(u.learners[id]); },
+        deleteLearner: function (id) { var d = db(), u = me(d); delete u.learners[id]; save(d); return Promise.resolve(); },
         putFamily: function () { return Promise.resolve(); },
         getPin: function () { return Promise.resolve(me(db()).pin); },
         putPin: function (rec) { var d = db(); me(d).pin = rec; save(d); return Promise.resolve(); }
@@ -98,7 +99,13 @@ run([
   function () { log.noKind = msg(); document.querySelector('#kid-kinds [data-boy="0"]').click(); click('kid-add'); },
   function () { log.added = msg(); type('kid-name', 'Bea'); document.querySelector('#kid-grades [data-grade="2"]').click(); document.querySelector('#kid-kinds [data-boy="0"]').click(); click('kid-add'); },
   function () { log.addedBea = msg(); type('kid-name', 'Ben'); document.querySelector('#kid-grades [data-grade="2"]').click(); document.querySelector('#kid-kinds [data-boy="1"]').click(); click('kid-add'); },
-  function () { log.listed = q('kid-list').children.length; click('kid-done'); },
+  function () {
+    log.listed = q('kid-list').children.length;
+    log.benRow = Array.prototype.filter.call(q('kid-list').children, function (li) { return li.textContent.indexOf('Ben') >= 0; })[0];
+    log.benRow.querySelector('[data-delete]').click();
+  },
+  function () { log.asked = log.benRow.querySelector('[data-delete]').textContent; log.benRow.querySelector('[data-delete]').click(); },
+  function () { log.afterDelete = q('kid-list').children.length; log.deletedMsg = msg(); click('kid-done'); },
   function () {
     log.pick = view();
     var buttons = Array.prototype.slice.call(document.querySelectorAll('#pick-list [data-learner]'));
@@ -184,14 +191,16 @@ try {
   assert.ok(a.log.addedBea.includes('Bea'));
   assert.equal(a.log.listed, 3);
   assert.equal(a.log.pick, 'pick-view');
-  assert.equal(a.log.pickLabels.length, 3);
+  assert.equal(a.log.asked, "Delete Ben and all progress? Tap again");
+  assert.equal(a.log.afterDelete, 2, 'Ben is gone from the list');
+  assert.match(a.log.deletedMsg, /^Deleted .*Ben/);
+  assert.equal(a.log.pickLabels.length, 2);
   assert.equal(a.log.went, 'lobby/grade-2.html');
   assert.equal(a.log.flag, '1');
   const learners = a.log.cloud.users['mom@family.test'].learners;
   const bea = Object.keys(learners).find((id) => learners[id].name === 'Bea');
   assert.equal(learners[bea].grade, 2);
-  const ben = Object.keys(learners).find((id) => learners[id].name === 'Ben');
-  assert.equal(learners[ben].boy, true, 'Ben is saved as a boy');
+  assert.equal(Object.keys(learners).find((id) => learners[id].name === 'Ben'), undefined, 'Ben is deleted from the cloud');
   assert.equal('boy' in learners[bea], false, 'a girl\'s profile has no boy key');
   assert.equal(Object.values(learners).find((p) => p.name === 'Ana').grade, 5);
   assert.equal(a.log.device.current, bea, 'this tablet is Bea');
