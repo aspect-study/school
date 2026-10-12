@@ -8,10 +8,10 @@ Everything is plain HTML and JavaScript: no build step, no server, no install. O
 
 | Grade | Lobby |
 |---|---|
-| Grade 5 | <https://aspect-study.github.io/school/lobby/grade-5.html> |
-| Grade 2 | <https://aspect-study.github.io/school/lobby/grade-2.html> |
+| Grade 5 | <https://school-ten-sepia.vercel.app/lobby/grade-5> |
+| Grade 2 | <https://school-ten-sepia.vercel.app/lobby/grade-2> |
 
-<https://aspect-study.github.io/school/> asks which grade is studying. Old links (`lobby-grade5.html`, `grade%202/lobby.html` and the old game addresses) still work: they forward to the new ones, so home-screen icons installed before the move keep working.
+<https://school-ten-sepia.vercel.app/> asks which grade is studying. Old links (`lobby-grade5.html`, `grade%202/lobby.html` and the old game addresses) still work: they forward to the new ones, so home-screen icons installed before the move keep working.
 
 ### Install as an app (works offline)
 
@@ -174,7 +174,7 @@ All progress lives in the browser's `localStorage` on each device, and the devic
 ## Project layout
 
 ```
-web/                         the published site (the only folder GitHub Pages serves)
+web/                         the published site (the only folder Vercel serves)
   index.html                 "Who's studying?" grade picker
   lobby/grade-5.html         Grade 5 lobby (subject cards, shop, parent panel) + its .webmanifest
   lobby/grade-2.html         Grade 2 lobby + its .webmanifest
@@ -235,7 +235,7 @@ tests/                       unit tests (node:test) and headless-Chrome end-to-e
   paths.js                   where every page lives (games are found through their subject.json)
   content.js                 loads a game's lesson files the way the browser does
 docs/                        design specs, plans and handoff notes
-.github/workflows/pages.yml  runs the unit tests, then publishes web/
+.github/workflows/tests.yml  runs the unit tests on every push to main
 ```
 
 The engine files serve both grades. Each page says which grade it is with `data-grade` on the script tag (`<script src="../../../engine/wallet.js" data-grade="grade5">`), and every grade keeps its own storage keys.
@@ -312,12 +312,12 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 
 One-time Firebase console steps (not code):
 
-1. **App Check:** Firebase console → App Check → register the web app with reCAPTCHA v3 (create the key at google.com/recaptcha/admin; add the GitHub Pages domain and `localhost`). Paste the site key into `appCheckSiteKey` in `web/engine/firebase-config.js` and deploy. Watch the App Check metrics for Firestore in monitor mode until every tablet has opened the new version, then press **Enforce** for Firestore (and Authentication if offered). Enforcing early locks out tablets that still run the old cached code.
+1. **App Check:** Firebase console → App Check → register the web app with reCAPTCHA v3 (create the key at google.com/recaptcha/admin; add the Vercel domain and `localhost`). Paste the site key into `appCheckSiteKey` in `web/engine/firebase-config.js` and deploy. Watch the App Check metrics for Firestore in monitor mode until every tablet has opened the new version, then press **Enforce** for Firestore (and Authentication if offered). Enforcing early locks out tablets that still run the old cached code.
 2. **Authentication → Settings → User actions:** turn on email enumeration protection.
 3. **Authentication → Settings → Password policy:** minimum length 8, enforcement mode **Require**.
 
 ## Deployment
 
-Pushing to `main` runs `.github/workflows/pages.yml`: it runs the unit tests and, if they pass, publishes the `web/` folder to GitHub Pages. Both lobbies update within a minute or two. A failing test blocks the publish, so the live site keeps its last good version.
+The repository is private and the site is hosted on Vercel (Hobby plan). The Vercel project's root directory is `web/` (rewrites are in `web/vercel.json`), and every push to `main` deploys it within a minute or two. `.github/workflows/tests.yml` runs `node --test` on each push, but it does not gate the Vercel deploy: check the Actions tab after a push.
 
-One-time setup: GitHub → repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+GitHub Pages is no longer used (it needs a paid plan for a private repository), so the old `aspect-study.github.io/school/` addresses are offline. Firebase → Authentication → Settings → **Authorized domains** must list the Vercel domain.

@@ -7,7 +7,7 @@ Keep this page current: when a feature lands, move it to "Built", and add new id
 
 `C:\Users\ADMIN\IdeaProjects\school` holds study games for two sisters (Grade 2 and Grade 5): 17 subject games, two
 lobbies with a campus map, a parent phone page, points, coins and a reward shop, cloud sync, and a walkable Three.js 3D
-world (`web/world`). Pushing to `main` publishes `web/` to GitHub Pages.
+world (`web/world`). The repo is private; pushing to `main` deploys `web/` on Vercel (GitHub Pages is no longer used).
 
 ## Built (all on `main`)
 
