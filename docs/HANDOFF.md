@@ -195,11 +195,15 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   syncing them to the cloud. Resume at that question if the world ever feels slow.
 - **Wardrobe 5b, My Yard:** the same square-and-place system outdoors around My Little House (split from 5 on
   2026-10-08). Brainstorm first.
+- Account hardening (2026-10-12): strict Firestore rules with emulator tests, PIN and consent at registration, privacy notice, email verification (advisory), 8-character passwords, delete family account, App Check support (key still to be registered, see README).
 
 New subject lessons arrive as class decks and summative tests.
 
 ## Still pending on the owner's side (not code)
 
+- App Check key + Enforce, email enumeration protection, password policy (README, Account hardening); deploy the new rules from `firebase/firestore.rules`.
+- Set the privacy contact email in `web/privacy.html` (it still contains CONTACT_EMAIL) and remove the skip in `tests/privacy.test.js` before other families use the app.
+- Run the size-measuring snippet from the account hardening plan on a used tablet; raise the state cap in `firebase/firestore.rules` and `tests/rules/families.rules.js` if any `learner/` value is over 250000.
 - Family account live check: create a test account on the site, add a child, pick her, change the PIN and see it on
   the other tablet and the phone after a sync; Forgot password email arrives. First confirm sign-up is allowed in the Firebase console (Authentication → Settings →
   User actions); with email-enumeration protection on, Forgot password reports success even for an unknown email. Anyone can now register on `study-game`;

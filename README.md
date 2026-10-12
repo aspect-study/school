@@ -164,7 +164,7 @@ All progress lives in the browser's `localStorage` on each device, and the devic
 - Each device (and each website address) has its own data. Use **Export full backup / Import backup** to move it.
 - Everything a child saves belongs to her **learner profile**: it is stored under `learner/<id>/…`, not under a grade. Her coins, history and stars stay with her when she moves up a grade, and a younger sibling who later plays the same game on the same device starts fresh. `web/engine/learner.js` owns this.
 - The device remembers its child, so `index.html` goes straight to her lobby (which forwards to the 3D world when 3D can run). A new device shows **Welcome**: 🔑 Sign in
-  (then "Who uses this tablet?"), ✨ Create family account (email + password, then add each child with her name, emoji
+  (then "Who uses this tablet?"), ✨ Create family account (email, an 8+ character password, a parent PIN and a tick to agree to `privacy.html`, then add each child with her name, emoji
   and grade, then pick who uses this tablet), or 🎮 Play without an account (pick the grade; nothing is sent anywhere).
   Forgot password sends Firebase's reset email. Add children and Who uses this tablet? have a Back button. On a tablet that already has a child, Create family account skips Add children: her progress uploads at the next sync, and only her siblings are added with Add a child. `web/engine/account.js` runs it.
 - Tablets saved before learner profiles (2026-10-02) are moved over automatically on their first visit. The old keys are copied, not moved, and stay as a safety net.
@@ -302,6 +302,19 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 8. Give it a building in the 3D world: add an entry to `APPS.gradeN` in `web/world/layout.js` (app id, folder, emoji, sign with the subject name, colours, roof shape), in the lobby's order. `tests/world3d-layout.test.js` fails until it has one.
 9. Run `node tools/update-precache.js` so it works offline. `node --test` lists anything you missed.
 10. Put the source decks in `sources/grade-6/math/`.
+
+## Account hardening (2026-10-12)
+
+- `firebase/firestore.rules` lists every path and field the app writes; anything else is denied. Test it with `npm run test:rules` (needs JDK 21+; installs with `npm install`; a portable JDK 21 can be put on PATH/JAVA_HOME for the session). Run it before pasting the rules into Firebase console → Firestore → Rules. `node --test` does not run these tests.
+- Email verification is advisory: the Account view shows the status and a resend button. Nothing is blocked.
+- Delete family account (Account view) re-authenticates, deletes every child, the PIN, the family doc and the Firebase user, then wipes this device. Other tablets keep their local copy until cleared.
+- Existing families see a one-time consent screen at their next sign-in, or a banner in the Account view.
+
+One-time Firebase console steps (not code):
+
+1. **App Check:** Firebase console → App Check → register the web app with reCAPTCHA v3 (create the key at google.com/recaptcha/admin; add the GitHub Pages domain and `localhost`). Paste the site key into `appCheckSiteKey` in `web/engine/firebase-config.js` and deploy. Watch the App Check metrics for Firestore in monitor mode until every tablet has opened the new version, then press **Enforce** for Firestore (and Authentication if offered). Enforcing early locks out tablets that still run the old cached code.
+2. **Authentication → Settings → User actions:** turn on email enumeration protection.
+3. **Authentication → Settings → Password policy:** minimum length 8, enforcement mode **Require**.
 
 ## Deployment
 
