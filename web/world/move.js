@@ -234,12 +234,26 @@
     // null: back behind her.
     function fixed(v) { fixedView = v ? { x: v.x, y: v.y, z: v.z, at: { x: v.at.x, y: v.at.y, z: v.at.z } } : null; }
 
+    // Turns the camera the least that gets it a clear view, so it never lands pressed against her back by a wall.
+    function openYaw() {
+      if (!o.wall || fixedView || boxed) return;
+      var dist = CAM_DIST / st.zoom, base = st.yaw, step = Math.PI / 12;
+      for (var k = 0; k <= 12; k++) {
+        for (var s = 1; s >= -1; s -= 2) {
+          st.yaw = base + s * k * step;
+          if (clearDist(dist, st.pitch) >= dist) return;
+        }
+      }
+      st.yaw = base;
+    }
+
     function teleport(x, z, face) {
       st.x = x;
       st.z = z;
       st.face = face;
       st.yaw = face + Math.PI;
       st.target = null;
+      openYaw();
       camera(0, true);
     }
 
@@ -260,5 +274,5 @@
     };
   }
 
-  W.Move = { create: create };
+  W.Move = { create: create, CAM_DIST: CAM_DIST };
 })(this);

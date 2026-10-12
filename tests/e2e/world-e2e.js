@@ -70,7 +70,7 @@ try {
   assert.deepEqual(back.errors, [], 'back: page errors');
   assert.equal(back.makerOpen, false, 'a made character skips the maker');
   assert.equal(back.state.near, 'life-lab', 'back from a game, she stands outside its door');
-  assert.ok(back.view.dist < 15 / 0.45 - 5, 'the camera stops short of the building behind her: ' + back.view.dist);
+  assert.ok(back.view.dist > 10, 'back from a game the camera turns to a clear side instead of pressing against her back: ' + back.view.dist);
   console.log('ok back at the door');
 
   const snd = run('sounds', stageWorld('sounds', 5, SEEDED), 'sounds');
@@ -296,6 +296,12 @@ try {
   assert.equal(games.tag.it, 'her');
   assert.equal(games.tag.players, 4);
   assert.ok(games.tag.props >= 4, 'random props for tag');
+  assert.equal(games.tagRoster.chips.length, 5, 'her and four players in the roster');
+  assert.equal(games.tagRoster.rows, 1);
+  assert.deepEqual(games.tagRoster.chips.filter((c) => c.cls === 'it').map((c) => c.name), ['You'], 'one chip is it: her');
+  assert.equal(games.tagRoster.chips[0].name, 'You');
+  assert.equal(games.tagRoster.tags, 4, 'a name tag over each other player');
+  assert.equal(games.tagRoster.shown, 4);
   assert.match(games.tag.pill, /^🏷️ You're it! Tag a friend! · ⏱️ 2:00$/);
   assert.equal(games.tagged.it, games.tagged.want, 'the kid she touched is it');
   assert.match(games.tagged.pill, /is counting… 3/);
@@ -340,17 +346,29 @@ try {
   assert.equal(pat.start.hint, 'Cross every line and come back!');
   assert.deepEqual(pat.start.teams, [4, 4]);
   assert.equal(pat.start.rings, 8);
+  assert.deepEqual(pat.start.roster, { chips: 8, rows: 2, you: 1, tags: 7 }, 'two team rows of four, 7 name tags');
   assert.equal(pat.start.behindHome, true, 'she starts behind the home line');
   assert.equal(pat.start.movedWhileReady, false, 'she cannot move while the ready count runs');
   assert.equal(pat.play.phase, 'play');
-  assert.deepEqual([pat.tagged.guarding, pat.tagged.post, pat.tagged.onMid], [true, 'mid', true], 'tagged: she guards on the middle line');
-  assert.deepEqual(pat.tagged.fenced, { side: true, mid: true });
+  assert.equal(pat.replay.on, true, 'a tag starts the replay');
+  assert.equal(pat.replay.bar, '🎬 ReplaySkip ⏭');
+  assert.equal(pat.replay.hint, null, 'the hint makes way for the replay bar');
+  assert.ok(pat.replay.moved > 1, 'everyone moves through the last seconds: ' + pat.replay.moved);
+  assert.deepEqual(pat.replay.later, { on: true, left: pat.replay.left }, 'still playing 7 s on, and the game clock waits');
+  assert.deepEqual(pat.replay.skipped, { on: false, bar: null }, 'Skip ⏭ ends it');
+  assert.equal(pat.tagger.replay, true, 'her tag plays again too');
+  assert.equal(pat.tagger.after, false, 'and ends on its own after about 8 s');
+  assert.ok(['mid', 'c0', 'c1', 'c2'].indexOf(pat.tagged.lane) >= 0, 'tagged: she has a lane');
+  assert.deepEqual([pat.tagged.guarding, pat.tagged.post, pat.tagged.onLane], [true, pat.tagged.lane, true], 'tagged: she guards on her lane');
+  assert.deepEqual(pat.tagged.fenced, { side: true, off: true, on: false }, 'her fence blocks off her lane and frees her lane');
+  assert.equal(pat.start.bibs, 8, 'a bib on every player');
+  assert.equal(pat.tagged.bibs, 8);
   assert.equal(pat.tagged.hint, '😲 Tagged! Teams swap!');
   assert.equal(pat.tagger.running, true);
   assert.equal(pat.tagger.hint, '🎉 Got one! Teams swap!');
-  assert.deepEqual(pat.afterEnd, { playing: false, rings: 0, walks: true }, '✖ End game: no rings, no fence');
+  assert.deepEqual(pat.afterEnd, { playing: false, rings: 0, bibs: 0, walks: true }, '✖ End game: no rings, no bibs, no fence');
   assert.equal(pat.fromBoard, 'patintero');
-  console.log('ok patintero: ready, tagged and guarding, tagging back, end, from the board');
+  console.log('ok patintero: ready, tag replay and skip, tagged and guarding, tagging back, end, from the board');
 
   // Playmates part 1: nine kids near the playground only, a friend on the see-saw's far end who lands with her, Ella's
   // study question saved to history with 0 points and no review box, an invited friend on the other swing, Migo's fun
