@@ -85,9 +85,10 @@
           Array.prototype.forEach.call(box.querySelectorAll('button'), function (k) { k.disabled = true; });
           openChild(l);
         });
-        var del = el('button', 'p-btn soft-danger', 'Delete');
+        var del = el('button', 'p-btn soft-danger', '🗑');
+        del.setAttribute('aria-label', 'Delete ' + ((l.profile && l.profile.name) || 'this child'));
         del.type = 'button';
-        del.addEventListener('click', function () { askDelete(l, del); });
+        del.addEventListener('click', function () { askDelete(l, row); });
         row.appendChild(b);
         row.appendChild(del);
         box.appendChild(row);
@@ -95,17 +96,24 @@
     }, offline);
   }
 
-  // The first tap asks; the second one, within five seconds, deletes the child and all progress from the cloud.
-  function askDelete(l, btn) {
-    if (btn.getAttribute('data-sure') !== '1') {
-      btn.setAttribute('data-sure', '1');
-      btn.textContent = 'Delete ' + ((l.profile && l.profile.name) || 'this child') + ' for good? Tap again';
-      setTimeout(function () { btn.removeAttribute('data-sure'); btn.textContent = 'Delete'; }, 5000);
-      return;
-    }
-    Array.prototype.forEach.call($('kids').querySelectorAll('button'), function (k) { k.disabled = true; });
-    setStatus('Deleting…');
-    FR.remote(user.uid).deleteLearner(l.id).then(function () { pick(); }, function () { pick(); offline(); });
+  // Delete swaps the child's row for a question with Cancel and Delete.
+  function askDelete(l, row) {
+    row.textContent = '';
+    row.classList.add('asking');
+    row.appendChild(el('p', 'kid-ask', 'Delete ' + ((l.profile && l.profile.name) || 'this child') + ' and all progress?'));
+    var cancel = el('button', 'p-btn', 'Cancel');
+    var yes = el('button', 'p-btn danger', 'Delete');
+    cancel.type = yes.type = 'button';
+    cancel.addEventListener('click', pick);
+    yes.addEventListener('click', function () {
+      Array.prototype.forEach.call($('kids').querySelectorAll('button'), function (k) { k.disabled = true; });
+      setStatus('Deleting…');
+      FR.remote(user.uid).deleteLearner(l.id).then(function () { pick(); }, function () { pick(); offline(); });
+    });
+    var btns = el('div', 'kid-ask-btns');
+    btns.appendChild(cancel);
+    btns.appendChild(yes);
+    row.appendChild(btns);
   }
 
   // ---- one child ----

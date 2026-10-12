@@ -121,7 +121,11 @@
   .phone .p-row input{ min-width:0; flex:1 1 180px; }
   .kid-row{ display:flex; gap:8px; margin-bottom:10px; }
   .kid-row .kid-btn{ flex:1; margin-bottom:0; }
-  .p-btn.soft-danger{ color:var(--bad); border-color:var(--bad); font-size:0.8rem; max-width:9.5rem; }
+  .p-btn.soft-danger{ width:52px; font-size:1.1rem; border-color:var(--bad); }
+  .kid-row.asking{ flex-direction:column; padding:12px 14px; border:1px solid var(--bad); border-radius:14px; background:var(--card); }
+  .kid-ask{ margin:0; font-weight:800; }
+  .kid-ask-btns{ display:flex; gap:10px; }
+  .kid-ask-btns .p-btn{ flex:1; }
   .kid-btn{ display:block; width:100%; text-align:left; font-size:1.05rem; padding:14px 16px; margin-bottom:10px; }
   .req{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:10px 0; border-top:1px solid var(--border); }
   .req:first-of-type{ border-top:0; }

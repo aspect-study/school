@@ -163,7 +163,7 @@
   });
   GRADES.concat(SOON_GRADES).sort(function (a, b) { return a - b; }).forEach(function (g) {
     var soon = SOON_GRADES.indexOf(g) >= 0;
-    var b = el('button', 'chip', 'Grade ' + g + (soon ? ' · soon' : ''));
+    var b = el('button', 'chip', 'Grade ' + g + (soon ? ' \u00B7 soon' : ''));
     b.type = 'button';
     b.disabled = soon;
     b.setAttribute('data-grade', String(g));
@@ -209,15 +209,7 @@
     show('children-view');
     var list = $('kid-list');
     list.textContent = '';
-    kids.forEach(function (k) {
-      var li = el('li', '', label(k) + ' ');
-      var del = el('button', 'link danger', 'Delete');
-      del.type = 'button';
-      del.setAttribute('data-delete', k.id);
-      del.addEventListener('click', function () { askDelete(k, del); });
-      li.appendChild(del);
-      list.appendChild(li);
-    });
+    kids.forEach(function (k) { list.appendChild(kidCard(k)); });
     var me = accountMode && L.current();
     var mine = me && !kids.some(function (k) { return k.id === me.id; });
     $('kid-note').hidden = !mine;
@@ -228,21 +220,45 @@
     drawForm();
   }
 
-  // The first tap asks; the second one, within five seconds, deletes.
-  function askDelete(k, btn) {
-    if (btn.getAttribute('data-sure') !== '1') {
-      btn.setAttribute('data-sure', '1');
-      btn.textContent = 'Delete ' + ((k.profile && k.profile.name) || 'this child') + ' and all progress? Tap again';
-      setTimeout(function () { btn.removeAttribute('data-sure'); btn.textContent = 'Delete'; }, 5000);
-      return;
-    }
-    work('Deleting…', function () {
-      return remote().deleteLearner(k.id).then(function () { removeLocal(k.id); });
-    }, function () {
-      kids = kids.filter(function (x) { return x.id !== k.id; });
-      renderChildren();
-      say('Deleted ' + label(k) + '.');
-    }, function () { return 'Could not delete the child. ' + OFFLINE; });
+  function kidCard(k) {
+    var p = k.profile || {};
+    var card = el('div', 'kid-card');
+    var text = el('span', 'kc-text');
+    text.appendChild(el('b', '', p.name || 'No name yet'));
+    text.appendChild(el('small', '', 'Grade ' + p.grade + ' \u00B7 ' + (p.boy === true ? 'Boy' : 'Girl')));
+    var del = el('button', 'kc-del', '\uD83D\uDDD1');
+    del.type = 'button';
+    del.setAttribute('data-delete', k.id);
+    del.setAttribute('aria-label', 'Delete ' + (p.name || 'this child'));
+    del.addEventListener('click', function () { askDelete(k, card); });
+    card.appendChild(el('span', 'kc-emoji', p.emoji || '\uD83D\uDE42'));
+    card.appendChild(text);
+    card.appendChild(del);
+    return card;
+  }
+
+  function askDelete(k, card) {
+    card.textContent = '';
+    card.classList.add('asking');
+    card.appendChild(el('span', 'kc-ask', 'Delete ' + ((k.profile && k.profile.name) || 'this child') + ' and all progress?'));
+    var btns = el('span', 'kc-btns');
+    var cancel = el('button', '', 'Cancel');
+    var yes = el('button', 'kc-confirm', 'Delete');
+    cancel.type = yes.type = 'button';
+    yes.setAttribute('data-confirm', k.id);
+    cancel.addEventListener('click', renderChildren);
+    yes.addEventListener('click', function () {
+      work('Deleting\u2026', function () {
+        return remote().deleteLearner(k.id).then(function () { removeLocal(k.id); });
+      }, function () {
+        kids = kids.filter(function (x) { return x.id !== k.id; });
+        renderChildren();
+        say('Deleted ' + label(k) + '.');
+      }, function () { return 'Could not delete the child. ' + OFFLINE; });
+    });
+    btns.appendChild(cancel);
+    btns.appendChild(yes);
+    card.appendChild(btns);
   }
   function removeLocal(id) {
     var prefix = 'learner/' + id + '/', gone = [];

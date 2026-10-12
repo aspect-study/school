@@ -82,7 +82,6 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
     font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:16px; font-weight:600; transition:transform .14s cubic-bezier(.3,1.7,.5,1), box-shadow .14s ease-out;
   }
   .link:active{ transform:translateY(3px); box-shadow:none; }
-  .link.danger{ border-color:#E8B4AE; box-shadow:0 3px 0 #E8B4AE; color:var(--bad); font-size:14px; padding:4px 12px; margin-left:6px; }
   .link-card{
     display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:18px; text-decoration:none; color:#2B4C9B;
     background:#fff; border:3px solid #9DB4E8; box-shadow:0 4px 0 #C7D5F5;
@@ -100,7 +99,20 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   .chip.on{ border-color:var(--teal); background:var(--teal); color:#fff; }
   #acct-guest, #acct-signed{ display:flex; flex-direction:column; gap:10px; }
   #acct-guest[hidden], #acct-signed[hidden]{ display:none; }
-  #kid-list{ margin:0; padding-left:20px; font-weight:700; }
+  #kid-list{ display:flex; flex-direction:column; gap:10px; }
+  .kid-card{ display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:18px; background:#fff; border:3px solid #D8D3C6; box-shadow:0 3px 0 #D8D3C6; }
+  .kid-card .kc-emoji{ display:grid; place-items:center; flex:none; width:44px; height:44px; border-radius:14px; background:#F4F1E9; font-size:26px; }
+  .kid-card .kc-text{ display:flex; flex-direction:column; flex:1; min-width:0; line-height:1.15; font-family:'Fredoka','Baloo 2',system-ui,sans-serif; }
+  .kid-card .kc-text b{ font-size:19px; font-weight:600; overflow-wrap:anywhere; }
+  .kid-card .kc-text small{ font-size:14px; font-weight:500; color:var(--muted); }
+  .kid-card .kc-del{ flex:none; width:44px; height:44px; border-radius:14px; border:2px solid #E8B4AE; background:#fff; font-size:20px; }
+  .kid-card.asking{ border-color:#E8B4AE; box-shadow:0 3px 0 #E8B4AE; flex-wrap:wrap; }
+  .kid-card .kc-ask{ flex:1 1 100%; font-weight:700; }
+  .kid-card .kc-btns{ display:flex; gap:10px; flex:1 1 100%; }
+  .kid-card .kc-btns button{ flex:1; padding:10px; border-radius:14px; border:2px solid #D8D3C6; background:#fff; font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:16px; font-weight:600; }
+  .kid-card .kc-btns .kc-confirm{ border-color:var(--bad); background:var(--bad); color:#fff; }
+  .add-card{ display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:22px; background:#FBFAF6; border:3px dashed #C9C3B4; }
+  .add-card h3{ margin:0; font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:19px; }
   .choices{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
   .choices a{
     display:flex; align-items:center; gap:14px; padding:18px 20px; border-radius:26px; text-decoration:none;
@@ -158,15 +170,18 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   </section>
 
   <section id="children-view" hidden>
-    <h2>Add children</h2>
+    <h2>Children</h2>
     <p class="note" id="kid-note" hidden></p>
-    <ul id="kid-list"></ul>
-    <input type="text" id="kid-name" maxlength="30" placeholder="Child's name">
-    <div class="chips" id="kid-emojis" role="group" aria-label="Emoji"></div>
-    <div class="chips" id="kid-grades" role="group" aria-label="Grade"></div>
-    <div class="chips" id="kid-kinds" role="group" aria-label="Girl or boy"></div>
-    <button class="big" type="button" id="kid-add">💾 Save this child</button>
-    <button class="big ghost" type="button" id="kid-done" disabled>Done adding children</button>
+    <div id="kid-list"></div>
+    <div class="add-card">
+      <h3>Add a new child</h3>
+      <input type="text" id="kid-name" maxlength="30" placeholder="Child's name">
+      <div class="chips" id="kid-emojis" role="group" aria-label="Emoji"></div>
+      <div class="chips" id="kid-grades" role="group" aria-label="Grade"></div>
+      <div class="chips" id="kid-kinds" role="group" aria-label="Girl or boy"></div>
+      <button class="big" type="button" id="kid-add">💾 Save this child</button>
+    </div>
+    <button class="big ghost" type="button" id="kid-done" disabled>Done</button>
     <button class="link" type="button" data-back>← Back</button>
   </section>
 

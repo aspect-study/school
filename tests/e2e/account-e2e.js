@@ -104,7 +104,7 @@ run([
     log.benRow = Array.prototype.filter.call(q('kid-list').children, function (li) { return li.textContent.indexOf('Ben') >= 0; })[0];
     log.benRow.querySelector('[data-delete]').click();
   },
-  function () { log.asked = log.benRow.querySelector('[data-delete]').textContent; log.benRow.querySelector('[data-delete]').click(); },
+  function () { log.asked = log.benRow.querySelector('.kc-ask').textContent; log.benRow.querySelector('[data-confirm]').click(); },
   function () { log.afterDelete = q('kid-list').children.length; log.deletedMsg = msg(); click('kid-done'); },
   function () {
     log.pick = view();
@@ -191,7 +191,7 @@ try {
   assert.ok(a.log.addedBea.includes('Bea'));
   assert.equal(a.log.listed, 3);
   assert.equal(a.log.pick, 'pick-view');
-  assert.equal(a.log.asked, "Delete Ben and all progress? Tap again");
+  assert.equal(a.log.asked, "Delete Ben and all progress?");
   assert.equal(a.log.afterDelete, 2, 'Ben is gone from the list');
   assert.match(a.log.deletedMsg, /^Deleted .*Ben/);
   assert.equal(a.log.pickLabels.length, 2);
