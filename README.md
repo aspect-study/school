@@ -128,7 +128,9 @@ Characters walk small routines and some of them have unique pets (web/world/rout
 | World gifts and monsters 🎁 | In the 3D world, a right answer opens a gift or pops a monster: 1 / 2 / 3 coins for an Easy (never answered) / Medium (due) / Hard (due, missed before) question, at most 15 world coins a day; a Hard one also gives a found-only wardrobe item. Due questions come first; resting ones are never asked |
 | Real test bonus 📝 | A parent enters a school test score: 50 / 40 / 30 / 10 coins for 100% / ≥90% / ≥80% / below |
 
-**Shop:** the lobby has a reward shop for real-life rewards (the catalog is in `web/engine/wallet.js`). A parent approves each purchase with a PIN.
+**Shop:** the lobby has a reward shop for real-life rewards (the starter catalog is in `web/engine/wallet.js`). A parent approves each purchase with a PIN.
+
+**Customizing the shop:** in the Parent panel (tablet and phone page) the Rewards tab has a Reward shop editor, per child. A parent can hide a reward, rename it, change its price (10 to 10000 coins), reset it, and add rewards of their own (name, picture, price, optional note and daily limit, up to 40). The settings are one synced document, `shop_items_v1`, read by the wallet (`wallet.catalog`, `wallet.shop`); a child with no document sees the starter list. A reward hidden or repriced after a child asked for it ends that request quietly with "Nothing was bought. Please ask again."; the phone page marks it "Changed since asked". A new built-in reward still goes in `CATALOG`.
 
 **Power-ups:** inside a quiz, coins buy Hint, 50/50, Second Chance, Shield, Later and Ask Family.
 
@@ -208,6 +210,7 @@ web/                         the published site (the only folder GitHub Pages se
     insights.js                the parent Focus tab: weakest lessons, missed questions, Fixed / Still missing
     parent-panel.js            the parent panel, shared by both lobbies and the phone page
     shop-requests.js           shop purchases waiting for a parent's OK, synced between devices
+    shop-editor.js             the parent's reward shop editor in the Rewards tab (hide, edit, add, reset)
     firebase-remote.js         the Firestore side of cloud sync
     subjects.js                each grade's games for the phone page, which has no lobby cards (a test keeps it equal)
     fx.js                      sound effects (Web Audio) + streak call-outs; two sound packs, Happy Chimes (default) and Battle announcer
@@ -257,7 +260,7 @@ Requires Node.js 18+ and Google Chrome (or Microsoft Edge) for the end-to-end te
 node --test                          # unit tests (run from the repo root)
 node tests/e2e/apps-e2e.js           # play every Grade 2 game in headless Chrome
 node tests/e2e/apps-e2e.js 5         # play every Grade 5 game
-node tests/e2e/lobby-e2e.js [5]      # lobby, parent panel and shop
+node tests/e2e/lobby-e2e.js [5]      # lobby, parent panel, shop and the reward shop editor
 node tests/e2e/account-e2e.js        # start page: create account, add children with their grade, pick one; Account view: change password and PIN (the lobby wants the new PIN); play without an account; forgot password
 node tests/e2e/backdrop-e2e.js       # start page backdrop: both towns draw with kids and pets, buttons work through the iframe, page unchanged without 3D
 node tests/e2e/english-first-e2e.js  # Grade 2 shows English only with the 🇵🇭 Filipino switch off, Filipino returns with it on, Filipino and Makabansa keep both

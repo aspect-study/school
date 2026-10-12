@@ -128,6 +128,19 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   icon, the shop's phone request from the world, a sync seen on the phone page while she stays in the world).
 - Gifts and monsters at the hangout places: question-gated, 1/2/3 coins, at most 15 world coins a day, found-only
   wardrobe items for Hard questions.
+- Customizable reward shop (2026-10-12): per child, a parent hides, renames and reprices the built-in rewards, adds up to
+  40 of their own (10 to 10000 coins, optional note and 1 to 3 a day) and resets, in the Parent panel's Rewards tab
+  (`web/engine/shop-editor.js`, mounted by `parent-panel.js`; works on the tablet lobbies and the phone page). The
+  settings are `shop_items_v1` (`{ v: 1, items: { id: { at, hidden?, coins?, name?, emoji?, note?, perDay?, custom?,
+  deleted? } } }`), read by `web/engine/wallet.js` (`effectiveCatalog`, `wallet.catalog` as a getter, `wallet.shop`
+  edit API, `wallet.current(id)`) and synced by the `shopItems` merge in `sync-core.js` (later change per reward
+  wins; a delete is final and kept as a marker). The coin guide drops the ML sections while those rewards are hidden.
+  A request whose reward was hidden, deleted or repriced after the child asked ends as `short` with a neutral message
+  (`ShopRequests.isStale`); on the phone it shows "Changed since asked" with Dismiss (a cancel, never a refusal).
+  The 3D world's own stalls and the power-up prices are not affected. Accepted gap: a reward name starting with
+  `=`, `+`, `-` or `@` is not guarded in the shop-history CSV (only a parent can type names). Spec and plan:
+  `docs/superpowers/specs/2026-10-12-custom-shop-design.md`, `docs/superpowers/plans/2026-10-12-custom-shop.md`. Owner
+  check pending: the editor on the phone page (no browser test) and on a real tablet.
 - Original lesson writing (2026-10-11): lessons keep the deck's facts and terms, every sentence fresh
   (`docs/lesson-writing.md`); `tools/source-overlap.js` checks lesson text against `sources/` (7-word runs, whole
   4-word sentences); a reworded question's `was` field carries its review box over (`Recall.renamesOf`). Spec and
