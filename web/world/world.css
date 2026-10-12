@@ -338,10 +338,10 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
   border: 6px solid var(--portal-color, #ffb84d); border-radius: 28px; background: #fff; overflow: hidden;
   box-shadow: 0 6px 0 rgba(0, 0, 0, .12), 0 18px 40px rgba(60, 30, 80, .25); animation: w-portal-pop .28s ease-out; }
 .w-portal-frame { display: block; width: 100%; height: 100%; border: 0; }
-.w-portal-x { position: absolute; top: 6px; right: 6px; width: 52px; height: 52px; border-radius: 50%;
-  border: 3px solid var(--portal-color, #ffb84d); border-bottom-width: 7px; background: #fff; color: #4a3a1a;
-  font: 800 1.4rem 'Baloo 2', system-ui, sans-serif; cursor: pointer; transition: transform .08s; }
-.w-portal-x:active { transform: scale(.9); border-bottom-width: 3px; }
+.w-portal-x { position: absolute; top: 7px; right: 8px; width: 42px; height: 42px; border-radius: 50%;
+  border: 2px solid var(--portal-color, #ffb84d); border-bottom-width: 4px; background: #fff; color: #4a3a1a;
+  font: 800 1.15rem 'Baloo 2', system-ui, sans-serif; line-height: 1; cursor: pointer; transition: transform .08s; }
+.w-portal-x:active { transform: scale(.9); border-bottom-width: 2px; }
 .w-portal-x:focus-visible { outline: 3px solid #4a3a1a; outline-offset: 2px; }
 @keyframes w-portal-pop { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .w-portal-card { animation: none; } }

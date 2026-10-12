@@ -90,7 +90,8 @@
     '#nav-bar{align-self:stretch;width:100%;position:sticky;top:0;z-index:9000;display:flex;align-items:center;gap:6px;min-height:52px;box-sizing:border-box;' +
       'padding:4px 8px;padding-top:max(4px,env(safe-area-inset-top));background:var(--card,var(--surface,#fff));color:var(--ink,#1d1d1f);' +
       'border-bottom:3px solid var(--accent,#2E6F9E);box-shadow:0 2px 8px rgba(0,0,0,.08);}' +
-    'html[data-embed] #nav-bar{padding-right:64px;}' +
+    'html[data-embed] #nav-bar{padding-right:60px;}' +
+    'html[data-embed] #nav-home{display:none;}' +
     '.gnav-btn{min-width:44px;height:44px;border-radius:12px;border:none;background:transparent;color:inherit;font:inherit;font-size:1.4rem;' +
       'line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}' +
     '.gnav-btn:hover,.gnav-item:hover{background:rgba(127,127,127,.14);}' +
