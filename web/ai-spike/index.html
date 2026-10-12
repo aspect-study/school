@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI spike</title>
+<style>
+body { font: 16px system-ui, sans-serif; margin: 16px; max-width: 680px; }
+button { font: inherit; padding: 10px 16px; margin: 4px 6px 4px 0; }
+pre { white-space: pre-wrap; background: #eee; padding: 10px; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>Gemma 4 E2B spike</h1>
+<p>Use home Wi-Fi. The first run downloads more than 1 GB.</p>
+<button id="go">Start</button><button id="copy">Copy results</button>
+<pre id="log"></pre>
+<script type="module">
+const LIB = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1/dist/transformers.min.js';
+const MODEL = 'onnx-community/gemma-4-E2B-it-ONNX';
+const SAMPLES = [
+  { grade: 2, q: 'Which word names a person?', picked: 'run', answer: 'teacher', why: '"Run" tells what someone does. It does not name a person.', explain: 'A noun names a person, place or thing. "Teacher" names a person.', tip: 'Ask: can I see or touch it, or is it a person? Then it is a noun.' },
+  { grade: 2, q: 'What is 14 - 5?', picked: '10', answer: '9', why: '10 is too big. Count back 5 from 14.', explain: 'Start at 14 and count back 5: 13, 12, 11, 10, 9. You land on 9.', tip: 'Put your finger on 14. Do not count it. Say 1 as you hop back.' },
+  { grade: 2, q: 'Which is a living thing?', picked: 'rock', answer: 'a plant', why: 'A rock does not grow, eat or make babies.', explain: 'Living things grow, need food and water, and make more of their kind. A plant does all of these.', tip: 'Living things grow and need food and water.' },
+  { grade: 5, q: 'What is the theme of a story?', picked: 'what happens first', answer: 'the lesson or message', why: 'What happens first is part of the plot.', explain: 'The theme is the lesson or message the story teaches.', tip: 'Plot = what happens. Theme = what the story teaches.' },
+  { grade: 5, q: 'Which fraction is equal to 2/4?', picked: '1/4', answer: '1/2', why: '1/4 is only half as big as 2/4.', explain: 'Divide the top and bottom of 2/4 by 2. You get 1/2.', tip: 'Divide the top and bottom by the same number.' },
+  { grade: 5, q: 'Which device is an input device?', picked: 'monitor', answer: 'keyboard', why: 'A monitor shows information. It is an output device.', explain: 'An input device sends information into the computer. A keyboard does this.', tip: 'Input = in to the computer. Output = out from the computer.' }
+];
+const out = [];
+const log = (s) => { out.push(s); document.getElementById('log').textContent = out.join('\n'); };
+const prompt = (f) => ['You are a kind teacher for a child in Grade ' + f.grade + '. The child answered a question wrongly.',
+  'Explain in 2 or 3 short, simple English sentences why the right answer is right.',
+  'Use only the facts below. Do not add other facts. Do not ask a question. Do not use lists, links or emoji.', '',
+  'Question: ' + f.q, "The child's answer: " + f.picked, 'The right answer: ' + f.answer,
+  "Why the child's answer is not right: " + f.why, 'Why the right answer is right: ' + f.explain, 'Tip: ' + f.tip].join('\n');
+
+document.getElementById('copy').onclick = () => navigator.clipboard.writeText(out.join('\n'));
+document.getElementById('go').onclick = async () => {
+  try {
+    log('userAgent: ' + navigator.userAgent);
+    log('deviceMemory (GB, Chrome only): ' + navigator.deviceMemory);
+    if (!navigator.gpu) { log('NO WebGPU'); return; }
+    const adapter = await navigator.gpu.requestAdapter();
+    log('adapter: ' + JSON.stringify(adapter && adapter.info ? { vendor: adapter.info.vendor, architecture: adapter.info.architecture } : null));
+    const est = await navigator.storage.estimate();
+    log('storage quota MB: ' + Math.round(est.quota / 1048576) + ', used MB: ' + Math.round(est.usage / 1048576));
+    const t0 = performance.now();
+    const lib = await import(LIB);
+    const files = {};
+    let lastLogged = 0;
+    const progress = (i) => {
+      if (i.status !== 'progress' || !i.file) return;
+      files[i.file] = { loaded: i.loaded, total: i.total };
+      const loaded = Object.values(files).reduce((a, f) => a + f.loaded, 0);
+      const total = Object.values(files).reduce((a, f) => a + f.total, 0);
+      if (performance.now() - lastLogged > 5000) { lastLogged = performance.now(); log('downloaded ' + Math.round(loaded / 1048576) + ' of ' + Math.round(total / 1048576) + ' MB'); }
+    };
+    const processor = await lib.AutoProcessor.from_pretrained(MODEL);
+    const model = await lib.Gemma4ForConditionalGeneration.from_pretrained(MODEL, { dtype: 'q4f16', device: 'webgpu', progress_callback: progress });
+    const total = Object.values(files).reduce((a, f) => a + f.total, 0);
+    log('download + init ms: ' + Math.round(performance.now() - t0) + ', total MB: ' + Math.round(total / 1048576));
+    for (const [n, f] of SAMPLES.entries()) {
+      const t1 = performance.now();
+      const messages = [{ role: 'user', content: [{ type: 'text', text: prompt(f) }] }];
+      const text = processor.apply_chat_template(messages, { enable_thinking: false, add_generation_prompt: true });
+      const inputs = await processor(text, null, null, { add_special_tokens: false });
+      const outIds = await model.generate({ ...inputs, max_new_tokens: 120, do_sample: false });
+      const start = inputs.input_ids.dims.at(-1);
+      const answer = processor.batch_decode(outIds.slice(null, [start, null]), { skip_special_tokens: true })[0];
+      log('--- sample ' + (n + 1) + ' (grade ' + f.grade + ') took ' + Math.round(performance.now() - t1) + ' ms\n' + answer);
+    }
+    if (performance.memory) log('JS heap MB: ' + Math.round(performance.memory.usedJSHeapSize / 1048576));
+    log('DONE');
+  } catch (e) { log('ERROR: ' + (e && e.stack || e)); }
+};
+</script>
+</body>
+</html>
