@@ -538,7 +538,9 @@
   $('lock-go').addEventListener('click', unlock);
   $('lock-pin').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') unlock(); });
   $('lock-back').setAttribute('href', backTarget(root.location.search) || (L.current() ? L.lobby() : 'index.html'));
-  if (recentlyUnlocked()) renderAccount(); else show('lock-view');
+  var guest = true;
+  try { guest = raw.getItem(SIGNED_IN) !== '1'; } catch (e) {}
+  if (guest || recentlyUnlocked()) renderAccount(); else show('lock-view');
   // Only the first answer: later sign-ins from this page are handled by their own buttons.
   var heard = false;
   FR.onAuth(function (u) {

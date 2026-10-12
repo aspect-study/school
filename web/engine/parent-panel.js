@@ -8,6 +8,11 @@
   // A page that forgot parent-pin.js still opens with the PIN every family had before 2026-10-09.
   function checkPin(entry) { return root.ParentPin ? root.ParentPin.check(entry) : entry === FALLBACK_PIN; }
 
+  // A guest has no family login, so there is no parent account to protect: the PIN is skipped.
+  function isGuest() {
+    try { return root.StudyStore.raw.getItem('sync_signed_in_v1') !== '1'; } catch (e) { return false; }
+  }
+
   // The panel's own look, so the two lobbies and the phone page share one copy. It uses each page's theme colors.
   var CSS =
     '.p-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;}' +
@@ -675,6 +680,7 @@
         overlay.hidden = false;
         doc.querySelector('.wrap').inert = true;
         $('parent-close').focus();
+        if (isGuest()) unlock();
       }
       function closeParent() {
         lock();
@@ -909,5 +915,5 @@
     return { render: function () { renderHistory(); if (editor) editor.render(); }, showTab: showTab };
   }
 
-  root.ParentPanel = { mount: mount, pinGate: pinGate, checkPin: checkPin, subjectsFromCards: subjectsFromCards };
+  root.ParentPanel = { mount: mount, pinGate: pinGate, checkPin: checkPin, isGuest: isGuest, subjectsFromCards: subjectsFromCards };
 })(this);

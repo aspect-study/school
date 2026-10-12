@@ -984,6 +984,7 @@ window.SHOP_TEXT = {
     $('shop-phone').hidden = !phone;
     ['shop-pin-hint', 'shop-pin-dots', 'shop-pin-pad'].forEach(function(id){ $(id).hidden = phone; });
     if (phone && T.askPhone) $('shop-ask').textContent = T.askPhone(label(item), item.coins);
+    if (window.ParentPanel && ParentPanel.isGuest()){ approve(); return; }
     var waiting = R ? R.waiting().filter(function(r){ return r.item === item.id; })[0] : null;
     if (waiting){
       asked = waiting.id;
