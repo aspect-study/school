@@ -1461,7 +1461,27 @@
     upkeep();
     dress(worn(look));
     var ret = W.Prefs.readReturn(session);
-    if (!mine.made) openMaker();
+    // A tablet that has just signed in has no look yet: her saved one arrives with the first sync, and saving a new
+    // look first would overwrite it in the cloud.
+    function makerAfterSync() {
+      var decided = false;
+      function decide() {
+        if (decided) return;
+        decided = true;
+        doc.removeEventListener('cloud-synced', decide);
+        mine = W.Look.read(store, myBoy);
+        look = mine.look;
+        dress(worn(look));
+        if (!mine.made) openMaker();
+      }
+      doc.addEventListener('cloud-synced', decide);
+      root.setTimeout(decide, 8000);
+    }
+    if (!mine.made) {
+      var signedIn = false;
+      try { signedIn = root.StudyStore.raw.getItem('sync_signed_in_v1') === '1'; } catch (e) {}
+      if (signedIn) makerAfterSync(); else openMaker();
+    }
     goTo(L.spawnFor(grade, ret));
     welcome(ret);
 
