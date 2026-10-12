@@ -82,3 +82,8 @@ test('the parent page sign-in and PIN screens are cards with labelled fields and
   assert.match(html, /<label for="signin-email">/);
   assert.match(html, /<label for="signin-pass">/);
 });
+
+test('the parent sign-in and PIN screens link back to the start page of the site', () => {
+  const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'web', 'parent', 'index.html'), 'utf8');
+  assert.equal((html.match(/<a class="auth-back" href="\.\.\/index\.html">← Back to 3DSkuwela<\/a>/g) || []).length, 2);
+});

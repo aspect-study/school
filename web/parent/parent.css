@@ -151,6 +151,9 @@
   .auth-go:hover{ filter:brightness(1.06); }
   .auth-go:active{ transform:translateY(1px); box-shadow:0 4px 10px -6px rgba(27,122,121,.7); }
   .auth-foot{ margin:18px 0 0; font-size:.8rem; font-weight:600; line-height:1.45; color:var(--ink-soft); }
+  .auth-back{ display:inline-block; margin-top:14px; padding:8px 14px; border-radius:999px; font-size:.88rem; font-weight:800; text-decoration:none;
+    color:var(--header-accent); transition:background .12s; }
+  .auth-back:hover{ background:var(--bg-alt); }
   .auth-card :focus-visible{ outline:3px solid rgba(27,122,121,.45); outline-offset:2px; }
 
   /* PIN pad inside the card */
