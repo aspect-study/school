@@ -640,3 +640,31 @@ test('a failed shop write reports save and changes nothing', () => {
   assert.deepEqual(w.shop.setHidden('dessert', true), { ok: false, error: 'save' });
   assert.equal(w.current('dessert').coins, 200);
 });
+
+test('the guide quotes the prices it is given and drops the ML sections for hidden rewards', () => {
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
+  for (const grade of ['grade2', 'grade5']) {
+    const english = (s) => (grade === 'grade5' ? s[2] : s[3]);
+    const custom = GUIDE_TEXT[grade].sections(90, [110, 250, 520]);
+    const tatay = custom.find((s) => s[0] === '👨');
+    for (const p of [110, 250, 520]) assert.ok(english(tatay).includes(p + ' coins'), grade + ' quotes ' + p);
+    assert.ok(english(custom.find((s) => s[0] === '🎮')).includes('90 coins'));
+    assert.ok(english(custom.find((s) => s[0] === '🎮')).includes('about 13 perfect lessons'));
+    const noTatay = GUIDE_TEXT[grade].sections(90, null);
+    assert.ok(!noTatay.some((s) => s[0] === '👨'));
+    assert.ok(noTatay.some((s) => s[0] === '🎮'));
+    const noMl = GUIDE_TEXT[grade].sections(null, [110, 250, 520]);
+    assert.ok(!noMl.some((s) => s[0] === '🎮'));
+    assert.ok(noMl.some((s) => s[0] === '👨'));
+    assert.equal(custom.length - 1, noTatay.length);
+    assert.equal(custom.length - 1, noMl.length);
+  }
+});
+
+test('the guide uses the default prices when it is given none', () => {
+  const { GUIDE_TEXT } = require(engineFile('wallet.js'));
+  const ml = CATALOG.find((i) => i.id === 'ml').coins;
+  for (const grade of ['grade2', 'grade5']) {
+    assert.deepEqual(GUIDE_TEXT[grade].sections(), GUIDE_TEXT[grade].sections(ml));
+  }
+});

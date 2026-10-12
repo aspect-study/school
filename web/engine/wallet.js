@@ -507,14 +507,17 @@
       titleEn: '',
       have: function (n) { return '🪙 You have ' + n + coinWord(n); },
       goal: function (need) { return need > 0 ? need + ' more' + coinWord(need) + ' to 🎮 1 ML game' : 'You have enough coins for 🎮 1 ML game!'; },
-      sections: function (ml) {
-        return [
+      sections: function (ml, tatay) {
+        if (ml === undefined) ml = coinsOf('ml');
+        if (tatay === undefined) tatay = [coinsOf('tatay1'), coinsOf('tatay2'), coinsOf('tatay3')];
+        var t = tatay || [0, 0, 0];
+        var rows = [
           ['⭐', 'Points', 'Every right answer gives you 10 points. When you get 3 or more right in a row 🔥, each one gives 15. A wrong answer never takes points away.'],
           ['🪙', 'Coins', 'Every 20 points turns into 1 coin by itself. You do not need to press anything. A perfect 10-question lesson = 140 points = 7 coins.'],
           ['🏅', 'Medals', 'A new medal on a lesson gives coins once: 🥉 3, 🥈 5, 🥇 10.'],
           ['🛒', 'The Shop', 'In the lobby, tap 🛒 Shop and pick a reward. Then ask Mommy or Tatay to type the PIN. Buying uses up coins, but your ⭐ points stay the same.'],
           ['🎮', 'ML game', 'One ML game costs ' + ml + ' coins. You can buy 1 a day, and only after studying. That is about ' + lessonsFor(ml) + ' perfect lessons!'],
-          ['👨', 'ML with Tatay', 'Play ML with Tatay: 1 game for ' + coinsOf('tatay1') + ' coins, 2 games for ' + coinsOf('tatay2') + ' coins, or 3 games for ' + coinsOf('tatay3') +
+          ['👨', 'ML with Tatay', 'Play ML with Tatay: 1 game for ' + t[0] + ' coins, 2 games for ' + t[1] + ' coins, or 3 games for ' + t[2] +
             ' coins. Or a 1v1 vs Tatay, or a ranked duo with him. No daily limit: buy any time you have the coins. It does not use up your own ML game.'],
           ['💡', 'Power-ups', 'Stuck on a lesson quiz question? Use 💡 Hint (' + POWER_UPS.hint + ' coins) to see a tip, or ✂️ 50/50 (' + POWER_UPS.fifty +
             ' coins) to cross out some wrong answers. Tap it twice to pay. You can use 2 per quiz, and none in the Mock Exam. A helped right answer gives half points and does not grow your 🔥 streak.'],
@@ -530,6 +533,7 @@
           ['★', 'Stars', 'Stars show your best score in each lesson today. They start fresh each new day, so you can win them again. Points and coins are never wiped.'],
           ['🔒', 'Just yours', 'Your coins belong to you only, and they stay on this tablet.']
         ];
+        return rows.filter(function (r) { return !(ml === null && r[0] === '🎮') && !(tatay === null && r[0] === '👨'); });
       },
       close: 'Got it! 👍',
       badge: function (n) { return '🪙 ' + n + coinWord(n) + ' ❓'; },
@@ -541,8 +545,11 @@
       titleEn: 'How do Points, Coins and the Shop work?',
       have: function (n) { return '🪙 You have ' + n + coinWord(n); },
       goal: function (need) { return need > 0 ? need + ' more' + coinWord(need) + ' to 🎮 1 ML game' : 'You have enough coins for 🎮 1 ML game!'; },
-      sections: function (ml) {
-        return [
+      sections: function (ml, tatay) {
+        if (ml === undefined) ml = coinsOf('ml');
+        if (tatay === undefined) tatay = [coinsOf('tatay1'), coinsOf('tatay2'), coinsOf('tatay3')];
+        var t = tatay || [0, 0, 0];
+        var rows = [
           ['⭐', 'Points', 'Bawat tamang sagot = 10 points. Kapag 3 o higit pang sunod-sunod na tama 🔥, 15 points bawat isa. Hindi nababawasan ang points kapag mali ang sagot.',
             'Every right answer = 10 points. When you get 3 or more right in a row 🔥, each one gives 15 points. A wrong answer never takes points away.'],
           ['🪙', 'Coins', 'Bawat 20 points = 1 coin. Kusa itong nagiging coin, wala kang pipindutin. Perfect sa 10 tanong = 140 points = 7 coins!',
@@ -553,9 +560,9 @@
             'In the lobby, tap 🛒 Shop and pick a reward. Then ask Mommy or Tatay to type the PIN. Buying uses only coins; your ⭐ points stay the same.'],
           ['🎮', 'ML game', 'Ang 1 ML game ay ' + ml + ' coins. Isa lang bawat araw, at pagkatapos lang mag-aral. Mga ' + lessonsFor(ml) + ' perfect na lesson yan!',
             'One ML game costs ' + ml + ' coins. You can buy only 1 a day, and only after studying. That is about ' + lessonsFor(ml) + ' perfect lessons!'],
-          ['👨', 'ML kasama si Tatay · ML with Tatay', 'Maglaro ng ML kasama si Tatay: 1 game = ' + coinsOf('tatay1') + ' coins, 2 games = ' + coinsOf('tatay2') + ' coins, 3 games = ' + coinsOf('tatay3') +
+          ['👨', 'ML kasama si Tatay · ML with Tatay', 'Maglaro ng ML kasama si Tatay: 1 game = ' + t[0] + ' coins, 2 games = ' + t[1] + ' coins, 3 games = ' + t[2] +
             ' coins. Puwede rin ang 1v1 laban kay Tatay o ranked duo kasama siya. Walang limit bawat araw: bumili kahit kailan basta may coins ka. Hindi nito nababawasan ang sarili mong ML game.',
-            'Play ML with Tatay: 1 game for ' + coinsOf('tatay1') + ' coins, 2 games for ' + coinsOf('tatay2') + ' coins, or 3 games for ' + coinsOf('tatay3') +
+            'Play ML with Tatay: 1 game for ' + t[0] + ' coins, 2 games for ' + t[1] + ' coins, or 3 games for ' + t[2] +
             ' coins. Or a 1v1 vs Tatay, or a ranked duo with him. No daily limit: buy any time you have the coins. It does not use up your own ML game.'],
           ['💡', 'Power-ups', 'Nahihirapan sa tanong? Gamitin ang 💡 Hint (' + POWER_UPS.hint + ' coins) para makita ang tip, o ✂️ 50/50 (' + POWER_UPS.fifty +
             ' coins) para mawala ang ilang maling sagot. Pindutin nang 2 beses para magbayad. 2 lang bawat quiz, at wala sa Mock Exam. Kapag may tulong, kalahati lang ang points at hindi tataas ang 🔥 streak.',
@@ -584,6 +591,7 @@
           ['🔒', 'Sa iyo lang · Just yours', 'Sa iyo lang ang coins mo, at nandito lang sila sa tablet na ito.',
             'Your coins belong only to you, and they stay on this tablet.']
         ];
+        return rows.filter(function (r) { return !(ml === null && r[0] === '🎮') && !(tatay === null && r[0] === '👨'); });
       },
       close: 'Gets ko na! · Got it! 👍',
       badge: function (n) { return '🪙 ' + n + coinWord(n) + ' ❓'; },
@@ -665,7 +673,21 @@
       if (T.titleEn && !english) box.appendChild(el('p', 'cg-title-en', T.titleEn));
       box.appendChild(el('p', 'cg-have'));
       box.appendChild(el('p', 'cg-goal'));
-      T.sections(findItem('ml').coins).forEach(function (s) {
+      box.appendChild(el('div', 'cg-list'));
+      var close = el('button', 'cg-close', english ? win.Lang.en(T.close) : T.close);
+      close.type = 'button';
+      close.addEventListener('click', hide);
+      box.appendChild(close);
+      overlay.appendChild(box);
+      overlay.addEventListener('click', function (ev) { if (ev.target === overlay) hide(); });
+      doc.body.appendChild(overlay);
+    }
+
+    // Read at every open: the parent can hide or reprice the ML rewards, and the guide quotes what the shop shows.
+    function fillSections(ml, tatay) {
+      var list = overlay.querySelector('.cg-list');
+      list.textContent = '';
+      T.sections(ml ? ml.coins : null, tatay).forEach(function (s) {
         var item = el('div', 'cg-item');
         item.appendChild(el('div', 'cg-icon', s[0]));
         var body = el('div');
@@ -678,22 +700,21 @@
           body.appendChild(en);
         }
         item.appendChild(body);
-        box.appendChild(item);
+        list.appendChild(item);
       });
-      var close = el('button', 'cg-close', english ? win.Lang.en(T.close) : T.close);
-      close.type = 'button';
-      close.addEventListener('click', hide);
-      box.appendChild(close);
-      overlay.appendChild(box);
-      overlay.addEventListener('click', function (ev) { if (ev.target === overlay) hide(); });
-      doc.body.appendChild(overlay);
     }
 
     function show() {
       if (!overlay) build();
       var n = wallet.balanceStored();
+      var ml = wallet.current('ml');
+      var tatay = ['tatay1', 'tatay2', 'tatay3'].map(function (id) { return wallet.current(id); });
+      var allTatay = tatay.every(function (item) { return !!item; });
+      fillSections(ml, allTatay ? tatay.map(function (item) { return item.coins; }) : null);
+      var goal = overlay.querySelector('.cg-goal');
+      goal.hidden = !ml;
+      goal.textContent = ml ? T.goal(Math.max(0, ml.coins - n)) : '';
       overlay.querySelector('.cg-have').textContent = T.have(n);
-      overlay.querySelector('.cg-goal').textContent = T.goal(Math.max(0, findItem('ml').coins - n));
       overlay.hidden = false;
       overlay.querySelector('.cg-close').focus();
     }
