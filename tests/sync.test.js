@@ -1037,3 +1037,74 @@ test('items bought on two devices end up owned on both', async () => {
   await tablet.sync();
   for (const d of [tablet, phone]) assert.deepEqual(Object.keys(JSON.parse(d.s.getItem('wardrobe_v1')).owned), ['cap', 'crown']);
 });
+
+const shopDoc = (items) => ({ v: 1, items });
+const live = (at, coins = 100) => ({ at, coins });
+
+test('shop_items_v1 syncs with its own merge rule', () => {
+  assert.equal(kindOf('shop_items_v1'), 'shopItems');
+});
+
+test('shop items: the union of rewards, the later change per reward wins, in either order', () => {
+  const a = shopDoc({ dessert: live(5, 250), movie: live(1, 700) });
+  const b = shopDoc({ dessert: live(9, 300), music: { at: 2, hidden: true } });
+  const want = { dessert: live(9, 300), movie: live(1, 700), music: { at: 2, hidden: true } };
+  assert.deepEqual(MERGE.shopItems(a, b), shopDoc(want));
+  assert.deepEqual(MERGE.shopItems(b, a), shopDoc(want));
+});
+
+test('shop items: a delete and an edit with the same time: the delete wins, in either order', () => {
+  const edit = shopDoc({ c1: { at: 7, custom: true, name: 'Bike', emoji: '🚲', coins: 100 } });
+  const gone = shopDoc({ c1: { at: 7, custom: true, deleted: true } });
+  assert.equal(MERGE.shopItems(edit, gone).items.c1.deleted, true);
+  assert.equal(MERGE.shopItems(gone, edit).items.c1.deleted, true);
+});
+
+test('shop items: a later delete beats an earlier edit, a later edit beats an earlier delete', () => {
+  const edit = (at) => shopDoc({ dessert: { at, hidden: true } });
+  const reset = (at) => shopDoc({ dessert: { at } });
+  assert.equal(MERGE.shopItems(edit(3), reset(8)).items.dessert.hidden, undefined, 'a later reset wins');
+  assert.equal(MERGE.shopItems(reset(3), edit(8)).items.dessert.hidden, true, 'a later hide wins');
+});
+
+test('shop items: equal times with different content settle the same way in either order', () => {
+  const a = shopDoc({ dessert: { at: 4, coins: 250 } }), b = shopDoc({ dessert: { at: 4, coins: 260 } });
+  assert.deepEqual(MERGE.shopItems(a, b), MERGE.shopItems(b, a));
+});
+
+test('shop items: nothing on one side, or a corrupt side, gives the other', () => {
+  const a = shopDoc({ dessert: live(5, 250) });
+  assert.deepEqual(MERGE.shopItems(a, null), a);
+  assert.deepEqual(MERGE.shopItems(null, a), a);
+  assert.deepEqual(MERGE.shopItems(a, { v: 1 }), a);
+  assert.deepEqual(MERGE.shopItems({ junk: true }, a), a);
+  assert.equal(MERGE.shopItems(null, null), null);
+});
+
+test('a shop edit made on the phone reaches the tablet, and back', async () => {
+  const cloud = fakeCloud();
+  const tablet = device(cloud);
+  seedTablet(tablet);
+  await tablet.sync();
+  const phone = device(cloud);
+  await phone.sync();
+
+  const onPhone = WalletLib.create(phone.s, now, 'grade5');
+  onPhone.shop.setHidden('tatay1', true);
+  const added = onPhone.shop.addItem({ name: 'Bike ride', emoji: '🚲', coins: 200 });
+  await phone.sync();
+  await tablet.sync();
+
+  const onTablet = WalletLib.create(tablet.s, now, 'grade5');
+  assert.equal(onTablet.current('tatay1'), null);
+  assert.equal(onTablet.current(added.id).name, 'Bike ride');
+
+  t += 1000;
+  onTablet.shop.removeItem(added.id);
+  onTablet.shop.setHidden('tatay1', false);
+  await tablet.sync();
+  await phone.sync();
+
+  assert.equal(onPhone.current(added.id), null);
+  assert.equal(onPhone.current('tatay1').coins, 100);
+});

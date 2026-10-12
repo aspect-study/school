@@ -17,7 +17,7 @@
   var FAMILY_NEWS = 20;
   var FAMILY_SENT_MS = 7 * 86400000;
   // Kinds whose value is saved as JSON under its own key.
-  var JSON_KINDS = { recall: true, review: true, quests: true, boss: true, mastery: true, profile: true, requests: true, practice: true, family: true, familySeen: true, wardrobe: true, house: true };
+  var JSON_KINDS = { recall: true, review: true, quests: true, boss: true, mastery: true, profile: true, requests: true, shopItems: true, practice: true, family: true, familySeen: true, wardrobe: true, house: true };
 
   function json(text, fallback) {
     try { var v = JSON.parse(text); return v === null || v === undefined ? fallback : v; } catch (e) { return fallback; }
@@ -47,6 +47,7 @@
     if (key === 'profile_v1') return 'profile';
     if (key === 'coin_guide_seen_v1') return 'flag';
     if (key === 'shop_requests_v1') return 'requests';
+    if (key === 'shop_items_v1') return 'shopItems';
     if (key === 'practice_v1') return 'practice';
     if (key === 'family_v1') return 'family';
     if (key === 'family_seen_v1') return 'familySeen';
@@ -310,6 +311,22 @@
       var out = { name: newer.name, emoji: newer.emoji, grade: Math.max(Number(a.grade) || 0, Number(b.grade) || 0), at: newer.at || 0 };
       if (newer.boy === true) out.boy = true;
       return out;
+    },
+    // The parent's shop settings: per reward, the later change wins; at the same time a delete wins, then the larger text,
+    // so every device ends with the same document whichever syncs first.
+    shopItems: function (a, b) {
+      var la = isObj(a) && isObj(a.items) ? a.items : null, lb = isObj(b) && isObj(b.items) ? b.items : null;
+      if (!la || !lb) return la ? a : lb ? b : null;
+      function pick(x, y) {
+        if (!x || !y) return x || y;
+        var ax = Number(x.at) || 0, ay = Number(y.at) || 0;
+        if (ax !== ay) return ax > ay ? x : y;
+        if (!!x.deleted !== !!y.deleted) return x.deleted ? x : y;
+        return JSON.stringify(x) >= JSON.stringify(y) ? x : y;
+      }
+      var items = {};
+      Object.keys(la).concat(Object.keys(lb)).forEach(function (id) { items[id] = pick(la[id], lb[id]); });
+      return { v: 1, items: items };
     },
     // Shop requests: per request, the copy further along wins (waiting, then an answer, then the tablet's result),
     // then the later change. Requests asked a week before the newest one are dropped, the same on every device.
