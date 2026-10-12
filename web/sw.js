@@ -537,6 +537,7 @@ const PRECACHE = [
   'lobby-grade5.html',
   'math-mastery.html',
   'page-turners.html',
+  'privacy.html',
   'rally-ready.html',
   'rise-shine.html',
   'vercel.json',

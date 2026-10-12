@@ -6,5 +6,7 @@ window.FIREBASE_CONFIG = {
   projectId: 'study-game-949fd',
   storageBucket: 'study-game-949fd.firebasestorage.app',
   messagingSenderId: '929301250081',
-  appId: '1:929301250081:web:d5961c3267447b10722360'
+  appId: '1:929301250081:web:d5961c3267447b10722360',
+  // reCAPTCHA v3 site key for App Check (public). Empty keeps App Check off; see README, "Account hardening".
+  appCheckSiteKey: ''
 };

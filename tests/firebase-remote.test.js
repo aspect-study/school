@@ -15,7 +15,8 @@ const err = (code) => ({ code });
 test('account errors are in words', () => {
   const FR = remoteModule();
   assert.equal(FR.accountError(err('auth/email-already-in-use')), 'This email already has an account. Sign in instead.');
-  assert.equal(FR.accountError(err('auth/weak-password')), 'The password needs at least 6 characters.');
+  assert.equal(FR.accountError(err('auth/weak-password')), 'The password needs at least 8 characters.');
+  assert.equal(FR.accountError(err('auth/password-does-not-meet-requirements')), 'The password needs at least 8 characters.');
   assert.equal(FR.accountError(err('auth/invalid-email')), 'Type a real email address.');
   assert.equal(FR.accountError(err('auth/requires-recent-login')), 'Sign out, sign in again, then change the password.');
   assert.equal(FR.accountError(err('auth/invalid-credential'), 'change'), 'The current password is wrong.');
@@ -30,9 +31,24 @@ test('account errors are in words', () => {
 
 test('the account calls exist', () => {
   const FR = remoteModule();
-  for (const name of ['createAccount', 'resetPassword', 'changePassword', 'accountError', 'signIn', 'signOut', 'onAuth', 'remote', 'adminRemote']) {
+  for (const name of ['createAccount', 'resetPassword', 'changePassword', 'accountError', 'signIn', 'signOut', 'onAuth', 'remote', 'adminRemote',
+    'sendVerification', 'status', 'reauthenticate', 'deleteUser']) {
     assert.equal(typeof FR[name], 'function', name);
   }
+});
+
+test('App Check starts only when the config has a site key, and uses the debug token on localhost', () => {
+  const src = fs.readFileSync(engineFile('firebase-remote.js'), 'utf8');
+  assert.match(src, /appCheckSiteKey/);
+  assert.match(src, /ReCaptchaV3Provider/);
+  assert.match(src, /FIREBASE_APPCHECK_DEBUG_TOKEN/);
+  assert.match(src, /firebase-app-check\.js|'app-check'/);
+});
+
+test('the family doc helpers exist in the remote', () => {
+  const src = fs.readFileSync(engineFile('firebase-remote.js'), 'utf8');
+  for (const name of ['getFamily', 'deleteFamily']) assert.match(src, new RegExp(name + ': function'));
+  assert.match(src, /if \(rec\.consent\) data\.consent = rec\.consent;/);
 });
 
 test('the owner dashboard signs in on its own app, apart from the family login', () => {

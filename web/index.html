@@ -93,6 +93,12 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   .link-card .lc-text b{ font-size:18px; font-weight:600; }
   .link-card .lc-text small{ font-size:14px; font-weight:500; opacity:.8; }
   .link-card .lc-go{ font-size:26px; font-weight:700; }
+  .agree{ display:flex; gap:10px; align-items:flex-start; font-weight:700; font-size:15px; line-height:1.35; }
+  .agree input{ flex:none; width:22px; height:22px; margin-top:2px; padding:0; }
+  .agree a{ color:var(--teal); }
+  .big.danger{ border-color:var(--bad); box-shadow:0 5px 0 var(--bad); color:var(--bad); }
+  #acct-consent[hidden]{ display:none; }
+  #del-box[hidden]{ display:none !important; }
   .chips{ display:flex; flex-wrap:wrap; gap:8px; }
   .chip{ padding:8px 14px; border-radius:999px; border:2px solid #D8D3C6; background:#fff; font-size:20px; font-weight:800; }
   .chip:disabled{ opacity:.5; cursor:default; border-style:dashed; }
@@ -163,10 +169,23 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
     <h2>Create family account</h2>
     <p class="note">One account for the whole family. Use it on every tablet and on your phone.</p>
     <input type="email" id="reg-email" autocomplete="username" placeholder="Family email">
-    <input type="password" id="reg-pass" autocomplete="new-password" placeholder="Password (6 or more characters)">
+    <input type="password" id="reg-pass" autocomplete="new-password" placeholder="Password (8 or more characters)">
     <input type="password" id="reg-pass2" autocomplete="new-password" placeholder="Password again">
-    <button class="big" type="button" id="reg-go">Create account</button>
+    <input type="password" id="reg-pin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Parent PIN (4 digits)">
+    <input type="password" id="reg-pin2" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Parent PIN again">
+    <p class="note">The PIN keeps children out of the Parent panel and the shop. Pick one only you know.</p>
+    <label class="agree"><input type="checkbox" id="reg-consent"><span>I am the parent or guardian and I agree to the <a href="privacy.html" target="_blank" rel="noopener">privacy notice</a>.</span></label>
+    <button class="big" type="button" id="reg-go" disabled>Create account</button>
     <button class="link" type="button" data-back>← Back</button>
+  </section>
+
+  <section id="consent-view" hidden>
+    <h2>Privacy notice</h2>
+    <p class="note">This app keeps your email, your children's nicknames and grades, and their study progress in Google Firebase so the tablets and your phone stay in sync. Read the notice, then tick the box to continue.</p>
+    <a class="link" href="privacy.html" target="_blank" rel="noopener">Read the privacy notice</a>
+    <label class="agree"><input type="checkbox" id="consent-check"><span>I am the parent or guardian and I agree.</span></label>
+    <button class="big" type="button" id="consent-go">Agree and continue</button>
+    <button class="link" type="button" id="consent-no">No thanks, sign out</button>
   </section>
 
   <section id="children-view" hidden>
@@ -220,17 +239,34 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
       <button class="big" type="button" id="acct-register">✨ Create family account</button>
     </div>
     <div id="acct-signed">
+      <p class="note" id="acct-verify"></p>
+      <button class="big ghost" type="button" id="acct-resend" hidden>Send the verification email again</button>
+      <div id="acct-consent" hidden>
+        <p class="note">You have not yet agreed to the privacy notice.</p>
+        <button class="big" type="button" id="acct-consent-go">Review and agree</button>
+      </div>
       <button class="big ghost" type="button" id="acct-signout">Sign out</button>
       <h3>Change password</h3>
       <section>
         <input type="password" id="pw-cur" autocomplete="current-password" placeholder="Current password">
-        <input type="password" id="pw-new" autocomplete="new-password" placeholder="New password (6 or more characters)">
+        <input type="password" id="pw-new" autocomplete="new-password" placeholder="New password (8 or more characters)">
         <input type="password" id="pw-new2" autocomplete="new-password" placeholder="New password again">
         <button class="big" type="button" id="pw-go">Change password</button>
       </section>
       <h3>Children</h3>
       <section>
         <button class="big ghost" type="button" id="acct-add">➕ Add a child</button>
+      </section>
+      <h3>Delete family account</h3>
+      <section>
+        <p class="note">This deletes the account, every child and all progress, on every device. It cannot be undone.</p>
+        <button class="big ghost danger" type="button" id="del-open">Delete this family account</button>
+        <div id="del-box" hidden style="display:flex;flex-direction:column;gap:10px">
+          <input type="password" id="del-pass" autocomplete="current-password" placeholder="Password">
+          <input type="text" id="del-word" autocomplete="off" placeholder="Type DELETE">
+          <button class="big danger" type="button" id="del-go">Delete everything</button>
+          <button class="link" type="button" id="del-cancel">Cancel</button>
+        </div>
       </section>
     </div>
     <h3>Change parent PIN</h3>

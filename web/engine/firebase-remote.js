@@ -9,9 +9,13 @@
 
   function open(name) {
     if (!root.FIREBASE_CONFIG) return Promise.reject(new Error('no Firebase config'));
-    return Promise.all(['app', 'auth', 'firestore'].map(function (m) { return import(SDK + 'firebase-' + m + '.js'); }))
+    var siteKey = root.FIREBASE_CONFIG.appCheckSiteKey;
+    var modules = ['app', 'auth', 'firestore'].concat(siteKey ? ['app-check'] : []);
+    return Promise.all(modules.map(function (m) { return import(SDK + 'firebase-' + m + '.js'); }))
       .then(function (mods) {
+        if (siteKey && /^(localhost|127\.0\.0\.1)$/.test(root.location.hostname)) root.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
         var app = mods[0].initializeApp(root.FIREBASE_CONFIG, name);
+        if (siteKey) mods[3].initializeAppCheck(app, { provider: new mods[3].ReCaptchaV3Provider(siteKey), isTokenAutoRefreshEnabled: true });
         return { A: mods[1], F: mods[2], auth: mods[1].getAuth(app), db: mods[2].getFirestore(app) };
       });
   }
@@ -40,6 +44,7 @@
     function at(d) { var t = d.data().updatedAt; return t && t.toMillis ? t.toMillis() : 0; }
     function stateRef(id, key) { return key === 'profile_v1' ? learnerDoc(id) : F.doc(sub(id, 'state'), enc(key)); }
     function pinRef() { return F.doc(db, 'families', uid, 'settings', 'pin'); }
+    function familyRef() { return F.doc(db, 'families', uid); }
 
     return {
       learners: function () {
@@ -144,12 +149,24 @@
         });
       },
       putPin: function (rec) { return F.setDoc(pinRef(), { pin: rec.pin, at: rec.at, updatedAt: F.serverTimestamp() }); },
-      // The family's summary doc, listed by the owner dashboard. createdAt is passed only when the account is made.
+      // The family's summary doc, listed by the owner dashboard. createdAt is passed only when the account is made,
+      // consent only when the parent agrees to the privacy notice.
       putFamily: function (rec) {
         var data = { lastSeenAt: F.serverTimestamp(), updatedAt: F.serverTimestamp() };
         if (rec.email) data.email = rec.email;
         if (rec.createdAt) data.createdAt = rec.createdAt;
-        return F.setDoc(F.doc(db, 'families', uid), data, { merge: true });
+        if (rec.consent) data.consent = rec.consent;
+        return F.setDoc(familyRef(), data, { merge: true });
+      },
+      getFamily: function () {
+        return F.getDoc(familyRef()).then(function (snap) {
+          var c = snap.exists() ? snap.data().consent : null;
+          return { consent: c && typeof c.at === 'number' ? c : null };
+        });
+      },
+      // The learners are deleted first (deleteLearner); this removes the PIN and the summary doc.
+      deleteFamily: function () {
+        return F.deleteDoc(pinRef()).then(function () { return F.deleteDoc(familyRef()); });
       }
     };
   }
@@ -197,7 +214,7 @@
   function accountError(e, context) {
     var code = (e && e.code) || '';
     if (/email-already-in-use/.test(code)) return 'This email already has an account. Sign in instead.';
-    if (/weak-password/.test(code)) return 'The password needs at least 6 characters.';
+    if (/weak-password|password-does-not-meet-requirements/.test(code)) return 'The password needs at least 8 characters.';
     if (/invalid-email/.test(code)) return 'Type a real email address.';
     if (/requires-recent-login/.test(code)) return 'Sign out, sign in again, then change the password.';
     if (/invalid-credential|wrong-password/.test(code)) return context === 'change' ? 'The current password is wrong.' : 'Wrong email or password.';
@@ -241,6 +258,29 @@
       });
     },
     signOut: function () { return fb ? fb.A.signOut(fb.auth) : Promise.resolve(); },
+    sendVerification: function () {
+      return load().then(function () {
+        var u = fb.auth.currentUser;
+        return u ? fb.A.sendEmailVerification(u) : null;
+      });
+    },
+    status: function () {
+      return load().then(function () {
+        var u = fb.auth.currentUser;
+        if (!u) return { verified: false };
+        return u.reload().then(function () { return { verified: u.emailVerified === true }; });
+      });
+    },
+    reauthenticate: function (password) {
+      return load().then(function () {
+        var u = fb.auth.currentUser;
+        if (!u) { var e = new Error('signed out'); e.code = 'auth/requires-recent-login'; throw e; }
+        return fb.A.reauthenticateWithCredential(u, fb.A.EmailAuthProvider.credential(u.email, password));
+      });
+    },
+    deleteUser: function () {
+      return load().then(function () { return fb.A.deleteUser(fb.auth.currentUser); });
+    },
     remote: remoteFor,
     adminRemote: function () { return loadAdmin().then(adminRemote); },
     admin: {

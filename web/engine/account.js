@@ -12,8 +12,10 @@
 
   function validEmail(s) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim()); }
 
+  var PASSWORD_MIN = 8;
+
   function checkPassword(a, b) {
-    if (!a || a.length < 6) return 'The password needs at least 6 characters.';
+    if (!a || a.length < PASSWORD_MIN) return 'The password needs at least ' + PASSWORD_MIN + ' characters.';
     if (a !== b) return 'The two passwords are not the same.';
     return '';
   }
@@ -22,6 +24,24 @@
     if (current !== real) return 'The current PIN is wrong.';
     if (!/^\d{4}$/.test(next)) return 'The new PIN must be 4 digits.';
     if (next !== again) return 'The two new PINs are not the same.';
+    return '';
+  }
+
+  var CONSENT_VERSION = 1;
+
+  function checkRegister(f) {
+    if (!validEmail(f.email)) return 'Type a real email address.';
+    var problem = checkPassword(f.pass, f.pass2);
+    if (problem) return problem;
+    if (!/^\d{4}$/.test(f.pin || '')) return 'The parent PIN must be 4 digits.';
+    if (f.pin !== f.pin2) return 'The two PINs are not the same.';
+    if (!f.consent) return 'Tick the box to agree to the privacy notice.';
+    return '';
+  }
+
+  function checkDelete(password, typed) {
+    if (!password) return 'Type the password.';
+    if (String(typed || '').trim() !== 'DELETE') return 'Type DELETE to confirm.';
     return '';
   }
 
@@ -44,7 +64,10 @@
     return /^(lobby\/grade-\d+\.html|parent\/)$/.test(to) ? to : '';
   }
 
-  var exported = { GRADES: GRADES, EMOJIS: EMOJIS, validEmail: validEmail, checkPassword: checkPassword, checkPin: checkPin, checkChild: checkChild, newId: newId, backTarget: backTarget };
+  var exported = {
+    GRADES: GRADES, EMOJIS: EMOJIS, CONSENT_VERSION: CONSENT_VERSION, validEmail: validEmail, checkPassword: checkPassword,
+    checkPin: checkPin, checkRegister: checkRegister, checkDelete: checkDelete, checkChild: checkChild, newId: newId, backTarget: backTarget
+  };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;
@@ -56,11 +79,13 @@
 
   var FR = root.FirebaseRemote, L = root.Learner, Pin = root.ParentPin, raw = root.StudyStore.raw;
   var SIGNED_IN = 'sync_signed_in_v1';
+  var PIN_KEY = 'parent_pin_v1';
   var OFFLINE = 'No internet. Try again when online, or play without an account.';
-  var VIEWS = ['welcome-view', 'signin-view', 'register-view', 'children-view', 'pick-view', 'play-view', 'lock-view', 'account-view'];
+  var VIEWS = ['welcome-view', 'signin-view', 'register-view', 'children-view', 'pick-view', 'play-view', 'lock-view', 'account-view', 'consent-view'];
   var $ = function (id) { return doc.getElementById(id); };
   var accountMode = /[?&]account=1(&|$)/.test(root.location.search);
   var user = null, kids = [], form = { emoji: EMOJIS[0], grade: 0, boy: null }, working = false, authKnown = false;
+  var consentKnown = null, consentNext = null;
   var pinReady = Promise.resolve();
 
   // e2e tests replace this to stay on the page.
@@ -82,6 +107,10 @@
   function settle(p) { return Promise.race([p, new Promise(function (r) { setTimeout(r, 5000); })]); }
   function markSignedIn(on) {
     try { if (on) raw.setItem(SIGNED_IN, '1'); else raw.removeItem(SIGNED_IN); } catch (e) {}
+  }
+  function forgetSignIn() {
+    markSignedIn(false);
+    root.StudyStore.spaces().forEach(function (id) { root.StudyStore.space(id).put(SIGNED_IN, null); });
   }
 
   // One cloud call at a time; the page is dimmed while it runs.
@@ -109,17 +138,48 @@
     return Pin.sync(remote());
   }
 
+  function readConsent() {
+    return remote().getFamily().then(function (f) { consentKnown = !!f.consent; }, function () { consentKnown = null; });
+  }
+  function afterSignIn() {
+    if (accountMode) { markSignedIn(true); renderAccount(); } else if (kids.length) renderPick(); else renderChildren();
+  }
+
   $('signin-go').addEventListener('click', function () {
     var email = $('signin-email').value.trim(), pass = $('signin-pass').value;
     if (!validEmail(email) || !pass) { say('Type the family email and the password first.', true); return; }
     var signed = false;
     work('Signing in\u2026', function () {
       return FR.signIn(email, pass).then(function (cred) { signed = true; return startSession(cred); })
-        .then(function () { return accountMode ? null : loadKids(); });
+        .then(function () { return accountMode ? null : loadKids(); })
+        .then(readConsent);
     }, function () {
       $('signin-pass').value = '';
-      if (accountMode) { markSignedIn(true); renderAccount(); } else if (kids.length) renderPick(); else renderChildren();
+      if (consentKnown === false) { consentNext = afterSignIn; show('consent-view'); } else afterSignIn();
     }, function (e) { return signed ? 'Could not load the children. ' + OFFLINE : FR.accountError(e); });
+  });
+
+  $('consent-go').addEventListener('click', function () {
+    if (!$('consent-check').checked) { say('Tick the box to agree to the privacy notice.', true); return; }
+    work('Saving\u2026', function () {
+      return remote().putFamily({ consent: { at: Date.now(), version: CONSENT_VERSION } });
+    }, function () {
+      consentKnown = true;
+      $('consent-check').checked = false;
+      var next = consentNext;
+      consentNext = null;
+      if (next) next(); else renderAccount();
+    }, function () { return 'Could not save. ' + OFFLINE; });
+  });
+
+  $('consent-no').addEventListener('click', function () {
+    work('Signing out\u2026', FR.signOut, function () {
+      user = null;
+      consentNext = null;
+      $('consent-check').checked = false;
+      forgetSignIn();
+      show('welcome-view');
+    }, function () { return 'Could not sign out. Try again.'; }, true);
   });
 
   $('signin-forgot').addEventListener('click', function () {
@@ -130,17 +190,25 @@
     }, function (e) { return FR.accountError(e); });
   });
 
+  $('reg-consent').addEventListener('change', function () { $('reg-go').disabled = !$('reg-consent').checked; });
+
   $('reg-go').addEventListener('click', function () {
-    var email = $('reg-email').value.trim(), pass = $('reg-pass').value;
-    var problem = validEmail(email) ? checkPassword(pass, $('reg-pass2').value) : 'Type a real email address.';
+    var email = $('reg-email').value.trim(), pass = $('reg-pass').value, pin = $('reg-pin').value;
+    var problem = checkRegister({ email: email, pass: pass, pass2: $('reg-pass2').value, pin: pin, pin2: $('reg-pin2').value, consent: $('reg-consent').checked });
     if (problem) { say(problem, true); return; }
     work('Creating the account\u2026', function () {
-      return FR.createAccount(email, pass).then(startSession).then(function () {
-        return settle(remote().putFamily({ email: email, createdAt: Date.now() }).then(null, function () {}));
+      return FR.createAccount(email, pass).then(function (cred) {
+        Pin.set(pin);
+        return startSession(cred);
+      }).then(function () {
+        FR.sendVerification().then(null, function () {});
+        return settle(remote().putFamily({ email: email, createdAt: Date.now(), consent: { at: Date.now(), version: CONSENT_VERSION } }).then(null, function () {}));
       });
     }, function () {
-      $('reg-pass').value = '';
-      $('reg-pass2').value = '';
+      $('reg-pass').value = $('reg-pass2').value = $('reg-pin').value = $('reg-pin2').value = '';
+      $('reg-consent').checked = false;
+      $('reg-go').disabled = true;
+      consentKnown = true;
       kids = [];
       if (accountMode) markSignedIn(true);
       // Her own progress uploads at the next lobby sync; adding her here too would make a same-grade twin.
@@ -318,6 +386,16 @@
     $('acct-guest').hidden = !authKnown || !!user;
     $('acct-signed').hidden = !authKnown || !user;
     $('acct-back').setAttribute('href', backTarget(root.location.search) || (L.current() ? L.lobby() : 'index.html'));
+    refreshStatus();
+  }
+
+  function refreshStatus() {
+    if (!user) return;
+    FR.status().then(function (s) {
+      $('acct-verify').textContent = s.verified ? '\u2705 Email verified' : 'Email not verified yet. Check your inbox.';
+      $('acct-resend').hidden = s.verified;
+    }, function () {});
+    readConsent().then(function () { $('acct-consent').hidden = consentKnown !== false; });
   }
 
   $('pw-go').addEventListener('click', function () {
@@ -347,13 +425,51 @@
   $('acct-add').addEventListener('click', function () {
     work('Loading the children\u2026', loadKids, renderChildren, function () { return 'Could not load the children. ' + OFFLINE; });
   });
+  $('acct-resend').addEventListener('click', function () {
+    work('Sending\u2026', FR.sendVerification, function () {
+      say('Verification email sent. Check your inbox.');
+    }, function (e) { return FR.accountError(e); });
+  });
+  $('acct-consent-go').addEventListener('click', function () { consentNext = null; show('consent-view'); });
+
   $('acct-signout').addEventListener('click', function () {
     work('Signing out\u2026', FR.signOut, function () {
       user = null;
-      markSignedIn(false);
-      root.StudyStore.spaces().forEach(function (id) { root.StudyStore.space(id).put(SIGNED_IN, null); });
+      forgetSignIn();
       renderAccount();
     }, function () { return 'Could not sign out. Try again.'; }, true);
+  });
+
+  // The Firebase user goes last: until then a failed step can simply be tried again.
+  function wipeDevice(ids) {
+    var mine = L.current();
+    if (mine) ids.push(mine.id);
+    ids.forEach(removeLocal);
+    forgetSignIn();
+    try { raw.removeItem(PIN_KEY); } catch (e) {}
+  }
+
+  $('del-open').addEventListener('click', function () { $('del-box').hidden = false; });
+  $('del-cancel').addEventListener('click', function () {
+    $('del-box').hidden = true;
+    $('del-pass').value = $('del-word').value = '';
+  });
+  $('del-go').addEventListener('click', function () {
+    var pass = $('del-pass').value;
+    var problem = checkDelete(pass, $('del-word').value);
+    if (problem) { say(problem, true); return; }
+    var ids = [];
+    work('Deleting the account\u2026', function () {
+      return FR.reauthenticate(pass).then(function () { return remote().learners(); }).then(function (list) {
+        ids = list.map(function (l) { return l.id; });
+        return list.reduce(function (chain, l) {
+          return chain.then(function () { return remote().deleteLearner(l.id); });
+        }, Promise.resolve());
+      }).then(function () { return remote().deleteFamily(); }).then(function () { return FR.deleteUser(); });
+    }, function () {
+      wipeDevice(ids);
+      exported.go('index.html');
+    }, function (e) { return FR.accountError(e, 'change'); });
   });
 
   // ---- navigation ----

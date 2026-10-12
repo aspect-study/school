@@ -6,7 +6,7 @@ const { engineFile } = require('./paths.js');
 const read = (name) => fs.readFileSync(engineFile(name), 'utf8');
 
 test('creating an account writes the family summary doc with createdAt', () => {
-  assert.match(read('account.js'), /putFamily\(\{ email: email, createdAt: Date\.now\(\) \}\)/);
+  assert.match(read('account.js'), /putFamily\(\{ email: email, createdAt: Date\.now\(\), consent: /);
 });
 
 test('a good sync refreshes the family summary doc at most once an hour per device', () => {

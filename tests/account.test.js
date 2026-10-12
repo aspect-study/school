@@ -13,10 +13,10 @@ test('validEmail', () => {
 });
 
 test('checkPassword', () => {
-  assert.equal(A.checkPassword('12345', '12345'), 'The password needs at least 6 characters.');
-  assert.equal(A.checkPassword('', ''), 'The password needs at least 6 characters.');
-  assert.equal(A.checkPassword('secret1', 'secret2'), 'The two passwords are not the same.');
-  assert.equal(A.checkPassword('secret1', 'secret1'), '');
+  assert.equal(A.checkPassword('1234567', '1234567'), 'The password needs at least 8 characters.');
+  assert.equal(A.checkPassword('', ''), 'The password needs at least 8 characters.');
+  assert.equal(A.checkPassword('secret12', 'secret13'), 'The two passwords are not the same.');
+  assert.equal(A.checkPassword('secret12', 'secret12'), '');
 });
 
 test('checkPin', () => {
@@ -56,4 +56,27 @@ test('backTarget only allows the lobbies and the parent page', () => {
   assert.equal(A.backTarget('?back=https://evil.example'), '');
   assert.equal(A.backTarget('?back=%E0%A4%A'), '');
   assert.equal(A.backTarget(''), '');
+});
+
+test('checkRegister asks for each thing in turn', () => {
+  const ok = { email: 'mom@family.test', pass: 'secret12', pass2: 'secret12', pin: '4321', pin2: '4321', consent: true };
+  assert.equal(A.checkRegister(ok), '');
+  assert.equal(A.checkRegister({ ...ok, email: 'mom@' }), 'Type a real email address.');
+  assert.equal(A.checkRegister({ ...ok, pass: 'short', pass2: 'short' }), 'The password needs at least 8 characters.');
+  assert.equal(A.checkRegister({ ...ok, pass2: 'secret13' }), 'The two passwords are not the same.');
+  assert.equal(A.checkRegister({ ...ok, pin: '12', pin2: '12' }), 'The parent PIN must be 4 digits.');
+  assert.equal(A.checkRegister({ ...ok, pin: 'abcd', pin2: 'abcd' }), 'The parent PIN must be 4 digits.');
+  assert.equal(A.checkRegister({ ...ok, pin2: '4322' }), 'The two PINs are not the same.');
+  assert.equal(A.checkRegister({ ...ok, consent: false }), 'Tick the box to agree to the privacy notice.');
+});
+
+test('checkDelete wants the password and the word DELETE', () => {
+  assert.equal(A.checkDelete('', 'DELETE'), 'Type the password.');
+  assert.equal(A.checkDelete('secret12', 'delete'), 'Type DELETE to confirm.');
+  assert.equal(A.checkDelete('secret12', ''), 'Type DELETE to confirm.');
+  assert.equal(A.checkDelete('secret12', ' DELETE '), '');
+});
+
+test('the consent version is 1', () => {
+  assert.equal(A.CONSENT_VERSION, 1);
 });
