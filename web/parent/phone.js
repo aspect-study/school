@@ -78,15 +78,34 @@
       setStatus('');
       if (kids.length === 1) { openChild(kids[0]); return; }
       kids.forEach(function (l) {
+        var row = el('div', 'kid-row');
         var b = el('button', 'p-btn kid-btn', label(l));
         b.type = 'button';
         b.addEventListener('click', function () {
-          Array.prototype.forEach.call(box.children, function (k) { k.disabled = true; });
+          Array.prototype.forEach.call(box.querySelectorAll('button'), function (k) { k.disabled = true; });
           openChild(l);
         });
-        box.appendChild(b);
+        var del = el('button', 'p-btn soft-danger', 'Delete');
+        del.type = 'button';
+        del.addEventListener('click', function () { askDelete(l, del); });
+        row.appendChild(b);
+        row.appendChild(del);
+        box.appendChild(row);
       });
     }, offline);
+  }
+
+  // The first tap asks; the second one, within five seconds, deletes the child and all progress from the cloud.
+  function askDelete(l, btn) {
+    if (btn.getAttribute('data-sure') !== '1') {
+      btn.setAttribute('data-sure', '1');
+      btn.textContent = 'Delete ' + ((l.profile && l.profile.name) || 'this child') + ' for good? Tap again';
+      setTimeout(function () { btn.removeAttribute('data-sure'); btn.textContent = 'Delete'; }, 5000);
+      return;
+    }
+    Array.prototype.forEach.call($('kids').querySelectorAll('button'), function (k) { k.disabled = true; });
+    setStatus('Deleting…');
+    FR.remote(user.uid).deleteLearner(l.id).then(function () { pick(); }, function () { pick(); offline(); });
   }
 
   // ---- one child ----

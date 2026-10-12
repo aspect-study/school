@@ -93,7 +93,7 @@
     background:var(--bg-alt); border:1px solid var(--border); color:var(--ink);
   }
   .link-card:active{ background:var(--border); }
-  .link-card .lc-icon{ display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:var(--header-accent); font-size:1.3rem; }
+  .link-card .lc-icon{ display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:var(--card); border:1px solid var(--border); font-size:1.3rem; }
   .link-card .lc-text{ display:flex; flex-direction:column; flex:1; line-height:1.2; }
   .link-card .lc-text b{ font-size:1.05rem; font-weight:800; }
   .link-card .lc-text small{ font-size:0.85rem; font-weight:700; color:var(--ink-soft); }
@@ -119,6 +119,9 @@
   .phone{ width:100%; max-width:760px; }
   .phone h1{ margin:0 0 4px; font-family:'Baloo 2', system-ui, sans-serif; color:var(--header-accent); font-size:1.6rem; }
   .phone .p-row input{ min-width:0; flex:1 1 180px; }
+  .kid-row{ display:flex; gap:8px; margin-bottom:10px; }
+  .kid-row .kid-btn{ flex:1; margin-bottom:0; }
+  .p-btn.soft-danger{ color:var(--bad); border-color:var(--bad); font-size:0.8rem; max-width:9.5rem; }
   .kid-btn{ display:block; width:100%; text-align:left; font-size:1.05rem; padding:14px 16px; margin-bottom:10px; }
   .req{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:10px 0; border-top:1px solid var(--border); }
   .req:first-of-type{ border-top:0; }
