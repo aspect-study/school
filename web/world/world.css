@@ -131,8 +131,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 .maker-tab { font: 800 15px 'Baloo 2', system-ui, sans-serif; border: 3px solid transparent; border-radius: 999px; padding: 4px 12px;
   background: #fff0f7; color: #6a2c70; cursor: pointer; min-height: 40px; }
 .maker-tab[aria-pressed="true"] { border-color: #ff6f91; background: #ffe0ef; }
-.maker-shop { display: block; margin: 8px auto 0; font: 800 16px 'Baloo 2', system-ui, sans-serif; border: 0; background: none;
-  color: #c2185b; text-decoration: underline; cursor: pointer; min-height: 44px; }
+.maker-shop { display: block; margin: 8px auto 0; font: 800 16px 'Baloo 2', system-ui, sans-serif; border: 3px solid #ff6f91; border-radius: 999px; background: #ffe0ef; box-shadow: 0 3px 0 #ff6f91;
+  color: #c2185b; cursor: pointer; min-height: 44px; padding: 4px 18px; }
+.maker-shop:active { transform: translateY(3px); box-shadow: none; }
 .bt-line, .bt-have, .bt-note { text-align: center; font-weight: 700; margin: 2px 0; }
 .bt-note { color: #b5442b; }
 .bt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }

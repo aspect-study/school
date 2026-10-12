@@ -292,7 +292,8 @@
     '.quests-title{margin:0 0 8px;}' +
     '.quests-list{margin:0;padding:0;list-style:none;display:grid;gap:6px;}' +
     '.quests-list li{display:flex;gap:8px;align-items:center;font-size:.95rem;}' +
-    '.quests-list a{color:inherit;text-decoration:underline;text-underline-offset:3px;}' +
+    '.quests-list a{color:inherit;text-decoration:none;padding:2px 12px;border-radius:999px;border:2px solid currentColor;background:rgba(255,255,255,.65);box-shadow:0 2px 0 currentColor;}' +
+    '.quests-list a:active{transform:translateY(2px);box-shadow:none;}' +
     '.quests-list a:focus-visible{outline:3px solid #4A3500;outline-offset:2px;border-radius:6px;}' +
     '.quests-list .done{opacity:.6;text-decoration:line-through;}' +
     '.quests-streak{margin:10px 0 0;font-size:.95rem;}';

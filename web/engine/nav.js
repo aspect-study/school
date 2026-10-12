@@ -110,8 +110,8 @@
     '.gnav-sub{display:block;font-size:.85em;font-weight:600;opacity:.8;margin-top:2px;}' +
     '.gnav-keep{display:block;width:100%;min-height:52px;border:none;border-radius:14px;background:var(--ink,#1d1d1f);' +
       'color:var(--card,var(--surface,#fff));font:inherit;font-weight:800;font-size:1.1rem;cursor:pointer;}' +
-    '.gnav-leave{display:block;margin:10px auto 0;min-height:44px;padding:8px 18px;border:none;background:transparent;color:inherit;' +
-      'font:inherit;font-weight:700;text-decoration:underline;cursor:pointer;}' +
+    '.gnav-leave{display:block;margin:10px auto 0;min-height:44px;padding:8px 22px;border:2px solid currentColor;border-radius:999px;background:transparent;color:inherit;' +
+      'font:inherit;font-weight:700;cursor:pointer;}' +
     '@media print{#nav-bar,#nav-sheet,#nav-confirm{display:none !important;}}';
 
   function create(win, grade) {
