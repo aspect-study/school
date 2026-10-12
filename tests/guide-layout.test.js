@@ -63,3 +63,12 @@ for (const game of ['araling-panlipunan', 'computer', 'english', 'filipino', 'gm
     assert.match(html, /\.q-card h3\{[^}]*border-left:5px solid var\(--accent\)/);
   });
 }
+
+for (const page of [['grade-5', 'math'], ['grade-2', 'math']]) {
+  test(page.join(' ') + ': the question number is its own label above the question', () => {
+    const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'web', 'subjects', page[0], page[1], 'index.html'), 'utf8');
+    assert.ok(html.indexOf('id="q-count"') > 0 && html.indexOf('id="q-count"') < html.indexOf('id="q-text"'));
+    assert.match(html, /getElementById\('q-count'\)\.textContent = `Question \$\{quizIdx\+1\} of \$\{total\}`;/);
+    assert.ok(!/Question \$\{quizIdx\+1\} of \$\{total\}: /.test(html), 'the number is no longer glued to the question');
+  });
+}

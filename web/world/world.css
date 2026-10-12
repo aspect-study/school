@@ -247,8 +247,14 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
   border: 0; border-radius: 999px; padding: 10px 22px; min-height: 48px; cursor: pointer; color: #5b2a6b;
   background: linear-gradient(#ffe066, #ffb3d9); box-shadow: 0 4px 0 #e58fbf; }
 .g-boo { background: linear-gradient(#e3d5ff, #b39dff); box-shadow: 0 4px 0 #8a6fe0; }
-@media (max-width: 420px) { .g-pill { font-size: 14px; } .g-count { font-size: 90px; } .g-hint { font-size: 13px; top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-roster, .g-noise { top: calc(max(14px, env(safe-area-inset-top)) + 170px); } }
-@media (max-height: 520px) { .g-pill { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } .g-hint { top: calc(max(10px, env(safe-area-inset-top)) + 96px); } .g-roster, .g-noise { top: calc(max(10px, env(safe-area-inset-top)) + 136px); } .g-act { bottom: 90px; } }
+/* The Patintero replay: in the hint's place (hidden meanwhile), at most 40px tall so it stays clear of the roster. */
+.g-replay { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 108px); z-index: 12;
+  display: flex; align-items: center; gap: 10px; max-width: calc(100% - 32px); box-sizing: border-box; padding: 2px 2px 2px 14px;
+  border-radius: 999px; background: rgba(43,18,56,.85); color: #fff; font: 800 15px 'Baloo 2', system-ui, sans-serif; white-space: nowrap; }
+.g-replay-skip { flex: none; font: 800 14px 'Baloo 2', system-ui, sans-serif; border: 0; border-radius: 999px; padding: 6px 14px; min-height: 36px;
+  background: #ffe27a; color: #5b2a6b; cursor: pointer; }
+@media (max-width: 420px) { .g-pill { font-size: 14px; } .g-count { font-size: 90px; } .g-hint { font-size: 13px; top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-replay { top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-roster, .g-noise { top: calc(max(14px, env(safe-area-inset-top)) + 170px); } }
+@media (max-height: 520px) { .g-pill { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } .g-hint, .g-replay { top: calc(max(10px, env(safe-area-inset-top)) + 96px); } .g-roster, .g-noise { top: calc(max(10px, env(safe-area-inset-top)) + 136px); } .g-act { bottom: 90px; } }
 
 /* My Room (world-main.js): a locked earned piece at Tito Tasyo's shows how to earn it instead of a price, and the room's
    own pills (✅ Done to stand up, 💛 Cheer on a visit) sit under the top bar on the right. */
