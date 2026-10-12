@@ -830,7 +830,7 @@ window.SHOP_TEXT = {
   phone: "📱 Ask on parent's phone",
   waiting: 'Waiting for a parent… Ask your parent to open the parent page on their phone.',
   declined: 'Your parent said not this time.',
-  short: 'Not enough coins now, so nothing was bought.',
+  short: 'Nothing was bought. Please ask again.',
   expired: 'That request is too old. Ask again.'
 };
 </script>
@@ -895,7 +895,8 @@ window.SHOP_TEXT = {
       top.appendChild(el('div', 'shop-price', '🪙 ' + item.coins));
       row.appendChild(top);
       row.appendChild(el('div', 'shop-name', item.name));
-      if (T.notes[item.id]) row.appendChild(el('div', 'shop-note', T.notes[item.id]));
+      var note = item.note || (item.renamed ? '' : T.notes[item.id]);
+      if (note) row.appendChild(el('div', 'shop-note', note));
       var foot = el('div', 'shop-foot');
       if (c.ok){
         var buy = el('button', 'shop-buy', T.buy);
@@ -998,7 +999,7 @@ window.SHOP_TEXT = {
     if (!R) return;
     var results = R.settle(function(r){
       var item = itemById(r.item), points = readPoints();
-      if (!item || !W.canBuy(item.id, points).ok) return 'short';
+      if (ShopRequests.isStale(r, item) || !W.canBuy(item.id, points).ok) return 'short';
       if (!W.buy(item.id, points)) return 'short';
       if (SH) SH.purchased(item.id, item.name, item.coins, 'phone');
       return 'done';

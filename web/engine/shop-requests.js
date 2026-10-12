@@ -77,7 +77,10 @@
     };
   }
 
-  var exported = { create: create, KEY: KEY };
+  // The reward was hidden, deleted or repriced after the child asked: nothing may be bought for the old request.
+  function isStale(request, item) { return !item || item.coins !== request.coins; }
+
+  var exported = { create: create, KEY: KEY, isStale: isStale };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

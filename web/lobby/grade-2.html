@@ -798,7 +798,7 @@ window.SHOP_TEXT = {
   phone: "📱 Ask on Mommy or Tatay's phone",
   waiting: 'Hinihintay si Mommy o Tatay… Sabihin sa kanila na buksan ang parent page.\nWaiting for Mommy or Tatay… Ask them to open the parent page.',
   declined: 'Sabi ni Mommy o Tatay, hindi muna ngayon.\nMommy or Tatay said not this time.',
-  short: 'Kulang na ang coins mo, kaya walang nabili.\nNot enough coins now, so nothing was bought.',
+  short: 'Walang nabili. Magtanong ulit.\nNothing was bought. Please ask again.',
   expired: 'Luma na ang request na iyan. Humingi ulit.\nThat request is too old. Ask again.'
 };
 (function(){
@@ -879,7 +879,8 @@ window.SHOP_TEXT = {
       top.appendChild(el('div', 'shop-price', '🪙 ' + item.coins));
       row.appendChild(top);
       row.appendChild(el('div', 'shop-name', item.name));
-      if (T.notes[item.id]) row.appendChild(el('div', 'shop-note', T.notes[item.id]));
+      var note = item.note || (item.renamed ? '' : T.notes[item.id]);
+      if (note) row.appendChild(el('div', 'shop-note', note));
       var foot = el('div', 'shop-foot');
       if (c.ok){
         var buy = el('button', 'shop-buy', T.buy);
@@ -982,7 +983,7 @@ window.SHOP_TEXT = {
     if (!R) return;
     var results = R.settle(function(r){
       var item = itemById(r.item), points = readPoints();
-      if (!item || !W.canBuy(item.id, points).ok) return 'short';
+      if (ShopRequests.isStale(r, item) || !W.canBuy(item.id, points).ok) return 'short';
       if (!W.buy(item.id, points)) return 'short';
       if (SH) SH.purchased(item.id, item.name, item.coins, 'phone');
       return 'done';

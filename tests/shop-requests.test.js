@@ -111,3 +111,22 @@ test('settle stops buying when the result cannot be saved', () => {
   assert.ok(buys <= 1);
   assert.deepEqual(out, []);
 });
+
+const { isStale } = require(engineFile('shop-requests.js'));
+
+test('a request is stale when its reward is gone or its price is no longer the one asked', () => {
+  const { R } = setup();
+  const request = R.get(R.ask(MOVIE));
+  assert.equal(isStale(request, { id: 'movie', coins: 200 }), false);
+  assert.equal(isStale(request, { id: 'movie', coins: 300 }), true, 'repriced');
+  assert.equal(isStale(request, null), true, 'hidden or deleted');
+  assert.equal(isStale(request, undefined), true);
+});
+
+test('a stale request is cancelled, not declined, so the child sees no refusal', () => {
+  const { R } = setup();
+  const id = R.ask(MOVIE);
+  assert.equal(R.cancel(id), true);
+  assert.equal(R.get(id).status, 'cancelled');
+  assert.deepEqual(R.settle(() => 'done'), [], 'nothing is bought for it');
+});

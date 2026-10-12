@@ -11,9 +11,9 @@
   var STATUS_TEXT = {
     approved: 'Approved · waiting for the tablet to buy it',
     done: '✅ Bought on the tablet',
-    short: '⚠️ Not enough coins, nothing was bought',
+    short: '⚠️ Nothing was bought (not enough coins, or the reward changed)',
     declined: 'You said no',
-    cancelled: 'Cancelled on the tablet',
+    cancelled: 'Cancelled',
     expired: 'Too old, nobody answered that day'
   };
   var $ = function (id) { return document.getElementById(id); };
@@ -222,14 +222,24 @@
     list.forEach(function (r) {
       if (!child.seen[r.id]) { child.seen[r.id] = true; fresh = true; }
       var row = el('div', 'req');
-      row.appendChild(el('div', 'req-text', (r.emoji ? r.emoji + ' ' : '') + r.name + ' · ' + r.coins + ' coins · asked ' + time(r.t)));
-      var yes = el('button', 'p-btn on', 'Approve'), no = el('button', 'p-btn', 'No');
-      yes.type = 'button';
-      no.type = 'button';
-      yes.addEventListener('click', function () { answer(r.id, true); });
-      no.addEventListener('click', function () { answer(r.id, false); });
-      row.appendChild(yes);
-      row.appendChild(no);
+      var now = child.wallet.current(r.item), stale = ShopRequests.isStale(r, now);
+      var text = (r.emoji ? r.emoji + ' ' : '') + r.name + ' · ' + r.coins + ' coins · asked ' + time(r.t);
+      if (stale) text += ' · Changed since asked' + (now ? ' (now ' + now.coins + ' coins)' : '');
+      row.appendChild(el('div', 'req-text', text));
+      if (stale) {
+        var dismiss = el('button', 'p-btn', 'Dismiss');
+        dismiss.type = 'button';
+        dismiss.addEventListener('click', function () { dismissRequest(r.id); });
+        row.appendChild(dismiss);
+      } else {
+        var yes = el('button', 'p-btn on', 'Approve'), no = el('button', 'p-btn', 'No');
+        yes.type = 'button';
+        no.type = 'button';
+        yes.addEventListener('click', function () { answer(r.id, true); });
+        no.addEventListener('click', function () { answer(r.id, false); });
+        row.appendChild(yes);
+        row.appendChild(no);
+      }
       box.appendChild(row);
     });
     if (fresh && child.loaded) chime();
@@ -247,6 +257,13 @@
     list.forEach(function (r) {
       box.appendChild(el('div', 'req', time(r.t) + ' · ' + (r.emoji ? r.emoji + ' ' : '') + r.name + ' — ' + (STATUS_TEXT[r.status] || r.status)));
     });
+  }
+
+  // Cancelled, not declined: the child sees only "nothing was bought", never a refusal.
+  function dismissRequest(id) {
+    if (!child.requests.cancel(id)) { setStatus('That request was already answered or is too old.', true); render(); return; }
+    render();
+    sync();
   }
 
   function answer(id, yes) {
