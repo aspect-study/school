@@ -20,7 +20,7 @@ service cloud.firestore {
 
     function historyDoc() {
       let d = request.resource.data;
-      return jsonDoc(20000) || (d.keys().hasOnly(['deleted', 'updatedAt']) && d.keys().hasAll(['deleted', 'updatedAt'])
+      return jsonDoc(100000) || (d.keys().hasOnly(['deleted', 'updatedAt']) && d.keys().hasAll(['deleted', 'updatedAt'])
         && d.deleted == true && d.updatedAt == request.time);
     }
 

@@ -203,7 +203,7 @@ New subject lessons arrive as class decks and summative tests.
 
 - App Check key + Enforce, email enumeration protection, password policy (README, Account hardening); deploy the new rules from `firebase/firestore.rules`.
 - Set the privacy contact email in `web/privacy.html` (it still contains CONTACT_EMAIL) and remove the skip in `tests/privacy.test.js` before other families use the app.
-- Run the size-measuring snippet from the account hardening plan on a used tablet; raise the state cap in `firebase/firestore.rules` and `tests/rules/families.rules.js` if any `learner/` value is over 250000.
+- Re-publish `firebase/firestore.rules` after the history-entry cap rose to 100000 (a long Mock Exam entry lists every wrong answer). Measured 2026-10-12 on a used tablet: `review_v1` 125659 characters (cap 500000), `mastery_v1` 16667, `history_v1` 268777 in total but synced as one small document per entry. Re-measure (`learner/` keys in localStorage) once a term; if `review_v1` passes 350000, raise the state cap in the rules and in `tests/rules/families.rules.js`.
 - Family account live check: create a test account on the site, add a child, pick her, change the PIN and see it on
   the other tablet and the phone after a sync; Forgot password email arrives. First confirm sign-up is allowed in the Firebase console (Authentication → Settings →
   User actions); with email-enumeration protection on, Forgot password reports success even for an unknown email. Anyone can now register on `study-game`;

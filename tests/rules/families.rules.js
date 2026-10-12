@@ -8,7 +8,7 @@ const OWNER_UID = '8DAk3YrIYTUEtP52VLWdC29ykb23';
 const OWNER_EMAIL = 'aspectjump.java@gmail.com';
 const PROFILE_CAP = 4000;
 const STATE_CAP = 500000;
-const HISTORY_CAP = 20000;
+const HISTORY_CAP = 100000;
 
 let env;
 before(async () => {
