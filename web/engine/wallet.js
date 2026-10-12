@@ -67,6 +67,98 @@
 
   function own(obj, key) { return Object.prototype.hasOwnProperty.call(obj, key); }
 
+  var SHOP_KEY = 'shop_items_v1';
+  var SHOP_LIMITS = { priceMin: 10, priceMax: 10000, nameMax: 40, noteMax: 80, customMax: 40 };
+  var PER_DAY_CHOICES = [1, 2, 3];
+  var EMOJI_PICKS = ['🎵', '🎮', '🍽️', '🍨', '🍕', '🍳', '🥤', '🍿', '🎬', '📺', '📚', '🧸', '🎨', '⚽', '🚲', '🏊', '🎡', '🎠', '🛝', '🏖️', '🐶', '🌳', '🎁', '⭐', '💵', '📱', '🎤', '🛍️', '👭', '✨'];
+
+  function emptyShopDoc() { return { v: 1, items: {} }; }
+
+  function cleanText(v, max) {
+    if (typeof v !== 'string') return '';
+    var t = v.replace(/\s+/g, ' ').trim();
+    return t.length >= 1 && t.length <= max ? t : '';
+  }
+
+  function validPrice(n) { return Number.isInteger(n) && n >= SHOP_LIMITS.priceMin && n <= SHOP_LIMITS.priceMax; }
+  function validEmoji(e) { return typeof e === 'string' && EMOJI_PICKS.indexOf(e) >= 0; }
+
+  // Every bad field is dropped on its own, so one bad value never hides the rest of a stored or synced document.
+  function normalizeShopDoc(raw) {
+    var d = raw;
+    if (typeof d === 'string') {
+      try { d = JSON.parse(d); } catch (e) { return emptyShopDoc(); }
+    }
+    if (!d || d.v !== 1 || !d.items || typeof d.items !== 'object' || Array.isArray(d.items)) return emptyShopDoc();
+    var out = emptyShopDoc(), customs = [];
+    Object.keys(d.items).forEach(function (id) {
+      var e = d.items[id];
+      if (!e || typeof e !== 'object' || !Number.isFinite(e.at)) return;
+      var entry = { at: e.at };
+      if (findItem(id)) {
+        if (e.hidden === true) entry.hidden = true;
+        if (validPrice(e.coins)) entry.coins = e.coins;
+        var name = cleanText(e.name, SHOP_LIMITS.nameMax);
+        if (name) entry.name = name;
+        if (validEmoji(e.emoji)) entry.emoji = e.emoji;
+        out.items[id] = entry;
+        return;
+      }
+      if (e.custom !== true) return;
+      entry.custom = true;
+      if (e.deleted === true) {
+        entry.deleted = true;
+        out.items[id] = entry;
+        return;
+      }
+      var customName = cleanText(e.name, SHOP_LIMITS.nameMax);
+      if (!customName || !validEmoji(e.emoji) || !validPrice(e.coins)) return;
+      entry.name = customName;
+      entry.emoji = e.emoji;
+      entry.coins = e.coins;
+      var note = cleanText(e.note, SHOP_LIMITS.noteMax);
+      if (note) entry.note = note;
+      if (PER_DAY_CHOICES.indexOf(e.perDay) >= 0) entry.perDay = e.perDay;
+      if (e.hidden === true) entry.hidden = true;
+      customs.push(id);
+      out.items[id] = entry;
+    });
+    customs.sort(function (a, b) { return out.items[a].at - out.items[b].at || (a < b ? -1 : 1); });
+    customs.slice(SHOP_LIMITS.customMax).forEach(function (id) { delete out.items[id]; });
+    return out;
+  }
+
+  // What the shop shows: defaults with the overrides applied, hidden and deleted items left out, custom items added,
+  // cheapest first. Equal prices keep the default order, with custom items after the defaults.
+  function effectiveCatalog(defaults, doc) {
+    var items = (doc && doc.items) || {}, rows = [];
+    defaults.forEach(function (d, i) {
+      var o = own(items, d.id) ? items[d.id] : null;
+      if (o && o.hidden) return;
+      var item = { id: d.id, emoji: d.emoji, name: d.name, goal: d.goal, coins: d.coins };
+      if (d.perDay) item.perDay = d.perDay;
+      if (o && o.coins) item.coins = o.coins;
+      if (o && o.emoji) item.emoji = o.emoji;
+      if (o && o.name) {
+        item.name = o.name;
+        item.goal = o.name;
+        item.renamed = true;
+      }
+      rows.push({ item: item, order: i });
+    });
+    Object.keys(items)
+      .filter(function (id) { return items[id].custom && !items[id].deleted && !items[id].hidden; })
+      .sort(function (a, b) { return items[a].at - items[b].at || (a < b ? -1 : 1); })
+      .forEach(function (id, k) {
+        var o = items[id], item = { id: id, emoji: o.emoji, name: o.name, goal: o.name, coins: o.coins, custom: true };
+        if (o.perDay) item.perDay = o.perDay;
+        if (o.note) item.note = o.note;
+        rows.push({ item: item, order: defaults.length + k });
+      });
+    rows.sort(function (a, b) { return a.item.coins - b.item.coins || a.order - b.order; });
+    return rows.map(function (r) { return r.item; });
+  }
+
   function create(storage, now, grade, paused) {
     if (!/^grade[0-9]+$/.test(grade || '')) throw new Error('Wallet needs a grade like "grade5".');
     var KEY = 'wallet_v1';
@@ -476,7 +568,7 @@
     wallet.liveHtml = function () { return ' <span class="coins-live">🪙 ' + wallet.balanceStored() + '</span>'; };
   }
 
-  var exported = { create: create, POINTS_PER_COIN: POINTS_PER_COIN, OLD_POINTS_PER_COIN: OLD_POINTS_PER_COIN, CATALOG: CATALOG, POWER_UPS: POWER_UPS, TEST_BONUS_TIERS: TEST_BONUS_TIERS, testBonus: testBonus, findItem: findItem, GUIDE_TEXT: GUIDE_TEXT };
+  var exported = { create: create, POINTS_PER_COIN: POINTS_PER_COIN, OLD_POINTS_PER_COIN: OLD_POINTS_PER_COIN, CATALOG: CATALOG, POWER_UPS: POWER_UPS, TEST_BONUS_TIERS: TEST_BONUS_TIERS, testBonus: testBonus, findItem: findItem, GUIDE_TEXT: GUIDE_TEXT, SHOP_KEY: SHOP_KEY, SHOP_LIMITS: SHOP_LIMITS, EMOJI_PICKS: EMOJI_PICKS, normalizeShopDoc: normalizeShopDoc, effectiveCatalog: effectiveCatalog };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;
