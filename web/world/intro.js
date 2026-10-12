@@ -1,4 +1,5 @@
-// The 3DSkuwela opening animation: an overlay that plays over the world while it loads, once per browser session.
+// The 3DSkuwela opening animation: an overlay that plays over the world while it loads, once per browser session. It
+// stays until the world says it is ready (or could not start), so the loading page never shows after it.
 // Add ?intro=1 to the world URL to replay it. Skipped when the device asks for reduced motion.
 (function (root) {
   var doc = root.document;
@@ -28,12 +29,22 @@
     '<div class="i-word"><span class="i-3d" data-t="3D">3D</span><span class="i-sk">' + letters + '</span></div></div>';
   doc.body.appendChild(el);
 
-  var started = false;
+  var started = false, played = false, ready = false, ended = false;
+  function finish() {
+    if (ended || !played || !ready) return;
+    ended = true;
+    el.className += ' out';
+    root.setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 900);
+  }
+  function worldIsReady() { ready = true; finish(); }
+  doc.addEventListener('world-ready', worldIsReady);
+  doc.addEventListener('world-resting', worldIsReady);
+  root.setTimeout(worldIsReady, 20000);
   function go() {
     if (started) return;
     started = true;
     el.className += ' go';
-    root.setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 4400);
+    root.setTimeout(function () { played = true; finish(); }, 3250);
   }
 
   var fonts = doc.fonts && doc.fonts.load ? doc.fonts.load('800 70px "Baloo 2"') : null;

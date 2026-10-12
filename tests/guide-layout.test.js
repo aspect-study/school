@@ -26,3 +26,17 @@ test('home.js lifts the veil when the lobby stays', () => {
   const src = fs.readFileSync(engineFile('home.js'), 'utf8');
   assert.match(src, /replace\(' veil-forward', ''\)/);
 });
+
+test('the opening animation stays until the world is ready or resting, and the loading page is a quiet logo splash', () => {
+  const intro = fs.readFileSync(require('node:path').join(__dirname, '..', 'web', 'world', 'intro.js'), 'utf8');
+  assert.match(intro, /addEventListener\('world-ready', worldIsReady\)/);
+  assert.match(intro, /addEventListener\('world-resting', worldIsReady\)/);
+  assert.match(intro, /el\.className \+= ' out'/);
+  const css = fs.readFileSync(require('node:path').join(__dirname, '..', 'web', 'world', 'intro.css'), 'utf8');
+  assert.match(css, /\.i-overlay\.out \{ animation: i-out/);
+  assert.match(css, /\.out \.i-card \{ animation: i-fly/);
+  for (const grade of [2, 5]) {
+    const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'web', 'world', 'grade-' + grade + '.html'), 'utf8');
+    assert.ok(html.includes('<img class="i-logo" src="../assets/icons/grade5-512.png" alt="3DSkuwela">'), 'grade ' + grade + ' loading logo');
+  }
+});

@@ -1,8 +1,8 @@
-/* 3DSkuwela opening animation, played over the world while it loads. See intro.js. */
+/* 3DSkuwela opening animation, played over the world while it loads and held until the world is ready. See intro.js. */
 .i-overlay { position: fixed; inset: 0; z-index: 99999; pointer-events: none; overflow: hidden; display: grid; place-items: center;
   background: radial-gradient(circle at 50% 42%, #1b58e0 0%, #0b3399 46%, #061a55 100%);
   font-family: 'Baloo 2', 'Arial Rounded MT Bold', system-ui, sans-serif; }
-.i-overlay.go { animation: i-out .7s ease-in 3.3s forwards; }
+.i-overlay.out { animation: i-out .7s ease-in .05s forwards; }
 
 .i-rays { position: absolute; left: 50%; top: 42%; width: 240vmax; height: 240vmax; margin: -120vmax 0 0 -120vmax; opacity: 0;
   background: repeating-conic-gradient(rgba(255, 226, 122, .26) 0 6deg, transparent 6deg 15deg);
@@ -10,7 +10,7 @@
 .go .i-rays { animation: i-fade 1s ease-out .1s forwards, i-spin 12s linear infinite; }
 
 .i-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2.5vmin; }
-.go .i-card { animation: i-fly .75s cubic-bezier(.6, 0, 1, .6) 3.25s forwards; }
+.out .i-card { animation: i-fly .75s cubic-bezier(.6, 0, 1, .6) forwards; }
 
 .i-logo { width: min(30vmin, 220px); height: auto; border-radius: 22%;
   box-shadow: 0 0 0 .6vmin rgba(255, 255, 255, .9), 0 0 6vmin rgba(255, 210, 80, .75), 0 2vmin 4vmin rgba(0, 0, 0, .4); }

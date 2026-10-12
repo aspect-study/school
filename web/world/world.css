@@ -5,7 +5,12 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 /* fx.js adds a floating sound button on pages without Nav; the world has its own in Settings. */
 #fx-mute { display: none !important; }
 .stage, .stage canvas { position: fixed; inset: 0; display: block; }
-.loading { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center; font-size: 22px; font-weight: 800; }
+.loading { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center; font-size: 22px; font-weight: 800;
+  background: radial-gradient(circle at 50% 42%, #1b58e0 0%, #0b3399 46%, #061a55 100%); color: #fff; }
+.loading .i-logo { display: block; margin: 0 auto; animation: ld-pulse 1.6s ease-in-out infinite; }
+.loading span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@keyframes ld-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .loading .i-logo { animation: none; } }
 
 .w-hud { position: fixed; left: 16px; right: 16px; top: max(14px, env(safe-area-inset-top)); display: flex;
   justify-content: space-between; align-items: center; gap: 8px; pointer-events: none; }
