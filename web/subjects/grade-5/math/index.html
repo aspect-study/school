@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../engine/scrollbar.css">
 <style>
 :root{
   color-scheme:light;
@@ -90,7 +91,8 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 .progress-bar{flex:1; height:10px; background:var(--surface2); border-radius:6px; overflow:hidden;}
 .progress-fill{height:100%; background:var(--accent); transition:width .3s;}
 .quiz-scene{width:46px; height:46px; flex:none;}
-.q-text{font-size:1.15rem; font-weight:800; margin:6px 0 16px; line-height:1.4;}
+.q-count{display:inline-block;margin:6px 0 0;padding:4px 14px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:.9rem;font-weight:800;}
+.q-text{font-size:1.2rem; font-weight:800; margin:10px 0 16px; padding:14px 16px; background:var(--surface2); border-left:5px solid var(--accent); border-radius:12px; line-height:1.45;}
 .options{display:grid; gap:10px;}
 .option{
   background:var(--surface); border:2px solid var(--border); border-radius:14px; padding:14px 16px;
@@ -335,6 +337,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
       <div class="progress-bar"><div class="progress-fill" id="quiz-progress"></div></div>
       <svg class="quiz-scene" viewBox="0 0 200 200" id="quiz-scene-svg"></svg>
     </div>
+    <div class="q-count" id="q-count"></div>
     <div class="q-text" id="q-text"></div>
     <div class="options" id="q-options"></div>
     <div class="explore hidden" id="q-explore"></div>
@@ -2834,7 +2837,8 @@ function renderQuestion(){
   document.getElementById('q-explore').classList.add('hidden');
   document.getElementById('q-next-btn').classList.add('hidden');
 
-  document.getElementById('q-text').innerHTML = `Question ${quizIdx+1} of ${total}: ${q.q}`;
+  document.getElementById('q-count').textContent = `Question ${quizIdx+1} of ${total}`;
+  document.getElementById('q-text').innerHTML = q.q;
   const opts = document.getElementById('q-options');
   opts.innerHTML = '';
   q.options.forEach((opt, idx)=>{
