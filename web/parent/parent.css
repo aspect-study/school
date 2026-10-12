@@ -88,6 +88,16 @@
     font:inherit; padding:8px; border-radius:10px;
     border:1px solid var(--border); background:var(--bg); color:var(--ink);
   }
+  .link-card{
+    display:flex; align-items:center; gap:12px; margin-top:4px; padding:12px 14px; border-radius:14px; text-decoration:none;
+    background:var(--bg-alt); border:1px solid var(--border); color:var(--ink);
+  }
+  .link-card:active{ background:var(--border); }
+  .link-card .lc-icon{ display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:var(--header-accent); font-size:1.3rem; }
+  .link-card .lc-text{ display:flex; flex-direction:column; flex:1; line-height:1.2; }
+  .link-card .lc-text b{ font-size:1.05rem; font-weight:800; }
+  .link-card .lc-text small{ font-size:0.85rem; font-weight:700; color:var(--ink-soft); }
+  .link-card .lc-go{ font-size:1.6rem; font-weight:800; color:var(--ink-soft); }
   .p-note{ margin:8px 0 0; font-size:0.85rem; font-weight:700; color:var(--ink-soft); }
   .credit{ margin:24px 0 0; text-align:center; font-size:0.78rem; font-weight:700; color:var(--ink-soft); }
   .p-warn{ margin-bottom:14px; padding:10px 14px; border-radius:12px; font-weight:800; background:var(--gold-soft); color:var(--gold-deep); }

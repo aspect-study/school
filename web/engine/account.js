@@ -211,7 +211,7 @@
     list.textContent = '';
     kids.forEach(function (k) {
       var li = el('li', '', label(k) + ' ');
-      var del = el('button', 'link', 'Delete');
+      var del = el('button', 'link danger', 'Delete');
       del.type = 'button';
       del.setAttribute('data-delete', k.id);
       del.addEventListener('click', function () { askDelete(k, del); });

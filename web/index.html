@@ -76,7 +76,24 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   @media (prefers-reduced-motion: reduce){ .cta{ animation:none; } .big, .cta, .btn2, .choices a{ transition:none; } }
   .big.ghost{ border-color:#C9C3B4; box-shadow:0 4px 0 #C9C3B4; }
   .big:disabled{ opacity:.5; cursor:default; }
-  .link{ border:0; background:none; padding:6px 0; color:var(--muted); font-weight:700; text-decoration:underline; align-self:flex-start; }
+  .link{
+    display:inline-flex; align-items:center; gap:6px; align-self:flex-start; padding:8px 16px; border-radius:999px;
+    border:2px solid #D8D3C6; background:#fff; box-shadow:0 3px 0 #D8D3C6; color:var(--ink); text-decoration:none;
+    font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:16px; font-weight:600; transition:transform .14s cubic-bezier(.3,1.7,.5,1), box-shadow .14s ease-out;
+  }
+  .link:active{ transform:translateY(3px); box-shadow:none; }
+  .link.danger{ border-color:#E8B4AE; box-shadow:0 3px 0 #E8B4AE; color:var(--bad); font-size:14px; padding:4px 12px; margin-left:6px; }
+  .link-card{
+    display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:18px; text-decoration:none; color:#2B4C9B;
+    background:#fff; border:3px solid #9DB4E8; box-shadow:0 4px 0 #C7D5F5;
+    font-family:'Fredoka','Baloo 2',system-ui,sans-serif; transition:transform .14s cubic-bezier(.3,1.7,.5,1), box-shadow .14s ease-out;
+  }
+  .link-card:active{ transform:translateY(4px); box-shadow:none; }
+  .link-card .lc-icon{ font-size:26px; line-height:1; }
+  .link-card .lc-text{ display:flex; flex-direction:column; flex:1; line-height:1.15; }
+  .link-card .lc-text b{ font-size:18px; font-weight:600; }
+  .link-card .lc-text small{ font-size:14px; font-weight:500; opacity:.8; }
+  .link-card .lc-go{ font-size:26px; font-weight:700; }
   .chips{ display:flex; flex-wrap:wrap; gap:8px; }
   .chip{ padding:8px 14px; border-radius:999px; border:2px solid #D8D3C6; background:#fff; font-size:20px; font-weight:800; }
   .chip:disabled{ opacity:.5; cursor:default; border-style:dashed; }
@@ -99,7 +116,6 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   }
   .choices .soon img{ filter:grayscale(1); opacity:.55; }
   .choices .soon small{ display:block; font-size:14px; font-weight:500; }
-  a.parent-page{ align-self:flex-start; color:#2B4C9B; font-weight:700; padding:4px 0; }
   .credit{ margin:6px auto 0; text-align:center; font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-size:15px; font-weight:500; color:#5A5750; }
 </style>
 </head>
@@ -118,7 +134,7 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
     <div class="parent-zone">
       <h3>🔒 Parent Zone</h3>
       <p class="note">With an account, progress is backed up and the children's tablets and your phone stay in sync.</p>
-      <a class="parent-page" href="parent/">Parent page (for a parent's phone)</a>
+      <a class="link-card" href="parent/"><span class="lc-icon" aria-hidden="true">📱</span><span class="lc-text"><b>Parent page</b><small>For a parent's phone</small></span><span class="lc-go" aria-hidden="true">›</span></a>
     </div>
   </section>
 
