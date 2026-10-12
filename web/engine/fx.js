@@ -98,7 +98,7 @@
     var hideTimer = null;
     var calloutUntil = 0, holdUntil = 0, queued = null, queuedAnchor = null, okButton = null, popTimer = null, closeTimer = null, pop = null, returnFocus = null;
     var subtitle = SUBTITLE[grade] || SUBTITLE.grade5;
-    var memPack = null;
+    var memPack = null, soundedAt = 0, lastTap = 0;
 
     function read(key) { try { return win.localStorage.getItem(key); } catch (e) { return null; } }
     function write(key, val) { try { win.localStorage.setItem(key, val); } catch (e) {} }
@@ -129,6 +129,7 @@
     function tone(freq, start, dur, type, vol, slideTo) {
       var c = audio();
       if (!c) return;
+      soundedAt = Date.now();
       var t = c.currentTime + start;
       var osc = c.createOscillator();
       var gain = c.createGain();
@@ -158,6 +159,26 @@
     }
     function allRead() { arpeggio(4, 0.08, 'triangle', 0.14); }
 
+    function tap() {
+      tone(740, 0, 0.07, 'sine', 0.06, 980);
+    }
+
+    // Soft rising chime for a finished quest.
+    function questChime() {
+      [1047, 1319, 1568].forEach(function (f, i) { tone(f, i * 0.09, 0.3, 'sine', 0.1); });
+      tone(2093, 0.3, 0.5, 'sine', 0.06);
+    }
+
+    // A button that already made its own sound (answers, power-ups) skips the tap.
+    function onTap(ev) {
+      var t = ev.target && ev.target.closest ? ev.target.closest('button, [role="button"], summary') : null;
+      if (!t || t.disabled || t.getAttribute('aria-disabled') === 'true') return;
+      var now = Date.now();
+      if (now - soundedAt < 120 || now - lastTap < 80) return;
+      lastTap = now;
+      tap();
+    }
+
     function say(text) {
       if (muted() || !win.speechSynthesis || !win.SpeechSynthesisUtterance) return;
       try {
@@ -183,6 +204,7 @@
     function clip(name, fallback) {
       if (muted()) return;
       if (!soundDir || !win.Audio) { if (fallback) fallback(); return; }
+      soundedAt = Date.now();
       try {
         var a = clipAudio(name);
         if (playing && playing !== a) playing.pause();
@@ -494,7 +516,10 @@
       try { ok.focus(); } catch (e) {}
       var id = packId(), voice = medalClip(events, id);
       var musical = !!voice && PACKS[id].clipsAreMusic;
-      if (!musical) fanfare(big);
+      if (!musical) {
+        if (head.icon === '🎯') questChime();
+        else fanfare(big);
+      }
       if (voice) clip(voice, musical ? function () { fanfare(big); } : null);
       closeTimer = setTimeout(closePop, big ? POP_MS.big : POP_MS.small);
     }
@@ -546,6 +571,7 @@
     function start() {
       addStyle();
       mountMute();
+      doc.addEventListener('click', onTap);
       // Games load the voices at the first tap, so the first call-out plays on time.
       if (win.Nav && soundDir && win.Audio) {
         doc.addEventListener('pointerdown', function () { allClips(packId()).forEach(clipAudio); }, { once: true });
@@ -556,7 +582,7 @@
 
     return { pop: popSound, hold: hold, round: round, correct: correct, wrong: wrong, finish: finish, purchase: purchase, muted: muted, setMuted: setMuted,
       pack: packId, setPack: setPack, packs: function () { return PACK_IDS.slice(); }, packLabel: function (id) { return known(id) ? PACKS[id].label : ''; },
-      celebrate: celebrate, celebrateNow: openPop, cardRead: cardRead, allRead: allRead, queued: function () { return queued; } };
+      celebrate: celebrate, celebrateNow: openPop, cardRead: cardRead, tap: tap, allRead: allRead, queued: function () { return queued; } };
   }
 
   // Big ones lead the card, then the ones with art (the boss's face); the original order breaks ties.
