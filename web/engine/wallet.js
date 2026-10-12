@@ -607,11 +607,15 @@
     '.coins-badge:focus-visible,.cg-close:focus-visible{outline:3px solid #6B4A00;outline-offset:2px;}' +
     '.coins-live{margin-left:6px;white-space:nowrap;}' +
     '.coins-have{font-weight:800;margin-top:4px;}' +
-    '.coin-guide{position:fixed;top:0;right:0;bottom:0;left:0;z-index:9999;display:flex;justify-content:center;align-items:flex-start;' +
-      'overflow:auto;padding:16px;background:rgba(20,16,10,.55);}' +
+    '.coin-guide{position:fixed;top:0;right:0;bottom:0;left:0;z-index:9999;display:flex;justify-content:center;align-items:center;' +
+      'padding:16px;background:rgba(20,16,10,.55);}' +
     '.coin-guide[hidden]{display:none;}' +
-    '.cg-box{width:100%;max-width:560px;margin:auto 0;background:#FFFDF6;color:#2B2320;border-radius:20px;padding:20px;' +
-      'box-shadow:0 14px 40px rgba(0,0,0,.3);line-height:1.45;text-align:left;}' +
+    '.cg-box{display:flex;flex-direction:column;width:100%;max-width:560px;max-height:100%;background:#FFFDF6;color:#2B2320;' +
+      'border-radius:20px;padding:20px 14px 16px 20px;box-shadow:0 14px 40px rgba(0,0,0,.3);line-height:1.45;text-align:left;}' +
+    '.cg-list{flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:8px;scrollbar-width:thin;scrollbar-color:#E3C87A transparent;}' +
+    '.cg-list::-webkit-scrollbar{width:8px;}' +
+    '.cg-list::-webkit-scrollbar-track{background:transparent;}' +
+    '.cg-list::-webkit-scrollbar-thumb{background:#E3C87A;border-radius:999px;}' +
     '.cg-box h2{margin:0 0 6px;font-size:1.25rem;}' +
     '.cg-have{margin:0;font-size:1.4rem;font-weight:800;color:#8A5A00;}' +
     '.cg-goal{margin:2px 0 6px;font-weight:700;}' +
@@ -623,7 +627,7 @@
     '.cg-item p.cg-en,.cg-title-en{margin-top:6px;font-size:.88rem;color:#6B5E57;}' +
     '.cg-title-en{margin:-2px 0 6px;font-weight:700;}' +
     '.cg-item .cg-en b{display:inline;margin:0;}' +
-    '.cg-close{display:block;width:100%;margin-top:14px;padding:12px;border:0;border-radius:999px;background:#2E9E5B;' +
+    '.cg-close{flex:none;display:block;width:calc(100% - 6px);margin-top:14px;padding:12px;border:0;border-radius:999px;background:#2E9E5B;' +
       'color:#fff;font:inherit;font-size:1rem;font-weight:800;cursor:pointer;}';
 
   // Fills every [data-coins] element ("badge" or "haveNow") and opens the guide
@@ -717,7 +721,8 @@
       goal.textContent = ml ? T.goal(Math.max(0, ml.coins - n)) : '';
       overlay.querySelector('.cg-have').textContent = T.have(n);
       overlay.hidden = false;
-      overlay.querySelector('.cg-close').focus();
+      overlay.querySelector('.cg-list').scrollTop = 0;
+      overlay.querySelector('.cg-close').focus({ preventScroll: true });
     }
 
     function start() {

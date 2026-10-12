@@ -53,11 +53,12 @@ test('every script path matches a real file name exactly, case included', () => 
   }
 });
 
-test('a tablet that just signed in waits for the first sync before opening the character maker', () => {
+test('a tablet that just signed in waits for its first sync before the world starts and before the maker opens', () => {
   const src = fs.readFileSync(path.join(WEB, 'world', 'world-main.js'), 'utf8');
-  assert.match(src, /function makerAfterSync\(\)/);
+  assert.match(src, /function firstSyncPending\(\)/);
   assert.match(src, /sync_signed_in_v1/);
-  assert.match(src, /doc\.addEventListener\('cloud-synced', decide\)/);
-  assert.match(src, /root\.setTimeout\(decide, 8000\)/);
-  assert.match(src, /if \(signedIn\) makerAfterSync\(\); else openMaker\(\);/);
+  assert.match(src, /st\.lastSync > 0/);
+  assert.match(src, /doc\.addEventListener\('cloud-synced', run\)/);
+  assert.match(src, /if \(firstSyncPending\(\)\) onFirstSync\(boot, 10000\); else boot\(\);/);
+  assert.match(src, /if \(firstSyncPending\(\)\) makerAfterSync\(\); else openMaker\(\);/);
 });

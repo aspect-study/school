@@ -1464,23 +1464,15 @@
     // A tablet that has just signed in has no look yet: her saved one arrives with the first sync, and saving a new
     // look first would overwrite it in the cloud.
     function makerAfterSync() {
-      var decided = false;
-      function decide() {
-        if (decided) return;
-        decided = true;
-        doc.removeEventListener('cloud-synced', decide);
+      onFirstSync(function () {
         mine = W.Look.read(store, myBoy);
         look = mine.look;
         dress(worn(look));
         if (!mine.made) openMaker();
-      }
-      doc.addEventListener('cloud-synced', decide);
-      root.setTimeout(decide, 8000);
+      }, 8000);
     }
     if (!mine.made) {
-      var signedIn = false;
-      try { signedIn = root.StudyStore.raw.getItem('sync_signed_in_v1') === '1'; } catch (e) {}
-      if (signedIn) makerAfterSync(); else openMaker();
+      if (firstSyncPending()) makerAfterSync(); else openMaker();
     }
     goTo(L.spawnFor(grade, ret));
     welcome(ret);
@@ -1657,6 +1649,26 @@
     fire('world-ready');
   }
 
+  // A tablet that has just signed in holds none of her records until its first sync has finished.
+  function firstSyncPending() {
+    try {
+      if (root.StudyStore.raw.getItem('sync_signed_in_v1') !== '1') return false;
+      var st = JSON.parse(store.getItem('sync_state_v1'));
+      return !(st && st.lastSync > 0);
+    } catch (e) { return false; }
+  }
+  function onFirstSync(go, ms) {
+    var done = false;
+    function run() {
+      if (done) return;
+      done = true;
+      doc.removeEventListener('cloud-synced', run);
+      go();
+    }
+    doc.addEventListener('cloud-synced', run);
+    root.setTimeout(run, ms);
+  }
+
   function boot() {
     if (!canRun()) return resting();
     try { start(); } catch (e) {
@@ -1669,5 +1681,8 @@
   $('loading-text').textContent = T.loading;
   var fonts = doc.fonts && doc.fonts.load ? doc.fonts.load('800 70px "Baloo 2"') : null;
   var wait = new Promise(function (r) { root.setTimeout(r, 1500); });
-  (fonts ? Promise.race([fonts, wait]) : wait).then(boot, boot);
+  function begin() {
+    if (firstSyncPending()) onFirstSync(boot, 10000); else boot();
+  }
+  (fonts ? Promise.race([fonts, wait]) : wait).then(begin, begin);
 })(this);

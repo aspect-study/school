@@ -50,5 +50,6 @@
     try { session = root.sessionStorage; } catch (e) {}
     var url = grade ? forwardTo(root.location, grade, canRun(root.document) && !worldFailed(session), embedded) : null;
     if (url) root.location.replace(url);
+    else root.document.documentElement.className = root.document.documentElement.className.replace(' veil-forward', '');
   } catch (e) {}
 })(this);

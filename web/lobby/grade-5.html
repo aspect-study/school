@@ -14,6 +14,21 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   addEventListener('load', function(){ navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(function(){}); });
 }
 </script>
+<script data-veil>
+(function () {
+  var d = document.documentElement, s = location.search, h = location.hash.replace(/^#/, '');
+  if (/[?&]embed=1(&|$)/.test(s) && parent !== window) d.className += ' veil-embed';
+  else if (location.protocol !== 'file:' && !/[?&]stay=1(&|$)/.test(s) && !/^(shop|coins|parent)$/.test(h)) {
+    d.className += ' veil-forward';
+    setTimeout(function () { d.className = d.className.replace(' veil-forward', ''); }, 4000);
+  }
+})();
+</script>
+<style>
+.veil-forward body{visibility:hidden;}
+.veil-embed body{background:#F4F1E9;}
+.veil-embed body>*:not(#shop-overlay):not(#parent-overlay):not(.coin-guide){display:none !important;}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
