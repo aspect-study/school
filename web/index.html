@@ -98,6 +98,12 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   .agree{ display:flex; gap:10px; align-items:flex-start; font-weight:700; font-size:15px; line-height:1.35; }
   .agree input{ flex:none; width:22px; height:22px; margin-top:2px; padding:0; }
   .agree a{ color:var(--teal); }
+  #privacy-pop{ position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(43,42,38,.55); }
+  #privacy-pop[hidden]{ display:none; }
+  #privacy-pop .card{ width:100%; max-width:640px; height:min(86vh,720px); display:flex; flex-direction:column; gap:10px; padding:12px; border-radius:24px; background:#fff; box-shadow:0 8px 0 rgba(27,122,121,.28), 0 18px 32px rgba(0,0,0,.25); }
+  #privacy-pop iframe{ flex:1; min-height:0; width:100%; border:2px solid #E4DFD2; border-radius:16px; background:var(--paper); }
+  #privacy-pop .row{ display:flex; gap:10px; }
+  #privacy-pop .row .big{ flex:1; }
   .big.danger{ border-color:var(--bad); box-shadow:0 5px 0 var(--bad); color:var(--bad); }
   #acct-consent[hidden]{ display:none; }
   #del-box[hidden]{ display:none !important; }
@@ -178,7 +184,7 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
     <input type="password" id="reg-pin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Parent PIN (4 digits)">
     <input type="password" id="reg-pin2" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Parent PIN again">
     <p class="note">The PIN keeps children out of the Parent panel and the shop. Pick one only you know.</p>
-    <label class="agree"><input type="checkbox" id="reg-consent"><span>I am the parent or guardian and I agree to the <a href="privacy.html" target="_blank" rel="noopener">privacy notice</a>.</span></label>
+    <label class="agree"><input type="checkbox" id="reg-consent"><span>I am the parent or guardian and I agree to the <a href="privacy.html" data-privacy>privacy notice</a>.</span></label>
     <button class="big" type="button" id="reg-go" disabled>Create account</button>
     <button class="link" type="button" data-back>← Back</button>
   </section>
@@ -186,7 +192,7 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   <section id="consent-view" hidden>
     <h2>Privacy notice</h2>
     <p class="note">This app keeps your email, your children's nicknames and grades, and their study progress in Google Firebase so the tablets and your phone stay in sync. Read the notice, then tick the box to continue.</p>
-    <a class="link" href="privacy.html" target="_blank" rel="noopener">Read the privacy notice</a>
+    <a class="link" href="privacy.html" data-privacy>Read the privacy notice</a>
     <label class="agree"><input type="checkbox" id="consent-check"><span>I am the parent or guardian and I agree.</span></label>
     <button class="big" type="button" id="consent-go">Agree and continue</button>
     <button class="link" type="button" id="consent-no">No thanks, sign out</button>
