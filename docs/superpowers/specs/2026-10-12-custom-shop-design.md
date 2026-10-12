@@ -88,8 +88,15 @@ A "Shop" section in the Parent panel for the chosen child, listing every item in
 - **Lobby `goal` line** ("N more coins to <goal>"): uses the effective catalog, so a hidden item is never named.
 - **Shop requests** (`shop-requests.js`, child asks, parent approves on the phone, the tablet buys): a request holds the
   item id, name and price when it was asked. When the tablet settles it, an item that is now hidden, deleted or at a
-  different price ends the request as `short` (nothing bought). The `short` message becomes "Nothing was bought. The
-  reward changed or you need more coins. Ask again." in both lobbies.
+  different price ends the request as `short` (nothing bought).
+  - The child gets no choice and no explanation to argue with: rewards and prices are a parent setting, so the child's
+    side shows only the neutral message "Nothing was bought. Please ask again." (the same text for a change or for too
+    few coins), with no mention of what changed or who changed it.
+  - The parent sees the problem where the decision is made: on the phone, a waiting request whose reward is now hidden,
+    deleted or at a different price is marked "Changed since asked" with the current price, and approving it asks the
+    child to request again instead of buying.
+  - A child can never edit, hide or reprice a reward, and cannot reach the editor: it is inside the PIN-gated Parent
+    panel, not the shop overlay.
 - **Purchase history**: already stores `itemName` and `coins` for each purchase (`StudyHistory.purchased`), so renaming
   or deleting an item later never changes old history or the CSV export.
 - **Daily limit**: `boughtToday` counts by item id, so hiding and showing an item does not reset the day's count.
@@ -145,4 +152,4 @@ Update `docs/HANDOFF.md` (what is built) and the shop paragraph of `README.md`; 
 1. **Per child** (as written) rather than per family. Per family would be simpler but the sisters differ in age.
 2. **Delete is final** for a custom item (no undo). Hiding is the reversible way.
 3. **Price range 10 to 10000** and **40 custom items**. Easy to change.
-4. **A changed or hidden item ends a waiting request as `short`** instead of buying at the old price.
+4. **A changed or hidden item ends a waiting request as `short`** instead of buying at the old price. Confirmed by the owner, with the rule that the child gets no option or explanation to dispute it (neutral message only; the parent sees the change on the phone).
