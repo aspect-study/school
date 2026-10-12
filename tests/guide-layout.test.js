@@ -48,9 +48,18 @@ test('inside the world frame the nav bar drops the home button, and the close bu
   assert.match(css, /\.w-portal-x \{ position: absolute; top: 7px; right: 8px; width: 42px; height: 42px;/);
 });
 
-test('History Explorers hides the boat on review and boss stages and shows the question in its own block', () => {
+test('History Explorers has no boat card and shows the question in its own block', () => {
   const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'web', 'subjects', 'grade-5', 'araling-panlipunan', 'index.html'), 'utf8');
-  assert.match(html, /getElementById\('boatBox'\)\.hidden = currentQuizMeta\.id === 'review';/);
+  assert.ok(!/boat|balangayMarkup/i.test(html), 'the boat card is gone');
   assert.ok(html.indexOf('class="quiz-head"') < html.indexOf('class="progress-bar"'), 'the counter row sits above the progress bar');
   assert.match(html, /\.q-card h3\{[^}]*border-left:5px solid var\(--accent\)/);
 });
+
+for (const game of ['araling-panlipunan', 'computer', 'english', 'filipino', 'gmrc', 'music-arts', 'pe-health', 'science', 'tle']) {
+  test('grade 5 ' + game + ': the counter row sits above the progress bar and the question has its own block', () => {
+    const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'web', 'subjects', 'grade-5', game, 'index.html'), 'utf8');
+    assert.ok(html.indexOf('class="quiz-head"') < html.indexOf('class="progress-bar"'));
+    assert.match(html, /#quizCounter\{padding:4px 14px;border-radius:999px;background:var\(--accent\)/);
+    assert.match(html, /\.q-card h3\{[^}]*border-left:5px solid var\(--accent\)/);
+  });
+}

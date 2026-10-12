@@ -136,11 +136,12 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 
 .progress-bar{
-  height:10px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:18px;
+  height:8px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:14px;
 }
 .progress-bar .fill{height:100%;background:var(--gold);transition:width .3s ease;}
 
-.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.85rem;color:var(--muted);font-weight:700;}
+.quiz-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;font-size:.85rem;color:var(--muted);font-weight:700;}
+#quizCounter{padding:4px 14px;border-radius:999px;background:var(--accent);color:#fff;font-family:'Baloo 2',cursive;font-size:.9rem;}
 .scene-box{
   background:var(--card);border:2px solid var(--border);border-radius:18px;
   padding:10px;margin-bottom:16px;box-shadow:var(--shadow);
@@ -157,7 +158,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
   background:var(--card);border:2px solid var(--border);border-radius:18px;
   padding:20px;box-shadow:var(--shadow);margin-bottom:16px;
 }
-.q-card h3{margin:0 0 16px;font-size:1.1rem;line-height:1.5;}
+.q-card h3{margin:0 0 14px;padding:14px 16px;background:var(--accent-soft);border-left:5px solid var(--accent);border-radius:12px;font-size:1.2rem;line-height:1.45;}
 .option{
   display:block;width:100%;text-align:left;
   background:var(--bg);border:2px solid var(--border);border-radius:14px;
@@ -272,12 +273,12 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
       <h2 id="quizTitle"></h2>
     </div>
     <div class="scene-box"><div id="sceneSvg"></div></div>
-    <div class="progress-bar"><div class="fill" id="quizFill" style="width:0%"></div></div>
     <div class="quiz-head">
       <span id="quizCounter"></span>
       <span id="quizScoreLabel"></span>
       <span class="points-live" id="points-live"></span>
     </div>
+    <div class="progress-bar"><div class="fill" id="quizFill" style="width:0%"></div></div>
     <div id="passageBox"></div>
     <div class="q-card">
       <h3 id="qText"></h3>

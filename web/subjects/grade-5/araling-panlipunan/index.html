@@ -143,11 +143,6 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 
 .quiz-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;font-size:.85rem;color:var(--muted);font-weight:700;}
 #quizCounter{padding:4px 14px;border-radius:999px;background:var(--accent);color:#fff;font-family:'Baloo 2',cursive;font-size:.9rem;}
-.boat-box{
-  background:var(--card);border:2px solid var(--border);border-radius:18px;
-  padding:10px;margin-bottom:16px;box-shadow:var(--shadow);
-}
-.boat-box svg{width:100%;max-width:150px;display:block;margin:0 auto;}
 
 .passage{
   background:var(--accent-soft);border:2px solid var(--accent);border-radius:16px;
@@ -250,7 +245,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
     <div class="hero">
       <span class="badge">Araling Panlipunan · Grade 5</span>
       <h1>History Explorers ⛵</h1>
-      <p>Buuin ang iyong balangay sa bawat tamang sagot! Pag-aralan ang pinagmulan ng Pilipinas, ang kasaysayan at mga batis, ang organisasyon ng sinaunang lipunan, ang hanapbuhay at kalakalan, at ang materyal at di-materyal na kalinangan — ang mga paniniwala, pangitain, paglilibing, at kasal. Pagkatapos ay subukan ang Full Mock Exam at basahin ang Exam Strategy.</p>
+      <p>Pag-aralan ang pinagmulan ng Pilipinas, ang kasaysayan at mga batis, ang organisasyon ng sinaunang lipunan, ang hanapbuhay at kalakalan, at ang materyal at di-materyal na kalinangan — ang mga paniniwala, pangitain, paglilibing, at kasal. Pagkatapos ay subukan ang Full Mock Exam at basahin ang Exam Strategy.</p>
       <div class="points-total" id="points-total-badge"></div>
       <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
     </div>
@@ -280,7 +275,6 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
     <div class="topbar">
       <h2 id="quizTitle"></h2>
     </div>
-    <div class="boat-box" id="boatBox"><div id="boatSvg"></div></div>
     <div class="quiz-head">
       <span id="quizCounter"></span>
       <span id="quizScoreLabel"></span>
@@ -301,7 +295,6 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 
   <div id="resultsScreen" class="screen">
     <div class="results-hero">
-      <div class="boat-box" style="max-width:180px;margin:0 auto 14px;"><div id="resultBoat"></div></div>
       <div class="big-stars" id="resultStars"></div>
       <h2 id="resultTitle"></h2>
       <p id="resultScore"></p>
@@ -482,31 +475,6 @@ function starString(n){
   let s='';
   for(let i=0;i<3;i++) s += i<n ? '★' : '<span class="off">★</span>';
   return s;
-}
-
-function balangayMarkup(n){
-  const show = i => n>=i ? 1 : 0.06;
-  return `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Balangay na binubuo sa bawat tamang sagot">
-    <path d="M0,182 Q25,174 50,182 T100,182 T150,182 T200,182 L200,220 L0,220 Z" fill="var(--accent)" opacity="${n>=1 ? 0.22 : 0.06}"/>
-    <path d="M38,150 L162,150 L140,182 L60,182 Z" fill="var(--accent-dark)" opacity="${show(2)}"/>
-    <g opacity="${show(3)}" stroke="var(--accent)" stroke-width="5" stroke-linecap="round">
-      <path d="M30,168 L54,158"/><path d="M170,168 L146,158"/>
-      <path d="M26,160 L26,176"/><path d="M174,160 L174,176"/>
-    </g>
-    <rect x="97" y="52" width="6" height="100" rx="3" fill="var(--accent-dark)" opacity="${show(4)}"/>
-    <path d="M97,58 L97,140 L34,140 Z" fill="var(--gold)" opacity="${show(5)}"/>
-    <path d="M103,66 L103,140 L156,140 Z" fill="var(--coral)" opacity="${show(6)}"/>
-    <g opacity="${show(7)}">
-      <circle cx="78" cy="164" r="7" fill="var(--gold)"/>
-      <circle cx="100" cy="164" r="7" fill="var(--gold)"/>
-      <circle cx="122" cy="164" r="7" fill="var(--gold)"/>
-    </g>
-    <g opacity="${show(8)}">
-      <path d="M100,46 L128,54 L100,62 Z" fill="var(--coral)"/>
-      <circle cx="40" cy="40" r="13" fill="var(--gold)"/>
-      <text x="100" y="208" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent-dark)" font-family="Baloo 2, cursive">BALANGAY</text>
-    </g>
-  </svg>`;
 }
 
 const STRATEGY = StudyKit.content('strategy');
@@ -694,8 +662,6 @@ function renderQuestion(){
   document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
   kit.renderLive();
   document.getElementById('quizFill').style.width = `${(quizIdx/total)*100}%`;
-  document.getElementById('boatBox').hidden = currentQuizMeta.id === 'review';
-  document.getElementById('boatSvg').innerHTML = balangayMarkup(Math.round((quizScore/total)*8));
   document.getElementById('qText').innerHTML = q.q;
   const qEn = document.getElementById('qEn');
   qEn.innerHTML = q.qen || '';
@@ -735,7 +701,6 @@ function selectOption(i){
   }
   kit.answer(i === q.correct, { helped: helped, exam: currentQuizMeta.id === 'final' });
   document.getElementById('quizScoreLabel').textContent = `Score: ${quizScore}`;
-  document.getElementById('boatSvg').innerHTML = balangayMarkup(Math.round((quizScore/currentQuizSet.length)*8));
   const explainHtml = q.explain + (q.en ? '<div class="fb-en"><b>Sa English:</b> ' + q.en + '</div>' : '');
   const miss = i === q.correct ? null : { q:q.q, picked:q.options[i], why:(q.why||[])[i] || '', whyEn:(q.whyEn||[])[i] || '', answer:q.options[q.correct], explain:explainHtml, tip:q.tip || '', tipEn:q.tipEn || '' };
   if(miss) missedQuestions.push(miss);
@@ -781,7 +746,6 @@ function finishQuiz(){
 function renderResults(total){
   const pct = quizScore/total;
   const n = starsFor(pct);
-  document.getElementById('resultBoat').innerHTML = balangayMarkup(Math.round(pct*8));
   document.getElementById('resultStars').innerHTML = starString(n);
   document.getElementById('resultTitle').textContent =
     n===3 ? 'Perpekto! Napakahusay!' :
