@@ -237,8 +237,156 @@
       return state.purchases.filter(function (p) { return p.item === id && dateKey(p.t) === today; }).length;
     }
 
+    function readShop() {
+      var raw = null;
+      try { raw = storage.getItem(SHOP_KEY); } catch (e) {}
+      return raw ? normalizeShopDoc(raw) : emptyShopDoc();
+    }
+
+    function writeShop(doc) {
+      try {
+        storage.setItem(SHOP_KEY, JSON.stringify(doc));
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, error: 'save' };
+      }
+    }
+
+    function items() { return effectiveCatalog(CATALOG, readShop()); }
+
+    function find(id) {
+      var list = items();
+      for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+      return null;
+    }
+
+    function nextAt(entry) { return Math.max(now(), ((entry && entry.at) || 0) + 1); }
+
+    function isLiveCustom(entry) { return !!entry && entry.custom === true && !entry.deleted; }
+
+    function liveCustomCount(doc) {
+      return Object.keys(doc.items).filter(function (id) { return isLiveCustom(doc.items[id]); }).length;
+    }
+
+    function newCustomId(doc) {
+      for (var tries = 0; tries < 5; tries++) {
+        var tail = ('0' + Math.floor(Math.random() * 1296).toString(36)).slice(-2);
+        var id = 'c' + now().toString(36) + tail;
+        if (!own(doc.items, id)) return id;
+      }
+      return null;
+    }
+
+    // Checks only the fields present. Returns the first bad field's name, or '' when all are fine.
+    function badField(fields, custom) {
+      if (fields.name !== undefined && !cleanText(fields.name, SHOP_LIMITS.nameMax)) return 'name';
+      if (fields.coins !== undefined && !validPrice(fields.coins)) return 'price';
+      if (fields.emoji !== undefined && !validEmoji(fields.emoji)) return 'emoji';
+      if (custom && fields.note !== undefined && fields.note !== '' && !cleanText(fields.note, SHOP_LIMITS.noteMax)) return 'note';
+      if (custom && fields.perDay && PER_DAY_CHOICES.indexOf(fields.perDay) < 0) return 'limit';
+      return '';
+    }
+
+    function applyFields(entry, fields, custom) {
+      if (fields.name !== undefined) entry.name = cleanText(fields.name, SHOP_LIMITS.nameMax);
+      if (fields.coins !== undefined) entry.coins = fields.coins;
+      if (fields.emoji !== undefined) entry.emoji = fields.emoji;
+      if (!custom) return;
+      if (fields.note !== undefined) {
+        var note = cleanText(fields.note, SHOP_LIMITS.noteMax);
+        if (note) entry.note = note; else delete entry.note;
+      }
+      if (fields.perDay !== undefined) {
+        if (fields.perDay) entry.perDay = fields.perDay; else delete entry.perDay;
+      }
+    }
+
+    var shop = {
+      // Every reward the parent can edit, hidden ones too, cheapest first.
+      rows: function () {
+        var doc = readShop(), visible = { v: 1, items: {} };
+        Object.keys(doc.items).forEach(function (id) {
+          var copy = {};
+          Object.keys(doc.items[id]).forEach(function (k) { if (k !== 'hidden') copy[k] = doc.items[id][k]; });
+          visible.items[id] = copy;
+        });
+        return effectiveCatalog(CATALOG, visible).map(function (item) {
+          var entry = own(doc.items, item.id) ? doc.items[item.id] : null, base = findItem(item.id);
+          var hidden = !!(entry && entry.hidden);
+          var edited = !!base && (hidden || item.coins !== base.coins || item.name !== base.name || item.emoji !== base.emoji);
+          return { id: item.id, item: item, base: base ? { id: base.id, emoji: base.emoji, name: base.name, goal: base.goal, coins: base.coins } : null, hidden: hidden, edited: edited, custom: !base };
+        });
+      },
+
+      setHidden: function (id, hidden) {
+        var doc = readShop(), entry = doc.items[id];
+        if (!findItem(id) && !isLiveCustom(entry)) return { ok: false, error: 'item' };
+        entry = entry || {};
+        entry.at = nextAt(entry);
+        if (hidden) entry.hidden = true; else delete entry.hidden;
+        doc.items[id] = entry;
+        return writeShop(doc);
+      },
+
+      editItem: function (id, fields) {
+        var doc = readShop(), entry = doc.items[id], custom = isLiveCustom(entry);
+        if (!findItem(id) && !custom) return { ok: false, error: 'item' };
+        fields = fields || {};
+        var bad = badField(fields, custom);
+        if (bad) return { ok: false, error: bad };
+        entry = entry || {};
+        applyFields(entry, fields, custom);
+        entry.at = nextAt(entry);
+        doc.items[id] = entry;
+        return writeShop(doc);
+      },
+
+      addItem: function (fields) {
+        fields = fields || {};
+        if (fields.name === undefined) return { ok: false, error: 'name' };
+        if (fields.coins === undefined) return { ok: false, error: 'price' };
+        if (fields.emoji === undefined) return { ok: false, error: 'emoji' };
+        var bad = badField(fields, true);
+        if (bad) return { ok: false, error: bad };
+        var doc = readShop();
+        if (liveCustomCount(doc) >= SHOP_LIMITS.customMax) return { ok: false, error: 'full' };
+        var id = newCustomId(doc);
+        if (!id) return { ok: false, error: 'save' };
+        var entry = { custom: true };
+        applyFields(entry, fields, true);
+        entry.at = nextAt(null);
+        doc.items[id] = entry;
+        var saved = writeShop(doc);
+        return saved.ok ? { ok: true, id: id } : saved;
+      },
+
+      removeItem: function (id) {
+        var doc = readShop(), entry = doc.items[id];
+        if (!isLiveCustom(entry)) return { ok: false, error: 'item' };
+        doc.items[id] = { at: nextAt(entry), custom: true, deleted: true };
+        return writeShop(doc);
+      },
+
+      resetItem: function (id) {
+        var doc = readShop();
+        if (!findItem(id)) return { ok: false, error: 'item' };
+        doc.items[id] = { at: nextAt(doc.items[id]) };
+        return writeShop(doc);
+      },
+
+      resetAll: function () {
+        var doc = readShop();
+        Object.keys(doc.items).forEach(function (id) {
+          var entry = doc.items[id];
+          if (findItem(id)) doc.items[id] = { at: nextAt(entry) };
+          else if (isLiveCustom(entry)) doc.items[id] = { at: nextAt(entry), custom: true, deleted: true };
+        });
+        return writeShop(doc);
+      }
+    };
+
     function check(state, id, points) {
-      var item = findItem(id);
+      var item = find(id);
       if (!item) return { ok: false, need: 0, daily: false };
       if (item.perDay && boughtToday(state, id) >= item.perDay) return { ok: false, need: 0, daily: true };
       var need = Math.max(0, item.coins - balanceOf(state, points));
@@ -247,8 +395,10 @@
 
     return {
       grade: grade,
-      catalog: CATALOG,
+      get catalog() { return items(); },
       powerUps: POWER_UPS,
+      shop: shop,
+      current: function (id) { return find(id); },
 
       // The first track counts every point earned so far, once (parent's choice, 2026-10-01).
       // After that, a points key seen for the first time starts from its current value.
@@ -281,7 +431,7 @@
       // Every catalog item with canBuy's answer, read once. The parent page shows it as a price list.
       shelf: function (points) {
         var state = read();
-        return CATALOG.map(function (item) {
+        return items().map(function (item) {
           var c = check(state, item.id, points);
           return { item: item, ok: c.ok, need: c.need, daily: c.daily };
         });
@@ -335,7 +485,7 @@
       buy: function (id, points) {
         var state = read();
         if (!check(state, id, points).ok) return null;
-        var purchase = { item: id, coins: findItem(id).coins, t: now() };
+        var purchase = { item: id, coins: find(id).coins, t: now() };
         state.spent += purchase.coins;
         state.purchases.push(purchase);
         return write(state) ? purchase : null;

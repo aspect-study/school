@@ -477,3 +477,166 @@ test('the rate switch records every tracked key, even ones this lobby does not s
   assert.deepEqual(JSON.parse(storage.data.wallet_v1).rateFrom, { a_points_v1: 200, b_points_v1: 300 });
   assert.equal(w.balance({ a_points_v1: 200, b_points_v1: 300 }), 40 + 20 + 30, 'the other grade keeps the old rate too');
 });
+
+const SHOP_KEY = 'shop_items_v1';
+const RICH = { a: 100000 };
+function shopWallet(doc) {
+  const s = setup();
+  s.w.track({ a: 0 });
+  if (doc !== undefined) s.storage.data[SHOP_KEY] = typeof doc === 'string' ? doc : JSON.stringify(doc);
+  return s;
+}
+
+test('with no shop document the catalog is exactly the defaults', () => {
+  const { w } = shopWallet();
+  assert.deepEqual(w.catalog, CATALOG);
+});
+
+test('a hidden reward leaves the catalog and cannot be bought', () => {
+  const { w, storage } = shopWallet({ v: 1, items: { tatay1: { at: 1, hidden: true } } });
+  assert.ok(!w.catalog.some((i) => i.id === 'tatay1'));
+  assert.deepEqual(w.canBuy('tatay1', RICH), { ok: false, need: 0, daily: false });
+  const before = storage.getItem('wallet_v1');
+  assert.equal(w.buy('tatay1', RICH), null);
+  assert.equal(storage.getItem('wallet_v1'), before);
+  assert.equal(w.current('tatay1'), null);
+});
+
+test('a price override is what canBuy and buy use', () => {
+  const { w, storage } = shopWallet({ v: 1, items: { dessert: { at: 1, coins: 90 } } });
+  assert.deepEqual(w.canBuy('dessert', { a: 0 }), { ok: false, need: 50, daily: false });
+  const p = w.buy('dessert', RICH);
+  assert.equal(p.coins, 90);
+  assert.equal(JSON.parse(storage.getItem('wallet_v1')).spent, 90);
+  assert.equal(w.current('dessert').coins, 90);
+});
+
+test('a custom reward is listed by price, can be bought, and its daily limit blocks a second buy', () => {
+  const { w } = shopWallet({ v: 1, items: { cx1: { at: 1, custom: true, name: 'Bike ride', emoji: '🚲', coins: 70, perDay: 1 } } });
+  const ids = w.catalog.map((i) => i.id);
+  assert.equal(ids.indexOf('cx1'), ids.indexOf('hero') + 1, 'after the 60 coin reward, before the 80 coin one');
+  assert.ok(w.buy('cx1', RICH));
+  assert.equal(w.canBuy('cx1', RICH).daily, true);
+  assert.equal(w.buy('cx1', RICH), null);
+});
+
+test('shelf follows the effective catalog', () => {
+  const { w } = shopWallet({ v: 1, items: { music: { at: 1, hidden: true } } });
+  assert.deepEqual(w.shelf(RICH).map((r) => r.item.id), w.catalog.map((i) => i.id));
+  assert.ok(!w.shelf(RICH).some((r) => r.item.id === 'music'));
+});
+
+test('a corrupt shop document reads as no document', () => {
+  const { w } = shopWallet('{not json');
+  assert.deepEqual(w.catalog, CATALOG);
+});
+
+test('editing the shop writes only the shop key', () => {
+  const { w, storage } = shopWallet();
+  storage.writes.length = 0;
+  w.shop.setHidden('dessert', true);
+  w.shop.addItem({ name: 'Bike ride', emoji: '🚲', coins: 100 });
+  assert.deepEqual([...new Set(storage.writes)], [SHOP_KEY]);
+});
+
+test('setHidden hides and shows a reward; an unknown id is refused', () => {
+  const { w } = shopWallet();
+  assert.deepEqual(w.shop.setHidden('tatay1', true), { ok: true });
+  assert.equal(w.current('tatay1'), null);
+  assert.deepEqual(w.shop.setHidden('tatay1', false), { ok: true });
+  assert.equal(w.current('tatay1').coins, 100);
+  assert.deepEqual(w.shop.setHidden('pony', true), { ok: false, error: 'item' });
+});
+
+test('editItem validates each field and writes nothing on a bad one', () => {
+  const { w, storage } = shopWallet();
+  assert.deepEqual(w.shop.editItem('dessert', { coins: 4 }), { ok: false, error: 'price' });
+  assert.deepEqual(w.shop.editItem('dessert', { coins: 250.5 }), { ok: false, error: 'price' });
+  assert.deepEqual(w.shop.editItem('dessert', { name: '   ' }), { ok: false, error: 'name' });
+  assert.deepEqual(w.shop.editItem('dessert', { emoji: 'x' }), { ok: false, error: 'emoji' });
+  assert.equal(storage.getItem(SHOP_KEY), null);
+  assert.deepEqual(w.shop.editItem('dessert', { coins: 250, name: 'Ice cream' }), { ok: true });
+  const item = w.current('dessert');
+  assert.equal(item.coins, 250);
+  assert.equal(item.name, 'Ice cream');
+  assert.equal(item.renamed, true);
+  assert.deepEqual(w.shop.editItem('pony', { coins: 100 }), { ok: false, error: 'item' });
+});
+
+test('a built-in reward keeps its daily limit whatever is sent', () => {
+  const { w } = shopWallet();
+  w.shop.editItem('ml', { perDay: 3, coins: 100 });
+  assert.equal(w.current('ml').perDay, 1);
+  assert.equal(w.current('ml').coins, 100);
+});
+
+test('addItem makes a custom reward; the 41st is refused', () => {
+  const { w } = shopWallet();
+  const r = w.shop.addItem({ name: 'Bike ride', emoji: '🚲', coins: 200, note: 'Around the village', perDay: 2 });
+  assert.equal(r.ok, true);
+  assert.match(r.id, /^c[0-9a-z]+$/);
+  assert.deepEqual(w.current(r.id), { id: r.id, emoji: '🚲', name: 'Bike ride', goal: 'Bike ride', coins: 200, custom: true, perDay: 2, note: 'Around the village' });
+  assert.deepEqual(w.shop.addItem({ name: '', emoji: '🚲', coins: 200 }), { ok: false, error: 'name' });
+  assert.deepEqual(w.shop.addItem({ name: 'A', emoji: '🚲', coins: 3 }), { ok: false, error: 'price' });
+  assert.deepEqual(w.shop.addItem({ name: 'A', emoji: 'x', coins: 30 }), { ok: false, error: 'emoji' });
+  assert.deepEqual(w.shop.addItem({ name: 'A', emoji: '🚲', coins: 30, perDay: 7 }), { ok: false, error: 'limit' });
+  for (let n = 1; n < 40; n++) assert.equal(w.shop.addItem({ name: 'R' + n, emoji: '🎁', coins: 100 }).ok, true);
+  assert.deepEqual(w.shop.addItem({ name: 'One too many', emoji: '🎁', coins: 100 }), { ok: false, error: 'full' });
+});
+
+test('removeItem deletes a custom reward for good and refuses built-in ones', () => {
+  const { w, storage } = shopWallet();
+  const { id } = w.shop.addItem({ name: 'Bike ride', emoji: '🚲', coins: 200 });
+  assert.deepEqual(w.shop.removeItem(id), { ok: true });
+  assert.equal(w.current(id), null);
+  assert.equal(JSON.parse(storage.getItem(SHOP_KEY)).items[id].deleted, true, 'a marker stays so the delete syncs');
+  assert.deepEqual(w.shop.removeItem('dessert'), { ok: false, error: 'item' });
+  assert.deepEqual(w.shop.removeItem(id), { ok: false, error: 'item' });
+});
+
+test('resetItem clears one built-in reward and resetAll clears everything', () => {
+  const { w } = shopWallet();
+  w.shop.editItem('dessert', { coins: 250 });
+  w.shop.setHidden('tatay1', true);
+  const { id } = w.shop.addItem({ name: 'Bike ride', emoji: '🚲', coins: 200 });
+  assert.deepEqual(w.shop.resetItem('dessert'), { ok: true });
+  assert.equal(w.current('dessert').coins, 200);
+  assert.deepEqual(w.shop.resetItem(id), { ok: false, error: 'item' });
+  assert.deepEqual(w.shop.resetAll(), { ok: true });
+  assert.deepEqual(w.catalog, CATALOG);
+});
+
+test('two edits in the same millisecond get increasing change times', () => {
+  const { w, storage } = shopWallet();
+  w.shop.editItem('dessert', { coins: 250 });
+  const first = JSON.parse(storage.getItem(SHOP_KEY)).items.dessert.at;
+  w.shop.editItem('dessert', { coins: 260 });
+  assert.ok(JSON.parse(storage.getItem(SHOP_KEY)).items.dessert.at > first);
+});
+
+test('rows lists hidden rewards too, with whether each was edited', () => {
+  const { w } = shopWallet();
+  w.shop.setHidden('tatay1', true);
+  w.shop.editItem('dessert', { coins: 250 });
+  const { id } = w.shop.addItem({ name: 'Bike ride', emoji: '🚲', coins: 200 });
+  const rows = w.shop.rows();
+  assert.equal(rows.length, CATALOG.length + 1);
+  const by = (x) => rows.find((r) => r.id === x);
+  assert.equal(by('tatay1').hidden, true);
+  assert.equal(by('tatay1').edited, true);
+  assert.equal(by('dessert').edited, true);
+  assert.equal(by('dessert').item.coins, 250);
+  assert.equal(by('dessert').base.coins, 200);
+  assert.equal(by('music').edited, false);
+  assert.equal(by(id).custom, true);
+  assert.equal(by(id).base, null);
+  const prices = rows.map((r) => r.item.coins);
+  assert.deepEqual(prices, [...prices].sort((a, b) => a - b), 'price order');
+});
+
+test('a failed shop write reports save and changes nothing', () => {
+  const { w, storage } = shopWallet();
+  storage.setItem = () => { throw new Error('full'); };
+  assert.deepEqual(w.shop.setHidden('dessert', true), { ok: false, error: 'save' });
+  assert.equal(w.current('dessert').coins, 200);
+});
