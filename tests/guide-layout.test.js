@@ -72,3 +72,13 @@ for (const page of [['grade-5', 'math'], ['grade-2', 'math']]) {
     assert.ok(!/Question \$\{quizIdx\+1\} of \$\{total\}: /.test(html), 'the number is no longer glued to the question');
   });
 }
+
+test('the parent page sign-in and PIN screens are cards with labelled fields and keep the ids phone.js uses', () => {
+  const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'web', 'parent', 'index.html'), 'utf8');
+  for (const id of ['signin-view', 'pin-view']) assert.match(html, new RegExp('id="' + id + '" class="auth-card"'));
+  for (const id of ['signin-email', 'signin-pass', 'signin-go', 'signin-msg', 'pin-hint', 'pin-dots', 'pin-pad', 'signout', 'status', 'pass-toggle']) {
+    assert.ok(html.includes('id="' + id + '"'), id);
+  }
+  assert.match(html, /<label for="signin-email">/);
+  assert.match(html, /<label for="signin-pass">/);
+});

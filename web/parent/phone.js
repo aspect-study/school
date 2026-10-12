@@ -311,6 +311,16 @@
     FR.signIn(email, pass).then(function () { $('signin-msg').textContent = ''; }, function (e) { $('signin-msg').textContent = FR.signInError(e); });
   });
   $('signout').addEventListener('click', function () { unlocked = false; FR.signOut(); });
+  $('pass-toggle').addEventListener('click', function () {
+    var input = $('signin-pass'), show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    this.textContent = show ? 'Hide' : 'Show';
+    this.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+    this.setAttribute('aria-pressed', String(show));
+  });
+  ['signin-email', 'signin-pass'].forEach(function (id) {
+    $(id).addEventListener('keydown', function (ev) { if (ev.key === 'Enter') $('signin-go').click(); });
+  });
   $('switch-child').addEventListener('click', function () { closeChild(); pick(); });
   $('refresh').addEventListener('click', function () { setStatus('Syncing…'); sync(); });
   document.addEventListener('keydown', function (ev) {
