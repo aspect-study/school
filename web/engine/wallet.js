@@ -501,6 +501,10 @@
   // A perfect 10-question lesson: 10 right, the last 8 on a streak = 140 points = 7 coins.
   function lessonsFor(coins) { return Math.round(coins / 7); }
 
+  function signedIn() {
+    try { return root.StudyStore.raw.getItem('sync_signed_in_v1') === '1'; } catch (e) { return false; }
+  }
+
   // Kid-facing copy for the coin badges and the "how it works" guide, per child.
   var GUIDE_TEXT = {
     grade5: {
@@ -516,7 +520,7 @@
           ['⭐', 'Points', 'Every right answer gives you 10 points. When you get 3 or more right in a row 🔥, each one gives 15. A wrong answer never takes points away.'],
           ['🪙', 'Coins', 'Every 20 points turns into 1 coin by itself. You do not need to press anything. A perfect 10-question lesson = 140 points = 7 coins.'],
           ['🏅', 'Medals', 'A new medal on a lesson gives coins once: 🥉 3, 🥈 5, 🥇 10.'],
-          ['🛒', 'The Shop', 'In the lobby, tap 🛒 Shop and pick a reward. Then ask Mommy or Tatay to type the PIN. Buying uses up coins, but your ⭐ points stay the same.'],
+          ['🛒', 'The Shop', 'In the lobby, tap 🛒 Shop and pick a reward.' + (signedIn() ? ' Then ask Mommy or Tatay to approve it on their phone.' : '') + ' Buying uses up coins, but your ⭐ points stay the same.'],
           ['🎮', 'ML game', 'One ML game costs ' + ml + ' coins. You can buy 1 a day, and only after studying. That is about ' + lessonsFor(ml) + ' perfect lessons!'],
           ['👨', 'ML with Tatay', 'Play ML with Tatay: 1 game for ' + t[0] + ' coins, 2 games for ' + t[1] + ' coins, or 3 games for ' + t[2] +
             ' coins. Or a 1v1 vs Tatay, or a ranked duo with him. No daily limit: buy any time you have the coins. It does not use up your own ML game.'],
@@ -557,8 +561,8 @@
             'Every 20 points = 1 coin. Points turn into coins by themselves, so you do not need to press anything. A perfect 10-question lesson = 140 points = 7 coins!'],
           ['🏅', 'Medals', 'Bawat bagong medal sa aralin: 🥉 3, 🥈 5, 🥇 10 coins.',
             'A new medal on a lesson gives coins once: 🥉 3, 🥈 5, 🥇 10.'],
-          ['🛒', 'Shop', 'Sa lobby, pindutin ang 🛒 Shop at pumili ng reward. Tapos ipa-type kay Mommy o Tatay ang PIN. Coins lang ang nagagastos, hindi nababawasan ang ⭐ points mo.',
-            'In the lobby, tap 🛒 Shop and pick a reward. Then ask Mommy or Tatay to type the PIN. Buying uses only coins; your ⭐ points stay the same.'],
+          ['🛒', 'Shop', 'Sa lobby, pindutin ang 🛒 Shop at pumili ng reward.' + (signedIn() ? ' Tapos hilingin kay Mommy o Tatay na aprubahan ito sa phone nila.' : '') + ' Coins lang ang nagagastos, hindi nababawasan ang ⭐ points mo.',
+            'In the lobby, tap 🛒 Shop and pick a reward.' + (signedIn() ? ' Then ask Mommy or Tatay to approve it on their phone.' : '') + ' Buying uses only coins; your ⭐ points stay the same.'],
           ['🎮', 'ML game', 'Ang 1 ML game ay ' + ml + ' coins. Isa lang bawat araw, at pagkatapos lang mag-aral. Mga ' + lessonsFor(ml) + ' perfect na lesson yan!',
             'One ML game costs ' + ml + ' coins. You can buy only 1 a day, and only after studying. That is about ' + lessonsFor(ml) + ' perfect lessons!'],
           ['👨', 'ML kasama si Tatay · ML with Tatay', 'Maglaro ng ML kasama si Tatay: 1 game = ' + t[0] + ' coins, 2 games = ' + t[1] + ' coins, 3 games = ' + t[2] +
