@@ -296,9 +296,10 @@ test('the Firestore rules let the signed-in family read and write its own data, 
   const fs = require('node:fs');
   const path = require('node:path');
   const rules = fs.readFileSync(path.join(__dirname, '..', 'firebase', 'firestore.rules'), 'utf8').replace(/\s+/g, ' ');
-  assert.match(rules, /match \/families\/\{uid\}\/\{document=\*\*\} \{ allow read: if isOwner\(\); allow read, write: if request\.auth != null && request\.auth\.uid == uid; \}/);
-  assert.equal((rules.match(/allow /g) || []).length, 4, 'no other allow rules');
-  assert.equal((rules.match(/allow read, write:/g) || []).length, 2, 'only the family writes');
+  assert.ok(!rules.includes('{document=**}'), 'no catch-all path');
+  assert.equal((rules.match(/allow read: if isOwner\(\) \|\| isFamily\(uid\);/g) || []).length, 6, 'the owner reads, read-only');
+  assert.equal((rules.match(/allow (create, update|delete): if isFamily\(uid\)/g) || []).length, 12, 'only the family writes or deletes');
+  assert.equal((rules.match(/allow /g) || []).length, 18, 'no other allow rules');
 });
 
 const DAY = 86400000;

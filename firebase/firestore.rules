@@ -1,20 +1,85 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // The owner is one account: this UID (Firebase console, Authentication, Users) with this email. Until the UID is
-    // pasted here the owner clause matches nobody.
+    // The owner is one account: this UID (Firebase console, Authentication, Users) with this email.
     function isOwner() {
       return request.auth != null && request.auth.uid == '8DAk3YrIYTUEtP52VLWdC29ykb23'
         && request.auth.token.email == 'aspectjump.java@gmail.com';
     }
 
-    match /families/{uid} {
-      allow read: if isOwner();
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    function isFamily(uid) {
+      return request.auth != null && request.auth.uid == uid;
     }
-    match /families/{uid}/{document=**} {
-      allow read: if isOwner();
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+    // A document holding one JSON string; updatedAt must be the server's clock (the app writes serverTimestamp()).
+    function jsonDoc(max) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['json', 'updatedAt']) && d.keys().hasAll(['json', 'updatedAt'])
+        && d.json is string && d.json.size() <= max && d.updatedAt == request.time;
+    }
+
+    function historyDoc() {
+      let d = request.resource.data;
+      return jsonDoc(20000) || (d.keys().hasOnly(['deleted', 'updatedAt']) && d.keys().hasAll(['deleted', 'updatedAt'])
+        && d.deleted == true && d.updatedAt == request.time);
+    }
+
+    function counterDoc() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['total', 'updatedAt']) && d.keys().hasAll(['total', 'updatedAt'])
+        && d.total is number && d.updatedAt == request.time;
+    }
+
+    function pinDoc() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['pin', 'at', 'updatedAt']) && d.keys().hasAll(['pin', 'at', 'updatedAt'])
+        && d.pin is string && d.pin.matches('^[0-9]{4}$') && d.at is number && d.updatedAt == request.time;
+    }
+
+    // Merged writes: request.resource.data is the whole document after the write.
+    function familyDoc() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['email', 'createdAt', 'lastSeenAt', 'updatedAt', 'consent'])
+        && d.keys().hasAll(['updatedAt']) && d.updatedAt == request.time
+        && (!('email' in d) || (d.email is string && d.email.size() <= 254))
+        && (!('createdAt' in d) || d.createdAt is number)
+        && (!('lastSeenAt' in d) || d.lastSeenAt is timestamp)
+        && (!('consent' in d) || (d.consent is map && d.consent.keys().hasOnly(['at', 'version'])
+          && d.consent.keys().hasAll(['at', 'version']) && d.consent.at is number && d.consent.version is int));
+    }
+
+    match /families/{uid} {
+      allow read: if isOwner() || isFamily(uid);
+      allow delete: if isFamily(uid);
+      allow create, update: if isFamily(uid) && familyDoc();
+
+      match /settings/pin {
+        allow read: if isOwner() || isFamily(uid);
+        allow delete: if isFamily(uid);
+        allow create, update: if isFamily(uid) && pinDoc();
+      }
+
+      match /learners/{lid} {
+        allow read: if isOwner() || isFamily(uid);
+        allow delete: if isFamily(uid);
+        allow create, update: if isFamily(uid) && lid.size() <= 60 && jsonDoc(4000);
+
+        match /state/{key} {
+          allow read: if isOwner() || isFamily(uid);
+          allow delete: if isFamily(uid);
+          allow create, update: if isFamily(uid) && key.size() <= 300 && jsonDoc(500000);
+        }
+        match /counters/{key} {
+          allow read: if isOwner() || isFamily(uid);
+          allow delete: if isFamily(uid);
+          allow create, update: if isFamily(uid) && key.size() <= 300 && counterDoc();
+        }
+        match /history/{key} {
+          allow read: if isOwner() || isFamily(uid);
+          allow delete: if isFamily(uid);
+          allow create, update: if isFamily(uid) && key.size() <= 300 && historyDoc();
+        }
+      }
     }
   }
 }

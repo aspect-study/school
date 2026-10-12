@@ -1,0 +1,13 @@
+{
+  "name": "school",
+  "private": true,
+  "description": "Dev tooling only: the site in web/ has no build step and no dependencies.",
+  "scripts": {
+    "test:rules": "firebase emulators:exec --only firestore --project demo-school \"node --test tests/rules/families.rules.js\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "firebase": "^12.19.0",
+    "firebase-tools": "^15.33.0"
+  }
+}

@@ -40,7 +40,7 @@ write and delete only these paths, each with a shape check:
 ### Tests
 
 - New dev dependency `@firebase/rules-unit-testing` (and `firebase-tools` for the emulator); Java is required.
-- `tests/rules/*.rules.test.js` run only through `npm run test:rules`; `node --test` does not load them.
+- `tests/rules/families.rules.js` runs only through `npm run test:rules`. The name deliberately does not end in `.test.js`, so `node --test` does not load it.
 - Cases: family A cannot read or write family B; a signed-out user is denied everywhere; unknown paths, extra fields,
   oversized `json`, wrong types, a client-supplied `updatedAt` and a 3-digit PIN are denied; each valid write the app
   makes (profile, state, counters, history including tombstones, PIN, family doc with consent) is allowed; the owner
