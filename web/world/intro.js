@@ -21,12 +21,16 @@
     return '<i class="i-spark" style="left:' + s[0] + '%;top:' + s[1] + '%;--d:' + s[2] + 's"></i>';
   }).join('');
 
+  var pair = doc.body.getAttribute('data-grade') === 'grade2';
+  var tagline = 'Tayo na sa 3DSkuwela!' + (pair ? '<small>Let\'s go to 3DSkuwela!</small>' : '');
+
   var el = doc.createElement('div');
   el.className = 'i-overlay';
   el.setAttribute('aria-hidden', 'true');
   el.innerHTML = '<div class="i-rays"></div>' + sparks +
     '<div class="i-card"><img class="i-logo" src="../assets/icons/grade5-512.png" alt="">' +
-    '<div class="i-word"><span class="i-3d" data-t="3D">3D</span><span class="i-sk">' + letters + '</span></div></div>';
+    '<div class="i-word"><span class="i-3d" data-t="3D">3D</span><span class="i-sk">' + letters + '</span></div>' +
+    '<p class="i-tag">' + tagline + '</p></div>';
   doc.body.appendChild(el);
 
   var started = false, played = false, ready = false, ended = false;
@@ -44,7 +48,7 @@
     if (started) return;
     started = true;
     el.className += ' go';
-    root.setTimeout(function () { played = true; finish(); }, 3250);
+    root.setTimeout(function () { played = true; finish(); }, 4200);
   }
 
   var fonts = doc.fonts && doc.fonts.load ? doc.fonts.load('800 70px "Baloo 2"') : null;

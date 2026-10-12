@@ -118,6 +118,7 @@
   [hidden]{ display:none !important; }
   .phone{ width:100%; max-width:760px; }
   .phone h1{ margin:0 0 4px; font-family:'Baloo 2', system-ui, sans-serif; color:var(--header-accent); font-size:1.6rem; }
+  .phone .p-tagline{ display:block; margin-top:2px; font-size:.5em; font-weight:600; color:var(--ink-soft,#6B6860); }
   .phone .p-row input{ min-width:0; flex:1 1 180px; }
   .kid-row{ display:flex; gap:8px; margin-bottom:10px; }
   .kid-row .kid-btn{ flex:1; margin-bottom:0; }

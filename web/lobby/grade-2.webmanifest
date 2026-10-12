@@ -2,7 +2,7 @@
   "id": "./grade-2.html",
   "name": "3DSkuwela - Grade 2",
   "short_name": "Grade 2",
-  "description": "Flashcards, quizzes and mock exams for every Grade 2 subject.",
+  "description": "Tayo na sa 3DSkuwela! Flashcards, quizzes and mock exams for every Grade 2 subject.",
   "start_url": "./grade-2.html",
   "scope": "../",
   "display": "standalone",

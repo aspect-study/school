@@ -2,7 +2,7 @@
   "id": "./grade-5.html",
   "name": "3DSkuwela - Grade 5",
   "short_name": "Grade 5",
-  "description": "Flashcards, quizzes and mock exams for every Grade 5 subject.",
+  "description": "Tayo na sa 3DSkuwela! Flashcards, quizzes and mock exams for every Grade 5 subject.",
   "start_url": "./grade-5.html",
   "scope": "../",
   "display": "standalone",

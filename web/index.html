@@ -38,6 +38,8 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
   section{ display:flex; flex-direction:column; gap:10px; }
   section[hidden]{ display:none; }
   .note{ margin:0; color:var(--muted); font-weight:600; overflow-wrap:anywhere; }
+  .tagline{ margin:2px 0 6px; text-align:center; font-family:'Fredoka','Baloo 2',system-ui,sans-serif; font-weight:600; font-size:clamp(18px,4.6vw,24px); color:var(--teal); }
+  .tagline small{ display:block; font-size:.62em; font-weight:600; opacity:.8; }
   .msg{ margin:0; min-height:1.4em; text-align:center; font-weight:700; color:var(--teal); }
   .msg.error{ color:var(--bad); }
   input{ font:inherit; font-size:18px; padding:12px 14px; border-radius:12px; border:2px solid #D8D3C6; background:#fff; color:var(--ink); }
@@ -141,6 +143,7 @@ if (window.Learner && Learner.current() && !/[?&]account=1(&|$)/.test(location.s
 <iframe id="backdrop" title="" aria-hidden="true" tabindex="-1"></iframe>
 <main id="account-app">
   <img class="brand-logo" src="assets/icons/grade5-512.png" alt="" style="border-radius:22%;display:block;margin:0 auto 8px;width:clamp(120px,32vw,170px);height:auto"><h1>3DSkuwela</h1>
+  <p class="tagline">Tayo na sa 3DSkuwela!<small>Let's go to 3DSkuwela!</small></p>
   <p class="msg" id="msg" aria-live="polite"></p>
 
   <section id="welcome-view" hidden>

@@ -9,6 +9,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
   background: radial-gradient(circle at 50% 42%, #1b58e0 0%, #0b3399 46%, #061a55 100%); color: #fff; }
 .loading .i-logo { display: block; margin: 0 auto; animation: ld-pulse 1.6s ease-in-out infinite; }
 .loading span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.loading .i-tagline { position: static; display: block; width: auto; height: auto; overflow: visible; clip: auto; white-space: normal; margin-top: 14px;
+  font-family: 'Baloo 2', system-ui, sans-serif; font-size: 20px; color: #ffe27a; }
 @keyframes ld-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .loading .i-logo { animation: none; } }
 
@@ -220,8 +222,20 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 .g-hint { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 108px); z-index: 12;
   max-width: calc(100% - 32px); box-sizing: border-box; padding: 6px 16px; border-radius: 16px; text-align: center;
   background: #fff6c8; color: #5b2a6b; font: 800 15px 'Baloo 2', system-ui, sans-serif; box-shadow: 0 3px 0 #f0d77a; }
-/* A small speaker near the top that flashes when a hidden kid makes a noise; more waves when closer. */
-.g-noise { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 150px); z-index: 12;
+/* Who is playing, under the hint: one row of chips (two in Patintero, blue and red); the one who is "it" is gold. */
+.g-roster { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 150px); z-index: 12;
+  display: flex; flex-direction: column; gap: 4px; align-items: center; max-width: calc(100% - 16px); pointer-events: none; }
+.g-roster[hidden] { display: none; }
+.g-roster-row { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 3px 6px; border-radius: 16px; background: rgba(255,255,255,.88); }
+.g-roster-row.blue { box-shadow: 0 0 0 2px #4a8cff; }
+.g-roster-row.red { box-shadow: 0 0 0 2px #ff5a5a; }
+.g-chip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px 1px 4px; border-radius: 999px; background: #fff; color: #5b2a6b;
+  font: 800 12px 'Baloo 2', system-ui, sans-serif; line-height: 1.3; }
+.g-chip.sis { background: #ffe0f0; }
+.g-chip.it { background: #ffe27a; box-shadow: 0 0 0 2px #ff9e2c; }
+.g-chip-face { font-size: 14px; }
+/* A small speaker at the right that flashes when a hidden kid makes a noise; more waves when closer. */
+.g-noise { position: fixed; right: 12px; top: calc(max(14px, env(safe-area-inset-top)) + 150px); z-index: 12;
   padding: 4px 12px; border-radius: 16px; background: #fff6c8; box-shadow: 0 3px 0 #f0d77a; font-size: 22px; pointer-events: none; }
 .g-danger { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
 /* The pulse fades a fixed shadow: animating the shadow itself repaints the whole screen every frame. */
@@ -233,8 +247,8 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
   border: 0; border-radius: 999px; padding: 10px 22px; min-height: 48px; cursor: pointer; color: #5b2a6b;
   background: linear-gradient(#ffe066, #ffb3d9); box-shadow: 0 4px 0 #e58fbf; }
 .g-boo { background: linear-gradient(#e3d5ff, #b39dff); box-shadow: 0 4px 0 #8a6fe0; }
-@media (max-width: 420px) { .g-pill { font-size: 14px; } .g-count { font-size: 90px; } .g-hint { font-size: 13px; top: calc(max(14px, env(safe-area-inset-top)) + 116px); } }
-@media (max-height: 520px) { .g-pill { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } .g-hint { top: calc(max(10px, env(safe-area-inset-top)) + 96px); } .g-act { bottom: 90px; } }
+@media (max-width: 420px) { .g-pill { font-size: 14px; } .g-count { font-size: 90px; } .g-hint { font-size: 13px; top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-roster, .g-noise { top: calc(max(14px, env(safe-area-inset-top)) + 170px); } }
+@media (max-height: 520px) { .g-pill { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } .g-hint { top: calc(max(10px, env(safe-area-inset-top)) + 96px); } .g-roster, .g-noise { top: calc(max(10px, env(safe-area-inset-top)) + 136px); } .g-act { bottom: 90px; } }
 
 /* My Room (world-main.js): a locked earned piece at Tito Tasyo's shows how to earn it instead of a price, and the room's
    own pills (✅ Done to stand up, 💛 Cheer on a visit) sit under the top bar on the right. */
