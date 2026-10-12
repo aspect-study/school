@@ -241,6 +241,93 @@
     r.listAfterReload = !grid.hidden && campus.hidden;
     return out(r);
   }
+  if (mode === 'shopeditor') {
+    var named = function (parent, text, tag) {
+      return Array.prototype.filter.call(parent.querySelectorAll(tag || 'button'), function (b) { return b.textContent === text; })[0];
+    };
+    var ed = $('shop-editor');
+    var edRow = function (name) { return named(ed, name, '.se-name').parentNode; };
+    var guideIcons = function () {
+      Wallet.showGuide();
+      var icons = Array.prototype.map.call(document.querySelectorAll('.coin-guide .cg-icon'), function (e) { return e.textContent; });
+      var goalHidden = document.querySelector('.coin-guide .cg-goal').hidden;
+      document.querySelector('.coin-guide .cg-close').click();
+      return { icons: icons, goalHidden: goalHidden };
+    };
+    var baseKey = Object.keys(wallet().baselines).sort()[0];
+    __store.setItem(baseKey, '6000');
+    if (Wallet.guideOpen()) document.querySelector('.coin-guide .cg-close').click();
+    r.defaultCount = Wallet.catalog.length;
+    r.guideStart = guideIcons();
+
+    $('parent-open').click();
+    press('0108');
+    document.querySelector('#p-tabs [data-tab="rewards"]').click();
+    r.editorShown = !ed.closest('.p-panel').hidden;
+    r.editorRows = ed.querySelectorAll('.se-row').length;
+    r.hasSearch = !!ed.querySelector('input[type=search]');
+
+    named(edRow('Dessert treat'), 'Hide').click();
+    r.dessertOff = edRow('Dessert treat').className.indexOf('se-off') >= 0;
+    r.dessertTag = edRow('Dessert treat').querySelector('.se-tag').textContent;
+    r.dessertButton = !!named(edRow('Dessert treat'), 'Show');
+
+    named(edRow('Movie night pick'), 'Edit').click();
+    var form = ed.querySelector('.se-form');
+    form.querySelector('input[type=number]').value = '700';
+    named(form, 'Save').click();
+    r.moviePrice = edRow('Movie night pick').querySelector('.se-price').textContent;
+    r.movieTag = edRow('Movie night pick').querySelector('.se-tag').textContent;
+
+    named(ed, '➕ Add a reward').click();
+    form = ed.querySelector('.se-form');
+    form.querySelector('input[type=number]').value = '100';
+    named(form, 'Save').click();
+    r.emptyNameError = ed.querySelector('.se-error') && ed.querySelector('.se-error').textContent;
+    form = ed.querySelector('.se-form');
+    form.querySelector('input[type=text]').value = 'Bike ride';
+    named(form, '🚲').click();
+    form.querySelector('input[type=number]').value = '5';
+    named(form, 'Save').click();
+    r.lowPriceError = ed.querySelector('.se-error') && ed.querySelector('.se-error').textContent;
+    form = ed.querySelector('.se-form');
+    form.querySelector('input[type=number]').value = '100';
+    named(form, 'Save').click();
+    r.bikeListed = !!edRow('Bike ride');
+    r.formClosed = !ed.querySelector('.se-form');
+
+    named(edRow('Rest: play 1 ML (Mobile Legends) game'), 'Hide').click();
+    r.guideNoMl = guideIcons();
+    named(edRow('Play 1 ML game with Tatay'), 'Hide').click();
+    r.guideNoTatay = guideIcons();
+
+    $('parent-close').click();
+    $('shop-open').click();
+    r.shopHasDessert = !!shopRow('dessert');
+    r.shopMlGone = !shopRow('ml');
+    r.movieNeed = shopRow('movie').querySelector('.shop-need').textContent;
+    var bikeItem = Array.prototype.filter.call(document.querySelectorAll('#shop-items [data-item]'), function (e) { return e.textContent.indexOf('Bike ride') >= 0; })[0];
+    r.bikeBuyable = !!bikeItem.querySelector('[data-buy]');
+    bikeItem.querySelector('[data-buy]').click();
+    press('0108', 'shop-pin-pad');
+    r.bikeDone = $('shop-done').textContent;
+    r.bikeLogged = JSON.parse(__store.getItem(KEY)).entries.filter(function (e) { return e.type === 'purchase'; })
+      .map(function (e) { return { name: e.itemName, coins: e.coins }; });
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    $('parent-open').click();
+    press('0108');
+    document.querySelector('#p-tabs [data-tab="rewards"]').click();
+    named(ed, 'Reset the whole shop').click();
+    r.resetAsks = !!ed.querySelector('.se-confirm');
+    named(ed, 'Reset the whole shop').click();
+    r.afterResetRows = ed.querySelectorAll('.se-row').length;
+    r.afterResetCatalog = Wallet.catalog.length;
+    r.afterResetBike = !Wallet.catalog.some(function (i) { return i.name === 'Bike ride'; });
+    r.guideAfterReset = guideIcons();
+    return out(r);
+  }
+
   if (mode === 'nojs') {
     r.gridShownNoWorld = !document.querySelector('.grid').hidden;
     r.campusHiddenNoWorld = $('campus').hidden;

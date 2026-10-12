@@ -398,6 +398,7 @@
       get catalog() { return items(); },
       powerUps: POWER_UPS,
       shop: shop,
+      emojiPicks: EMOJI_PICKS,
       current: function (id) { return find(id); },
 
       // The first track counts every point earned so far, once (parent's choice, 2026-10-01).

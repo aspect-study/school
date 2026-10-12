@@ -41,6 +41,7 @@ const PRECACHE = [
   'engine/read-gate.js',
   'engine/recall.js',
   'engine/search.js',
+  'engine/shop-editor.js',
   'engine/shop-requests.js',
   'engine/storage.js',
   'engine/study-history.js',

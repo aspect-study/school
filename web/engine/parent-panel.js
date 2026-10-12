@@ -117,6 +117,7 @@
     addStyle(doc);
     var range = '30';
     var picking = false;
+    var editor = null;
 
     function el(tag, cls, text) {
       var e = doc.createElement(tag);
@@ -652,6 +653,7 @@
       Array.prototype.forEach.call($('p-tabs').parentNode.querySelectorAll('.p-panel[data-panel]'), function (p) {
         p.hidden = p.getAttribute('data-panel') !== name;
       });
+      if (name === 'rewards' && editor) editor.render();
     }
     $('p-tabs').addEventListener('click', function (ev) {
       var b = ev.target.closest('[data-tab]');
@@ -899,8 +901,12 @@
       });
     }
 
+    if (root.ShopEditor && $('shop-editor') && W && W.shop) {
+      editor = root.ShopEditor.mount({ box: $('shop-editor'), wallet: W, onChange: function () { if (o.onChange) o.onChange(); } });
+    }
+
     if (o.lobby) mountLobby();
-    return { render: renderHistory, showTab: showTab };
+    return { render: function () { renderHistory(); if (editor) editor.render(); }, showTab: showTab };
   }
 
   root.ParentPanel = { mount: mount, pinGate: pinGate, checkPin: checkPin, subjectsFromCards: subjectsFromCards };
