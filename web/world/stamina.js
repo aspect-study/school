@@ -1,5 +1,5 @@
 /* Her heart while she runs: it fills while she sprints and calms while she walks or stands. At 1 she is tired and
-   must walk until it is at or below CALM. Free roaming only: a playmate game pauses it. No DOM, no Three.js. */
+   must walk until it is at or below CALM. Runs in free roaming and in the playground games. No DOM, no Three.js. */
 (function (root) {
   'use strict';
 

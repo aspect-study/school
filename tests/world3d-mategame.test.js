@@ -78,7 +78,48 @@ test('tag: a kid catching her makes her it, and she cannot tag that kid straight
   assert.equal(g.state().it, 'migo', 'after 3 s she can');
 });
 
-test('tag: a kid who cannot catch her for 20 s chases another kid instead and tags them', () => {
+// migo tags her, then she runs off faster than he can follow until he gives up and goes after ella, who is far away.
+function gaveUpGame() {
+  const f = field({ migo: { x: 1, z: 0 }, ella: { x: 200, z: 0 } }), g = G.create({ rand: () => 0.5, move: f.move, where: f.where, put: f.put });
+  g.startTag(['migo', 'ella'], { x: 0, z: 0 });
+  g.tick(0.1, { x: 0, z: 0 });
+  let t = 0, gave = null;
+  while (!gave && t < 20) {
+    g.tick(0.1, { x: 0, z: 1000 + t * 100 }).forEach((e) => { if (e.type === 'gaveUp') gave = e; });
+    t += 0.1;
+  }
+  return { f, g, gave, t };
+}
+const nearMigo = (f) => ({ x: f.kids.migo.x + 2, z: f.kids.migo.z });
+
+test('tag: a chaser who cannot catch her for 8 s goes after another kid', () => {
+  const { gave, t } = gaveUpGame();
+  assert.ok(gave && gave.kid === 'migo' && gave.chase === 'ella');
+  assert.ok(t > 10 && t < 12, 'the 3 s count plus about 8 s of chasing, not 20: ' + t);
+});
+
+test('tag: the chaser holds a new target for 3 s even when she is right beside him', () => {
+  const { f, g } = gaveUpGame();
+  let backs = 0;
+  for (let i = 0; i < 25; i++) g.tick(0.1, nearMigo(f)).forEach((e) => { if (e.type === 'backOnHer') backs++; });
+  assert.equal(backs, 0);
+});
+
+test('tag: after the hold, the chaser leaves the other kid once she comes within reach and chases her again', () => {
+  const { f, g } = gaveUpGame();
+  const far = { x: f.kids.migo.x + 40, z: f.kids.migo.z };
+  let backs = 0;
+  for (let i = 0; i < 50; i++) g.tick(0.1, far).forEach((e) => { if (e.type === 'backOnHer') backs++; });
+  assert.equal(backs, 0, 'she is too far away');
+  let back = null;
+  for (let i = 0; i < 5 && !back; i++) g.tick(0.1, nearMigo(f)).forEach((e) => { if (e.type === 'backOnHer') back = e; });
+  assert.ok(back && back.kid === 'migo');
+  const before = Math.hypot(f.kids.migo.x - far.x, f.kids.migo.z - far.z);
+  for (let i = 0; i < 5; i++) g.tick(0.1, far);
+  assert.ok(Math.hypot(f.kids.migo.x - far.x, f.kids.migo.z - far.z) < before, 'now runs at her');
+});
+
+test('tag: a kid who cannot catch her for 8 s chases another kid instead and tags them', () => {
   const f = field({ migo: { x: 1, z: 0 }, ella: { x: 3, z: 3 } }), g = make(f);
   g.startTag(['migo', 'ella'], { x: 0, z: 0 });
   g.tick(0.1, { x: 0, z: 0 });
@@ -91,6 +132,37 @@ test('tag: a kid who cannot catch her for 20 s chases another kid instead and ta
   }
   assert.ok(gave && gave.chase === 'ella');
   assert.ok(swapped && swapped.kid === 'ella' && swapped.by === 'migo');
+  assert.equal(g.state().escaped, 1);
+});
+
+test('tag: a chaser steadily gaining on her never gives up, one that cannot close the gap does after about 8 s', () => {
+  const run = (herSpeed) => {
+    const f = field({ migo: { x: 1, z: 0 }, ella: { x: 200, z: 0 } }), g = G.create({ rand: () => 0.5, move: f.move, where: f.where, put: f.put });
+    g.startTag(['migo', 'ella'], { x: 0, z: 0 });
+    g.tick(0.1, { x: 0, z: 0 });
+    let z = 40, t = 0, gave = null;
+    for (; !gave && t < 14; t += 0.1) {
+      if (t > 3) z += herSpeed * 0.1;
+      g.tick(0.1, { x: 0, z }).forEach((e) => { if (e.type === 'gaveUp') gave = e; });
+    }
+    return { gave, t };
+  };
+  assert.equal(run(8).gave, null, 'closing in: no giving up in 14 s');
+  const level = run(G.TAG.chase);
+  assert.ok(level.gave && level.t > 10 && level.t < 13, 'level chase gives up: ' + level.t);
+});
+
+test('tag: a chaser who keeps giving up and coming back counts one getaway, not one per cycle', () => {
+  const f = field({ migo: { x: 1, z: 0 }, ella: { x: 40, z: 0 } }), g = make(f);
+  g.startTag(['migo', 'ella'], { x: 0, z: 0 });
+  g.tick(0.1, { x: 0, z: 0 });
+  let gaveUps = 0;
+  for (let i = 0; i < 1000; i++) {
+    const m = f.kids[g.state().it === 'her' ? 'ella' : g.state().it], her = { x: m.x, z: m.z + 8 };
+    g.tick(0.1, her).forEach((e) => { if (e.type === 'gaveUp') gaveUps++; });
+    if (g.state().it === 'her') break;
+  }
+  assert.ok(gaveUps >= 2, 'gave up repeatedly: ' + gaveUps);
   assert.equal(g.state().escaped, 1);
 });
 
@@ -313,7 +385,7 @@ test('lines: Grade 2 pairs, the same words in both grades, buttons and pops in E
   assert.deepEqual(Object.keys(g2).sort(), Object.keys(g5).sort());
   for (const k of Object.keys(g2)) {
     const v = g2[k];
-    const all = k === 'hint' ? [v(g2.places.gate), v(null)] : typeof v === 'function' ? [v(2, 3)] : Array.isArray(v) ? v : k === 'places' || k === 'groups' ? Object.values(v) : [v];
+    const all = k === 'hint' ? [v(g2.places.gate), v(null)] : typeof v === 'function' ? [v(2, 3)] : Array.isArray(v) ? v : k === 'places' || k === 'groups' || k === 'patLane' ? Object.values(v) : [v];
     for (const s of all) assert.match(s, / · /, k);
   }
   assert.equal(g2.why.length, g5.why.length);
@@ -337,7 +409,8 @@ test('games come in groups: Tag & Chase (tag, Patintero) and Hide & Seek (hide-a
 test('group and Patintero texts in both grades; Grade 2 pairs Filipino · English', () => {
   for (const grade of ['grade5', 'grade2']) {
     const t = G.TEXT[grade];
-    ['kinds', 'inviteRun', 'patRun', 'patGuard', 'patTagged', 'patTagger', 'patScore', 'patTheyScore'].forEach((k) => assert.equal(typeof t[k], 'string', grade + ' ' + k));
+    ['kinds', 'inviteRun', 'patRun', 'patTagged', 'patTagger', 'patScore', 'patTheyScore'].forEach((k) => assert.equal(typeof t[k], 'string', grade + ' ' + k));
+    ['mid', 'c0', 'c1', 'c2'].forEach((k) => assert.equal(typeof t.patLane[k], 'string', grade + ' lane ' + k));
     ['chase', 'hide'].forEach((k) => assert.equal(typeof t.groups[k], 'string', grade + ' group ' + k));
     ['patWin', 'patLose', 'patTie'].forEach((k) => assert.match(t[k](2, 1), /2.*1/, grade + ' ' + k));
   }
@@ -345,9 +418,13 @@ test('group and Patintero texts in both grades; Grade 2 pairs Filipino · Englis
   assert.equal(g2.groups.chase, 'Habulan at Takbuhan · Tag & Chase');
   assert.equal(g2.groups.hide, 'Taguan · Hide & Seek');
   assert.equal(g2.inviteRun, 'Gusto mo bang maglaro ng patintero? · Want to play Patintero?');
+  assert.equal(g2.patLane.mid, '🛡️ Bantayan ang gitnang guhit! Tayain ang tatakbo! · Guard the middle line! Tag a runner!');
+  assert.equal(g2.patLane.c2, '🛡️ Bantayan ang ikatlong guhit! Tayain ang tatakbo! · Guard the 3rd line! Tag a runner!');
+  ['mid', 'c0', 'c1', 'c2'].forEach((k) => assert.ok(g2.patLane[k].includes(' · '), 'lane ' + k));
+  assert.equal(G.TEXT.grade5.patLane.c0, '🛡️ Guard the 1st line! Tag a runner!');
   assert.equal(g2.patTagged, '😲 Nataya! Magpapalit ang mga koponan! · Tagged! Teams swap!');
   assert.equal(g2.patWin(3, 1), 'Panalo ang koponan mo, 3 laban sa 1! · Your team won, 3 to 1!');
-  ['kinds', 'inviteRun', 'patRun', 'patGuard', 'patTagged', 'patTagger', 'patScore', 'patTheyScore'].forEach((k) => assert.ok(g2[k].includes(' · '), k));
+  ['kinds', 'inviteRun', 'patRun', 'patTagged', 'patTagger', 'patScore', 'patTheyScore'].forEach((k) => assert.ok(g2[k].includes(' · '), k));
   assert.equal(G.TEXT.grade5.why.length, G.TEXT.grade2.why.length);
   assert.ok(G.TEXT.grade5.why.includes('Teamwork: watch your teammates and run when the guard looks away!'));
 });
@@ -363,7 +440,7 @@ test('hide-and-seek, she seeks: a hidden kid makes a noise now and then, faster 
     for (let i = 0; i < 600; i++) g.tick(0.1, her).forEach((e) => { if (e.type === 'noise') out.push(e); });
     return out;
   };
-  const close = noises(8), mid = noises(20), far = noises(G.SEEK.noiseR + 5);
+  const close = noises(G.SEEK.sneakR + 1), mid = noises(20), far = noises(G.SEEK.noiseR + 5);
   assert.equal(far.length, 0, 'out of earshot');
   assert.ok(mid.length > 3 && close.length > mid.length, 'closer: more often ' + close.length + ' vs ' + mid.length);
   assert.ok(close[0].near > mid[0].near && close[0].near < 1 && mid[0].near > 0);

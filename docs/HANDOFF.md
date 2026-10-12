@@ -72,7 +72,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   with her. Running fills a heart (`web/world/stamina.js`): about 8 s of running fills it, walking calms it in about
   6 s, standing in about 3 s. A ❤️ pill by 🏃 shows while the heart is above 0 and pulses faster as it fills, the
   existing heartbeat sound plays quietly in the last third, and at full she walks ("Catching breath", 🏃 greyed) until
-  it is at or below 0.3. Free roaming only: a playmate game (`games.playing()`) pauses it. Spec and plan:
+  it is at or below 0.3. It also runs in the playground games (tag, hide-and-seek, Patintero) since 2026-10-12. Spec and plan:
   `docs/superpowers/specs/2026-10-11-hud-tidy-design.md`, `docs/superpowers/plans/2026-10-11-hud-tidy.md`. Tablet
   check pending (no slider on the real tablet, how the heart timing feels).
 - Playground playmates: 6 named friends + 3 new kids each visit; they ride, join her rides, follow when invited, roam
@@ -96,6 +96,15 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
     Patintero) and 🙈 Hide & Seek, and a friend may invite her to any of the three; Patintero on a big court (30 by 60)
     on the open lawn west of the school street, 4 against 4, she runs first and guards the middle line when her team
     is tagged, first to 5 points or 4 minutes.
+  - Playground games polish (2026-10-12): the stamina heart runs in all three games, and hide-and-seek thumps when the
+    seeker is close; a roster row (face chips and names, two rows in Patintero, "it" highlighted) and floating name tags
+    show who plays; a tag chaser who cannot catch her gives up after 8 s, tries another kid, and chases her again once
+    she is within 10 units (3 s hold); Patintero players wear blue and red bibs, every tag plays a slow-motion replay
+    (last 2.5 s at 0.3 speed, about 8 s, 🎬 Replay bar with Skip ⏭; the game clock waits; `web/world/replay.js`), and
+    her guard lane is random each round (middle or one of the three cross lines, never the same twice in a row; the
+    hint names it). Spec and plan: `docs/superpowers/specs/2026-10-12-playground-games-polish-design.md`,
+    `docs/superpowers/plans/2026-10-12-playground-games-polish.md`. Tablet check pending (replay smoothness and kids'
+    legs in it, bib and name-tag sizes, roster on a phone, how the tired heart feels in tag).
 - Pet teacher: her pet explains every wrong answer in the world step by step.
 - Performance (2026-10-08): the HUD only writes values that change, the danger edge pulses by opacity, one failing
   frame cannot freeze the world, and the music skips ahead after a throttled timer.

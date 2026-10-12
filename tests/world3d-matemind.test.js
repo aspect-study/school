@@ -278,3 +278,16 @@ test('a kid in a game is left alone by the brain, moved by the game, hidden whil
   assert.equal(mind.list().find((k) => k.id === id).state, 'idle');
   assert.equal(mind.move(id, 0, 0, 5, 0.1), false, 'move only works in a game');
 });
+
+test('a kid put along a replay swings their legs as if they walked there, and stands still after', () => {
+  const mind = make(7, true);
+  const id = mind.list()[0].id;
+  mind.game(id, true);
+  const at = mind.where(id), before = mind.frames().find((f) => f.id === id).walkT;
+  mind.put(id, { x: at.x + 1, z: at.z, face: 0, walk: 1, mag: 0.8 });
+  const f = mind.frames().find((k) => k.id === id);
+  assert.equal(f.mag, 0.8);
+  assert.ok(Math.abs(f.walkT - before - 1.6) < 1e-9, 'the walk cycle moves on with the distance');
+  mind.put(id, { still: true });
+  assert.equal(mind.frames().find((k) => k.id === id).mag, 0);
+});

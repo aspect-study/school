@@ -170,6 +170,8 @@
 
     // A bubble freezes her; so does counting in hide-and-seek (gameFreeze), and closing a bubble then keeps her frozen.
     var gameFreeze = false, hiddenMe = false, games = null;
+    // The Patintero replay: the spot the sun follows instead of her, and how fast her legs swing while it moves her.
+    var replayFocus = null, replayMag = 0;
     function busy(on) { talking = on; ctl.freeze(on || gameFreeze); }
     // The pet teacher (teach.js): after a wrong answer her pet shows her pick, the right answer and the lesson's steps;
     // then() runs after Got It! (or Escape).
@@ -276,6 +278,28 @@
       free: function () { return !maker && !stall && !overlay && !talking && !riding; },
       hideMe: function (on) { hiddenMe = on; },
       place: function (x, z, face) { ctl.teleport(x, z, face); pal.place(ctl.state, true); },
+      // The replay moves her without the camera snap, pet or sparkle of place(); walk is the distance she covered.
+      pose: function (x, z, face, walk, mag) {
+        var st = ctl.state;
+        st.x = x;
+        st.z = z;
+        st.face = face;
+        st.walkT += walk * 12 / W.Walk.SPEED;
+        replayMag = mag;
+      },
+      // p: the spot the camera looks down on, every frame of the replay: from the way it already looked, closer than
+      // her own camera (at most 20 away); null: behind her again.
+      focus: function (p) {
+        if (!p) {
+          replayFocus = null;
+          replayMag = 0;
+          return ctl.fixed(null);
+        }
+        replayFocus = { x: p.x, z: p.z };
+        var yaw = ctl.state.yaw, d = Math.min(20, W.Move.CAM_DIST / ctl.state.zoom * 0.7);
+        ctl.fixed({ x: p.x + Math.sin(yaw) * d, y: 2 + d * 0.6, z: p.z + Math.cos(yaw) * d, at: { x: p.x, y: 2, z: p.z } });
+      },
+      herGroup: function () { return me ? me.group : null; },
       sister: kin.player
     });
     var nudge = W.Nudge.create(), nudgeDue = false;
@@ -1294,7 +1318,7 @@
           me.group.rotation.y = st.face;
           ctl.camera(dt);
         }
-        me.animate(t, st.walkT, st.mag, mp);
+        me.animate(t, st.walkT, st.mag || replayMag, mp);
       }
       if (mv) mv.fx.forEach(function (kind) {
         if (mv.move.indexOf('use-') === 0) me.mounts.hand.getWorldPosition(fxAt);
@@ -1308,7 +1332,7 @@
       });
       riding = !!pose;
       // Every frame: only changed values are written, as each write makes the browser restyle the page.
-      var heartNow = stamina.tick(dt, { running: !!st.sprint && st.mag > 0 && !pose, still: st.mag === 0 || !!pose, paused: games.playing() });
+      var heartNow = stamina.tick(dt, { running: !!st.sprint && st.mag > 0 && !pose, still: st.mag === 0 || !!pose });
       if (heartNow.tired && st.sprint) ctl.sprint(false);
       var hideTreat = !free || !!pose, pressed = st.sprint ? 'true' : 'false';
       if (hud.treat.hidden !== hideTreat) hud.treat.hidden = hud.sprint.hidden = hideTreat;
@@ -1362,7 +1386,7 @@
       if (nudgeDue && games.playing()) games.stop();
       // In her room Mimi's words come as a bubble; her Go ▶ takes her out first.
       if (nudgeDue && free && (home ? town.nudgeHere(goOut) : !kin.visiting() && town.nudge(st))) nudgeDue = false;
-      S.follow(st.x, st.z);
+      S.follow(replayFocus ? replayFocus.x : st.x, replayFocus ? replayFocus.z : st.z);
       if (prefs.quality === 'auto' && quality === 'high' && slow(dt)) {
         quality = 'low';
         applyQuality('low');

@@ -333,6 +333,7 @@
       if (!x) return null;
       return {
         id: 'sister', name: x.name, face: '💖',
+        group: function () { return x.ch.group; },
         game: function (on) {
           x.hidden = x.cheering = false;
           x.target = null;
@@ -362,6 +363,7 @@
           if (!x.game) return false;
           if (p.x !== undefined) { x.x = p.x; x.z = p.z; }
           if (p.face !== undefined) x.face = p.face;
+          if (p.walk !== undefined) { x.walkT += p.walk * 1.6; x.mag = p.mag || 0; }
           if (p.still) x.mag = 0;
           if (p.hidden !== undefined) x.hidden = p.hidden;
           if (p.cheer !== undefined) x.cheering = p.cheer;

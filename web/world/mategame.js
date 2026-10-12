@@ -4,7 +4,8 @@
    her = { x, z, still, disguised }. tick() returns events for games3d.js to show and sound; state() is for the pill.
 
    Tag: she starts as it; touching a kid tags them; the new it counts FREEZE seconds and chases her; no tag-backs for
-   NO_BACK seconds; a kid who cannot catch her for GIVE_UP seconds chases another kid instead. A chaser runs a little
+   NO_BACK seconds; a kid who cannot catch her for GIVE_UP seconds chases another kid instead, and after HOLD seconds
+   comes back to her once she is within RETURN_R. A chaser runs a little
    faster than her walk, aims where she is heading, and close up lunges faster than her sprint for a moment and then
    puffs; a kid she chases sidesteps once when she is about to touch them. Danger on/off events say when the chaser is
    close, and getting clear of one counts as a getaway.
@@ -19,7 +20,7 @@
 
   // Her walk is 9 and her sprint 12.6 (walk.js): chase beats her walk, lunge beats her sprint for lungeT seconds.
   var TAG = {
-    time: 120, r: 1.8, freeze: 3, noBack: 3, giveUp: 20, area: 30, fleeR: 14, flee: 8.5, jog: 3.5, chase: 9.6, props: 8,
+    time: 120, r: 1.8, freeze: 3, noBack: 3, giveUp: 8, returnR: 10, hold: 3, area: 30, fleeR: 14, flee: 8.5, jog: 3.5, chase: 9.6, props: 8,
     lunge: 14, lungeR: 7, lungeT: 1, puff: 1.5, puffSpeed: 7, lead: 0.5, danger: 6, safe: 10, juke: 11, jukeR: 3.5, jukeT: 0.5, jukeRest: 2.5
   };
   // hints: seconds left when a hidden kid giggles; near: no hiding prop closer than this to where she counts;
@@ -65,7 +66,11 @@
       boardName: 'Games board',
       kinds: 'What kind of game?', groups: { chase: '🏃 Tag & Chase', hide: '🙈 Hide & Seek' },
       inviteRun: 'Want to play Patintero?',
-      patRun: 'Cross every line and come back!', patGuard: '🛡️ Guard the middle line! Tag a runner!',
+      patRun: 'Cross every line and come back!',
+      patLane: {
+        mid: '🛡️ Guard the middle line! Tag a runner!', c0: '🛡️ Guard the 1st line! Tag a runner!',
+        c1: '🛡️ Guard the 2nd line! Tag a runner!', c2: '🛡️ Guard the 3rd line! Tag a runner!'
+      },
       patTagged: '😲 Tagged! Teams swap!', patTagger: '🎉 Got one! Teams swap!',
       patScore: '🎉 A point for your team!', patTheyScore: 'They scored! Guard closer!',
       patWin: function (a, b) { return 'Your team won, ' + a + ' to ' + b + '!'; },
@@ -111,7 +116,12 @@
       groups: { chase: pair('Habulan at Takbuhan', 'Tag & Chase'), hide: pair('Taguan', 'Hide & Seek') },
       inviteRun: pair('Gusto mo bang maglaro ng patintero?', 'Want to play Patintero?'),
       patRun: pair('Tumawid sa lahat ng guhit at bumalik!', 'Cross every line and come back!'),
-      patGuard: pair('🛡️ Bantayan ang gitnang guhit! Tayain ang tatakbo!', 'Guard the middle line! Tag a runner!'),
+      patLane: {
+        mid: pair('🛡️ Bantayan ang gitnang guhit! Tayain ang tatakbo!', 'Guard the middle line! Tag a runner!'),
+        c0: pair('🛡️ Bantayan ang unang guhit! Tayain ang tatakbo!', 'Guard the 1st line! Tag a runner!'),
+        c1: pair('🛡️ Bantayan ang ikalawang guhit! Tayain ang tatakbo!', 'Guard the 2nd line! Tag a runner!'),
+        c2: pair('🛡️ Bantayan ang ikatlong guhit! Tayain ang tatakbo!', 'Guard the 3rd line! Tag a runner!')
+      },
       patTagged: pair('😲 Nataya! Magpapalit ang mga koponan!', 'Tagged! Teams swap!'),
       patTagger: pair('🎉 Nakataya! Magpapalit ang mga koponan!', 'Got one! Teams swap!'),
       patScore: pair('🎉 Isang puntos para sa koponan mo!', 'A point for your team!'),
@@ -205,6 +215,8 @@
       st.noBack = {};
       st.herSafe = 0;
       st.chaseT = 0;
+      st.bestD = Infinity;
+      st.gaveUpOnce = false;
       st.target = 'her';
       st.tagged = 0;
       st.escaped = 0;
@@ -302,6 +314,8 @@
             st.herSafe = TAG.noBack;
             st.target = 'her';
             st.chaseT = 0;
+            st.bestD = Infinity;
+            st.gaveUpOnce = false;
             st.tagged++;
             ev.push({ type: 'tagged', kid: id }, { type: 'pop', kid: id, text: POPS.tagged });
             return;
@@ -331,6 +345,8 @@
           st.noBack[it] = TAG.noBack;
           st.it = 'her';
           st.chaseT = 0;
+          st.bestD = Infinity;
+          st.gaveUpOnce = false;
           calm(ev);
           ev.push({ type: 'gotYou', kid: it }, { type: 'pop', kid: it, text: POPS.cheer });
           return ev;
@@ -343,11 +359,14 @@
           st.freeze = TAG.freeze;
           st.shown = 0;
           st.chaseT = 0;
+          st.bestD = Infinity;
+          st.gaveUpOnce = false;
           ev.push({ type: 'kidTagged', kid: st.it, by: was }, { type: 'pop', kid: st.it, text: POPS.tagged });
           return ev;
         }
         if (st.target === 'her') {
           var d = st.chaseD = dist(at, her);
+          if (d < st.bestD - 1) { st.bestD = d; st.chaseT = 0; }
           if (!st.danger && d <= TAG.danger) {
             st.danger = true;
             ev.push({ type: 'danger', on: true });
@@ -357,12 +376,18 @@
             ev.push({ type: 'danger', on: false, escaped: true }, { type: 'pop', kid: it, text: POPS.close });
           }
         }
+        if (st.target !== 'her' && st.chaseT > TAG.hold && dist(at, her) <= TAG.returnR) {
+          st.target = 'her';
+          st.chaseT = 0;
+          st.bestD = Infinity;
+          ev.push({ type: 'backOnHer', kid: it });
+        }
         if (st.target === 'her' && st.chaseT > TAG.giveUp && st.ids.length > 1) {
           var others = st.ids.filter(function (id) { return id !== it; });
           others.sort(function (a, b) { return dist(o.where(a), at) - dist(o.where(b), at); });
           st.target = others[0];
           st.chaseT = 0;
-          st.escaped++;
+          if (!st.gaveUpOnce) { st.gaveUpOnce = true; st.escaped++; }
           calm(ev);
           ev.push({ type: 'gaveUp', kid: it, chase: st.target });
         }

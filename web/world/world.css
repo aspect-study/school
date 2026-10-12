@@ -207,7 +207,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 }
 
 /* Playground games (games3d.js): the pill with the game and the time, the big count, Disguise and Boo!. */
-.g-pill { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 56px); z-index: 12;
+.g-pill { position: fixed; left: 50%; width: max-content; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 56px); z-index: 12;
   display: flex; align-items: center; gap: 10px; max-width: calc(100% - 32px); box-sizing: border-box;
   background: rgba(255,255,255,.94); color: #5b2a6b; border-radius: 999px; padding: 6px 8px 6px 16px;
   font: 800 16px 'Baloo 2', system-ui, sans-serif; box-shadow: 0 4px 0 #f3b6d6; }
@@ -219,11 +219,11 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
   text-shadow: 0 6px 0 #ff8fc8, 0 10px 30px rgba(120,40,100,.4); }
 .g-count-eyes { font-size: 72px; line-height: 1; text-shadow: none; }
 .g-count-n { line-height: 1.1; }
-.g-hint { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 108px); z-index: 12;
+.g-hint { position: fixed; left: 50%; width: max-content; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 108px); z-index: 12;
   max-width: calc(100% - 32px); box-sizing: border-box; padding: 6px 16px; border-radius: 16px; text-align: center;
   background: #fff6c8; color: #5b2a6b; font: 800 15px 'Baloo 2', system-ui, sans-serif; box-shadow: 0 3px 0 #f0d77a; }
 /* Who is playing, under the hint: one row of chips (two in Patintero, blue and red); the one who is "it" is gold. */
-.g-roster { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 150px); z-index: 12;
+.g-roster { position: fixed; left: 50%; width: max-content; max-width: calc(100% - 72px); transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 150px); z-index: 12;
   display: flex; flex-direction: column; gap: 4px; align-items: center; max-width: calc(100% - 16px); pointer-events: none; }
 .g-roster[hidden] { display: none; }
 .g-roster-row { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 3px 6px; border-radius: 16px; background: rgba(255,255,255,.88); }
@@ -248,13 +248,13 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
   background: linear-gradient(#ffe066, #ffb3d9); box-shadow: 0 4px 0 #e58fbf; }
 .g-boo { background: linear-gradient(#e3d5ff, #b39dff); box-shadow: 0 4px 0 #8a6fe0; }
 /* The Patintero replay: in the hint's place (hidden meanwhile), at most 40px tall so it stays clear of the roster. */
-.g-replay { position: fixed; left: 50%; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 108px); z-index: 12;
+.g-replay { position: fixed; left: 50%; width: max-content; transform: translateX(-50%); top: calc(max(14px, env(safe-area-inset-top)) + 108px); z-index: 12;
   display: flex; align-items: center; gap: 10px; max-width: calc(100% - 32px); box-sizing: border-box; padding: 2px 2px 2px 14px;
   border-radius: 999px; background: rgba(43,18,56,.85); color: #fff; font: 800 15px 'Baloo 2', system-ui, sans-serif; white-space: nowrap; }
 .g-replay-skip { flex: none; font: 800 14px 'Baloo 2', system-ui, sans-serif; border: 0; border-radius: 999px; padding: 6px 14px; min-height: 36px;
   background: #ffe27a; color: #5b2a6b; cursor: pointer; }
-@media (max-width: 420px) { .g-pill { font-size: 14px; } .g-count { font-size: 90px; } .g-hint { font-size: 13px; top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-replay { top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-roster, .g-noise { top: calc(max(14px, env(safe-area-inset-top)) + 170px); } }
-@media (max-height: 520px) { .g-pill { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } .g-hint, .g-replay { top: calc(max(10px, env(safe-area-inset-top)) + 96px); } .g-roster, .g-noise { top: calc(max(10px, env(safe-area-inset-top)) + 136px); } .g-act { bottom: 90px; } }
+@media (max-width: 420px) { .g-pill { font-size: 14px; } .g-count { font-size: 90px; } .g-hint { font-size: 13px; top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-replay { top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-roster, .g-noise { top: calc(max(14px, env(safe-area-inset-top)) + 170px); } .g-roster { max-width: calc(100% - 72px); } }
+@media (max-height: 520px) { .g-pill { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } .g-hint, .g-replay { top: calc(max(10px, env(safe-area-inset-top)) + 96px); } .g-roster, .g-noise { top: calc(max(10px, env(safe-area-inset-top)) + 136px); } .g-roster { max-width: calc(100% - 72px); } .g-act { bottom: 90px; } }
 
 /* My Room (world-main.js): a locked earned piece at Tito Tasyo's shows how to earn it instead of a price, and the room's
    own pills (✅ Done to stand up, 💛 Cheer on a visit) sit under the top bar on the right. */

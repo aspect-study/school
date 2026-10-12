@@ -4,7 +4,7 @@ const { worldFile } = require('./paths.js');
 const P = require(worldFile('patintero.js'));
 
 // Whole kid games on an open field, 20 seeds: she stands still behind the home line while her team runs and in the
-// middle of her line while it guards, so only the kids play. The kids' play must keep the game moving.
+// spot she was placed on while it guards, so only the kids play. The kids' play must keep the game moving.
 function play(seed0) {
   let seed = seed0;
   const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
@@ -42,5 +42,5 @@ test('kid play keeps the game moving: points get scored, turns are neither insta
   assert.ok(scored >= 10, 'kids score in at least half the games: ' + scored + '/20');
   assert.ok(mean >= 8 && mean <= 45, 'a turn lasts 8 to 45 s on average: ' + mean.toFixed(1));
   const game = games.reduce((t, g) => t + g.time, 0) / 20;
-  assert.ok(game >= 90, 'a game is not over in a flash: ' + game.toFixed(0) + ' s on average');
+  assert.ok(game >= 60, 'a game is not over in a flash: ' + game.toFixed(0) + ' s on average');
 });

@@ -4,7 +4,8 @@
    court, the middle guard only along the middle line) and tag a runner by touching them. One tag swaps the teams. The
    first team to WIN points, or the team ahead after TIME seconds, wins.
    She is on the blue team. While her team runs she moves freely (the shell keeps her inside the court with fence());
-   while it guards she is the middle guard and the shell keeps her on the middle line. Kid runners wait out of reach of
+   while it guards she guards a random lane (the middle line or a cross line, never the same twice running) and the
+   shell keeps her on it. Kid runners wait out of reach of
    the next line, feint along it away from its guard (across the middle line only when its guard is far along it), and
    dash beside the middle line when no guard is near where they would cross (the longer they wait, the nearer to the
    middle guard they dare cross it, and the other team also takes smaller gaps). Kid guards watch one runner near their
@@ -28,8 +29,15 @@
   };
   // Word pops are English on both grades.
   var POPS = { got: 'Got you!', home: 'Home! 🎉', tagged: '😲', ready: 'Ready…', set: 'Set…', go: 'Go!' };
-  // The guard posts, in the order a team fills them: hers puts her in the middle.
+  // The guard posts, in the order a team fills them.
   var POSTS = ['c0', 'c1', 'c2', 'mid'];
+  var LANES = ['mid', 'c0', 'c1', 'c2'];
+
+  // A random lane for her to guard, different from the round before.
+  function pickLane(prev, rand) {
+    var pool = LANES.filter(function (l) { return l !== prev; });
+    return pool[Math.floor(rand() * pool.length) % pool.length];
+  }
 
   function dist(a, b) { return Math.hypot(a.x - b.x, a.z - b.z); }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -44,14 +52,15 @@
     };
   }
 
-  // Where she may stand: running, anywhere on the court and its run-offs; guarding, only on the middle line.
-  function fence(c, guarding, x, z) {
+  // Where she may stand: running, anywhere on the court and its run-offs; guarding, only on her lane.
+  function fence(c, guarding, x, z, post) {
+    if (guarding && post && post !== 'mid') return Math.abs(z - c.cross[+post.slice(1)]) > 0.01 || x < c.minX + COURT.edge || x > c.maxX - COURT.edge;
     if (guarding) return Math.abs(x - c.mid.x) > 0.01 || z > c.mid.from || z < c.mid.to;
     return x < c.minX + COURT.edge || x > c.maxX - COURT.edge || z > c.home + COURT.end || z < c.far - COURT.end;
   }
 
   function create(o) {
-    var rand = o.rand, st = null;
+    var rand = o.rand, st = null, lastLane = null;
 
     // blue: her team (her first, then the kid who asked and her sister), red: the rest. ids: the kids, first one asked.
     function teams(ids, sister) {
@@ -71,8 +80,11 @@
       var c = st.court, run = st.team[st.runners], guard = st.team[st.runners === 'blue' ? 'red' : 'blue'];
       st.posts = {};
       st.legs = {};
+      var herLane = guard.indexOf('her') >= 0 ? pickLane(lastLane, rand) : null;
+      if (herLane) lastLane = herLane;
+      var rest = LANES.filter(function (l) { return l !== herLane; }), restAt = 0;
       guard.forEach(function (id, n) {
-        var post = (guard[0] === 'her' ? ['mid', 'c0', 'c1', 'c2'] : POSTS)[n];
+        var post = id === 'her' ? herLane : (herLane ? rest[restAt++] : POSTS[n]);
         st.posts[id] = post;
         var p = postSpot(post, c.cx + (n % 2 ? 2 : -2));
         if (id === 'her') ev.push({ type: 'place', x: p.x, z: p.z, face: Math.PI });
@@ -101,6 +113,7 @@
     // ids: the kids (the one who asked first); sister: her sister's id when she plays; herRuns: her team runs first.
     function start(ids, her, c, sister, herRuns) {
       var t = teams(ids, sister);
+      lastLane = null;
       st = {
         court: c, team: t, ids: t.blue.concat(t.red).filter(function (id) { return id !== 'her'; }), runners: herRuns === false ? 'red' : 'blue',
         score: { blue: 0, red: 0 }, t: 0, done: false, result: null, danger: false, chaseD: null, swaps: 0, herRuns: herRuns !== false
@@ -305,20 +318,20 @@
         kind: 'patintero', phase: st.phase, done: st.done, result: st.result, running: st.runners === 'blue', guarding: guarding(),
         score: { blue: st.score.blue, red: st.score.red }, left: Math.max(0, RULES.time - st.t),
         count: st.phase === 'ready' ? Math.max(1, Math.ceil(st.ready)) : 0, team: { blue: st.team.blue.slice(), red: st.team.red.slice() },
-        posts: Object.assign({}, st.posts), ids: st.ids.slice(), danger: st.danger, chaseD: st.chaseD, swaps: st.swaps, herRuns: st.herRuns,
+        posts: Object.assign({}, st.posts), ids: st.ids.slice(), danger: st.danger, chaseD: st.chaseD, swaps: st.swaps, herRuns: st.herRuns, herPost: st.posts.her || null,
         props: []
       };
     }
 
     return {
       start: start, tick: tick, state: state, guarding: guarding,
-      fence: function (x, z) { return !!st && !st.done && fence(st.court, guarding(), x, z); },
+      fence: function (x, z) { return !!st && !st.done && fence(st.court, guarding(), x, z, st.posts.her); },
       playing: function () { return !!st && !st.done; },
       stop: function () { st = null; }
     };
   }
 
-  var exported = { COURT: COURT, RULES: RULES, POPS: POPS, court: court, fence: fence, create: create };
+  var exported = { COURT: COURT, RULES: RULES, POPS: POPS, LANES: LANES, pickLane: pickLane, court: court, fence: fence, create: create };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

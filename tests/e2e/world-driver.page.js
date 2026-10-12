@@ -405,6 +405,7 @@
       D.tick(0.05);
       var s = GD.state();
       o.tag = { kind: s.kind, it: s.it, props: s.props, players: s.ids.length, pill: s.pill };
+      o.tagRoster = { chips: s.chips, rows: s.rosterRows, tags: s.tags, shown: s.tagsShown };
       // She touches a kid: that kid is it and counts.
       var t = kid(s.ids[1]);
       D.stand(t.x + 0.6, t.z);
@@ -499,8 +500,9 @@
       var c = PD.court(), ps = PD.state(), me = D.state();
       o.start = {
         kind: ps.kind, phase: ps.phase, pill: ps.pill, hint: ps.hint, rings: ps.rings,
-        teams: [ps.team.blue.length, ps.team.red.length], behindHome: me.z > c.home
+        teams: [ps.team.blue.length, ps.team.red.length], behindHome: me.z > c.home, bibs: ps.bibs
       };
+      o.start.roster = { chips: ps.chips.length, rows: ps.rosterRows, you: ps.chips.filter(function (c) { return c.name === 'You'; }).length, tags: ps.tags };
       // She holds forward for a second while the ready count runs: she stays on her spot.
       key('keydown', 'w');
       go(1);
@@ -516,22 +518,54 @@
       PD.place(g, me.x, c.cross[0]);
       D.stand(me.x, c.cross[0] + 0.5);
       D.tick(0.05);
+      // The tag plays again in slow motion first: the game and its clock wait, everyone moves through the last seconds.
       ps = PD.state();
-      o.tagged = {
-        guarding: ps.guarding, post: ps.posts.her, onMid: Math.abs(D.state().x - c.mid.x) < 0.01,
-        fenced: ps.fenced, hint: ps.hint
+      var spots = function () {
+        var a = [D.state()].concat(PD.state().ids.map(function (id) { return PD.where(id); }));
+        return a.map(function (p) { return [p.x, p.z]; });
       };
+      var from0 = spots();
+      o.replay = { on: ps.replay, bar: ps.replayBar, hint: ps.hint, left: ps.left, swaps: ps.swaps };
+      // The clip starts in the ready count, when everyone stood still: by 7 s in they run.
+      go(7);
+      ps = PD.state();
+      var from1 = spots();
+      o.replay.moved = from0.reduce(function (s, p, n) { return s + Math.hypot(p[0] - from1[n][0], p[1] - from1[n][1]); }, 0);
+      o.replay.later = { on: ps.replay, left: ps.left };
+      PD.skipReplay();
+      D.tick(0.05);
+      ps = PD.state();
+      o.replay.skipped = { on: ps.replay, bar: ps.replayBar };
+      o.tagged = {
+        guarding: ps.guarding, post: ps.posts.her, hint: ps.hint, fenced: ps.fenced
+      };
+      var herAt = D.state();
+      o.tagged.onLane = ps.herPost === 'mid' ? Math.abs(herAt.x - c.mid.x) < 0.01 : Math.abs(herAt.z - c.cross[+ps.herPost.slice(1)]) < 0.01;
+      o.tagged.lane = ps.herPost;
+      o.tagged.bibs = ps.bibs;
+      // The hint turns into her lane 7 s after the swap; the runners are held still so no one tags in between.
+      var held = PD.state().team.red.map(function (id) { var w = PD.where(id); return { id: id, x: w.x, z: w.z }; });
+      for (var hh = 0; hh < 15; hh++) {
+        held.forEach(function (h) { PD.place(h.id, h.x, h.z); });
+        go(0.5);
+      }
+      o.tagged.laneHint = PD.state().hint;
       // After the ready count a runner comes onto her: she tags them and her team runs.
       go(3.5);
       ps = PD.state();
       me = D.state();
       PD.place(ps.team.red[0], me.x, me.z);
       D.tick(0.05);
+      // This replay runs to its end on its own (about 8 s).
+      o.tagger = { replay: PD.state().replay };
+      go(9);
       ps = PD.state();
-      o.tagger = { running: ps.running, hint: ps.hint };
+      o.tagger.after = ps.replay;
+      o.tagger.running = ps.running;
+      o.tagger.hint = ps.hint;
       PD.end();
       // debug.state() is null once the game is over, so the rings and her fence are read straight.
-      o.afterEnd = { playing: !!(PD.state() && !PD.state().done), rings: PD.rings() };
+      o.afterEnd = { playing: !!(PD.state() && !PD.state().done), rings: PD.rings(), bibs: PD.bibs() };
       // She walks from a spot beside the court that her fence would block: the fence is off.
       D.stand(c.maxX + 1, c.cz);
       var from = D.state();

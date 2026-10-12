@@ -492,12 +492,14 @@
       }
       return step(k, dt, speed, false);
     }
-    // Sets a kid in a game: where they are (teleport), facing, standing still, hidden or cheering.
+    // Sets a kid in a game: where they are (teleport), facing, standing still, hidden or cheering. walk (a distance)
+    // and mag swing the legs as if they had walked there (the Patintero replay).
     function put(id, p) {
       var k = byId[id];
       if (!k || k.state !== 'game') return false;
       if (p.x !== undefined) { k.x = p.x; k.z = p.z; }
       if (p.face !== undefined) k.face = p.face;
+      if (p.walk !== undefined) { k.walkT += p.walk * 1.6; k.mag = p.mag || 0; }
       if (p.still) k.mag = 0;
       if (p.hidden !== undefined) k.hidden = p.hidden;
       if (p.cheer !== undefined) k.cheer = p.cheer;

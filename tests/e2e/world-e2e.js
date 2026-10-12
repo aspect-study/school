@@ -364,6 +364,7 @@ try {
   assert.equal(pat.start.bibs, 8, 'a bib on every player');
   assert.equal(pat.tagged.bibs, 8);
   assert.equal(pat.tagged.hint, '😲 Tagged! Teams swap!');
+  assert.match(pat.tagged.laneHint, /^🛡️ Guard the (middle|1st|2nd|3rd) line! Tag a runner!$/, 'then the hint names her lane');
   assert.equal(pat.tagger.running, true);
   assert.equal(pat.tagger.hint, '🎉 Got one! Teams swap!');
   assert.deepEqual(pat.afterEnd, { playing: false, rings: 0, bibs: 0, walks: true }, '✖ End game: no rings, no bibs, no fence');

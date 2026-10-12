@@ -113,10 +113,15 @@ test('a guard touching her swaps the teams: she becomes the middle guard', () =>
   assert.ok(sw, JSON.stringify(ev));
   assert.equal(sw.by, 'd'); assert.equal(sw.kid, 'her'); assert.equal(sw.herTeam, 'tagged');
   const s = g.state();
-  assert.equal(s.guarding, true); assert.equal(s.posts.her, 'mid'); assert.equal(s.phase, 'ready');
+  assert.equal(s.guarding, true); assert.ok(P.LANES.includes(s.posts.her)); assert.equal(s.phase, 'ready');
   const pl = ev.filter((e) => e.type === 'place').pop();
-  assert.equal(pl.x, 39); assert.ok(pl.z <= 89 && pl.z >= 44, 'placed on the middle line');
-  assert.equal(g.fence(39, 70), false); assert.equal(g.fence(40, 70), true);
+  if (s.posts.her === 'mid') {
+    assert.equal(pl.x, 39); assert.ok(pl.z <= 89 && pl.z >= 44, 'placed on the middle line');
+    assert.equal(g.fence(39, 70), false); assert.equal(g.fence(40, 70), true);
+  } else {
+    assert.equal(pl.z, C.cross[+s.posts.her.slice(1)], 'placed on her cross line');
+    assert.equal(g.fence(pl.x, pl.z), false); assert.equal(g.fence(pl.x, pl.z + 1), true);
+  }
 });
 
 test('she tags a runner while guarding: the teams swap back and her team runs', () => {
@@ -124,7 +129,7 @@ test('she tags a runner while guarding: the teams swap back and her team runs', 
   assert.equal(g.state().guarding, true);
   go(g, her);
   const runner = g.state().team.red[0];
-  f.kids[runner].x = 39.5; f.kids[runner].z = her.z;
+  f.kids[runner].x = her.x; f.kids[runner].z = her.z;
   const ev = g.tick(0.05, her);
   const sw = ev.find((e) => e.type === 'swap');
   assert.ok(sw); assert.equal(sw.by, 'her'); assert.equal(sw.herTeam, 'tagger');
@@ -155,11 +160,59 @@ test('first to 5 wins; after 4 minutes the team ahead wins, equal is a tie', () 
 test('Play again can start with her team guarding', () => {
   const { g } = setup(false);
   const s = g.state();
-  assert.equal(s.running, false); assert.equal(s.herRuns, false); assert.equal(s.posts.her, 'mid');
+  assert.equal(s.running, false); assert.equal(s.herRuns, false); assert.ok(P.LANES.includes(s.posts.her));
 });
 
 test('fewer kids: the teams stay as even as they can', () => {
   const { g } = setup(true, null, ['a', 'b', 'c', 'd', 'e']);
   const s = g.state();
   assert.equal(s.team.blue.length, 3); assert.equal(s.team.red.length, 3);
+});
+
+test('pickLane: one of the four lanes, never the one before', () => {
+  assert.deepEqual(P.LANES, ['mid', 'c0', 'c1', 'c2']);
+  const seen = new Set();
+  let prev = null;
+  for (let i = 0; i < 60; i++) { const l = P.pickLane(prev, rand); assert.notEqual(l, prev); assert.ok(P.LANES.includes(l)); seen.add(l); prev = l; }
+  assert.equal(seen.size, 4);
+  assert.ok(P.LANES.includes(P.pickLane(null, rand)));
+});
+
+test('when she guards she gets a lane; the kids fill the other three; state names it', () => {
+  const { g } = setup(false);
+  const s = g.state();
+  assert.equal(s.guarding, true);
+  assert.ok(P.LANES.includes(s.herPost));
+  assert.equal(s.posts.her, s.herPost);
+  assert.deepEqual(Object.values(s.posts).sort(), P.LANES.slice().sort(), 'all four lanes used once');
+});
+
+test('her lane differs from one guarding round to the next', () => {
+  const { f, g, her } = setup(false);
+  const lanes = [g.state().herPost];
+  for (let round = 0; round < 8; round++) {
+    go(g, her);
+    const runner = g.state().team.red[0];
+    f.kids[runner].x = her.x; f.kids[runner].z = her.z;
+    g.tick(0.05, her);
+    assert.equal(g.state().running, true, 'she tagged a runner: her team runs');
+    go(g, her);
+    const guard = Object.keys(g.state().posts).find((id) => g.state().posts[id] === 'c1');
+    her.x = 39; her.z = C.cross[1];
+    f.kids[guard].x = her.x; f.kids[guard].z = her.z;
+    const ev = g.tick(0.05, her);
+    ev.filter((e) => e.type === 'place').forEach((e) => { her.x = e.x; her.z = e.z; });
+    assert.equal(g.state().guarding, true, 'a guard tagged her: she guards');
+    lanes.push(g.state().herPost);
+  }
+  for (let i = 1; i < lanes.length; i++) assert.notEqual(lanes[i], lanes[i - 1]);
+  assert.ok(new Set(lanes).size > 1);
+});
+
+test('fence follows her lane: a cross line keeps her on that line', () => {
+  const z = C.cross[1];
+  assert.equal(P.fence(C, true, 39, z, 'c1'), false);
+  assert.equal(P.fence(C, true, 39, z + 1, 'c1'), true, 'off the line');
+  assert.equal(P.fence(C, true, C.maxX + 1, z, 'c1'), true, 'past the sideline');
+  assert.equal(P.fence(C, true, 39, 70), false, 'default stays the middle line');
 });

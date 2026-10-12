@@ -259,6 +259,7 @@
     // For games3d.js: the kids' brain and a few things about each kid.
     var api = {
       mind: mind,
+      group: function (id) { return byId[id] ? byId[id].ch.group : null; },
       ids: function () { return kids.map(function (k) { return k.m.id; }); },
       owners: function () {
         var out = {};

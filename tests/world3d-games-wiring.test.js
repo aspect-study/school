@@ -44,3 +44,24 @@ test('her fence and her place come from the game', () => {
   assert.match(main, /place: function \(x, z, face\) \{ ctl\.teleport\(x, z, face\); pal\.place\(ctl\.state, true\); \}/);
   assert.match(games, /fence: function \(x, z\) \{ return pat\.fence\(x, z\); \}/);
 });
+
+test('the stamina heart is not paused by a playground game', () => {
+  const call = main.slice(main.indexOf('stamina.tick('), main.indexOf('stamina.tick(') + 220);
+  assert.ok(!/games\.playing\(\)/.test(call), call);
+});
+
+test('a hider hears the seeker once the count is over', () => {
+  assert.match(games, /function chaserDistance\(s\) \{[^]*?s\.kind === 'hide'[^]*?s\.phase === 'count'[^]*?cast\.where\(s\.seeker\)/);
+});
+
+test('a Patintero tag plays again before the swap, and every way out of a game ends the replay', () => {
+  const tick = games.slice(games.indexOf('function tick(t, dt, st, frozen)'));
+  assert.match(tick, /if \(replaying\) return replayTick\(dt\);\s*if \(pat\.playing\(\)\) \{\s*rec\.push\(dt, snapshot\(st\)\);\s*var pev = pat\.tick/,
+    'the replay comes before pat.tick, so the game and its clock wait');
+  assert.match(tick, /pev\.some\(function \(e\) \{ return e\.type === 'swap'; \}\)\) startReplay\(pev\)/);
+  const release = games.slice(games.indexOf('function release()'), games.indexOf('function end('));
+  assert.match(release, /if \(replaying\) \{\s*replaying = null;\s*o\.focus\(null\);\s*\}\s*show\(replayBar, false\);\s*rec\.clear\(\);/);
+  assert.match(main, /pose: function \(x, z, face, walk, mag\)/);
+  assert.match(main, /focus: function \(p\)/);
+  assert.match(main, /S\.follow\(replayFocus \? replayFocus\.x : st\.x, replayFocus \? replayFocus\.z : st\.z\)/);
+});

@@ -8,7 +8,8 @@
    and a heartbeat thumps while the chaser is close. 🌳 Disguise turns her into a prop while she hides and 👻 Boo!
    surprises the seeker. Patintero (patintero.js, 4 against 4, no props) is played on a big court on the open lawn west
    of the school street, where everyone has room to run: a blue or red ring at each player's feet, her job (run or guard) under the pill, and fence() keeps her on the court
-   while she runs and on the middle line while she guards. The end bubble offers 🔁 Play again (roles swap in
+   while she runs and on the middle line while she guards. Every tag plays the last seconds again in slow motion
+   (replay.js) with the camera moved in on the tag, and Skip ⏭; the game waits meanwhile. The end bubble offers 🔁 Play again (roles swap in
    hide-and-seek, sides in Patintero) and says, in a kid's voice, one reason the game is good for her. */
 (function (root) {
   'use strict';
@@ -16,10 +17,13 @@
   var PLAYERS = 4, POP_IN = 40, BOARD_R = 2.8, INVITE_MIN = 240, INVITE_MAX = 360, INVITE_NEAR = 30, ASK_NEAR = 3, HINT_TIME = 7, NOISE_TIME = 1.4;
   // Patintero: 7 players besides her (her sister counts as one); RING: the team rings' colours.
   var COURT_AT = [-57, -63], PAT_KIDS = 7, RING = { blue: '#4a8cff', red: '#ff5a5a' };
+  // The replay's speed (0.3: 2.5 s of play last about 8 s); KID_RUN: the speed at which a kid's legs swing fully.
+  var REPLAY_SPEED = 0.3, KID_RUN = 5.5;
 
   // o = { S, built, grade, T, doc?, busy(on), freeze(on), sfx(name), mates (Mates3D api), staticBlocked(x, z, r),
   //       onPath(x, z, margin), free() → she can be asked to play, hideMe(on), rand, sister() → kin.js player() or null,
-  //       place(x, z, face) → puts her there (Patintero's turns) }
+  //       place(x, z, face) → puts her there (Patintero's turns), herGroup() → her avatar's group,
+  //       pose(x, z, face, walk, mag) → moves her for the replay, focus({ x, z } or null) → the camera on the tag }
   function create(o) {
     var S = o.S, THREE = S.THREE, L = W.Layout, G = W.MateGame, grade = o.grade, T = o.T, doc = root.document;
     var LT = G.TEXT[grade], B = G.BUTTONS, rand = o.rand || Math.random, M = o.mates, mind = M.mind;
@@ -31,7 +35,8 @@
       move: function (id, x, z, speed, dt) { return isSis(id) ? sis.move(x, z, speed, dt) : mind.move(id, x, z, speed, dt); },
       where: function (id) { return isSis(id) ? sis.where() : mind.where(id); },
       put: function (id, p) { return isSis(id) ? sis.put(p) : mind.put(id, p); },
-      game: function (id, on) { return isSis(id) ? sis.game(on) : mind.game(id, on); }
+      game: function (id, on) { return isSis(id) ? sis.game(on) : mind.game(id, on); },
+      group: function (id) { return isSis(id) ? sis.group() : M.group(id); }
     };
     var game = G.create({ rand: rand, move: cast.move, where: cast.where, put: cast.put });
     var pat = W.Patintero.create({ rand: rand, move: cast.move, where: cast.where, put: cast.put });
@@ -39,7 +44,8 @@
     function playing() { return game.playing() || pat.playing(); }
     function state() { return pat.state() || game.state(); }
     var props = [], disguise = null, talk = null, last = null, inviteT = INVITE_MIN + rand() * (INVITE_MAX - INVITE_MIN), asking = null;
-    var her = { x: 0, z: 0 }, hintT = 0, noiseT = 0, beatT = 0, rings = null;
+    var her = { x: 0, z: 0 }, hintT = 0, noiseT = 0, beatT = 0, rings = null, bibs = [];
+    var rec = W.Replay.create(), replaying = null;
 
     // --- the board by the playground's entrance -----------------------------------------------------------------
     var board = (function () {
@@ -166,7 +172,13 @@
     pill.appendChild(endBtn);
     count.setAttribute('aria-live', 'assertive');
     hint.setAttribute('aria-live', 'polite');
-    [pill, hint, count, danger, disBtn, booBtn, noise].forEach(function (n) { n.hidden = true; doc.body.appendChild(n); });
+    var roster = el('div', 'g-roster'), rosterKey = '';
+    roster.setAttribute('aria-label', 'Players');
+    // The replay's bar sits where the hint does (the hint is hidden meanwhile); English on both grades.
+    var replayBar = el('div', 'g-replay'), replaySkip = button('g-replay-skip', 'Skip ⏭', function () { if (replaying) replaying.player.skip(); });
+    replayBar.appendChild(el('span', 'g-replay-text', '🎬 Replay'));
+    replayBar.appendChild(replaySkip);
+    [pill, hint, roster, count, danger, disBtn, booBtn, noise, replayBar].forEach(function (n) { n.hidden = true; doc.body.appendChild(n); });
 
     function nameOf(id) { return isSis(id) ? sis.name : String(M.nameOf(id)).split(' · ').pop(); }
     function faceOf(id) { return isSis(id) ? sis.face : M.face(id); }
@@ -180,7 +192,7 @@
     function hud() {
       var s = state();
       if (!s || s.done) {
-        [pill, hint, count, danger, disBtn, booBtn, noise].forEach(function (n) { show(n, false); });
+        [pill, hint, roster, count, danger, disBtn, booBtn, noise].forEach(function (n) { show(n, false); });
         return;
       }
       if (s.kind === 'patintero') return patHud(s);
@@ -199,17 +211,75 @@
       if (s.danger && s.chaseD !== null) setOpacity(danger, Math.max(0.35, Math.min(1, 1.3 - s.chaseD / G.TAG.safe)));
       show(disBtn, !disguise && !!game.disguiseProp(her));
       show(booBtn, !!game.booReady(her));
+      showRoster(s);
+    }
+
+    function chip(id, cls) {
+      var c = el('span', 'g-chip' + (cls ? ' ' + cls : ''));
+      c.appendChild(el('span', 'g-chip-face', id === 'her' ? '🙂' : faceOf(id)));
+      c.appendChild(el('span', 'g-chip-name', id === 'her' ? 'You' : nameOf(id)));
+      return c;
+    }
+    // Rebuilt only when the players or the one who is "it" change.
+    function showRoster(s) {
+      var rows = s.kind === 'patintero' ? [['blue', s.team.blue], ['red', s.team.red]] : [['', ['her'].concat(s.ids)]];
+      var key = s.kind + '|' + (s.it || '') + '|' + (s.seeker || '') + '|' + rows.map(function (r) { return r[1].join(','); }).join('/');
+      show(roster, true);
+      if (key === rosterKey) return;
+      rosterKey = key;
+      roster.textContent = '';
+      rows.forEach(function (r) {
+        var row = el('div', 'g-roster-row' + (r[0] ? ' ' + r[0] : ''));
+        r[1].forEach(function (id) {
+          var chaser = (s.kind === 'tag' && s.it === id) || (s.kind === 'hide' && s.seeker === id) || (s.kind === 'seek' && id === 'her');
+          row.appendChild(chip(id, chaser ? 'it' : isSis(id) ? 'sis' : ''));
+        });
+        roster.appendChild(row);
+      });
+    }
+
+    // --- name tags over the other players -----------------------------------------------------------------------
+    var tags = null, TAG_FAR = 40, TAG_Y = 6.4, TAG_CAM = 9;
+    function makeTags(s) {
+      clearTags();
+      tags = { group: new THREE.Group(), of: {} };
+      s.ids.forEach(function (id) {
+        var sp = S.sprite(S.label(nameOf(id), '#8a5fd0'), 2.4, 2.4 * 180 / 512);
+        tags.of[id] = sp;
+        tags.group.add(sp);
+      });
+      S.scene.add(tags.group);
+      moveTags(s);
+    }
+    // A kid hiding in hide-and-seek gets no tag: it would give the spot away. Nor does a kid right by the camera (the
+    // Patintero replay's camera stands among the players), whose tag would fill the view.
+    function moveTags(s) {
+      if (!tags || !s) return;
+      var cam = S.camera.position;
+      Object.keys(tags.of).forEach(function (id) {
+        var p = cast.where(id), sp = tags.of[id];
+        var far = !p || Math.hypot(p.x - her.x, p.z - her.z) > TAG_FAR || (s.hidden && s.hidden.indexOf(id) >= 0) || Math.hypot(p.x - cam.x, p.z - cam.z) < TAG_CAM;
+        sp.visible = !far;
+        if (!far) sp.position.set(p.x, TAG_Y, p.z);
+      });
+    }
+    function clearTags() {
+      if (!tags) return;
+      S.scene.remove(tags.group);
+      Object.keys(tags.of).forEach(function (id) { tags.of[id].material.map.dispose(); tags.of[id].material.dispose(); });
+      tags = null;
     }
 
     // Her job under the pill, unless a swap or a point is being announced.
     function patHud(s) {
       setText(pillText, '🏃 Patintero 🔵 ' + s.score.blue + ' – ' + s.score.red + ' 🔴' + ' · ⏱️ ' + clock(s.left));
       show(pill, true);
-      if (!(hintT > 0)) setText(hint, W.Talk.shown(s.running ? LT.patRun : LT.patGuard));
+      if (!(hintT > 0)) setText(hint, W.Talk.shown(s.running ? LT.patRun : LT.patLane[s.herPost] || LT.patLane.mid));
       show(hint, true);
       [count, disBtn, booBtn].forEach(function (n) { show(n, false); });
       show(danger, !!s.danger);
       if (s.danger && s.chaseD !== null) setOpacity(danger, Math.max(0.35, Math.min(1, 1.3 - s.chaseD / P.RULES.danger)));
+      showRoster(s);
     }
 
     // --- the team rings at Patintero players' feet -------------------------------------------------------------
@@ -233,10 +303,92 @@
       if (rings) S.scene.remove(rings.group);
       rings = null;
     }
+    // A coloured bib over the outfit, a child of the character so it walks, turns and hides with them.
+    function wearBibs(s) {
+      removeBibs();
+      ['blue', 'red'].forEach(function (team) {
+        s.team[team].forEach(function (id) {
+          var g = id === 'her' ? (o.herGroup && o.herGroup()) : cast.group(id);
+          if (!g) return;
+          var bib = new THREE.Group();
+          S.add(S.cyl(0.98, 1.08, 0.9, 24), RING[team], 0, 2.4, 0, bib);
+          g.add(bib);
+          bibs.push({ g: g, bib: bib });
+        });
+      });
+    }
+    function removeBibs() {
+      bibs.forEach(function (b) { b.g.remove(b.bib); });
+      bibs = [];
+    }
     // Everyone sparkles to their spots for a turn (her own spot sparkles as she is placed).
     function sparkleKids() {
       var s = pat.state();
       if (s) s.ids.forEach(function (id) { var p = cast.where(id); o.built.sparkle(p.x, p.z); });
+    }
+
+    // --- the slow-motion replay of a Patintero tag ---------------------------------------------------------------
+    function snapshot(st) {
+      var at = { her: { x: st.x, z: st.z, face: st.face } };
+      pat.state().ids.forEach(function (id) {
+        var p = cast.where(id);
+        if (p) at[id] = { x: p.x, z: p.z, face: p.face || 0 };
+      });
+      return at;
+    }
+    // The tag's events wait: the swap has already lined everyone up for the next turn, so those spots are kept for
+    // after, and her own new spot is in the events' 'place'.
+    function startReplay(events) {
+      var clip = rec.clip(), tag = events.filter(function (e) { return e.type === 'swap'; })[0];
+      rec.clear();
+      if (clip.length < 2) return handle(events);
+      var after = {};
+      pat.state().ids.forEach(function (id) {
+        var p = cast.where(id);
+        if (p) after[id] = { x: p.x, z: p.z, face: p.face };
+      });
+      var player = W.Replay.player(clip, REPLAY_SPEED);
+      replaying = { player: player, events: events, after: after, was: player.tick(0), pair: [tag.by, tag.kid] };
+      o.freeze(true);
+      replayFocus(replaying.was);
+      o.sfx('catch');
+      [hint, danger].forEach(function (n) { show(n, false); });
+      show(replayBar, true);
+    }
+    // The camera stays on the guard and the runner of the tag, so it ends on the spot where it happened.
+    function replayFocus(at) {
+      var a = at[replaying.pair[0]] || at.her, b = at[replaying.pair[1]] || at.her;
+      o.focus({ x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 });
+    }
+    // Everyone where the clip has them, legs swinging at the speed they really went.
+    function replayTick(dt) {
+      var r = replaying, at = r.player.tick(dt), played = dt * REPLAY_SPEED;
+      Object.keys(at).forEach(function (id) {
+        var p = at[id], q = r.was[id] || p, walk = Math.hypot(p.x - q.x, p.z - q.z), speed = played > 0 ? walk / played : 0;
+        if (id === 'her') {
+          her.x = p.x;
+          her.z = p.z;
+          o.pose(p.x, p.z, p.face, walk, Math.min(1, speed / W.Walk.SPEED));
+        } else cast.put(id, { x: p.x, z: p.z, face: p.face, walk: walk, mag: Math.min(1, speed / KID_RUN) });
+      });
+      r.was = at;
+      replayFocus(at);
+      moveRings();
+      moveTags(pat.state());
+      if (r.player.done()) endReplay();
+    }
+    function endReplay() {
+      var r = replaying;
+      replaying = null;
+      show(replayBar, false);
+      o.focus(null);
+      Object.keys(r.after).forEach(function (id) {
+        var p = r.after[id];
+        cast.put(id, { x: p.x, z: p.z, face: p.face, still: true });
+      });
+      handle(r.events);
+      moveRings();
+      moveTags(pat.state());
     }
 
     // --- her disguise -------------------------------------------------------------------------------------------
@@ -305,6 +457,8 @@
         o.sfx('ride-start');
         handle(pev);
         makeRings(pat.state());
+        wearBibs(pat.state());
+        makeTags(pat.state());
         sparkleKids();
         return true;
       }
@@ -318,17 +472,27 @@
       if (kind === 'seek') o.freeze(true);
       o.sfx('ride-start');
       handle(ev);
+      makeTags(game.state());
       return true;
     }
 
     function release() {
       var s = state();
+      if (replaying) {
+        replaying = null;
+        o.focus(null);
+      }
+      show(replayBar, false);
+      rec.clear();
       if (s) s.ids.forEach(function (id) { cast.game(id, false); });
       hintT = 0;
       noiseT = 0;
       undisguise();
       clearProps();
       clearRings();
+      removeBibs();
+      clearTags();
+      rosterKey = '';
       o.freeze(false);
       game.stop();
       pat.stop();
@@ -441,13 +605,27 @@
       asking = { id: who, kind: G.GAMES[Math.floor(rand() * G.GAMES.length) % G.GAMES.length], t: 0 };
     }
 
+    var HIDE_BEAT = 10;
+    // Distance of the one chasing or seeking her, or null when nobody is: tag and Patintero use the danger flag, a hider hears the seeker.
+    function chaserDistance(s) {
+      if (s.kind === 'hide') {
+        if (s.phase === 'count' || !s.seeker) return null;
+        var p = cast.where(s.seeker);
+        var d = p ? Math.hypot(p.x - her.x, p.z - her.z) : null;
+        return d !== null && d <= HIDE_BEAT ? d : null;
+      }
+      return s.danger && s.chaseD !== null ? s.chaseD : null;
+    }
+
     // The closer the chaser, the faster her heart beats.
     function heartbeat(dt) {
       var s = state();
-      if (!s || s.done || !s.danger || s.chaseD === null) return;
+      if (!s || s.done) return;
+      var d = chaserDistance(s);
+      if (d === null) return;
       if ((beatT -= dt) > 0) return;
       o.sfx('heartbeat');
-      beatT = 0.35 + 0.05 * s.chaseD;
+      beatT = 0.35 + 0.05 * d;
     }
 
     // --- each frame ---------------------------------------------------------------------------------------------
@@ -459,17 +637,23 @@
       if (hintT > 0) hintT -= dt;
       if (noiseT > 0) noiseT -= dt;
       if (frozen || talk) return;
+      // The game waits while a tag plays again: no pat.tick, so its clock stands still too.
+      if (replaying) return replayTick(dt);
       if (pat.playing()) {
+        rec.push(dt, snapshot(st));
         var pev = pat.tick(dt, { x: st.x, z: st.z });
-        if (pev.length) handle(pev);
+        if (pev.some(function (e) { return e.type === 'swap'; })) startReplay(pev);
+        else if (pev.length) handle(pev);
         else hud();
         heartbeat(dt);
         moveRings();
+        moveTags(pat.state());
       } else if (game.playing()) {
         var ev = game.tick(dt, { x: st.x, z: st.z, still: !(st.mag > 0), disguised: !!disguise });
         if (ev.length) handle(ev);
         else hud();
         heartbeat(dt);
+        moveTags(game.state());
       } else invite(dt);
     }
 
@@ -511,10 +695,20 @@
         state: function () {
           var s = state();
           if (!s) return null;
-          var more = { props: s.props.length };
+          var more = {
+            props: s.props.length, roster: roster.hidden ? null : roster.textContent,
+            chips: roster.hidden ? [] : [].map.call(roster.querySelectorAll('.g-chip'), function (c) { return { name: c.lastChild.textContent, cls: c.className.replace('g-chip', '').trim() }; }),
+            rosterRows: roster.querySelectorAll('.g-roster-row').length,
+            tags: tags ? Object.keys(tags.of).length : 0,
+            tagsShown: tags ? Object.keys(tags.of).filter(function (id) { return tags.of[id].visible; }).length : 0
+          };
           if (s.kind === 'patintero') {
             more.rings = rings ? Object.keys(rings.of).length : 0;
-            more.fenced = { side: pat.fence(court.maxX + 1, court.cz), mid: pat.fence(court.mid.x + 1, court.cz) };
+            var lane = s.herPost, onX = lane === 'mid' ? court.mid.x : court.cx, onZ = lane === 'mid' ? court.cz : court.cross[+String(lane).slice(1)];
+            more.fenced = { side: pat.fence(court.maxX + 1, court.cz), off: pat.fence(lane === 'mid' ? onX + 1 : onX, lane === 'mid' ? onZ : onZ + 1.5), on: pat.fence(onX, onZ) };
+            more.bibs = bibs.length;
+            more.replay = !!replaying;
+            more.replayBar = replayBar.hidden ? null : replayBar.textContent;
           }
           return Object.assign({
             disguised: !!disguise, pill: pill.hidden ? null : pillText.textContent, cover: count.hidden ? null : countN.textContent,
@@ -523,9 +717,13 @@
         },
         court: function () { return court; },
         rings: function () { return rings ? Object.keys(rings.of).length : 0; },
+        bibs: function () { return bibs.length; },
         props: function () { return props.map(function (q) { return { kind: q.p.kind, x: q.p.x, z: q.p.z }; }); },
         board: function () { return { x: board.x, z: board.z }; },
         boo: doBoo, disguise: toggleDisguise, end: function () { end(null); },
+        // Like a tap on Skip ⏭: the replay ends on the next frame.
+        skipReplay: function () { replaySkip.click(); },
+        replayShown: function () { return !replayBar.hidden; },
         invite: function () { inviteT = 0; },
         asking: function () { return asking ? asking.id : null; },
         place: function (id, x, z) { return cast.put(id, { x: x, z: z }); },
