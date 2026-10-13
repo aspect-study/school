@@ -24,6 +24,8 @@ built, what is parked and what is pending. Read both before starting new work.
 - Plain HTML and JavaScript, no build step. Browser JS is ES5 in an IIFE `(function (root) {...})(this)`.
 - Comments sparingly: only for non-obvious code.
 - After adding or removing a file under `web/`, run `node tools/update-precache.js` (`tests/pwa.test.js` enforces it).
+- A file added to `web/world/` goes in `tools/world-manifest.json`, then run `node tools/update-world-pages.js` (it
+  rewrites both world pages). `docs/world-modules.md` maps every world module: read it before opening world files.
 - Tests: `node --test` from the repo root, plus the headless-Chrome e2e scripts in `tests/e2e` (list in `README.md`).
   A change to the 3D world needs `node tests/e2e/world-e2e.js` to pass too.
 - A new game needs wiring the tests enforce: review, medals, boss, army, a `web/world/layout.js` APPS entry. See

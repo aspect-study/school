@@ -7,17 +7,18 @@ const WEB = path.join(ROOT, 'web');
 const ENGINE = path.join(WEB, 'engine');
 const ENGINE_FILES = ['lang.js', 'storage.js', 'learner.js', 'embed.js', 'home.js', 'clock.js', 'nav.js', 'search.js', 'read-gate.js', 'study-history.js', 'wallet.js', 'fx.js', 'powerups.js', 'recall.js', 'mastery.js', 'quests.js', 'boss.js', 'bosses.js', 'army.js', 'world.js', 'family.js', 'guide.js', 'trail.js', 'study-kit.js', 'sync-core.js', 'firebase-config.js', 'firebase-remote.js', 'cloud.js', 'shop-requests.js', 'shop-editor.js', 'subjects.js', 'insights.js', 'parent-pin.js', 'parent-panel.js', 'account.js', 'lobby-embed.js'];
 const WORLD = path.join(WEB, 'world');
-// The 3D world pages and the scripts they load from web/world/, in load order.
-const WORLDS = { 5: 'world/grade-5.html', 2: 'world/grade-2.html' };
-const WORLD_FILES = ['text.js', 'layout.js', 'items.js', 'pets.js', 'emotes.js', 'furniture.js', 'room.js', 'trophies.js', 'house.js', 'moves.js', 'moverun.js', 'look.js', 'closet.js', 'prefs.js', 'walk.js', 'music.js', 'sfx.js', 'progress.js', 'buddies.js', 'lines.js', 'care.js', 'nudge.js', 'rides.js', 'mates.js', 'matelines.js', 'speech.js', 'speechctx.js', 'chatter.js', 'speech/pets.js', 'speech/kids.js', 'speech/town.js', 'speech/buddies.js', 'matequiz.js', 'mateboard.js', 'matemind.js', 'mategame.js', 'patintero.js', 'petlife.js', 'lifedata.js', 'routines.js', 'cheer.js', 'chat.js', 'quiz.js', 'teach.js', 'loot.js', 'lesson-files.js', 'scene.js', 'build.js', 'decor.js', 'cast.js', 'fort-boss.js', 'talk.js', 'speechchat.js','ask.js', 'wear.js', 'room3d.js', 'petbody.js', 'pettricks.js', 'avatar.js', 'companion.js', 'move.js', 'maker.js', 'stall.js', 'boutique.js', 'petshop.js', 'toyshop.js', 'carpenter.js', 'decorate.js', 'playbar.js', 'usebar.js', 'town.js', 'folk.js', 'kin.js', 'play.js', 'mates3d.js', 'bubbles.js', 'life.js', 'replay.js', 'games3d.js', 'loot3d.js', 'portal.js', 'hud.js', 'stamina.js', 'world-main.js'];
-// The engine files a world page loads, in order; world.js and subjects.js load without data-grade (pure helpers only).
+// The 3D world pages and the scripts they load. The load order lives in tools/world-manifest.json; after editing it run
+// node tools/update-world-pages.js to rewrite both pages. world.js and subjects.js load without data-grade (pure helpers only).
 // study-kit scores ❓ Ask me! answers the way the games do (and catches the lesson files ask.js loads). family.js brings
 // her sister and the cheers; with no #campus on the page it shows no lobby card.
-const WORLD_ENGINES = ['lang', 'storage', 'learner', 'clock', 'study-history', 'recall', 'mastery', 'wallet', 'quests', 'boss', 'bosses', 'guide', 'world', 'subjects', 'family', 'fx', 'study-kit', 'sync-core', 'firebase-config', 'firebase-remote', 'cloud'];
+const WORLDS = { 5: 'world/grade-5.html', 2: 'world/grade-2.html' };
+const MANIFEST = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools', 'world-manifest.json'), 'utf8'));
+const WORLD_FILES = MANIFEST.world;
+const WORLD_ENGINES = MANIFEST.engines;
 // The start page's animated backdrop (a standalone page in web/world, loaded in an iframe by web/index.html).
 const BACKDROP_PAGE = 'world/backdrop.html';
 const BACKDROP_FILES = ['text.js', 'layout.js', 'items.js', 'pets.js', 'moves.js', 'look.js', 'rides.js', 'wear.js', 'mates.js', 'mateboard.js', 'matemind.js', 'scene.js', 'build.js', 'petbody.js', 'avatar.js', 'backdrop-core.js', 'backdrop.js'];
-const VENDOR_FILES = ['vendor/three/three.min.js', 'vendor/three/rounded-box.js'];
+const VENDOR_FILES = MANIFEST.vendor;
 
 const LOBBIES = {
   5: { page: 'lobby/grade-5.html', manifest: 'lobby/grade-5.webmanifest' },
