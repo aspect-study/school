@@ -187,7 +187,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
-- **Character chatter A3 (everyone else):** plan still to write, reusing the A1 engine and line files. Later: her own pet as a speaker, pet tap chat, studied and medal tags, chat memory, Part B.
+- **Character chatter, what is left:** A3 is done (2026-10-13): her own pet speaks ambient bubbles while it walks, with the shared pet lines and no `{pet}` lines (`Speech.without`). The owner decided to SKIP Jesus's and her sister's chatter (both are sensitive; do not propose them). Later and optional: pet tap chat, `studied` and `medal` tags, reply chats for town characters, chat memory (remember reply taps; needs one synced key), Part B (characters talking to each other).
 - **Lesson audit** (rewrite text that copies a source; `docs/lesson-writing.md`, "Rewording an existing question"),
   one game per commit, hits at the start in brackets (3356 in all on 2026-10-11).
   **Stopped 2026-10-12** by the owner (token cost). The unticked games stay as they are; don't audit them, not even
@@ -227,9 +227,9 @@ New subject lessons arrive as class decks and summative tests.
 
 ## Still pending on the owner's side (not code)
 
-- App Check key + Enforce, email enumeration protection, password policy (README, Account hardening); deploy the new rules from `firebase/firestore.rules`.
+- App Check key + Enforce, email enumeration protection, password policy (README, Account hardening): only needed if other families ever sign up on this site; the school app is private and unlisted, and the public project has its own repo and session. The new Firestore rules are deployed (owner, 2026-10-13).
 - Set the privacy contact email in `web/privacy.html` (it still contains CONTACT_EMAIL) and remove the skip in `tests/privacy.test.js` before other families use the app.
-- Re-publish `firebase/firestore.rules` after the history-entry cap rose to 100000 (a long Mock Exam entry lists every wrong answer). Measured 2026-10-12 on a used tablet: `review_v1` 125659 characters (cap 500000), `mastery_v1` 16667, `history_v1` 268777 in total but synced as one small document per entry. Re-measure (`learner/` keys in localStorage) once a term; if `review_v1` passes 350000, raise the state cap in the rules and in `tests/rules/families.rules.js`.
+- Firestore rules republished with the history-entry cap of 100000 (owner, 2026-10-13; a long Mock Exam entry lists every wrong answer). Measured 2026-10-12 on a used tablet: `review_v1` 125659 characters (cap 500000), `mastery_v1` 16667, `history_v1` 268777 in total but synced as one small document per entry. Re-measure (`learner/` keys in localStorage) once a term; if `review_v1` passes 350000, raise the state cap in the rules and in `tests/rules/families.rules.js`.
 - Family account live check: create a test account on the site, add a child, pick her, change the PIN and see it on
   the other tablet and the phone after a sync; Forgot password email arrives. First confirm sign-up is allowed in the Firebase console (Authentication → Settings →
   User actions); with email-enumeration protection on, Forgot password reports success even for an unknown email. Anyone can now register on `study-game`;
