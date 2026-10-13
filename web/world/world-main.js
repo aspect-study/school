@@ -227,7 +227,7 @@
     });
     var subjectNames = {};
     W.Progress.cards(grade, L, root.Subjects).forEach(function (c) { subjectNames[c.app] = english(c.name); });
-    var speechData = W.Speech.merge(W.SpeechPets, W.SpeechKids), speechState = W.Speech.newState();
+    var speechData = W.Speech.merge(W.SpeechPets, W.SpeechKids, W.SpeechTown, W.SpeechBuddies), speechState = W.Speech.newState();
     var chatCtx = W.SpeechCtx.build({ hour: 12, her: { x: 0, z: 0 } }), chatCtxAt = -10, rideEnded = -999, wasRiding = false;
     var mates = W.Mates3D.create({
       chatData: function () { return speechData; },

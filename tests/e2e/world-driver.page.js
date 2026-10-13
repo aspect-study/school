@@ -1156,6 +1156,14 @@
         for (var ct = 0; ct < secs * 10; ct++) { D.tick(0.1); top = Math.max(top, D.bubbles()); }
         return top;
       };
+      D.setChatter('chatty');
+      D.teleport('plaza');
+      D.stand(6, -2);
+      D.tick(0.1);
+      if (D.talking()) D.closeTalk();
+      o.plazaPeak = peak(25);
+      D.teleport('playground');
+      D.tick(0.1);
       D.setChatter('quiet');
       o.quietPeak = peak(12);
       D.setChatter('chatty');

@@ -29,6 +29,8 @@
   function poolIds(sp) {
     if (sp.kind === 'pet') return ['any-pet', 'species:' + sp.species, 'pet:' + String(sp.name || '').toLowerCase()];
     if (sp.kind === 'kid') return ['any-kid', 'kid:' + sp.id];
+    if (sp.kind === 'char') return ['char:' + sp.id];
+    if (sp.kind === 'buddy') return ['any-buddy', 'buddy:' + sp.app];
     return [sp.kind + ':' + sp.id];
   }
 

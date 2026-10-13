@@ -412,6 +412,7 @@ try {
   // driver advances the world clock itself, so the waits cost no real time.
   const chat = run('chatter', stageWorld('chatter', 5, MATES), 'chatter');
   assert.deepEqual(chat.errors, [], 'chatter: page errors');
+  assert.ok(chat.plazaPeak >= 1, 'Town characters and buddies speak at the Plaza in Chatty: ' + chat.plazaPeak);
   assert.equal(chat.quietPeak, 0, 'Quiet shows no bubbles');
   assert.ok(chat.chattyPeak >= 1, 'Chatty shows a bubble within 25 s: ' + chat.chattyPeak);
   assert.equal(chat.talking, true, 'a talk bubble is open');

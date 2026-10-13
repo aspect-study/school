@@ -85,6 +85,14 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   `docs/superpowers/specs/2026-10-13-character-chatter-design.md`, `docs/superpowers/plans/2026-10-13-character-chatter-a1.md`.
   Tablet check pending: how Calm feels and whether the bubbles read well for Grade 2. The owner reviews the Filipino
   halves of the chats in `docs/lines/kids.md`.
+- Character chatter A2 (2026-10-13): the town characters (Mimi, Hoot, Bunny, Lana, Kiko, Pilo, Tasyo) and the 17
+  subject buddies at their doors now say ambient word bubbles with the A1 engine and rules. Lines in
+  `web/world/speech/town.js` (181 lines, 24-30 per character) and `buddies.js` (42 shared + 13 per buddy = 263);
+  review sheets `docs/lines/town.md` and `docs/lines/buddies.md`. Ambient only, no tap chat. The owner reviews both
+  sheets. Doubts the buddy writer listed: word-train asking voice, history-explorers balangay line, net-navigators
+  grown-up line, block-bot seesaw, craft-corner cooking. The e2e chatter case checks a bubble shows at the Plaza in
+  Chatty. Spec and plan: `docs/superpowers/specs/2026-10-13-character-chatter-a2-design.md`,
+  `docs/superpowers/plans/2026-10-13-character-chatter-a2.md`.
 - Living world (2026-10-09): world characters no longer stand still. Buddies, Hoot, Bunny, Mimi and the four shop
   owners each run small routines (sweep, read, water, serve, hammer, hop, short flights, Mimi's stroll) inside a
   leash of 2-3 squares around their spot; they wave when she walks close, stop and face her when she talks to them,
@@ -179,8 +187,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
-- **Character chatter A2 (town characters) and A3 (everyone else):** plans still to write, reusing the A1 engine and
-  line files. Later: her own pet as a speaker, pet tap chat, studied and medal tags, chat memory, Part B.
+- **Character chatter A3 (everyone else):** plan still to write, reusing the A1 engine and line files. Later: her own pet as a speaker, pet tap chat, studied and medal tags, chat memory, Part B.
 - **Lesson audit** (rewrite text that copies a source; `docs/lesson-writing.md`, "Rewording an existing question"),
   one game per commit, hits at the start in brackets (3356 in all on 2026-10-11).
   **Stopped 2026-10-12** by the owner (token cost). The unticked games stay as they are; don't audit them, not even

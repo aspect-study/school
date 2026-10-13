@@ -109,7 +109,7 @@ is purely visual and falls back to the plain page when 3D cannot run.
   minutes, wins.
 - **Learning in the world:** after any wrong answer her pet explains it step by step. Gift boxes and cute monsters at
   the hangout places open or pop only on a right answer (see Rewards).
-- **Chatter:** pets and playmates say short word bubbles near her; Settings has Chatter Quiet, Calm or Chatty, and a playmate's 💬 Chat opens a tap chat. Lines live in `web/world/speech/`; after editing them run `node tools/line-sheet.js` to rebuild the review sheets in `docs/lines/`.
+- **Chatter:** pets, playmates, town characters and subject buddies say short word bubbles near her; Settings has Chatter Quiet, Calm or Chatty, and a playmate's 💬 Chat opens a tap chat. Lines live in `web/world/speech/`; after editing them run `node tools/line-sheet.js` to rebuild the review sheets in `docs/lines/`.
 - **Sounds:** footsteps (Settings: Footsteps On/Off), pet voices and ride sounds; the clips are in `web/assets/sounds/world` (made by `tools/world-sounds.js`).
 
 World answers from Ask me!, gifts and monsters are scored like a review and show in the parent history. The

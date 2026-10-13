@@ -153,7 +153,7 @@
       });
     }
 
-    // The pets as speakers for chatter.js: where each one is now and how high its head is.
+    // The pets, town characters and buddies as speakers for chatter.js: where each one is now and how high its head is.
     function speakers() {
       var list = [];
       if (!lastOut) return list;
@@ -161,6 +161,15 @@
         var p = d.pet ? lastOut.poses[d.id] : null;
         if (!p) return;
         list.push({ id: d.id, speaker: { id: d.id, kind: 'pet', species: d.species, name: d.name }, x: p.x, z: p.z, head: PET_HEAD + p.y, hidden: !!p.hidden });
+      });
+      defs.forEach(function (d) {
+        var p = !d.pet && !d.external ? lastOut.poses[d.id] : null;
+        if (!p) return;
+        var buddy = d.id.indexOf('buddy:') === 0;
+        list.push({
+          id: d.id, speaker: buddy ? { id: d.id, kind: 'buddy', app: d.id.slice(6) } : { id: d.id, kind: 'char' },
+          x: p.x, z: p.z, head: CHAR_HEAD + (d.fly ? p.y : 0), hidden: !!p.hidden
+        });
       });
       return list;
     }

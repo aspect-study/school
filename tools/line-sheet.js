@@ -5,13 +5,18 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 const SHEETS = [
   { file: 'pets.js', out: 'pets.md', title: 'Pets' },
-  { file: 'kids.js', out: 'kids.md', title: 'Playmates' }
+  { file: 'kids.js', out: 'kids.md', title: 'Playmates' },
+  { file: 'town.js', out: 'town.md', title: 'Town characters' },
+  { file: 'buddies.js', out: 'buddies.md', title: 'Subject buddies' }
 ];
 
 function poolTitle(id) {
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   if (id === 'any-pet') return 'Any pet';
   if (id === 'any-kid') return 'Any playmate';
+  if (id === 'any-buddy') return 'Any subject buddy';
+  if (id.startsWith('char:')) return 'Character: ' + cap(id.slice(5));
+  if (id.startsWith('buddy:')) return 'Buddy: ' + id.slice(6);
   if (id.startsWith('species:')) return 'Species: ' + id.slice(8);
   if (id.startsWith('pet:')) return 'Pet: ' + cap(id.slice(4));
   if (id.startsWith('kid:')) return 'Playmate: ' + cap(id.slice(4));

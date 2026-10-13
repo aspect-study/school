@@ -37,3 +37,9 @@ test('a playmate offers a Chat button that runs a tap chat with the world speech
   assert.match(main, /chatContext:/);
   assert.ok(main.indexOf('var speechData') < main.indexOf('W.Mates3D.create('), 'speech data exists before the kids are made');
 });
+
+test('life.js lists the town characters and the subject buddies as speakers', () => {
+  const life = fs.readFileSync(worldFile('life.js'), 'utf8');
+  assert.match(life, /kind: 'char'/);
+  assert.match(life, /kind: 'buddy'/);
+});

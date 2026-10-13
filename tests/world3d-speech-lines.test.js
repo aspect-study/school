@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { worldFile } = require('./paths.js');
+const { worldFile, APPS } = require('./paths.js');
 const Speech = require(worldFile('speech.js'));
 const LifeData = require(worldFile('lifedata.js'));
 
@@ -10,6 +10,7 @@ const DIR = worldFile('speech');
 const FILES = fs.readdirSync(DIR).filter((f) => f.endsWith('.js')).sort();
 const SPECIES = Object.keys(LifeData.SPECIES);
 const PET_NAMES = ['tagpi', 'lila', 'kidlat', 'pandesal', 'mingming', 'kwento', 'tagal', 'bituin', 'kawayan', 'hielo', 'pitik'];
+const CHARS = ['mimi', 'hoot', 'bunny', 'lana', 'kiko', 'pilo', 'tasyo'];
 const FRIENDS = ['migo', 'ella', 'tomas', 'bea', 'jun', 'luna'];
 
 const ALL = {};
@@ -43,6 +44,9 @@ test('every pool belongs to a known speaker kind', () => {
     const ok = pool === 'any-pet' || pool === 'any-kid'
       || (pool.startsWith('species:') && SPECIES.includes(pool.slice(8)))
       || (pool.startsWith('pet:') && PET_NAMES.includes(pool.slice(4)))
+      || pool === 'any-buddy'
+      || (pool.startsWith('char:') && CHARS.includes(pool.slice(5)))
+      || (pool.startsWith('buddy:') && APPS.some((a) => a.id === pool.slice(6)))
       || (pool.startsWith('kid:') && FRIENDS.includes(pool.slice(4)));
     assert.ok(ok, 'unknown pool ' + pool);
   }
@@ -125,4 +129,21 @@ test('A1 coverage: playmates', () => {
   const trees = (pool) => (ALL[pool] || []).filter((l) => Speech.isChat(l) && !l.follow).length;
   assert.ok(trees('any-kid') >= 6, 'any-kid needs 6 chats that open with replies');
   for (const f of FRIENDS) assert.ok(trees('kid:' + f) >= 4, f + ' needs 4 chats that open with replies');
+});
+
+test('A2 coverage: town characters and subject buddies', () => {
+  const need = (pool, n) => assert.ok((ALL[pool] || []).length >= n, pool + ' has ' + (ALL[pool] || []).length + ', needs ' + n);
+  need('any-buddy', 40);
+  for (const a of APPS) need('buddy:' + a.id, 12);
+  need('char:mimi', 20);
+  need('char:hoot', 15);
+  need('char:bunny', 15);
+  for (const c of ['lana', 'kiko', 'pilo', 'tasyo']) need('char:' + c, 12);
+});
+
+test('A2 pools are ambient only: no replies and no follow lines', () => {
+  for (const [pool, lines] of Object.entries(ALL)) {
+    if (!(pool.startsWith('char:') || pool.startsWith('buddy:') || pool === 'any-buddy')) continue;
+    for (const l of lines) assert.ok(!l.replies && !l.follow, l.id + ' is not ambient');
+  }
 });

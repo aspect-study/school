@@ -22,6 +22,11 @@ test('poolIds gives a pet its own, its species and the shared pool, and a kid it
   assert.deepEqual(Speech.poolIds({ id: 'migo', kind: 'kid' }), ['any-kid', 'kid:migo']);
 });
 
+test('poolIds gives a town character its own pool and a buddy the shared pool and its own', () => {
+  assert.deepEqual(Speech.poolIds({ id: 'mimi', kind: 'char' }), ['char:mimi']);
+  assert.deepEqual(Speech.poolIds({ id: 'buddy:life-lab', kind: 'buddy', app: 'life-lab' }), ['any-buddy', 'buddy:life-lab']);
+});
+
 test('validTag and validSlot accept the known names only', () => {
   for (const t of ['time:evening', 'near:slide', 'wearing:hat', 'pet:fox', 'fav:color:1', 'streak:3', 'tired', 'after:ride']) assert.ok(Speech.validTag(t), t);
   for (const t of ['time:lunch', 'wearing:shoes', 'fav:color', 'Pet:fox', '']) assert.ok(!Speech.validTag(t), t);
