@@ -124,13 +124,13 @@
       });
     }
 
-    function say(k, text, sub, buttons) {
+    function say(k, text, sub, buttons, ask) {
       if (talk) talk.close();
       mind.talk(k.m.id, true);
       talking = k;
       o.busy(true);
       var mine = talk = W.Talk.open({
-        doc: doc, face: k.m.face, who: nameOf(k), text: text, sub: sub, stack: true, pair: grade === 'grade2', buttons: buttons,
+        doc: doc, face: k.m.face, who: nameOf(k), text: text, sub: sub, ask: ask, stack: true, pair: grade === 'grade2', buttons: buttons,
         onClose: function () {
           if (talk !== mine) return;
           talk = null;
@@ -145,7 +145,7 @@
       var GB = W.MateGame ? W.MateGame.BUTTONS : null, out = [{ text: LT.play, onClick: function () { pickRide(k); } }];
       if (o.choose && GB) out.push({ text: GB.play, onClick: function () { o.choose(k.m.id); } });
       if (o.chatData && W.SpeechChat) out.push({ text: T.chat, onClick: function () { openChat(k); } });
-      return out.concat([{ text: T.bye }]);
+      return out.concat([{ text: T.bye }]).map(function (b) { return { text: b.text, onClick: b.onClick, alt: true }; });
     }
 
     // A chat holds her and the kid still like a talk does, until the whole chat ends.
@@ -200,7 +200,7 @@
       if (!q) return say(k, line, '', tail(k));
       MQ.markAsked(o.store, today, MQ.funKey(q.id), Date.now());
       var buttons = q.choices.map(function (c, j) { return { text: c, onClick: function () { funAnswered(k, q, j, today); } }; });
-      say(k, line, q.sub, buttons.concat(tail(k)));
+      say(k, line, q.sub, buttons.concat(tail(k)), true);
     }
 
     function funAnswered(k, q, j, today) {
@@ -238,7 +238,7 @@
         MQ.markAsked(o.store, today, MQ.studyKey(q.app, q.item.q), Date.now());
         var v = W.Quiz.view(q.app, q.item, o.textOf, rand);
         var buttons = v.options.map(function (opt) { return { text: opt.text, onClick: function () { studied(k, q, v, opt); } }; });
-        say(k, line, [v.q, v.sub].filter(Boolean).join('\n'), buttons.concat(tail(k)));
+        say(k, line, [v.q, v.sub].filter(Boolean).join('\n'), buttons.concat(tail(k)), true);
       }, function () {
         if (my === token && talk) fun(k, line, today);
       });

@@ -20,8 +20,10 @@
     return keepFil || !L || L.both() ? text : L.en(text);
   }
 
-  // o = { doc, face, who, text, sub (smaller lines under it, one paragraph per line), stack (buttons in a column, for
-  //       answers), pair (text is "Filipino · English": show the English on its own line; keepFil keeps both halves whatever the switch says), buttons: [{ text, main, onClick }],
+  // o = { doc, face, who, text, sub (smaller lines under it, one paragraph per line; ask makes it a boxed question that
+  //       stands out from the greeting), stack (buttons in a column, for answers), pair (text is "Filipino · English": show
+  //       the English on its own line; keepFil keeps both halves whatever the switch says),
+  //       buttons: [{ text, main, alt (a quieter action button, set apart from the answers), onClick }],
   //       teach ({ pickedLabel, picked, answerLabel, answer, steps }: the pet teacher's two chips and numbered steps), onClose }
   function open(o) {
     var doc = o.doc, done = false, before = doc.activeElement;
@@ -45,7 +47,7 @@
       ids.push(id + '-en');
     }
     if (o.sub) {
-      var sub = el('div', 'talk-sub' + (o.sub.length > LONG ? ' long' : ''));
+      var sub = el('div', 'talk-sub' + (o.sub.length > LONG ? ' long' : '') + (o.ask ? ' ask' : ''));
       sub.id = id + '-sub';
       o.sub.split('\n').forEach(function (line) { if (line) sub.appendChild(el('p', '', line)); });
       live.appendChild(sub);
@@ -71,7 +73,7 @@
     var row = el('div', 'talk-row' + (o.stack ? ' stack' : ''));
     // The main button comes first, for her eyes and for the keyboard.
     o.buttons.filter(function (b) { return b.main; }).concat(o.buttons.filter(function (b) { return !b.main; })).forEach(function (b) {
-      var btn = el('button', 'talk-btn' + (b.main ? ' main' : ''), b.text);
+      var btn = el('button', 'talk-btn' + (b.main ? ' main' : '') + (b.alt ? ' alt' : ''), b.text);
       btn.type = 'button';
       btn.addEventListener('click', function () {
         close();

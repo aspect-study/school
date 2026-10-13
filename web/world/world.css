@@ -97,6 +97,10 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 .talk-sub { font-size: 16px; font-weight: 600; line-height: 1.4; margin: -4px 0 12px; color: #7a4a86; overflow-wrap: anywhere; }
 .talk-sub p { margin: 0 0 6px; }
 .talk-sub.long { text-align: left; background: #fff6fb; border-radius: 16px; padding: 10px 14px 4px; }
+.talk-sub.ask { font-size: 20px; font-weight: 800; color: #4a2a7a; background: #f1ecff; border: 2px solid #7b5cff;
+  border-radius: 16px; padding: 10px 14px 4px; margin: 4px 0 14px; }
+.talk-btn.alt { font-size: 15px; min-height: 40px; background: #fff; color: #8a5a96; box-shadow: inset 0 0 0 2px #f3b6d6; }
+.talk-btn:not(.alt) + .talk-btn.alt { margin-top: 10px; }
 /* The pet teacher (teach.js): her pick in soft red, the right answer in green, then numbered steps. */
 .talk-teach { text-align: left; margin: 0 0 10px; }
 .talk-chip { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0 0 6px; padding: 8px 12px;
@@ -120,6 +124,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
   .talk-say { font-size: 19px; }
   .talk-en { font-size: 16px; }
   .talk-sub { font-size: 15px; }
+  .talk-sub.ask { font-size: 18px; }
   .talk-btn { font-size: 16px; padding: 8px 16px; }
 }
 /* Phones turned sideways: smaller words, and answers in two columns so they fit. */
@@ -129,6 +134,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
   .talk-say { font-size: 18px; margin: 4px 0 8px; }
   .talk-en { font-size: 15px; margin: -4px 0 8px; }
   .talk-sub { font-size: 14px; margin-bottom: 8px; }
+  .talk-sub.ask { font-size: 16px; margin-bottom: 8px; }
+  .talk-btn.alt { font-size: 14px; min-height: 36px; }
+  .talk-btn:not(.alt) + .talk-btn.alt { margin-top: 0; }
   .talk-btn { font-size: 15px; min-height: 40px; padding: 6px 16px; }
   .talk-row.stack { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .talk-row.stack .talk-btn { padding: 6px 12px; }
