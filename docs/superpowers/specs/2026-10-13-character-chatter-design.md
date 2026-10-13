@@ -65,18 +65,18 @@ Built by `web/world/speechctx.js` (view side) from modules that already exist; n
 | Tag | Source |
 |---|---|
 | `time:morning`, `afternoon`, `evening`, `night` | the device clock (`Clock`) |
-| `near:<ride>`, `near:plaza`, `near:school`, `near:garden`, `near:fort` | her position against `Layout` |
+| `near:<ride>`, `near:plaza`, `near:pond`, `near:shop`, `near:garden`, `near:fort` | her position against `Layout` |
 | `wearing:hat`, `wearing:glasses`, `wearing:accessory`, slot values `{hat}`, `{colour}` | the wardrobe state |
 | `pet:<species>`, slot `{pet}` | her pet |
 | `streak:3`, `streak:7` (at least) | `quests_v1` |
-| `medal:today` | `mastery_v1` |
-| `studied:<subject>:today`, `studied:today` | `study-history` |
 | `fav:<question>:<choice>`, slot `{fruit}`, `{colour}`, ... | `mates_v1` (her answers to the playmates' questions) |
 | `after:ride`, `tired` | the ride that just ended, the stamina heart |
 
 Lines never use "she/her/he/him/his" about the player; they say "you". (Boys play too, see `boy-players`.)
 
-### `web/world/chatter.js` (new, view)
+### `web/world/chatter.js` (new, pure scheduler) and `bubbles.js` (new, view)
+
+`chatter.js` is the pure scheduler: it decides who speaks and when, with no drawing. `bubbles.js` draws what it returns.
 
 - Runs each frame inside the world loop (alongside `life.js`). Each second it lists speakers within the radius, skips any
   that spoke too recently, and asks `speech.pick`.
@@ -92,8 +92,12 @@ Lines never use "she/her/he/him/his" about the player; they say "you". (Boys pla
 | Calm (default) | 2 | 20-30 s | 12 |
 | Chatty | 3 | 10-15 s | 16 |
 
+New bubbles are spaced apart: Chatty 1 s, Calm 3 s. Lines a reply leads to are marked `follow: true`, and chat openers
+(lines with replies) are never shown as ambient bubbles.
+
 - Silent while: a talk bubble, stall, card, deco view or game frame is open; during rides, playmate games (tag,
-  hide-and-seek, Patintero) and their replay; while she sprints or the heart is full; and for speakers 40+ squares away.
+  hide-and-seek, Patintero) and their replay; while she sprints; and for speakers 40+ squares away. The kind `tired` lines can be spoken while she catches
+  her breath.
 - A speaker that is waving, napping or doing a prop action at the moment may still speak; a pet's own sound plays only as
   today.
 
@@ -102,8 +106,8 @@ Lines never use "she/her/he/him/his" about the player; they say "you". (Boys pla
 - A tapped character or kid opens the existing `talk.js` bubble. The opening line comes from `speech.pick` with the
   context, and its replies are drawn as the bubble's buttons (`stack` layout). The existing buttons stay (Let's play!,
   Ask me!, More, Bye).
-- A pet that is close can be tapped; this needs a tap target for the unique pets (they have none today). If the
-  hit-test turns out to be costly, A1 ships ambient bubbles for pets first and pet chat second (see the plan).
+- A1: the playmate's talk bubble gets a 💬 Chat button that opens the chat (`speechchat.js`). Pet chat needs a tap target
+  for the unique pets (they have none today), so it is Later.
 - Grade 2 and the 🇵🇭 switch: the chat bubble shows "Filipino · English" through `Talk`'s existing pair mode when the
   line has a `fil`, and English alone otherwise. Grade 5 is English.
 
@@ -131,13 +135,13 @@ showing each line, its slots with an example filled value, its Filipino half, an
 
 ## A1 content target
 
-Pets: every species pool (16), the `any pet` pool and about 8 personal lines for each of the 11 named pets, plus lines for
-her own pet. Kids: the `any kid` pool and about 25 lines for each of the 6 friends. A first count is about 500 lines; the
+Pets: every species pool (16), the `any pet` pool and about 8 personal lines for each of the 11 named pets. Her own pet as
+a speaker is Later. Kids: the `any kid` pool and about 25 lines for each of the 6 friends. A first count is about 500 lines; the
 plan sets the exact list and the review order.
 
 ## Files
 
-New: `web/world/speech.js`, `speechctx.js`, `chatter.js`, `speech/pets.js`, `speech/kids.js`, `tools/line-sheet.js`,
+New: `web/world/speech.js`, `speechctx.js`, `chatter.js` (the pure scheduler), `bubbles.js`, `speechchat.js`, `speech/pets.js`, `speech/kids.js`, `tools/line-sheet.js`,
 `docs/lines/*.md` (generated). Changed: `web/world/prefs.js` (the setting), `world-main.js` (the Settings row, the
 chatter tick and the silence conditions), `talk.js` (reply buttons) or `folk.js`/`mates3d.js` (the opening line),
 `web/world/world.css`. After adding files under `web/`, run `node tools/update-precache.js`.
@@ -164,5 +168,8 @@ chatter tick and the silence conditions), `talk.js` (reply buttons) or `folk.js`
 
 - **Chat memory (planned):** remember which reply buttons she tapped so a topic returns days later. Needs one new synced
   state key and its own spec.
+- Her own pet as a speaker.
+- Pet tap chat (needs a dynamic near item for the unique pets).
+- Studied and medal tags (`studied:*`, `medal:today`).
 - **Part B:** characters talking to each other, reusing `speech.js` and the line files with a new pair mode.
 - **A2:** Mimi, Hoot, Bunny, the four shop owners and the subject buddies (`speech/town.js`). **A3:** everyone else.

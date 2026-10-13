@@ -227,7 +227,11 @@
     });
     var subjectNames = {};
     W.Progress.cards(grade, L, root.Subjects).forEach(function (c) { subjectNames[c.app] = english(c.name); });
+    var speechData = W.Speech.merge(W.SpeechPets, W.SpeechKids), speechState = W.Speech.newState();
+    var chatCtx = W.SpeechCtx.build({ hour: 12, her: { x: 0, z: 0 } }), chatCtxAt = -10, rideEnded = -999, wasRiding = false;
     var mates = W.Mates3D.create({
+      chatData: function () { return speechData; },
+      chatContext: function () { return { ctx: chatCtx, state: speechState }; },
       choose: function (id) { if (games) games.choose(id); },
       blocked: function (x, z, r) { return !!games && games.blocked(x, z, r); },
       S: S, built: world, grade: grade, T: T, store: store, today: today, busy: busy, sound: sound,
@@ -247,6 +251,15 @@
       talkingId: function () { return folk.talkingId() || mates.api.talking(); }, busy: function () { return talking || !!overlay; }, waving: function () { return herMove; },
       sfx: function (name) { sfx.play(name); }
     });
+    var KID_HEAD = 4.4;
+    var chatter = W.Chatter.create({
+      rand: Math.random,
+      ask: function (s) {
+        var line = W.Speech.pick(speechData, s.speaker, chatCtx, speechState, Math.random);
+        return line ? W.Speech.fill(line.say, chatCtx) : null;
+      }
+    });
+    var bubbles = W.Bubbles.create(S, doc);
     var loot = W.Loot3D.create({
       S: S, built: world, grade: grade, T: T, store: store, today: today, busy: busy, sound: sound, teach: teacher,
       sfx: function (name) { sfx.play(name); },
@@ -1130,6 +1143,9 @@
         prefs = W.Prefs.savePrefs(store, Object.assign(prefs, { steps: on }));
         sfx.setOn(!(root.Fx && root.Fx.muted()), prefs.steps);
       });
+      setting(T.chatter, W.Prefs.CHATTERS.map(function (m) { return { value: m, text: T.chatterNames[m] }; }), prefs.chatter, function (m) {
+        prefs = W.Prefs.savePrefs(store, Object.assign(prefs, { chatter: m }));
+      });
       if (grade === 'grade2' && root.Lang) {
         var row = el('div', 'w-setting'), helper = root.Lang.button(doc);
         helper.className += ' w-choice';
@@ -1150,6 +1166,46 @@
       card.appendChild(el('p', 'w-credit', T.credit));
       card.appendChild(button('w-btn w-close', T.close, closeOverlay));
       focusFirst(card);
+    }
+
+    // Spots where a character may mention the place: [{ tag, x, z, r }] from the layout.
+    var chatSpots = (function () {
+      var pr = L.props(grade), spots = [];
+      [['slide', 'near:slide', 9], ['swings', 'near:swings', 9], ['seesaw', 'near:seesaw', 9], ['merry', 'near:merry', 9],
+       ['fountain', 'near:plaza', 12], ['fort', 'near:fort', 14], ['jesus', 'near:garden', 10], ['pond', 'near:pond', 8], ['shop', 'near:shop', 10]
+      ].forEach(function (s) { if (pr[s[0]]) spots.push({ tag: s[1], x: pr[s[0]].x, z: pr[s[0]].z, r: s[2] }); });
+      return spots;
+    })();
+
+    function refreshChatCtx(st) {
+      var streak = 0, fav = [];
+      try { streak = root.Quests.streakOf(root.Quests.read(store).days, today()).days; } catch (e) {}
+      try {
+        var saved = W.MateQuiz.read(store, today()).fun;
+        W.MateLines.FUN.forEach(function (q) {
+          if (Object.prototype.hasOwnProperty.call(saved, q.id)) fav.push({ q: q.id, choice: saved[q.id], label: q.choices[saved[q.id]] });
+        });
+      } catch (e) {}
+      chatCtx = W.SpeechCtx.build({
+        hour: new Date().getHours(), her: { x: st.x, z: st.z }, spots: chatSpots,
+        wear: shown ? shown.wear : {},
+        itemName: function (id) { var it = W.Items.find(id); return it ? it.en : ''; },
+        petSpecies: shown ? shown.pet : '', petName: shown ? W.Look.petName(shown) : '',
+        streak: streak, afterRide: t - rideEnded < 30, tired: stamina.state().tired, fav: fav
+      });
+    }
+
+    function chatSpeakers() {
+      var list = life.speakers(), kids = mates.api.owners();
+      Object.keys(kids).forEach(function (key) {
+        var k = kids[key];
+        list.push({ id: key, speaker: { id: key.slice(5), kind: 'kid' }, x: k.x, z: k.z, head: KID_HEAD, hidden: !!k.hidden });
+      });
+      return list;
+    }
+
+    function chatSilent(st) {
+      return !!(maker || stall || overlay || talking || deco || play.riding() || (games && games.playing()) || st.sprint || portal.isOpen());
     }
 
     function buildHud() {
@@ -1370,6 +1426,17 @@
         if (!overlay) mates.tick(t, dt, st, play.now(), near);
         if (!overlay) life.tick(t, dt, st);
       }
+      var ridingNow = !!play.riding();
+      if (wasRiding && !ridingNow) rideEnded = t;
+      wasRiding = ridingNow;
+      var chatQuiet = prefs.chatter === 'quiet';
+      if (!chatQuiet && t - chatCtxAt > 0.5) {
+        refreshChatCtx(st);
+        chatCtxAt = t;
+      }
+      // Speakers only exist outdoors; elsewhere an empty list clears any bubble still showing.
+      var chatOut = !maker && !stall && !home && !overlay;
+      bubbles.show(chatter.step(dt, { mode: prefs.chatter, her: st, speakers: chatOut && !chatQuiet ? chatSpeakers() : [], silent: !chatOut || chatSilent(st) }));
       if (!home) {
         loot.tick(t, dt, st, !free || !!pose);
         games.tick(t, dt, st, !!maker || !!stall || !!overlay);
@@ -1553,6 +1620,8 @@
     debug.fortBoss = town.fortDebug;
     debug.trail = town.trail;
     debug.talking = function () { return !!doc.querySelector('.talk'); };
+    debug.bubbles = function () { return bubbles.count(); };
+    debug.setChatter = function (m) { prefs = W.Prefs.savePrefs(store, Object.assign(prefs, { chatter: m })); };
     // The whole line as the character says it; a Grade 2 bubble shows the English half on its own line.
     debug.talkText = function () {
       var e = doc.querySelector('.talk .talk-say'), en = doc.querySelector('.talk .talk-en');

@@ -15,13 +15,24 @@ function memory(initial) {
 }
 
 test('device prefs default to auto quality with music and footsteps on', () => {
-  assert.deepEqual(P.readPrefs(memory()), { v: 1, quality: 'auto', music: true, steps: true, zoom: 1 });
-  assert.deepEqual(P.readPrefs(memory({ world3d_device_v1: '{"quality":"ultra","music":"no","steps":"no"}' })), { v: 1, quality: 'auto', music: true, steps: true, zoom: 1 });
+  assert.deepEqual(P.readPrefs(memory()), { v: 1, quality: 'auto', music: true, steps: true, zoom: 1, chatter: 'calm' });
+  assert.deepEqual(P.readPrefs(memory({ world3d_device_v1: '{"quality":"ultra","music":"no","steps":"no"}' })), { v: 1, quality: 'auto', music: true, steps: true, zoom: 1, chatter: 'calm' });
   const s = memory();
   P.savePrefs(s, { quality: 'low', music: false, steps: false });
-  assert.deepEqual(P.readPrefs(s), { v: 1, quality: 'low', music: false, steps: false, zoom: 1 });
+  assert.deepEqual(P.readPrefs(s), { v: 1, quality: 'low', music: false, steps: false, zoom: 1, chatter: 'calm' });
   P.savePrefs(s, { quality: 'low', music: false });
   assert.equal(P.readPrefs(s).steps, true, 'footsteps stay on unless switched off');
+});
+
+test('the chatter pref is quiet, calm or chatty and defaults to calm', () => {
+  const s = memory();
+  P.savePrefs(s, { chatter: 'chatty' });
+  assert.equal(P.readPrefs(s).chatter, 'chatty');
+  P.savePrefs(s, { chatter: 'quiet' });
+  assert.equal(P.readPrefs(s).chatter, 'quiet');
+  P.savePrefs(s, { chatter: 'loud' });
+  assert.equal(P.readPrefs(s).chatter, 'calm');
+  assert.deepEqual(P.CHATTERS, ['quiet', 'calm', 'chatty']);
 });
 
 test('auto and high start on high; low starts on low', () => {

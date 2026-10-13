@@ -388,7 +388,7 @@ try {
   assert.equal(mt.seesawAct, '⚖️ Ride the see-saw!', 'the ride stays the thing to tap');
   assert.deepEqual(mt.partner, [1], 'a friend on the far end');
   assert.equal(mt.landed, 0, 'everyone got off with her');
-  assert.deepEqual(mt.ellaButtons.slice(-3), ["🎠 Let's play!", "🎲 Let's play!", '👋 Bye']);
+  assert.deepEqual(mt.ellaButtons.slice(-4), ["🎠 Let's play!", "🎲 Let's play!", '💬 Chat', '👋 Bye']);
   assert.ok(mt.ellaButtons.length >= 5, 'a Life Lab question with its choices: ' + mt.ellaButtons);
   assert.ok(/Galing|Right|smart|Oops/.test(mt.ellaAfter), mt.ellaAfter);
   assert.deepEqual(mt.history, [{ kind: 'review', answered: 1, finished: false, points: 0 }]);
@@ -400,8 +400,23 @@ try {
   assert.ok(mt.migoButtons.length >= 4, 'a fun question with choices');
   assert.ok(/Me too|cool/.test(mt.migoAfter), mt.migoAfter);
   assert.equal(Object.keys(mt.fun).length, 1, 'Migo remembers her answer');
+  assert.equal(mt.chatOpened, true, 'Migo has a Chat button');
+  assert.ok(mt.chatButtons.length >= 2 && mt.chatButtons[mt.chatButtons.length - 1] === '👋 Bye', 'replies, then Bye: ' + mt.chatButtons);
+  assert.equal(mt.chatStep2.talking, true, 'a reply leads to the next line: ' + JSON.stringify(mt.chatStep2));
+  assert.equal(mt.chatStep2.migo, 'talk', 'Migo stays put between steps');
+  assert.deepEqual(mt.chatEnded, { talking: false, migo: 'idle' }, 'Escape ends the chat and lets Migo go');
   assert.equal(mt.farVisible, 0, 'hidden away from the playground');
-  console.log('ok playmates: ride together, study and fun questions, invite');
+  console.log('ok playmates: ride together, study and fun questions, invite, tap chat');
+
+  // Character chatter: Quiet stays silent, Chatty speaks within 25 s, and a talk bubble clears the word bubbles. The
+  // driver advances the world clock itself, so the waits cost no real time.
+  const chat = run('chatter', stageWorld('chatter', 5, MATES), 'chatter');
+  assert.deepEqual(chat.errors, [], 'chatter: page errors');
+  assert.equal(chat.quietPeak, 0, 'Quiet shows no bubbles');
+  assert.ok(chat.chattyPeak >= 1, 'Chatty shows a bubble within 25 s: ' + chat.chattyPeak);
+  assert.equal(chat.talking, true, 'a talk bubble is open');
+  assert.equal(chat.bubblesWhileTalking, 0, 'no word bubbles while she talks');
+  console.log('ok chatter: quiet is silent, chatty speaks, talking clears bubbles');
 
   // Living world: characters move or act within 60 s, 11 pets exist, a character that is talked to freezes.
   const lifeFile = stageWorld('life', 5, MATES);

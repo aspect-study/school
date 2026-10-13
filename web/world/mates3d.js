@@ -144,7 +144,33 @@
     function tail(k) {
       var GB = W.MateGame ? W.MateGame.BUTTONS : null, out = [{ text: LT.play, onClick: function () { pickRide(k); } }];
       if (o.choose && GB) out.push({ text: GB.play, onClick: function () { o.choose(k.m.id); } });
+      if (o.chatData && W.SpeechChat) out.push({ text: T.chat, onClick: function () { openChat(k); } });
       return out.concat([{ text: T.bye }]);
+    }
+
+    // A chat holds her and the kid still like a talk does, until the whole chat ends.
+    function openChat(k) {
+      var shown = o.chatContext ? o.chatContext() : null;
+      if (!shown) return;
+      if (talk) talk.close();
+      ++token;
+      mind.talk(k.m.id, true);
+      talking = k;
+      o.busy(true);
+      var mine = null;
+      function done() {
+        if (mine && talk !== mine) return;
+        talk = null;
+        talking = null;
+        o.busy(false);
+        mind.talk(k.m.id, false);
+      }
+      mine = W.SpeechChat.open({
+        doc: doc, data: o.chatData(), speaker: { id: k.m.id, kind: 'kid' }, face: k.m.face, who: nameOf(k), ctx: shown.ctx,
+        state: shown.state, rand: rand, grade: grade, byeText: T.bye, onClose: done
+      });
+      if (!mine) return done();
+      talk = mine;
     }
 
     function pickRide(k) {

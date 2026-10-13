@@ -1,7 +1,7 @@
 /* The living world in 3D: runs routines.js for the characters and pets, moves each character to its pose (Hoot's body
    only, because his bench is part of his group), builds the unique pets (petbody.js), shows a prop emoji beside whoever
    is using one and a pop over their head, plays a pet's voice when it is close, and shows a pet's name only when she
-   is near. Cosmetic: nothing is saved, no coins or points. */
+   is near, and lists the pets as speakers for chatter.js. Cosmetic: nothing is saved, no coins or points. */
 (function (root) {
   'use strict';
   var W = root.World3D = root.World3D || {};
@@ -18,6 +18,7 @@
       blocked: function (x, z, r) { return L.blocked(obs, bounds, x, z, r) || !!(o.blocked && o.blocked(x, z, r)); }
     });
     var chars = o.chars(), mimi = o.mimi(), textures = {}, pets = {}, props = {}, pool = [], forced, lastT = 0;
+    var lastOut = null;
     chars.mimi = mimi.char;
 
     function texture(e) {
@@ -126,6 +127,7 @@
         busy: !!(o.busy && o.busy()), waving: !!(o.waving && o.waving()),
         hold: mimi.held() ? { mimi: true } : null, owners: o.owners()
       });
+      lastOut = out;
       defs.forEach(function (d) {
         if (d.external) return;
         var p = out.poses[d.id];
@@ -151,9 +153,22 @@
       });
     }
 
+    // The pets as speakers for chatter.js: where each one is now and how high its head is.
+    function speakers() {
+      var list = [];
+      if (!lastOut) return list;
+      defs.forEach(function (d) {
+        var p = d.pet ? lastOut.poses[d.id] : null;
+        if (!p) return;
+        list.push({ id: d.id, speaker: { id: d.id, kind: 'pet', species: d.species, name: d.name }, x: p.x, z: p.z, head: PET_HEAD + p.y, hidden: !!p.hidden });
+      });
+      return list;
+    }
+
     return {
       tick: tick,
       snapHome: snapHome,
+      speakers: speakers,
       debug: {
         list: engine.list,
         pets: function () { return Object.keys(pets); },

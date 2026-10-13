@@ -27,6 +27,7 @@ const ENGLISH_ONLY = new Set(['sprint', 'stop', 'go', 'mirror', 'signpost', 'clo
   'zoomIn', 'zoomOut', 'zoom', 'breath', 'goIn', 'goOut', 'visitAte', 'visitKuya', 'visitBunso', 'visitSister', 'visitBrother', 'decorate', 'done', 'study', 'sit', 'cheerPill', 'turn', 'putAway', 'tasyoGo', 'yay',
   'tabs.furniture', 'tabs.wall', 'tabs.fun', 'tabs.room', 'tabs.earned', 'credit',
   // The earn line put in {how} is already a pair on Grade 2.
+  'chatterNames.quiet', 'chatterNames.calm', 'chatterNames.chatty', 'chat',
   'locked']);
 
 test('both grades have the same words', () => {
@@ -181,4 +182,14 @@ test('the visit button follows the sibling', () => {
   assert.equal(TEXT.grade5[visitKey('brother')], "👀 Visit your brother's room");
   assert.match(TEXT.grade5.sisterChoosingBoy, /his look/);
   assert.match(TEXT.grade2.sisterChoosingBoy, /kanyang itsura.*his look/);
+});
+
+test('the Chatter setting and the Chat button have words on both grades', () => {
+  for (const grade of ['grade2', 'grade5']) {
+    const T = TEXT[grade];
+    assert.ok(T.chatter, grade + ' chatter label');
+    assert.deepEqual(Object.keys(T.chatterNames), ['quiet', 'calm', 'chatty']);
+    assert.equal(T.chatterNames.calm, 'Calm', 'choices are English buttons');
+    assert.equal(T.chat, '💬 Chat');
+  }
 });

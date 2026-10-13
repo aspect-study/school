@@ -6,6 +6,7 @@
   var DEVICE_KEY = 'world3d_device_v1';
   var RETURN_KEY = 'world_return_v1';
   var QUALITIES = ['auto', 'high', 'low'];
+  var CHATTERS = ['quiet', 'calm', 'chatty'];
   var ZOOM_MIN = 0.45, ZOOM_MAX = 1.5;
   var DAILY_KEY = 'world3d_v1';
 
@@ -17,11 +18,17 @@
 
   function readPrefs(storage) {
     var d = parse(storage, DEVICE_KEY) || {};
-    return { v: 1, quality: QUALITIES.indexOf(d.quality) >= 0 ? d.quality : 'auto', music: d.music !== false, steps: d.steps !== false, zoom: clampZoom(d.zoom) };
+    return {
+      v: 1, quality: QUALITIES.indexOf(d.quality) >= 0 ? d.quality : 'auto', music: d.music !== false, steps: d.steps !== false,
+      zoom: clampZoom(d.zoom), chatter: CHATTERS.indexOf(d.chatter) >= 0 ? d.chatter : 'calm'
+    };
   }
 
   function savePrefs(storage, prefs) {
-    var out = { v: 1, quality: QUALITIES.indexOf(prefs.quality) >= 0 ? prefs.quality : 'auto', music: prefs.music !== false, steps: prefs.steps !== false, zoom: clampZoom(prefs.zoom) };
+    var out = {
+      v: 1, quality: QUALITIES.indexOf(prefs.quality) >= 0 ? prefs.quality : 'auto', music: prefs.music !== false, steps: prefs.steps !== false,
+      zoom: clampZoom(prefs.zoom), chatter: CHATTERS.indexOf(prefs.chatter) >= 0 ? prefs.chatter : 'calm'
+    };
     try { storage.setItem(DEVICE_KEY, JSON.stringify(out)); } catch (e) {}
     return out;
   }
@@ -92,7 +99,7 @@
   var exported = {
     DAILY_KEY: DAILY_KEY, readDaily: readDaily, markDaily: markDaily,
     DEVICE_KEY: DEVICE_KEY, RETURN_KEY: RETURN_KEY, readPrefs: readPrefs, savePrefs: savePrefs, startQuality: startQuality,
-    ZOOM_MIN: ZOOM_MIN, ZOOM_MAX: ZOOM_MAX, clampZoom: clampZoom,
+    CHATTERS: CHATTERS, ZOOM_MIN: ZOOM_MIN, ZOOM_MAX: ZOOM_MAX, clampZoom: clampZoom,
     setReturn: setReturn, readReturn: readReturn, clearReturn: clearReturn, dropBefore: dropBefore, fpsWatch: fpsWatch
   };
   if (typeof module !== 'undefined' && module.exports) {

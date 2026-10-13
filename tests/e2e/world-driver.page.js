@@ -1129,11 +1129,43 @@
         D.pressTalk(o.migoButtons[0]);
         o.migoAfter = D.talkText();
         o.fun = JSON.parse(Learner.storage.getItem('mates_v1')).fun;
-        D.pressTalk('👋 Bye');
-        // The gate is close enough to see the kids; the plaza is not.
-        D.teleport('plaza');
+        function migoState() { return D.mates.list().filter(function (k) { return k.id === 'migo'; })[0].state; }
+        // A tap chat: an opener with replies, one reply leads on, Escape ends it and lets the kid go.
+        o.chatOpened = D.pressTalk('💬 Chat');
+        o.chatButtons = D.talkButtons();
+        D.pressTalk(o.chatButtons[0]);
         D.tick(0.1);
-        o.farVisible = D.mates.list().filter(function (k) { return k.visible; }).length;
+        o.chatStep2 = { talking: D.talking(), migo: migoState(), buttons: D.talkButtons() };
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        return waitFor(function () { return !D.talking() && migoState() !== 'talk'; }, function () {
+          o.chatEnded = { talking: D.talking(), migo: migoState() };
+          // The gate is close enough to see the kids; the plaza is not.
+          D.teleport('plaza');
+          D.tick(0.1);
+          o.farVisible = D.mates.list().filter(function (k) { return k.visible; }).length;
+          out(o);
+        });
+      });
+    }
+    if (mode === 'chatter') {
+      D.pause();
+      D.teleport('playground');
+      D.tick(0.1);
+      var peak = function (secs) {
+        var top = 0;
+        for (var ct = 0; ct < secs * 10; ct++) { D.tick(0.1); top = Math.max(top, D.bubbles()); }
+        return top;
+      };
+      D.setChatter('quiet');
+      o.quietPeak = peak(12);
+      D.setChatter('chatty');
+      o.chattyPeak = peak(25);
+      D.mates.calm();
+      D.mates.talk('ella');
+      return waitFor(function () { return D.talking(); }, function () {
+        o.talking = D.talking();
+        for (var cw = 0; cw < 20; cw++) D.tick(0.1);
+        o.bubblesWhileTalking = D.bubbles();
         out(o);
       });
     }
@@ -1325,7 +1357,8 @@
     }
   }
 
-  if (window.WorldDebug && WorldDebug.ready) run();
+  var restingCard = document.getElementById('resting');
+  if ((window.WorldDebug && WorldDebug.ready) || (restingCard && !restingCard.hidden)) run();
   else {
     document.addEventListener('world-ready', run);
     document.addEventListener('world-resting', run);
