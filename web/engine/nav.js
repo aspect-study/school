@@ -9,14 +9,16 @@
   var TEXT = {
     grade5: {
       back: 'Back', home: 'Go to the lobby', menu: 'Menu',
-      lessons: '📚 Lessons', lobby: '🏠 Lobby', town: '🏠 Back to town', homeTown: 'Back to town', soundOn: '🔊 Sound on', soundOff: '🔇 Sound off', soundPack: '🎵 Sounds', shop: '🪙 Shop',
+      lessons: '📚 Lessons', lobby: '🏠 Lobby', town: '🏠 Back to town', homeTown: 'Back to town', soundOn: '🔊 Sound on', soundOff: '🔇 Sound off', soundPack: '🎵 Sounds',
+      focusOn: '🎶 Focus music on', focusOff: '🎶 Focus music off', shop: '🪙 Shop',
       leaveTitle: 'Leave the quiz?', leaveBody: 'Points you earned are kept.',
       keep: 'Keep playing', leave: 'Leave'
     },
     grade2: {
       back: 'Back', home: 'Go to the lobby', menu: 'Menu',
       lessons: '📚 Lessons · Mga Aralin', lobby: '🏠 Lobby', town: '🏠 Back to town', homeTown: 'Back to town', soundOn: '🔊 Sound on · May tunog',
-      soundOff: '🔇 Sound off · Walang tunog', soundPack: '🎵 Sounds · Mga tunog', shop: '🪙 Shop · Tindahan',
+      soundOff: '🔇 Sound off · Walang tunog', soundPack: '🎵 Sounds · Mga tunog',
+      focusOn: '🎶 Focus music on · May musika', focusOff: '🎶 Focus music off · Walang musika', shop: '🪙 Shop · Tindahan',
       leaveTitle: 'Leave the quiz? · Aalis ka na ba sa pagsusulit?',
       leaveBody: 'Points you earned are kept. · Hindi mawawala ang puntos mo.',
       keep: 'Keep playing', leave: 'Leave'
@@ -118,7 +120,7 @@
   function create(win, grade) {
     var doc = win.document;
     var t = forGrade(grade, TEXT[grade] || TEXT.grade5);
-    var ctl = null, sheet = null, dialog = null, menuBtn = null, soundBtn = null, packBtn = null, keepBtn = null;
+    var ctl = null, sheet = null, dialog = null, menuBtn = null, soundBtn = null, focusBtn = null, packBtn = null, keepBtn = null;
     var pending = null, returnFocus = null;
 
     // Read at load: StudyKit drops the query on ?reset=1 but keeps embed=1, so a reload stays embedded.
@@ -133,7 +135,7 @@
         ? function (url) { E.close(win, E.closeMessage(url).then); }
         : function (url) { win.location.href = url; },
       start: start,
-      screen: function (id) { if (ctl) ctl.screen(id); },
+      screen: function (id) { if (win.Focus) win.Focus.screen(id); if (ctl) ctl.screen(id); },
       current: function () { return ctl ? ctl.current() : null; }
     };
 
@@ -166,6 +168,11 @@
       var m = win.Fx.muted();
       soundBtn.textContent = m ? t.soundOff : t.soundOn;
       soundBtn.setAttribute('aria-checked', m ? 'false' : 'true');
+      if (focusBtn) {
+        focusBtn.hidden = m;
+        focusBtn.textContent = win.Focus.setting() ? t.focusOn : t.focusOff;
+        focusBtn.setAttribute('aria-checked', win.Focus.setting() ? 'true' : 'false');
+      }
     }
 
     function nextPack() {
@@ -234,8 +241,16 @@
         button('nav-lobby', 'gnav-item', embedded ? t.town : t.lobby, null, pick(function () { ctl.home(); }))
       ];
       if (win.Fx && win.Fx.setMuted) {
-        soundBtn = button('nav-sound', 'gnav-item', '', null, function () { win.Fx.setMuted(!win.Fx.muted()); renderSound(); });
+        soundBtn = button('nav-sound', 'gnav-item', '', null, function () {
+          win.Fx.setMuted(!win.Fx.muted());
+          if (win.Focus) win.Focus.sync();
+          renderSound();
+        });
         items.push(soundBtn);
+        if (win.Focus && win.Focus.setEnabled) {
+          focusBtn = button('nav-focus', 'gnav-item', '', null, function () { win.Focus.setEnabled(!win.Focus.setting()); renderSound(); });
+          items.push(focusBtn);
+        }
       }
       if (win.Fx && win.Fx.setPack) {
         packBtn = button('nav-pack', 'gnav-item', '', null, function () { nextPack(); renderSound(); });
@@ -248,7 +263,7 @@
         fil.className += ' gnav-item';
         items.push(fil);
       }
-      items.forEach(function (b) { b.setAttribute('role', b === soundBtn ? 'menuitemcheckbox' : 'menuitem'); panel.appendChild(b); });
+      items.forEach(function (b) { b.setAttribute('role', b === soundBtn || b === focusBtn ? 'menuitemcheckbox' : 'menuitem'); panel.appendChild(b); });
       sheet.appendChild(panel);
       sheet.addEventListener('click', function (e) { if (e.target === sheet) closeSheet(true); });
 

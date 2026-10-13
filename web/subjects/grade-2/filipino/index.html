@@ -275,6 +275,7 @@ button:focus-visible, a:focus-visible{outline:3px solid var(--gold); outline-off
 <script src="../../../engine/study-history.js" data-grade="grade2"></script>
 <script src="../../../engine/wallet.js" data-grade="grade2"></script>
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
+<script src="../../../engine/focus.js"></script>
 <script src="../../../engine/powerups.js" data-grade="grade2"></script>
 <script src="../../../engine/recall.js" data-grade="grade2"></script>
 <script src="../../../engine/mastery.js" data-grade="grade2"></script>
@@ -546,6 +547,7 @@ function openLesson(i){
   cardIdx = 0;
   historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].flashcards.length) : null;
   window.ReadGate && ReadGate.open({ cards: LESSONS[i].flashcards.length, next: 'card-next', start: 'cards-start' });
+  window.Focus && Focus.start(SH_APP + ':' + LESSONS[i].title);
   renderCard();
   showScreen(cardsScreen);
 }
@@ -607,6 +609,7 @@ function startFinalExam(){
   missedQuestions = [];
   kit.startRound();
   renderQuestion();
+  window.Focus && Focus.start(SH_APP + ':final');
   showScreen(quizScreen);
 }
 
@@ -621,6 +624,7 @@ function startReview(boss){
   missedQuestions = [];
   kit.startRound();
   renderQuestion();
+  window.Focus && Focus.start(SH_APP + (boss ? ':boss' : ':review'));
   showScreen(quizScreen);
   window.Army && (boss ? Army.start(currentQuizSet.length, quizScreen) : Army.stop());
 }

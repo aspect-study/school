@@ -189,6 +189,7 @@
         u.pitch = 0.7;
         u.volume = 1;
         win.speechSynthesis.speak(u);
+        if (win.Focus) win.Focus.duck(2500 + text.length * 60);
       } catch (e) {}
     }
 
@@ -212,6 +213,7 @@
         a.currentTime = 0;
         a.volume = 0.9;
         clipUntil = Date.now() + (a.duration > 0 && isFinite(a.duration) ? a.duration : 2.5) * 1000;
+        if (win.Focus) win.Focus.duck(clipUntil - Date.now() + 200);
         var p = a.play();
         if (p && p.catch) p.catch(function () { if (playing === a) clipUntil = 0; if (fallback) fallback(); });
       } catch (e) { clipUntil = 0; if (fallback) fallback(); }

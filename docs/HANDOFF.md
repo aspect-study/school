@@ -83,8 +83,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   and `kids.js`. A Chatter setting in the world's ⚙️ (Quiet, Calm default, Chatty; device only). Review sheets are
   generated into `docs/lines/` by `node tools/line-sheet.js`; run it after editing lines. Cosmetic only. Spec and plan:
   `docs/superpowers/specs/2026-10-13-character-chatter-design.md`, `docs/superpowers/plans/2026-10-13-character-chatter-a1.md`.
-  Tablet check pending: how Calm feels and whether the bubbles read well for Grade 2. The owner reviews the Filipino
-  halves of the chats in `docs/lines/kids.md`.
+  Owner checked on the tablets and read the lines (2026-10-13): no changes asked.
 - Character chatter A2 (2026-10-13): the town characters (Mimi, Hoot, Bunny, Lana, Kiko, Pilo, Tasyo) and the 17
   subject buddies at their doors now say ambient word bubbles with the A1 engine and rules. Lines in
   `web/world/speech/town.js` (181 lines, 24-30 per character) and `buddies.js` (42 shared + 13 per buddy = 263);
@@ -93,6 +92,15 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   grown-up line, block-bot seesaw, craft-corner cooking. The e2e chatter case checks a bubble shows at the Plaza in
   Chatty. Spec and plan: `docs/superpowers/specs/2026-10-13-character-chatter-a2-design.md`,
   `docs/superpowers/plans/2026-10-13-character-chatter-a2.md`.
+- Focus music (2026-10-13): a calm, slow tune plays while a lesson is open (cards and quiz), different for every lesson.
+  `web/engine/focus.js` composes it from the seed `<game id>:<lesson title>` (mode, key, 52-68 BPM, one of four soft
+  voices, chords, a sparse melody whose second pass drops a note) and plays it with Web Audio; no audio files. Each of
+  the 17 games calls `Focus.start` for a lesson, the final exam and a review round; `Nav.screen` calls `Focus.screen`,
+  which stops it on any screen that is not the cards or the quiz. `fx.js` ducks it under voice clips and speech. A
+  ☰ menu item (🎶) toggles it, saved per device in `study_focus_v1`; Sound off silences it too. Tests:
+  `tests/focus.test.js`, `tests/focus-wiring.test.js`. Tablet listening check pending (volume against the voice clips,
+  stutter; the reverb is the first thing to drop). Spec and plan: `docs/superpowers/specs/2026-10-13-focus-music-design.md`,
+  `docs/superpowers/plans/2026-10-13-focus-music.md`.
 - Living world (2026-10-09): world characters no longer stand still. Buddies, Hoot, Bunny, Mimi and the four shop
   owners each run small routines (sweep, read, water, serve, hammer, hop, short flights, Mimi's stroll) inside a
   leash of 2-3 squares around their spot; they wave when she walks close, stop and face her when she talks to them,
@@ -230,10 +238,7 @@ New subject lessons arrive as class decks and summative tests.
 - App Check key + Enforce, email enumeration protection, password policy (README, Account hardening): only needed if other families ever sign up on this site; the school app is private and unlisted, and the public project has its own repo and session. The new Firestore rules are deployed (owner, 2026-10-13).
 - Set the privacy contact email in `web/privacy.html` (it still contains CONTACT_EMAIL) and remove the skip in `tests/privacy.test.js` before other families use the app.
 - Firestore rules republished with the history-entry cap of 100000 (owner, 2026-10-13; a long Mock Exam entry lists every wrong answer). Measured 2026-10-12 on a used tablet: `review_v1` 125659 characters (cap 500000), `mastery_v1` 16667, `history_v1` 268777 in total but synced as one small document per entry. Re-measure (`learner/` keys in localStorage) once a term; if `review_v1` passes 350000, raise the state cap in the rules and in `tests/rules/families.rules.js`.
-- Family account live check: create a test account on the site, add a child, pick her, change the PIN and see it on
-  the other tablet and the phone after a sync; Forgot password email arrives. First confirm sign-up is allowed in the Firebase console (Authentication → Settings →
-  User actions); with email-enumeration protection on, Forgot password reports success even for an unknown email. Anyone can now register on `study-game`;
-  turn Email/Password sign-up off in the Firebase console if that becomes a problem.
+- Family account live check: done by the owner (2026-10-13). Anyone can still register on `study-game`; turn Email/Password sign-up off in the Firebase console if that becomes a problem.
 - Tablet checks of the 3D world: music after the first tap, smoothness, Mimi's greeting and trail, the shop hop and
   back, the boss strip, playmates, playground games, gifts and monsters.
 - Patintero on the tablet: the court on the west lawn (moved from beside the playground and made 30 by 60 on

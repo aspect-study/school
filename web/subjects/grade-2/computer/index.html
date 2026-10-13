@@ -367,6 +367,7 @@
 <script src="../../../engine/study-history.js" data-grade="grade2"></script>
 <script src="../../../engine/wallet.js" data-grade="grade2"></script>
 <script src="../../../engine/fx.js" data-grade="grade2"></script>
+<script src="../../../engine/focus.js"></script>
 <script src="../../../engine/powerups.js" data-grade="grade2"></script>
 <script src="../../../engine/recall.js" data-grade="grade2"></script>
 <script src="../../../engine/mastery.js" data-grade="grade2"></script>
@@ -599,6 +600,7 @@
         flashIdx = 0;
         historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, currentLesson, lessons[currentLesson].title, lessons[currentLesson].flashcards.length) : null;
         window.ReadGate && ReadGate.open({ cards: lessons[currentLesson].flashcards.length, next: 'btn-flash-next' });
+        window.Focus && Focus.start(SH_APP + ':' + lessons[currentLesson].title);
         renderFlash();
         showScreen('flash');
       });
@@ -669,6 +671,7 @@
     currentQuizMeta = { id: 'final', title: 'Byte Buddies Review' };
     historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, true, currentQuizSet.length) : null;
     qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetPc();
+    window.Focus && Focus.start(SH_APP + ':final');
     showScreen('quiz');
     renderQuestion();
   }
@@ -680,6 +683,7 @@
     currentQuizMeta = { id: 'review', title: boss ? Boss.text.stageTitle : Recall.text.reviewTitle, boss: !!boss };
     historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, 'review', currentQuizMeta.title, false, currentQuizSet.length, 'review') : null;
     qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetPc();
+    window.Focus && Focus.start(SH_APP + (boss ? ':boss' : ':review'));
     showScreen('quiz');
     window.Army && (boss ? Army.start(currentQuizSet.length, document.getElementById('screen-quiz')) : Army.stop());
     renderQuestion();

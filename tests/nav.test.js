@@ -210,3 +210,12 @@ test('both grades have the embedded labels, English only', () => {
     assert.equal(TEXT[g].homeTown, 'Back to town');
   }
 });
+
+test('the Focus music menu texts exist for both grades, and Grade 2 pairs English with Filipino', () => {
+  for (const grade of ['grade5', 'grade2']) {
+    assert.ok(TEXT[grade].focusOn, grade + ' focusOn');
+    assert.ok(TEXT[grade].focusOff, grade + ' focusOff');
+  }
+  assert.match(TEXT.grade2.focusOn, / · /);
+  assert.match(TEXT.grade2.focusOff, / · /);
+});

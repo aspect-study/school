@@ -24,6 +24,7 @@ const PRECACHE = [
   'engine/family.js',
   'engine/firebase-config.js',
   'engine/firebase-remote.js',
+  'engine/focus.js',
   'engine/fx.js',
   'engine/guide.js',
   'engine/home.js',

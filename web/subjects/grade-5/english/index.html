@@ -331,6 +331,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 <script src="../../../engine/study-history.js" data-grade="grade5"></script>
 <script src="../../../engine/wallet.js" data-grade="grade5"></script>
 <script src="../../../engine/fx.js" data-grade="grade5"></script>
+<script src="../../../engine/focus.js"></script>
 <script src="../../../engine/powerups.js" data-grade="grade5"></script>
 <script src="../../../engine/recall.js" data-grade="grade5"></script>
 <script src="../../../engine/mastery.js" data-grade="grade5"></script>
@@ -595,6 +596,7 @@ function openLesson(i){
   historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, LESSONS[i].id, LESSONS[i].title, LESSONS[i].cards.length) : null;
   document.getElementById('flashTitle').textContent = LESSONS[i].title;
   window.ReadGate && ReadGate.open({ cards: LESSONS[i].cards.length, next: 'flashNext', start: 'flashStart' });
+  window.Focus && Focus.start(SH_APP + ':' + LESSONS[i].title);
   renderFlash();
   showScreen('flashScreen');
 }
@@ -651,6 +653,7 @@ function startFinalExam(){
   document.getElementById('quizTitle').textContent = 'Full Mock Exam';
   document.getElementById('passageBox').innerHTML = '';
   renderQuestion();
+  window.Focus && Focus.start(SH_APP + ':final');
   showScreen('quizScreen');
 }
 function startReview(boss){
@@ -666,6 +669,7 @@ function startReview(boss){
   document.getElementById('quizTitle').textContent = currentQuizMeta.title;
   document.getElementById('passageBox').innerHTML = '';
   renderQuestion();
+  window.Focus && Focus.start(SH_APP + (boss ? ':boss' : ':review'));
   showScreen('quizScreen');
   window.Army && (boss ? Army.start(currentQuizSet.length, document.getElementById('quizScreen')) : Army.stop());
 }

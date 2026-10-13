@@ -129,3 +129,14 @@ variety), and checks the ☰ toggle and that sound-off silences it. `tests/e2e` 
 
 - Optional per-subject flavour (a brighter mode for Math, softer for GMRC) if the owner wants the subjects to feel different.
 - A "Focus music" row in the parent page if a child ever finds it distracting.
+
+## Adjustments made while planning and building
+
+- The seed is `<game key>:<lesson title>`, not the lesson id: Grade 2 lessons have only an index, and every lesson has a title.
+- The stop rule lives in `Focus.screen(id)`, called by `Nav.screen`: music plays on screen ids matching `/flash|cards|quiz/i` and stops on every other screen.
+- A new seed while playing takes effect at the next bar, so the notes already ringing fade naturally (this is the "cross-fade").
+- The menu item uses 🎶, because 🎵 is already the Sounds item. `Focus.setting()` is the saved choice; `Focus.enabled()` is the effective one (setting on and `Fx` not muted).
+- The no-big-leap rule (at most a fifth) holds between notes inside one pass of the melody. The jump where the loop restarts is not limited.
+- The second pass drops one note chosen so that its neighbours stay within a fifth of each other.
+- Uniqueness is tested with 2000 synthetic seeds, because lesson data lives in many formats.
+- The master level is 0.12 with voices at 0.5 and chords at 0.18 (peak about 0.06 for the melody); the tablet listening check decides if it needs changing.

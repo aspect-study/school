@@ -215,6 +215,7 @@ web/                         the published site (the only folder Vercel serves)
     firebase-remote.js         the Firestore side of cloud sync
     subjects.js                each grade's games for the phone page, which has no lobby cards (a test keeps it equal)
     fx.js                      sound effects (Web Audio) + streak call-outs; two sound packs, Happy Chimes (default) and Battle announcer
+    focus.js                   games only: calm focus music while a lesson is open, composed from the lesson's title so each lesson has its own tune; ☰ menu toggle; fx.js ducks it under voice clips
     study-kit.js               points, streaks, rounds, daily star reset (required by every game)
   world/                     the 3D world: grade-5.html, grade-2.html and world-main.js, which loads the rest
                                (layout, build, move, rides, stalls, pets, playmates, games, loot, sounds…)
@@ -300,6 +301,7 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 5. Give it medals: `medalLessons`, `updateMedals`, `showMedals`, `medalBadge`, the `Mastery.renderChip(medals)` line in `renderHome`, `showMedals(...'points-earned')` after the round's points line and `showMedals(...'points-total-badge')` before the first `renderHome()`, and load `quests.js` after `mastery.js` so quest events join the medal popup (copy them from a game of the same family; `tests/mastery-wiring.test.js` checks them).
 6. Let it play boss stages: load `boss.js` after `quests.js`, give `startReview` the `boss` flag, and add the `bossEvents` / `bossAgain` helpers, the `var boss = bossEvents(el);` first line and `.concat(boss)` in `showMedals` and the `Boss.wantsBoss` line after the review check (copy them from a game of the same family; `tests/boss-wiring.test.js` checks them).
 7. Give it the boss army: load `bosses.js` and `army.js` (`data-grade`) after `boss.js`, and add the `window.Army && (boss ? Army.start(...) : Army.stop());` line after `showScreen(...)` in `startReview` (`tests/army-wiring.test.js` checks them).
+7b. Give it focus music: load `focus.js` right after `fx.js`, and add `window.Focus && Focus.start(SH_APP + ':' + <lesson>.title);` after the `ReadGate.open` line, `window.Focus && Focus.start(SH_APP + ':final');` in `startFinalExam` and `window.Focus && Focus.start(SH_APP + (boss ? ':boss' : ':review'));` in `startReview`, each before the `showScreen` into the quiz. The cards and quiz screen ids must match `/flash|cards|quiz/i` (`tests/focus-wiring.test.js` checks all of this).
 8. Give it a building in the 3D world: add an entry to `APPS.gradeN` in `web/world/layout.js` (app id, folder, emoji, sign with the subject name, colours, roof shape), in the lobby's order. `tests/world3d-layout.test.js` fails until it has one.
 9. Run `node tools/update-precache.js` so it works offline. `node --test` lists anything you missed.
 10. Put the source decks in `sources/grade-6/math/`.
