@@ -262,6 +262,19 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #ffe3f1; col
 .g-replay-skip { flex: none; font: 800 14px 'Baloo 2', system-ui, sans-serif; border: 0; border-radius: 999px; padding: 6px 14px; min-height: 36px;
   background: #ffe27a; color: #5b2a6b; cursor: pointer; }
 @media (max-width: 420px) { .g-pill { font-size: 14px; } .g-count { font-size: 90px; } .g-hint { font-size: 13px; top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-replay { top: calc(max(14px, env(safe-area-inset-top)) + 116px); } .g-roster, .g-noise { top: calc(max(14px, env(safe-area-inset-top)) + 170px); } .g-roster { max-width: calc(100% - 72px); } }
+/* Phones and tablets: a slim HUD so it stays out of the play view. Roster chips keep only the face (the one who is "it" keeps the name). */
+@media (max-width: 900px), (max-height: 520px) {
+  .g-pill { font-size: 13px; padding: 2px 4px 2px 12px; gap: 6px; background: rgba(255,255,255,.82); box-shadow: 0 2px 0 rgba(243,182,214,.8); }
+  .g-end { font-size: 12px; padding: 2px 10px; min-height: 30px; }
+  .g-hint { font-size: 12px; padding: 3px 12px; background: rgba(255,246,200,.85); box-shadow: none; }
+  .g-hint, .g-replay { top: calc(max(10px, env(safe-area-inset-top)) + 92px); }
+  .g-roster, .g-noise { top: calc(max(10px, env(safe-area-inset-top)) + 122px); }
+  .g-roster { gap: 2px; }
+  .g-roster-row { gap: 2px; padding: 2px 4px; background: rgba(255,255,255,.7); }
+  .g-chip { padding: 0 4px; font-size: 11px; }
+  .g-chip:not(.it) .g-chip-name { display: none; }
+  .g-chip-face { font-size: 16px; }
+}
 @media (max-height: 520px) { .g-pill { top: calc(max(10px, env(safe-area-inset-top)) + 50px); } .g-hint, .g-replay { top: calc(max(10px, env(safe-area-inset-top)) + 96px); } .g-roster, .g-noise { top: calc(max(10px, env(safe-area-inset-top)) + 136px); } .g-roster { max-width: calc(100% - 72px); } .g-act { bottom: 90px; } }
 
 /* My Room (world-main.js): a locked earned piece at Tito Tasyo's shows how to earn it instead of a price, and the room's
