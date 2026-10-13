@@ -25,11 +25,11 @@ test('every mode and every voice gets used', () => {
   assert.deepEqual([...new Set(plans.map((p) => p.voice))].sort(), Focus.VOICE_NAMES.slice().sort());
 });
 
-test('tempo is slow, and every note stays inside the chosen mode and a soft register', () => {
+test('tempo is lively but calm, and every note stays inside the chosen mode and a soft register', () => {
   for (const s of SEEDS) {
     const p = Focus.compose(s);
     const inMode = semis(p);
-    assert.ok(p.bpm >= 52 && p.bpm <= 68, s + ' bpm ' + p.bpm);
+    assert.ok(p.bpm >= 80 && p.bpm <= 100, s + ' bpm ' + p.bpm);
     assert.ok(p.root >= 48 && p.root <= 59, s + ' root');
     const scale = Focus.MODES[p.mode];
     for (const n of p.melody.concat(p.alt)) {
@@ -39,17 +39,17 @@ test('tempo is slow, and every note stays inside the chosen mode and a soft regi
     }
     for (const chord of p.chords) {
       assert.equal(chord.length, 3);
-      for (const n of chord) assert.ok(scale.includes(inMode(n)) && n >= p.root && n <= 80, s + ' chord note ' + n);
+      for (const n of chord) assert.ok(Focus.MODES.major.includes(inMode(n)) && n >= p.root && n <= 80, s + ' chord note ' + n);
     }
   }
 });
 
-test('the melody has 4 bars of 8 slots, many rests, and no leap bigger than a fifth', () => {
+test('the melody has 4 bars of 8 slots, some rests, and no leap bigger than a fifth', () => {
   for (const s of SEEDS) {
     const p = Focus.compose(s);
     assert.equal(p.melody.length, Focus.SLOTS_PER_BAR * Focus.BARS);
     assert.equal(p.chords.length, Focus.BARS);
-    assert.ok(p.melody.filter((n) => n === null).length / p.melody.length >= 0.3, s + ' rests');
+    assert.ok(p.melody.filter((n) => n === null).length / p.melody.length >= 0.2, s + ' rests');
     for (const line of [p.melody, p.alt]) {
       const played = line.filter((n) => n !== null);
       for (let i = 1; i < played.length; i++) assert.ok(Math.abs(played[i] - played[i - 1]) <= 7, s + ' leap');
@@ -185,4 +185,29 @@ test('a blocked localStorage counts as on', () => {
   assert.equal(f.setting(), true);
   f.start('a');
   assert.equal(f.playing(), true);
+});
+
+test('only happy sounding modes: no flat third, sixth or seventh and no sharp fourth', () => {
+  assert.deepEqual(Focus.MODE_NAMES.slice().sort(), ['major', 'pentatonic']);
+  for (const name of Focus.MODE_NAMES) {
+    for (const degree of Focus.MODES[name]) assert.ok(![3, 6, 8, 10].includes(degree), name + ' ' + degree);
+  }
+});
+
+test('the melody comes home to the tonic on its last note and starts every bar on a note', () => {
+  for (const s of SEEDS.slice(0, 500)) {
+    const p = Focus.compose(s);
+    const played = p.melody.filter((n) => n !== null);
+    assert.equal(semis(p)(played[played.length - 1]), 0, s + ' last note');
+    for (let bar = 0; bar < Focus.BARS; bar++) assert.notEqual(p.melody[bar * Focus.SLOTS_PER_BAR], null, s + ' bar ' + bar);
+  }
+});
+
+test('bars 3 and 4 repeat the rhythm of bars 1 and 2', () => {
+  for (const s of SEEDS.slice(0, 500)) {
+    const m = Focus.compose(s).melody;
+    const rhythm = (bar) => m.slice(bar * 8, bar * 8 + 8).map((n) => n === null);
+    assert.deepEqual(rhythm(2), rhythm(0), s);
+    assert.deepEqual(rhythm(3), rhythm(1), s);
+  }
 });

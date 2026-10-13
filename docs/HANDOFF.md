@@ -92,9 +92,9 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   grown-up line, block-bot seesaw, craft-corner cooking. The e2e chatter case checks a bubble shows at the Plaza in
   Chatty. Spec and plan: `docs/superpowers/specs/2026-10-13-character-chatter-a2-design.md`,
   `docs/superpowers/plans/2026-10-13-character-chatter-a2.md`.
-- Focus music (2026-10-13): a calm, slow tune plays while a lesson is open (cards and quiz), different for every lesson.
-  `web/engine/focus.js` composes it from the seed `<game id>:<lesson title>` (mode, key, 52-68 BPM, one of four soft
-  voices, chords, a sparse melody whose second pass drops a note) and plays it with Web Audio; no audio files. Each of
+- Focus music (2026-10-13): a cheerful music-box style tune plays while a lesson is open (cards and quiz), different for every lesson.
+  `web/engine/focus.js` composes it from the seed `<game id>:<lesson title>` (major or pentatonic, key, 80-100 BPM, one of four
+  bright voices, a bouncy arpeggio under a hummable melody that ends on the home note, second pass drops a note) and plays it with Web Audio; no audio files. Each of
   the 17 games calls `Focus.start` for a lesson, the final exam and a review round; `Nav.screen` calls `Focus.screen`,
   which stops it on any screen that is not the cards or the quiz. `fx.js` ducks it under voice clips and speech. A
   ☰ menu item (🎶) toggles it, saved per device in `study_focus_v1`; Sound off silences it too. Tests:

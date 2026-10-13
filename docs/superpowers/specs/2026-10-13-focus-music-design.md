@@ -140,3 +140,15 @@ variety), and checks the ☰ toggle and that sound-off silences it. `tests/e2e` 
 - The second pass drops one note chosen so that its neighbours stay within a fifth of each other.
 - Uniqueness is tested with 2000 synthetic seeds, because lesson data lives in many formats.
 - The master level is 0.12 with voices at 0.5 and chords at 0.18 (peak about 0.06 for the melody); the tablet listening check decides if it needs changing.
+
+## Retune for kids (2026-10-13, after the owner listened on the tablets)
+
+The first version (minor, dorian and lydian modes, 52-68 BPM, sparse notes, long reverb, sustained pads) sounded too sad,
+too slow and too empty for elementary kids. The owner chose the "cheerful music box" direction. Changes:
+
+- Modes: major and major pentatonic only (no flat third, sixth or seventh, no sharp fourth). Chords always come from the
+  full major scale, in one of four progressions that end on I or IV.
+- Tempo 80-100 BPM. Two rests per bar instead of three, and every bar starts on a note.
+- Voices: music box, bell, ukulele-like pluck, marimba (no pads). A bouncy broken-chord arpeggio replaces the sustained chord pads.
+- Bars 3 and 4 repeat the rhythm of bars 1 and 2, and the last three notes walk home to the tonic, so the tune is hummable.
+- Brighter and drier: low-pass 3500 Hz, reverb 0.5 s at 0.15 wet.

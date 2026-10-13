@@ -1,22 +1,24 @@
-/* Calm focus music for a lesson. compose(seed) turns a string into a tune (a plain object, no audio), so each lesson has
-   its own tune and the same lesson always gets the same one. MIDI note numbers; null is a rest. */
+/* Cheerful focus music for a lesson. compose(seed) turns a string into a tune (a plain object, no audio), so each lesson
+   has its own tune and the same lesson always gets the same one. MIDI note numbers; null is a rest. */
 (function (root) {
   'use strict';
 
   var KEY = 'study_focus_v1';
   var SLOTS_PER_BAR = 8;
   var BARS = 4;
-  var RESTS_PER_BAR = 3;
-  var STEPS = [-2, -1, -1, 0, 1, 1, 2];
+  var RESTS_PER_BAR = 2;
+  var STEPS = [-2, -1, -1, 1, 1, 2];
+  var ARPEGGIO = [0, 1, 2, 1];
 
+  // Major only: the melody may use the pentatonic subset, the chords always come from the full major scale.
   var MODES = {
-    pentatonic: [0, 2, 4, 7, 9],
-    lydian: [0, 2, 4, 6, 7, 9, 11],
-    dorian: [0, 2, 3, 5, 7, 9, 10],
-    minor: [0, 2, 3, 5, 7, 8, 10]
+    major: [0, 2, 4, 5, 7, 9, 11],
+    pentatonic: [0, 2, 4, 7, 9]
   };
-  var MODE_NAMES = ['pentatonic', 'lydian', 'dorian', 'minor'];
-  var VOICE_NAMES = ['pad', 'chime', 'marimba', 'pluck'];
+  var MODE_NAMES = ['major', 'pentatonic'];
+  // Chord degrees of the major scale; each progression ends on I or IV so the loop restarts smoothly.
+  var PROGRESSIONS = [[0, 4, 5, 3], [0, 3, 4, 0], [0, 5, 3, 0], [0, 3, 0, 3]];
+  var VOICE_NAMES = ['musicbox', 'bell', 'ukulele', 'marimba'];
 
   // FNV-1a, written with shifts so it stays plain ES5.
   function hash(str) {
@@ -48,44 +50,64 @@
     var mode = pick(MODE_NAMES);
     var scale = MODES[mode];
     var n = scale.length;
+    var major = MODES.major;
     var root = 48 + Math.floor(r() * 12);
-    var bpm = 52 + Math.floor(r() * 17);
+    var bpm = 80 + Math.floor(r() * 21);
     var voice = pick(VOICE_NAMES);
 
     function pitch(deg) { return root + 12 * Math.floor(deg / n) + scale[((deg % n) + n) % n]; }
+    function majorPitch(deg) { return root + 12 * Math.floor(deg / 7) + major[deg % 7]; }
 
-    var chordDegs = [0];
-    for (var c = 1; c < BARS; c++) chordDegs.push(Math.floor(r() * n));
-    var chords = chordDegs.map(function (d) { return [pitch(d), pitch(d + 2), pitch(d + 4)]; });
+    var chordDegs = pick(PROGRESSIONS);
+    var chords = chordDegs.map(function (d) { return [majorPitch(d), majorPitch(d + 2), majorPitch(d + 4)]; });
 
-    // The chord tone (a triad on chordDeg) nearest to a melody degree: never more than one degree away.
+    // The melody degree nearest to a chord tone of this bar's chord: never more than 2 degrees away.
     function nearestChordTone(from, chordDeg) {
+      var tones = [0, 2, 4].map(function (k) { return major[(chordDeg + k) % 7]; });
       var best = null;
-      for (var oct = 0; oct <= 3; oct++) {
-        [0, 2, 4].forEach(function (k) {
-          var cand = oct * n + ((chordDeg + k) % n);
-          if (best === null || Math.abs(cand - from) < Math.abs(best - from)) best = cand;
-        });
+      for (var cand = 0; cand < 3 * n; cand++) {
+        if (tones.indexOf(scale[cand % n]) === -1) continue;
+        if (best === null || Math.abs(cand - from) < Math.abs(best - from)) best = cand;
       }
       return best;
     }
+
+    // Bars 3 and 4 repeat the rhythm and contour of bars 1 and 2, so the tune has a shape a child can hum.
+    function barPattern() {
+      var rests = {};
+      var count = 0;
+      while (count < RESTS_PER_BAR) {
+        var spot = 1 + Math.floor(r() * (SLOTS_PER_BAR - 1));
+        if (!rests[spot]) { rests[spot] = true; count++; }
+      }
+      var steps = [];
+      for (var s = 0; s < SLOTS_PER_BAR; s++) steps.push(pick(STEPS));
+      return { rests: rests, steps: steps };
+    }
+    var patterns = [barPattern(), barPattern()];
 
     // The melody only moves when a note is played, so two played notes are never more than 2 degrees apart.
     var melody = [];
     var deg = n;
     for (var bar = 0; bar < BARS; bar++) {
-      var rests = {};
-      var count = 0;
-      while (count < RESTS_PER_BAR) {
-        var spot = Math.floor(r() * SLOTS_PER_BAR);
-        if (!rests[spot]) { rests[spot] = true; count++; }
-      }
+      var pattern = patterns[bar % 2];
       deg = nearestChordTone(deg, chordDegs[bar]);
       var firstOfBar = true;
+      var left = SLOTS_PER_BAR - RESTS_PER_BAR;
+      var home = null;
       for (var slot = 0; slot < SLOTS_PER_BAR; slot++) {
-        if (rests[slot]) { melody.push(null); continue; }
-        if (!firstOfBar) deg = Math.max(n, Math.min(2 * n, deg + pick(STEPS)));
+        if (pattern.rests[slot]) { melody.push(null); continue; }
+        if (!firstOfBar) {
+          var move = pattern.steps[slot];
+          // The last three notes of the tune walk home to the tonic, two degrees at a time.
+          if (bar === BARS - 1 && left <= 3) {
+            if (home === null) home = Math.abs(n - deg) <= Math.abs(2 * n - deg) ? n : 2 * n;
+            move = Math.max(-2, Math.min(2, home - deg));
+          }
+          deg = Math.max(n, Math.min(2 * n, deg + move));
+        }
         firstOfBar = false;
+        left--;
         melody.push(pitch(deg));
       }
     }
@@ -106,11 +128,12 @@
   var DUCKED = 0.3;
   var LESSON_SCREEN = /flash|cards|quiz/i;
 
+  // partial: a quiet overtone at ratio times the note's pitch, which gives the bell and music-box shine.
   var VOICES = {
-    pad: { type: 'sine', attack: 0.35, length: 2.6, partial: 0 },
-    chime: { type: 'sine', attack: 0.01, length: 2.2, partial: 0.3 },
-    marimba: { type: 'triangle', attack: 0.005, length: 0.7, partial: 0 },
-    pluck: { type: 'triangle', attack: 0.004, length: 1.3, partial: 0.15 }
+    musicbox: { type: 'sine', attack: 0.004, length: 1.1, partial: 0.4, ratio: 3 },
+    bell: { type: 'sine', attack: 0.004, length: 1.5, partial: 0.3, ratio: 2.76 },
+    ukulele: { type: 'triangle', attack: 0.004, length: 0.45, partial: 0.2, ratio: 2 },
+    marimba: { type: 'triangle', attack: 0.005, length: 0.6, partial: 0, ratio: 2 }
   };
 
   function freq(n) { return 440 * Math.pow(2, (n - 69) / 12); }
@@ -125,7 +148,7 @@
     function enabled() { return setting() && !(win.Fx && win.Fx.muted && win.Fx.muted()); }
 
     function impulse() {
-      var len = Math.floor(ctx.sampleRate * 1.2);
+      var len = Math.floor(ctx.sampleRate * 0.5);
       var buf = ctx.createBuffer(1, len, ctx.sampleRate);
       var d = buf.getChannelData(0);
       for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
@@ -139,9 +162,9 @@
       duckGain = ctx.createGain();
       bus = ctx.createBiquadFilter();
       bus.type = 'lowpass';
-      bus.frequency.value = 1800;
+      bus.frequency.value = 3500;
       var wet = ctx.createGain();
-      wet.gain.value = 0.3;
+      wet.gain.value = 0.15;
       var verb = ctx.createConvolver();
       verb.buffer = impulse();
       bus.connect(duckGain);
@@ -177,7 +200,7 @@
     function note(n, t, voice) {
       var v = VOICES[voice];
       tone(freq(n), t, 0.5, v.type, v.attack, v.length);
-      if (v.partial) tone(freq(n) * 2, t, 0.5 * v.partial, 'sine', v.attack, v.length * 0.7);
+      if (v.partial) tone(freq(n) * v.ratio, t, 0.5 * v.partial, 'sine', v.attack, v.length * 0.7);
     }
 
     // A throttled timer can fall far behind: skip ahead instead of piling up the missed notes at once.
@@ -191,9 +214,9 @@
           pass = 0;
         }
         var step = 30 / plan.bpm;
-        if (slot % SLOTS_PER_BAR === 0) {
-          var chord = plan.chords[(slot / SLOTS_PER_BAR) % BARS];
-          for (var i = 0; i < chord.length; i++) tone(freq(chord[i]), at, 0.18, 'sine', 0.5, step * SLOTS_PER_BAR + 0.8);
+        if (slot % 2 === 0) {
+          var chord = plan.chords[Math.floor(slot / SLOTS_PER_BAR) % BARS];
+          tone(freq(chord[ARPEGGIO[(slot % SLOTS_PER_BAR) / 2]]), at, 0.2, 'triangle', 0.005, 0.5);
         }
         var n = (pass % 2 ? plan.alt : plan.melody)[slot % (SLOTS_PER_BAR * BARS)];
         if (n !== null) note(n, at, plan.voice);
