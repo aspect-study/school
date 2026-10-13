@@ -44,6 +44,16 @@ test('a line with a slot needs a value for that slot even when its tag holds', (
   assert.equal(Speech.pick(DATA, FOX, ctx(['wearing:hat'], { hat: 'Red cap' }), Speech.newState(), () => 0).id, 'a3');
 });
 
+test('without drops one slot and keeps the rest, so her own pet never talks about "your pet"', () => {
+  const c = ctx(['time:morning'], { pet: 'Kidlat', hat: 'Red cap' });
+  const w = Speech.without(c, 'pet');
+  assert.deepEqual(w.slots, { hat: 'Red cap' });
+  assert.deepEqual(w.tags, c.tags);
+  assert.equal(c.slots.pet, 'Kidlat', 'the original is untouched');
+  const pool = { pools: { 'any-pet': [{ id: 'p1', say: 'Say hi to {pet}!' }, { id: 'p2', say: 'Hello!' }] } };
+  assert.equal(Speech.pick(pool, FOX, w, Speech.newState(), () => 0).id, 'p2');
+});
+
 test('fill puts the slot values into the text', () => {
   assert.equal(Speech.fill('Nice {hat}, {pet}!', ctx([], { hat: 'Red cap', pet: 'Kidlat' })), 'Nice Red cap, Kidlat!');
 });

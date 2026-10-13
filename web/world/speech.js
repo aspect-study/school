@@ -39,6 +39,13 @@
     return ok && slotsOf(line.say).every(function (s) { return !!ctx.slots[s]; });
   }
 
+  // The same facts without one slot: her own pet must not talk about "your pet {pet}".
+  function without(ctx, slot) {
+    var slots = {};
+    Object.keys(ctx.slots).forEach(function (k) { if (k !== slot) slots[k] = ctx.slots[k]; });
+    return { tags: ctx.tags, slots: slots };
+  }
+
   function fill(text, ctx) {
     return String(text).replace(/\{([a-z_]+)\}/g, function (m, k) { return ctx.slots[k] || ''; });
   }
@@ -93,7 +100,7 @@
   }
 
   var exported = {
-    RECENT: RECENT, FIXED_TAGS: FIXED_TAGS, SLOTS: SLOTS, validTag: validTag, validSlot: validSlot, slotsOf: slotsOf,
+    RECENT: RECENT, FIXED_TAGS: FIXED_TAGS, SLOTS: SLOTS, validTag: validTag, validSlot: validSlot, slotsOf: slotsOf, without: without,
     newState: newState, poolIds: poolIds, holds: holds, fill: fill, isChat: isChat, eligible: eligible, pick: pick, reply: reply, merge: merge
   };
   if (node) {

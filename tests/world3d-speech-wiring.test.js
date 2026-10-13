@@ -25,6 +25,12 @@ test('chatter never touches coins, points or storage', () => {
   }
 });
 
+test('her own pet is a speaker that skips the {pet} slot', () => {
+  assert.match(main, /id: 'pet:her'/);
+  assert.match(main, /own: true/);
+  assert.ok(main.includes("W.Speech.without(chatCtx, 'pet')"));
+});
+
 test('life.js lists the pets as speakers', () => {
   assert.match(fs.readFileSync(worldFile('life.js'), 'utf8'), /speakers: speakers/);
 });

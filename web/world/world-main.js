@@ -251,12 +251,13 @@
       talkingId: function () { return folk.talkingId() || mates.api.talking(); }, busy: function () { return talking || !!overlay; }, waving: function () { return herMove; },
       sfx: function (name) { sfx.play(name); }
     });
-    var KID_HEAD = 4.4;
+    var KID_HEAD = 4.4, PET_HEAD = 2.4;
     var chatter = W.Chatter.create({
       rand: Math.random,
       ask: function (s) {
-        var line = W.Speech.pick(speechData, s.speaker, chatCtx, speechState, Math.random);
-        return line ? W.Speech.fill(line.say, chatCtx) : null;
+        var ctx = s.speaker.own ? W.Speech.without(chatCtx, 'pet') : chatCtx;
+        var line = W.Speech.pick(speechData, s.speaker, ctx, speechState, Math.random);
+        return line ? W.Speech.fill(line.say, ctx) : null;
       }
     });
     var bubbles = W.Bubbles.create(S, doc);
@@ -1201,6 +1202,13 @@
         var k = kids[key];
         list.push({ id: key, speaker: { id: key.slice(5), kind: 'kid' }, x: k.x, z: k.z, head: KID_HEAD, hidden: !!k.hidden });
       });
+      var mine = pal.state();
+      if (shown && shown.pet && mine.x !== null) {
+        list.push({
+          id: 'pet:her', speaker: { id: 'pet:her', kind: 'pet', species: shown.pet, name: W.Look.petName(shown), own: true },
+          x: mine.x, z: mine.z, head: mine.y + PET_HEAD, hidden: false
+        });
+      }
       return list;
     }
 

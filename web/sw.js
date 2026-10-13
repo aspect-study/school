@@ -534,8 +534,6 @@ const PRECACHE = [
   'assets/sounds/world/use-ukulele.mp3',
   'assets/sounds/world/use-umbrella.mp3',
   // Redirect pages at the old URLs, so icons installed before 2026-10-02 still open offline.
-  'ai-spike/index.html',
-  'ai-spike/small.html',
   'craft-corner.html',
   'grade 2/batang-bayani.html',
   'grade 2/block-bot.html',
