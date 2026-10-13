@@ -485,6 +485,7 @@
   }
 
   var SH = window.StudyHistory, SH_APP = 'word-train', SH_TITLE = 'Word Train', SH_TRUE = 'True', SH_FALSE = 'False';
+  window.Focus && Focus.home(SH_APP);
   var historyLessonId = null, historyQuizId = null;
   var STORAGE_KEY = 'wordtrain_progress_v1';
   var kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'wordtrain_points_v1', progressKey: STORAGE_KEY });

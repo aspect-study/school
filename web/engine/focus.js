@@ -140,7 +140,7 @@
 
   function create(win) {
     var ctx = null, bus = null, duckGain = null, fade = null, timer = null;
-    var plan = null, pending = null, wanted = null, playingSeed = null, at = 0, slot = 0, pass = 0;
+    var plan = null, pending = null, wanted = null, playingSeed = null, homeSeed = null, at = 0, slot = 0, pass = 0;
 
     function read() { try { return win.localStorage.getItem(KEY); } catch (e) { return null; } }
     function write(v) { try { win.localStorage.setItem(KEY, v); } catch (e) {} }
@@ -280,7 +280,13 @@
       start: start,
       stop: function () { wanted = null; halt(); },
       sync: sync,
-      screen: function (id) { if (!LESSON_SCREEN.test(String(id))) { wanted = null; halt(); } },
+      // The game's own theme plays whenever no lesson is open (the lesson list, the results), so no screen is silent.
+      home: function (key) { homeSeed = String(key) + ':home'; start(homeSeed); },
+      screen: function (id) {
+        if (LESSON_SCREEN.test(String(id))) return;
+        if (homeSeed) start(homeSeed);
+        else { wanted = null; halt(); }
+      },
       duck: function (ms) {
         if (!timer) return;
         var t = ctx.currentTime;

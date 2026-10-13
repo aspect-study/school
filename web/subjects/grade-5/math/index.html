@@ -2483,6 +2483,7 @@ const LESSONS = [
 ];
 
 const SH = window.StudyHistory, SH_APP = 'math-mastery', SH_TITLE = 'Math Mastery';
+window.Focus && Focus.home(SH_APP);
 let historyLessonId = null, historyQuizId = null;
 function historyShort(html){
   const t = SH ? SH.plain(html) : '';

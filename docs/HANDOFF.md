@@ -96,7 +96,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   `web/engine/focus.js` composes it from the seed `<game id>:<lesson title>` (major or pentatonic, key, 80-100 BPM, one of four
   bright voices, a bouncy arpeggio under a hummable melody that ends on the home note, second pass drops a note) and plays it with Web Audio; no audio files. Each of
   the 17 games calls `Focus.start` for a lesson, the final exam and a review round; `Nav.screen` calls `Focus.screen`,
-  which stops it on any screen that is not the cards or the quiz. `fx.js` ducks it under voice clips and speech. A
+  which switches to the game's own theme (`Focus.home(SH_APP)`, called once per game) on any screen that is not the cards or the quiz, so no screen is silent. `fx.js` ducks it under voice clips and speech. A
   ☰ menu item (🎶) toggles it, saved per device in `study_focus_v1`; Sound off silences it too. Tests:
   `tests/focus.test.js`, `tests/focus-wiring.test.js`. Tablet listening check pending (volume against the voice clips,
   stutter; the reverb is the first thing to drop). Spec and plan: `docs/superpowers/specs/2026-10-13-focus-music-design.md`,

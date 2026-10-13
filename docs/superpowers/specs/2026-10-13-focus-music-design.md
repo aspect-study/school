@@ -152,3 +152,16 @@ too slow and too empty for elementary kids. The owner chose the "cheerful music 
 - Voices: music box, bell, ukulele-like pluck, marimba (no pads). A bouncy broken-chord arpeggio replaces the sustained chord pads.
 - Bars 3 and 4 repeat the rhythm of bars 1 and 2, and the last three notes walk home to the tonic, so the tune is hummable.
 - Brighter and drier: low-pass 3500 Hz, reverb 0.5 s at 0.15 wet.
+
+## No silent screen (2026-10-13, owner request)
+
+The first version stopped the music on every screen that was not the cards or the quiz, so the game's lesson list, right
+after she walks through the door (the world's own music pauses while a game is open), was silent. The owner wants her world
+to have no boring part, so:
+
+- Each game calls `Focus.home(SH_APP)` once at load. That starts the game's own theme (`<game>:home`, same generator, so
+  every game has its own tune) and remembers it.
+- `Focus.screen(id)` on a screen that is not the cards or the quiz (the lesson list, results, strategy) now switches to the
+  game's theme at the next bar instead of stopping. A lesson's own tune takes over when a lesson opens.
+- The music only stops when she leaves the game, turns it off in the ☰ menu, or turns Sound off.
+- The autoplay rule is unchanged: until the first tap inside the game, the context may be suspended and starts on that tap.

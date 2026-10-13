@@ -30,6 +30,7 @@ for (const app of APPS) {
     assert.ok(starts.some((s) => s.includes("':final'")), 'the final exam has its own tune');
     assert.ok(starts.some((s) => s.includes("':boss'") && s.includes("':review'")), 'a review round has its own tune');
 
+    assert.equal((html.match(/window\.Focus && Focus\.home\(SH_APP\);/g) || []).length, 1, 'the game plays its own theme on its lesson list');
     assert.match(html, /id="[\w-]*(flash|cards)[\w-]*"/i, 'a cards screen id the music rule recognises');
     assert.match(html, /id="[\w-]*quiz[\w-]*"/i, 'a quiz screen id the music rule recognises');
   });

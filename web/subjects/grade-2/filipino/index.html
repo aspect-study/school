@@ -333,6 +333,7 @@ const TYPE_IT = StudyKit.content('typeIt');
 
 const FINAL_EXAM_PER_LESSON = 3;
 const SH = window.StudyHistory, SH_APP = 'kuwentista', SH_TITLE = 'Kuwentista';
+window.Focus && Focus.home(SH_APP);
 let historyLessonId = null, historyQuizId = null;
 const STORAGE_KEY = 'kuwentista_progress_v2';
 const kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'kuwentista_points_v1', progressKey: STORAGE_KEY, liveLabel: 'puntos (points)' });

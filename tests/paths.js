@@ -5,7 +5,7 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 const WEB = path.join(ROOT, 'web');
 const ENGINE = path.join(WEB, 'engine');
-const ENGINE_FILES = ['lang.js', 'storage.js', 'learner.js', 'embed.js', 'home.js', 'clock.js', 'nav.js', 'search.js', 'read-gate.js', 'study-history.js', 'wallet.js', 'fx.js', 'powerups.js', 'recall.js', 'mastery.js', 'quests.js', 'boss.js', 'bosses.js', 'army.js', 'world.js', 'family.js', 'guide.js', 'trail.js', 'study-kit.js', 'sync-core.js', 'firebase-config.js', 'firebase-remote.js', 'cloud.js', 'shop-requests.js', 'shop-editor.js', 'subjects.js', 'insights.js', 'parent-pin.js', 'parent-panel.js', 'account.js', 'lobby-embed.js'];
+const ENGINE_FILES = ['lang.js', 'storage.js', 'learner.js', 'embed.js', 'home.js', 'clock.js', 'nav.js', 'search.js', 'read-gate.js', 'study-history.js', 'wallet.js', 'fx.js', 'focus.js', 'powerups.js', 'recall.js', 'mastery.js', 'quests.js', 'boss.js', 'bosses.js', 'army.js', 'world.js', 'family.js', 'guide.js', 'trail.js', 'study-kit.js', 'sync-core.js', 'firebase-config.js', 'firebase-remote.js', 'cloud.js', 'shop-requests.js', 'shop-editor.js', 'subjects.js', 'insights.js', 'parent-pin.js', 'parent-panel.js', 'account.js', 'lobby-embed.js'];
 const WORLD = path.join(WEB, 'world');
 // The 3D world pages and the scripts they load. The load order lives in tools/world-manifest.json; after editing it run
 // node tools/update-world-pages.js to rewrite both pages. world.js and subjects.js load without data-grade (pure helpers only).

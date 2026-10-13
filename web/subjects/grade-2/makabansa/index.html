@@ -488,6 +488,7 @@
   }
 
   var SH = window.StudyHistory, SH_APP = 'batang-bayani', SH_TITLE = 'Batang Bayani', SH_TRUE = 'Tama', SH_FALSE = 'Mali';
+  window.Focus && Focus.home(SH_APP);
   var historyLessonId = null, historyQuizId = null;
   var STORAGE_KEY = 'batangbayani_progress_v1';
   var kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'batangbayani_points_v1', progressKey: STORAGE_KEY, liveLabel: 'puntos (points)' });

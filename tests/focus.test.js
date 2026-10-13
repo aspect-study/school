@@ -211,3 +211,34 @@ test('bars 3 and 4 repeat the rhythm of bars 1 and 2', () => {
     assert.deepEqual(rhythm(3), rhythm(1), s);
   }
 });
+
+test('with a home theme the music never goes silent: the lesson list and results play the game theme, a lesson its own tune', () => {
+  const { f, made } = setup();
+  f.home('block-bot');
+  assert.equal(f.playing(), true, 'the lesson list plays at once');
+  f.start('block-bot:Numbers');
+  f.screen('screen-flash');
+  assert.equal(f.playing(), true);
+  for (const id of ['screen-results', 'home', 'strategyScreen']) {
+    f.screen(id);
+    assert.equal(f.playing(), true, id);
+  }
+  assert.equal(made.intervals.length, 1, 'one timer throughout');
+  f.stop();
+  assert.equal(f.playing(), false);
+});
+
+test("the home theme is the game's own and differs from the lesson tunes", () => {
+  assert.notDeepEqual(Focus.compose('block-bot:home'), Focus.compose('word-train:home'));
+  assert.notDeepEqual(Focus.compose('block-bot:home'), Focus.compose('block-bot:Numbers'));
+});
+
+test('the home theme follows the setting and Sound off like any other music', () => {
+  const { f, made } = setup();
+  f.setEnabled(false);
+  f.home('block-bot');
+  assert.equal(f.playing(), false);
+  assert.equal(made.ctxs, 0);
+  f.setEnabled(true);
+  assert.equal(f.playing(), true);
+});

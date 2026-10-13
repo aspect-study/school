@@ -482,6 +482,7 @@
   }
 
   var SH = window.StudyHistory, SH_APP = 'byte-buddies', SH_TITLE = 'Byte Buddies', SH_TRUE = 'True', SH_FALSE = 'False';
+  window.Focus && Focus.home(SH_APP);
   var historyLessonId = null, historyQuizId = null;
   var STORAGE_KEY = 'bytebuddies_progress_v1';
   var kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'bytebuddies_points_v1', progressKey: STORAGE_KEY });

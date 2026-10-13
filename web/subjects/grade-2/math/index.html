@@ -335,6 +335,7 @@ const GENERATORS = { numberline: genNumberlineSet };
 const TYPE_IT = StudyKit.content('typeIt');
 
 const SH = window.StudyHistory, SH_APP = 'block-bot', SH_TITLE = 'Block Bot';
+window.Focus && Focus.home(SH_APP);
 let historyLessonId = null, historyQuizId = null;
 const STORAGE_KEY = 'blockbot_progress_v2';
 const kit = StudyKit.start({ app: SH_APP, title: SH_TITLE, pointsKey: 'blockbot_points_v1', progressKey: STORAGE_KEY });
