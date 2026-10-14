@@ -290,7 +290,7 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 - New questions need an explanation for each wrong option (`why`) and a tip (`tip`); the tests enforce this.
 - Math Mastery's lessons generate fresh numbers each time, so they stay in its page; its case studies and walkthroughs are data files.
 - Keep the correct answer from usually being the longest option, and keep true/false answers roughly half and half.
-- Follow the class deck's facts and terms, even where an outside source says something different, but write every sentence fresh: see `docs/lesson-writing.md`, and run `node tools/source-overlap.js <lesson files>` until it reports 0 hits.
+- Follow the class deck's facts and terms, even where an outside source says something different, and base the lesson directly on the source's wording (the project is private, so no rewording for copyright and no `tools/source-overlap.js` check; see `docs/lesson-writing.md`).
 
 **A new subject or grade** (for example Grade 6 Math):
 

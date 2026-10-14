@@ -1,7 +1,12 @@
 # Writing lessons
 
-Lessons come from class decks, textbook scans and summative tests. Those are other people's work, and the site is
-public, so a lesson keeps the source's **facts and terms** and writes **every sentence fresh**.
+> **Superseded 2026-10-14.** This project is private, so new lessons are based directly on the source (deck, textbook,
+> test): its facts, terms, wording, examples and numbers. Nothing is reworded for copyright and the overlap check is
+> not run. The rules below describe the old original-wording approach and apply only to a public version, which lives
+> in its own project. The "Kept the same in each question" section and the review-key steps still help when editing.
+
+Lessons used to be written fresh from class decks, textbook scans and summative tests so the site could be public: a
+lesson kept the source's **facts and terms** and wrote **every sentence fresh**.
 
 ## Kept exactly
 
