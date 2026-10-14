@@ -70,7 +70,7 @@
     }
     box.setAttribute('aria-describedby', ids.join(' '));
     box.appendChild(live);
-    var row = el('div', 'talk-row' + (o.stack ? ' stack' : ''));
+    var row = el('div', 'talk-row' + (o.stack ? ' stack' : '')), actions = el('div', 'talk-actions');
     // The main button comes first, for her eyes and for the keyboard.
     o.buttons.filter(function (b) { return b.main; }).concat(o.buttons.filter(function (b) { return !b.main; })).forEach(function (b) {
       var btn = el('button', 'talk-btn' + (b.main ? ' main' : '') + (b.alt ? ' alt' : ''), b.text);
@@ -79,9 +79,10 @@
         close();
         if (b.onClick) b.onClick();
       });
-      row.appendChild(btn);
+      (b.alt ? actions : row).appendChild(btn);
     });
-    box.appendChild(row);
+    if (row.children.length) box.appendChild(row);
+    if (actions.children.length) box.appendChild(actions);
 
     function onKey(e) { if (e.key === 'Escape') close(); }
     function close() {
@@ -95,7 +96,7 @@
 
     doc.addEventListener('keydown', onKey);
     doc.body.appendChild(box);
-    var first = row.querySelector('button');
+    var first = row.querySelector('button') || actions.querySelector('button');
     // Focusing a button low in a long bubble would scroll the words out of sight; she reads from the top.
     if (first) first.focus({ preventScroll: true });
     box.scrollTop = 0;
