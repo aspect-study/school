@@ -32,6 +32,11 @@
   }
   function focusSubjects() { return document.querySelectorAll('#focus .f-subject'); }
   function change(id, value) { $(id).value = value; $(id).dispatchEvent(new Event('change')); }
+  // A guest (no family login) skips the parent PIN. A signed-in family needs it; its shop asks a parent's phone
+  // instead only once the cloud has connected, which never happens here.
+  function signIn(on) {
+    if (on) StudyStore.raw.setItem('sync_signed_in_v1', '1'); else StudyStore.raw.removeItem('sync_signed_in_v1');
+  }
 
   var mode = (location.hash.match(/e2e=(\w+)/) || [])[1];
   var r = {};
@@ -371,7 +376,13 @@
   ] }));
 
   $('parent-open').click();
+  r.guestOpens = !$('parent-overlay').hidden && !$('history-view').hidden && $('pin-view').hidden;
+  $('parent-close').click();
+
+  signIn(true);
+  $('parent-open').click();
   r.overlayOpen = !$('parent-overlay').hidden;
+  r.pinAsked = !$('pin-view').hidden && $('history-view').hidden;
   press('1234');
   r.wrongPinLocked = $('history-view').hidden;
   press('0108');
@@ -503,6 +514,7 @@
   r.panelsAfterReopen = visiblePanels();
   $('parent-close').click();
 
+  signIn(false);
   localStorage.setItem(OTHER_WALLET, 'untouched');
   __store.setItem(r.baselineKeys[0], '6000');
   $('shop-open').click();
@@ -524,11 +536,7 @@
   search.dispatchEvent(new Event('input'));
   r.allBack = document.querySelectorAll('#shop-items [data-item]').length;
   shopRow('ml').querySelector('[data-buy]').click();
-  r.pinShown = !$('shop-pin-view').hidden;
-  press('1234', 'shop-pin-pad');
-  r.wrongPinSpent = wallet().spent;
-  r.wrongPinStays = !$('shop-pin-view').hidden;
-  press('0108', 'shop-pin-pad');
+  r.guestBought = !$('shop-done-view').hidden && $('shop-pin-view').hidden;
   r.doneText = $('shop-done').textContent;
   r.badgeAfter = $('coin-badge').textContent;
   r.spentAfter = wallet().spent;
@@ -536,7 +544,12 @@
   $('shop-back').click();
   r.mlAfter = shopRow('ml').querySelector('.shop-need').textContent;
   r.earnedText = $('shop-earned').textContent;
+  signIn(true);
   shopRow('dinner').querySelector('[data-buy]').click();
+  r.pinShown = !$('shop-pin-view').hidden && !$('shop-pin-pad').hidden;
+  press('1234', 'shop-pin-pad');
+  r.wrongPinSpent = wallet().spent;
+  r.wrongPinStays = !$('shop-pin-view').hidden;
   $('shop-cancel').click();
   r.cancelSpent = wallet().spent;
   document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));

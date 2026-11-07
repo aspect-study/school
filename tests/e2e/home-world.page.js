@@ -61,8 +61,9 @@
       inFrame('#shop-close').click();
       waitFor('shop closed', closed, function () {
         D.section('parent');
-        waitFor('parent open', function () { return D.portal.state() === 'open' && shown('#pin-view') && inFrame('#open-lobby'); }, function () {
-          o.pinShown = true;
+        // A guest (no family login) skips the PIN, so the panel opens unlocked; lobby-e2e covers the PIN.
+        waitFor('parent open', function () { return D.portal.state() === 'open' && shown('#history-view') && inFrame('#open-lobby'); }, function () {
+          o.parentShown = true;
           o.openLobby = !!inFrame('#open-lobby');
           inFrame('#parent-close').click();
           waitFor('parent closed', closed, function () {

@@ -71,7 +71,7 @@ function check(r, s) {
   assert.ok(r.balance >= 25, 'the seeded coins are in the wallet: ' + r.balance);
   assert.match(r.pills.quests, /^🎯 \d\/3/, 'the quests pill: ' + r.pills.quests);
   assert.equal(r.shopWrapDisplay, 'none', 'the lobby page shows only the shop in the frame');
-  assert.equal(r.pinShown, true, 'the parent PIN pad shows in the frame');
+  assert.equal(r.parentShown, true, 'the parent area opens in the frame (a guest skips the PIN)');
   assert.equal(r.openLobby, true, 'the parent area offers Open the lobby page');
   assert.equal(r.coinsShown, true, 'the coin guide shows in the frame');
   assert.equal(r.questItems, 3, 'the quests card lists 3 quests');
