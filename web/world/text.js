@@ -21,7 +21,7 @@
     goIn: '🚪 Go in', goOut: '🚪 Go out', visitAte: "👀 Visit Ate's room", visitKuya: "👀 Visit Kuya's room", visitBunso: "👀 Visit Bunso's room",
     visitSister: "👀 Visit your sister's room", visitBrother: "👀 Visit your brother's room",
     decorate: '🛠️ Decorate', done: '✅ Done', study: '✏️ Study', sit: '🪑 Sit', cheerPill: '💛 Cheer', turn: '↻ Turn',
-    climb: '🪜 Climb up', down: '🪜 Go down', oldLessons: '📚 Old lessons', examCorner: '📝 Exam Corner',
+    goUp: '⬆️ Go up to Term 2', goDown: '⬇️ Go down', termDoor: '🌟 Term 2 lessons', examBoard: '📝 Practice exam', termOne: '(Term 1)',
     putAway: '📦 Put away', tasyoGo: "🔨 Open Tito Tasyo's Workshop", yay: 'Yay!', locked: '🔒 {how}',
     credit: 'Made with ❤️ by Tatay Oliver for his daughters',
     tabs: {
@@ -75,10 +75,8 @@
       needMore: 'You need {n} more coins. 🪙', placed: '🏠 In the room',
       decoHello: 'Tap a piece to put it in your room, or tap one in the room to move it.',
       decoMove: 'Tap a glowing square to move it there. ✨',
-      loft: 'Study Loft', shelf: 'Old lessons', exam: 'Exam Corner',
-      oldPick: 'Pick a subject to look back at your Term 1 lessons.',
+      term1: '📘 Term 1', term2: '🌟 Term 2', exam: 'Practice exam',
       soon: 'Term 2 lessons for {name} are coming soon! 🌱',
-      examPick: 'Pick a subject for a Term 2 practice exam.',
       examNone: 'No Term 2 lessons yet. Check back soon! 🌱',
       places: {
         gate: 'Gate', plaza: 'Plaza', boss: 'Boss Fort', garden: "Jesus' Garden", shop: 'Shop Plaza',
@@ -136,10 +134,8 @@
       needMore: 'Kailangan mo pa ng {n} coins. 🪙 · You need {n} more coins. 🪙', placed: '🏠 Nasa kuwarto · In the room',
       decoHello: 'Pindutin ang isang gamit para ilagay ito sa kuwarto mo, o pindutin ang nasa kuwarto para ilipat ito. · Tap a piece to put it in your room, or tap one in the room to move it.',
       decoMove: 'Pindutin ang kumikinang na parisukat para ilipat ito roon. ✨ · Tap a glowing square to move it there. ✨',
-      loft: 'Silid-Aralan sa Itaas · Study Loft', shelf: 'Mga Lumang Aralin · Old lessons', exam: 'Sulok ng Pagsusulit · Exam Corner',
-      oldPick: 'Pumili ng asignatura para balikan ang mga aralin sa Term 1. · Pick a subject to look back at your Term 1 lessons.',
+      term1: '📘 Unang Termino · Term 1', term2: '🌟 Ikalawang Termino · Term 2', exam: 'Pagsasanay na Pagsusulit · Practice exam',
       soon: 'Malapit na ang mga aralin sa Term 2 ng {name}! 🌱 · Term 2 lessons for {name} are coming soon! 🌱',
-      examPick: 'Pumili ng asignatura para sa pagsasanay na pagsusulit sa Term 2. · Pick a subject for a Term 2 practice exam.',
       examNone: 'Wala pang aralin sa Term 2. Bumalik ka ulit! 🌱 · No Term 2 lessons yet. Check back soon! 🌱',
       places: {
         gate: 'Tarangkahan · Gate', plaza: 'Plasa · Plaza', boss: 'Kuta ng Boss · Boss Fort', garden: "Hardin ni Jesus · Jesus' Garden",

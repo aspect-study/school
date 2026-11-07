@@ -16,6 +16,12 @@
     var frozen = false, moved = false, still = 0, keys = {}, joy = { x: 0, y: 0 }, joyId = null, lookId = null, last = null, down = null;
     var camPos = new THREE.Vector3(), ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hit = new THREE.Vector3();
     var groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    // On a balcony she stands lift above the street: the camera rises with her and taps land on the balcony floor.
+    var lift = 0;
+    function setLift(h) {
+      lift = h || 0;
+      groundPlane.constant = -lift;
+    }
     var pinchId = null, pinch = null, zoomSave = null, boxed = null, outPitch = st.pitch, fixedView = null;
     st.zoom = W.Prefs.clampZoom(o.zoom);
 
@@ -198,13 +204,13 @@
       if (o.wall && !fixedView && !boxed) dist = clearDist(dist, pitch);
       if (fixedView) camPos.set(fixedView.x, fixedView.y, fixedView.z);
       else {
-        camPos.set(st.x + Math.sin(st.yaw) * dist * Math.cos(pitch), 2.5 + Math.sin(pitch) * dist,
+        camPos.set(st.x + Math.sin(st.yaw) * dist * Math.cos(pitch), 2.5 + lift + Math.sin(pitch) * dist,
           st.z + Math.cos(st.yaw) * dist * Math.cos(pitch));
       }
       if (snap) S.camera.position.copy(camPos);
       else S.camera.position.lerp(camPos, Math.min(1, dt * 6));
       if (fixedView) S.camera.lookAt(fixedView.at.x, fixedView.at.y, fixedView.at.z);
-      else S.camera.lookAt(st.x, 3.4, st.z);
+      else S.camera.lookAt(st.x, 3.4 + lift, st.z);
     }
 
     // The character maker's view: in front of her, looking a little low so she sits above the panel. Inside a room the
@@ -270,7 +276,7 @@
 
     return {
       state: st, update: update, camera: camera, portrait: portrait, teleport: teleport, freeze: freeze, sprint: sprint, zoom: zoom,
-      box: box, fixed: fixed
+      box: box, fixed: fixed, lift: setLift
     };
   }
 

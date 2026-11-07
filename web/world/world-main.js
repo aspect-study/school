@@ -3,7 +3,8 @@
    talking characters to folk.js. My Room: the sparkle hop into My Little House (her room or her sister's, drawn by
    room3d.js off the edge of the map while the outdoors hides), the 🛠️ Decorate view (decorate.js) with its camera
    above the room, the study desk, the trophy shelf, the window seat, the celebrations as she comes in, and Tito Tasyo's
-   workshop. Shows the resting card if 3D cannot start, and a waking-up
+   workshop. Term 2: the ⬆️ hop up the stairs onto a subject building's balcony (upstairs.js, upstairs3d.js) and back
+   down. Shows the resting card if 3D cannot start, and a waking-up
    cover while the browser has taken the 3D graphics away. window.WorldDebug lets the e2e driver act like her. */
 (function (root) {
   'use strict';
@@ -58,10 +59,15 @@
     var ZOOM_STEP = 1.2;
     var coarse = !!(root.matchMedia && root.matchMedia('(pointer: coarse)').matches);
     var L = W.Layout, prefs = W.Prefs.readPrefs(store), quality = W.Prefs.startQuality(prefs);
+    var Up = W.Upstairs, terms = W.TermLessons || {};
     var S = W.Scene.create($('stage'), quality);
     var world = W.Build.build(S, grade, T);
+    var floors = Up.all(grade, terms);
+    W.Upstairs3D.create(S, { floors: floors, term1: english(T.term1), term2: english(T.term2) });
+    function floorOf(app) { return floors.filter(function (i) { return i.app === app; })[0] || null; }
     var obs = L.obstacles(grade), bounds = L.GRADES[grade].bounds;
-    var items = L.interactables(grade), allSpots = L.spots(grade);
+    obs.circles = obs.circles.concat(Up.solids(grade));
+    var items = L.interactables(grade).concat(Up.feet(grade)), allSpots = L.spots(grade);
     var meL = null;
     try { meL = root.Learner && root.Learner.current ? root.Learner.current() : null; } catch (e) {}
     var myBoy = !!(meL && meL.boy);
@@ -96,10 +102,13 @@
     // box, solid, items, hidden (the outdoor things it hid), answers (desk answers this visit), pending (popup lines) }.
     // deco: the Decorate view while it is open (decoPanel: its panel, for the camera to look above).
     var home = null, seat = null, preview = null, deco = null, decoPanel = null;
+    // On a balcony: { info } from upstairs.js while she stands upstairs on a subject building.
+    var up = null;
     var ctl = W.Move.create(S, {
       win: root, canvas: S.renderer.domElement, joy: hud.joy, knob: hud.knob, tapWalk: L.GRADES[grade].tapWalk,
-      blocked: function (x, z) { if (home) return roomBlocked(x, z, L.PLAYER_R); return L.blocked(obs, bounds, x, z, L.PLAYER_R) || (!!games && (games.blocked(x, z, L.PLAYER_R) || games.fence(x, z))); },
+      blocked: function (x, z) { if (up) return Up.blocked(up.info, x, z, L.PLAYER_R); if (home) return roomBlocked(x, z, L.PLAYER_R); return L.blocked(obs, bounds, x, z, L.PLAYER_R) || (!!games && (games.blocked(x, z, L.PLAYER_R) || games.fence(x, z))); },
       tapHit: function (x, y) {
+        if (up) return !maker && !stall && !overlay && !talking && pal.hit(x, y);
         if (home && deco) return decoTap(x, y);
         if (home) return !maker && !stall && !overlay && !talking && (pal.hit(x, y) || roomTap(x, y));
         return !maker && !stall && !overlay && !talking && (pal.hit(x, y) || loot.hit(x, y));
@@ -112,7 +121,7 @@
     function calm() { return !maker && !overlay && !talking && !stall && !deco && !portal.isOpen(); }
     var pal = W.Companion.create({
       S: S, canvas: S.renderer.domElement, sound: sound, sfx: petSound,
-      blocked: function (x, z, r) { return home ? roomBlocked(x, z, r) : L.blocked(obs, bounds, x, z, r) || (!!games && games.blocked(x, z, r)); },
+      blocked: function (x, z, r) { return up ? Up.blocked(up.info, x, z, r) : home ? roomBlocked(x, z, r) : L.blocked(obs, bounds, x, z, r) || (!!games && games.blocked(x, z, r)); },
       sparkle: function (x, z) { world.sparkle(x, z); },
       hearts: function (x, y, z) { world.hearts(x, y, z); },
       cheer: function (x, y, z) { world.cheer(x, y, z); },
@@ -201,15 +210,22 @@
       leave: leaving,
       go: function (url) { openGame('boss', url); }, sound: sound, busy: busy, today: today,
       isBusy: occupied,
-      quiet: function () { return kin.visiting(); }
+      quiet: function () { return kin.visiting(); },
+      // A guide step to a Term 2 lesson: the trail leads to that building's stairs.
+      trailEnd: function (id) {
+        var snap = town.snapshot(), i = floorOf(id);
+        return i && snap && snap.step && snap.step.app === id && Up.stepFloor(snap, terms) === 'upper' ? i.foot : null;
+      }
     });
     var folk = W.Folk.create({
       S: S, grade: grade, T: T, store: store, today: today, busy: busy,
       textOf: function (html) { return root.Recall && root.Recall.textOf ? root.Recall.textOf(html) : String(html == null ? '' : html); },
       door: function (app, kind) {
-        var b = L.buildings(grade).filter(function (x) { return x.app === app; })[0], plain = L.appUrl(grade, b.folder);
-        return kind === 'review' ? plain + '&review=1' : town.doorHref(app, plain);
+        var i = floorOf(app);
+        if (kind === 'review') return L.appUrl(grade, i.folder) + '&review=1';
+        return Up.buddyHref(grade, i, town.snapshot(), terms);
       },
+      stepHref: function (snap) { return Up.stepHref(snap, terms); },
       open: function (app, href) { leaving(app); openGame(app, href); },
       shop: function () { openSection('shop'); },
       stall: function (kind) { openStall(kind); },
@@ -342,7 +358,7 @@
       camera: {
         get: function () {
           var p = S.camera.position;
-          return { pos: { x: p.x, y: p.y, z: p.z }, look: { x: ctl.state.x, y: 3.4, z: ctl.state.z } };
+          return { pos: { x: p.x, y: p.y, z: p.z }, look: { x: ctl.state.x, y: 3.4 + (up ? up.info.y : 0), z: ctl.state.z } };
         },
         set: function (pose) {
           S.camera.position.set(pose.pos.x, pose.pos.y, pose.pos.z);
@@ -477,6 +493,7 @@
     }
 
     function goTo(spot) {
+      if (up) goDown();
       if (home) goOut();
       if (games) games.stop();
       stopMove();
@@ -486,21 +503,17 @@
     }
 
     function actLabel(it) {
-      if (it.kind === 'door') return it.emoji + ' ' + T.go.replace('{name}', english(it.sign));
+      if (it.kind === 'door') return it.emoji + ' ' + T.go.replace('{name}', english(it.sign)) + ' ' + T.termOne;
+      if (it.kind === 'stairs-up') return T.goUp;
+      if (it.kind === 'stairs-down') return T.goDown;
+      if (it.kind === 'up-door') return T.termDoor;
+      if (it.kind === 'up-exam') return T.examBoard;
       if (it.kind === 'ride') return T.rides[it.ride];
       if (it.kind === 'house-in') return T.goIn;
       if (it.kind === 'house-visit') return T[W.Text.visitKey(sister ? sister.rel : 'sister')];
       if (it.kind === 'room-out') return T.goOut;
       if (it.kind === 'desk') return T.study;
       if (it.kind === 'room-sit') return T.sit;
-      if (it.kind === 'ladder-up') return T.climb;
-      if (it.kind === 'ladder-down') return T.down;
-      if (it.kind === 'old-lessons') return T.oldLessons;
-      if (it.kind === 'loft-exam') return T.examCorner;
-      if (it.kind === 'loft-desk') {
-        var d = (home && home.loft || []).filter(function (x) { return x.app === it.app; })[0];
-        return d ? d.emoji + ' ' + english(d.sign) : T.study;
-      }
       if (games.handles(it.kind)) return games.label(it);
       if (loot.handles(it.kind)) return loot.label(it);
       if (mates.handles(it.kind)) return mates.label(it);
@@ -514,17 +527,16 @@
       if (!near || maker || overlay || talking || stall || deco || portal.isOpen()) return;
       if (near.kind === 'door') {
         leaving(near.app);
-        openGame(near.app, town.doorHref(near.app, L.appUrl(grade, near.folder)));
-      } else if (near.kind === 'mirror') openMaker();
+        openGame(near.app, Up.links(grade, floorOf(near.app), town.snapshot(), terms).ground);
+      } else if (near.kind === 'stairs-up') goUp(near.app);
+      else if (near.kind === 'stairs-down') goDown();
+      else if (near.kind === 'up-door') upDoor();
+      else if (near.kind === 'up-exam') upExam();
+      else if (near.kind === 'mirror') openMaker();
       else if (near.kind === 'house-in') goIn(null);
       else if (near.kind === 'house-visit') { if (sister) goIn(sister); }
       else if (near.kind === 'room-out') goOut();
       else if (near.kind === 'desk') study();
-      else if (near.kind === 'ladder-up') climbUp();
-      else if (near.kind === 'ladder-down') climbDown();
-      else if (near.kind === 'old-lessons') oldLessons();
-      else if (near.kind === 'loft-desk') loftDesk(near.app);
-      else if (near.kind === 'loft-exam') examCorner();
       else if (near.kind === 'room-sit') sit('nook');
       else if (near.kind === 'signpost') openTravel();
       else if (near.kind === 'ride') play.start(near.ride);
@@ -689,7 +701,6 @@
 
     // --- My Room -----------------------------------------------------------------------------------------------------
     var R = W.Room, F = W.Furniture, H = W.House, Tr = W.Trophies, DESK_LIMIT = 3, roomTalk = null;
-    var Loft = W.Loft;
     var tapRay = new S.THREE.Raycaster(), tapNdc = new S.THREE.Vector2(), tapV = new S.THREE.Vector3();
 
     function readMastery() {
@@ -727,6 +738,7 @@
       return items.filter(function (it) {
         if (it.kind === 'house-in') return !games.playing();
         if (it.kind === 'house-visit') return !!sister && !games.playing();
+        if (it.kind === 'stairs-up') return !games.playing();
         return true;
       });
     }
@@ -741,9 +753,6 @@
         var m = R.center(R.MIRROR[0], R.MIRROR[1]), d = R.center(R.DESK[0], R.DESK[1]);
         out.push({ kind: 'mirror', id: 'mirror', x: m.x, z: m.z, r: 1.1 });
         out.push({ kind: 'desk', id: 'desk', x: d.x, z: d.z, r: 2.6 });
-        var la = R.LADDER(home.size), sh = R.SHELF(home.size), lp = R.center(la[0], la[1]), sp = R.center(sh[0], sh[1]);
-        out.push({ kind: 'ladder-up', id: 'ladder-up', x: lp.x, z: lp.z, r: 1.3 });
-        out.push({ kind: 'old-lessons', id: 'old-lessons', x: sp.x, z: sp.z, r: 1.2 });
       }
       if (home.size >= 6) {
         var n = R.center(R.SEAT[0], R.SEAT[1]);
@@ -752,23 +761,14 @@
       return out;
     }
 
-    // The bookcase stands 0.05 to 0.75 out from the east wall (room3d.js bookcase()).
-    var BOOKCASE_HX = 0.375;
-    // What she bumps into inside: the desk (she stands by its stool), the space under the trophy shelf, the standing
-    // pieces and, in her own room, the Old lessons bookcase on east wall square e1.
+    // What she bumps into inside: the desk (she stands by its stool), the space under the trophy shelf and the standing
+    // pieces.
     function roomSolid() {
-      var O = R.ORIGIN, d = R.center(R.DESK[0], R.DESK[1]), sh = R.center(R.SHELF(home.size)[0], R.SHELF(home.size)[1]);
-      var out = R.solid(F, home.room).concat([
+      var O = R.ORIGIN, d = R.center(R.DESK[0], R.DESK[1]);
+      return R.solid(F, home.room).concat([
         { x: O.x + 0.65, z: d.z, hx: 0.55, hz: 1.05 },
         { x: O.x + 0.375, z: O.z - (R.WALK[1] + 1) * R.SQ, hx: 0.375, hz: R.SQ }
       ]);
-      if (!home.visit) out.push({ x: O.x + home.size * R.SQ - BOOKCASE_HX, z: sh.z, hx: BOOKCASE_HX, hz: R.SQ / 2 });
-      return out;
-    }
-    // Where she stands after 🪜 Go down: in front of the bookcase, clear of its solid box.
-    function shelfFront() {
-      var sh = R.center(R.SHELF(home.size)[0], R.SHELF(home.size)[1]);
-      return { x: R.ORIGIN.x + home.size * R.SQ - 2 * BOOKCASE_HX - L.PLAYER_R - 0.1, z: sh.z };
     }
     function roomBlocked(x, z, r) {
       var b = home.box;
@@ -779,7 +779,7 @@
     function roomState() { return Object.assign({}, home.room, { trophies: home.trophies }); }
     // Her room changed (the Decorate view): draw it, save it, and walk round the new pieces.
     function saveRoom(room) {
-      if (!home || home.visit || home.loft) return false;
+      if (!home || home.visit) return false;
       home.room = room;
       home.solid = roomSolid();
       home.view.show(roomState());
@@ -819,7 +819,7 @@
 
     // Goes into My Little House with the sparkle hop: her own room, or her sister's (sis from sisterHouse()), view only.
     function goIn(sis) {
-      if (home || !me || maker || stall || overlay || talking || riding || games.playing()) return false;
+      if (home || up || !me || maker || stall || overlay || talking || riding || games.playing()) return false;
       games.stop();
       stopMove();
       world.sparkle(ctl.state.x, ctl.state.z);
@@ -866,65 +866,50 @@
       return true;
     }
 
-    // 🪜 Climb up: her room's view gives way to the Study Loft (same place, the room hidden); 🪜 Go down brings it back.
-    function climbUp() {
-      if (!home || home.visit || home.loft || seat || deco) return false;
-      if (roomTalk) roomTalk.close();
+    // ⬆️ Go up: the sparkle hop onto the balcony of that building; ⬇️ Go down: back to the stairs' foot.
+    function goUp(app) {
+      var info = floorOf(app);
+      if (!info || up || home || !me || maker || stall || overlay || talking || riding || games.playing() || kin.visiting()) return false;
       stopMove();
-      home.view.dispose();
-      home.loft = Loft.desks(L.APPS[grade], W.TermLessons || {});
-      home.view = W.Loft3D.create(S, { grade: grade, desks: home.loft });
-      var O = R.ORIGIN, side = Loft.SIZE * R.SQ, a = R.center(Loft.ARRIVE[0], Loft.ARRIVE[1]);
-      home.box = { minX: O.x, maxX: O.x + side, minZ: O.z - side, maxZ: O.z };
-      home.solid = Loft.solid(home.loft);
-      home.items = Loft.items(home.loft);
-      ctl.box(home.box);
-      ctl.teleport(a.x, a.z, Math.PI);
+      ctl.sprint(false);
+      world.sparkle(ctl.state.x, ctl.state.z);
+      sound('allRead');
+      up = { info: info };
+      ctl.box(info.box);
+      ctl.lift(info.y);
+      pal.lift(info.y);
+      ctl.teleport(info.head.x, info.head.z, info.head.face);
       pal.place(ctl.state, true);
-      world.sparkle(a.x, a.z);
+      tick(0);
+      return true;
+    }
+    function goDown() {
+      if (!up) return false;
+      if (roomTalk) roomTalk.close();
+      var f = up.info.foot;
+      stopMove();
+      up = null;
+      ctl.box(null);
+      ctl.lift(0);
+      pal.lift(0);
+      ctl.teleport(f.x, f.z, f.face);
+      pal.place(ctl.state, true);
+      world.sparkle(f.x, f.z);
       sound('allRead');
       tick(0);
       return true;
     }
-    // Back down she stands on the square in front of the Old lessons bookcase, beside the ladder: no piece can take it.
-    function climbDown() {
-      if (!home || !home.loft) return false;
-      if (roomTalk) roomTalk.close();
-      stopMove();
-      home.view.dispose();
-      home.loft = null;
-      home.view = W.Room3D.create(S, { grade: home.grade, apps: home.apps, visit: false });
-      home.view.show(roomState());
-      var O = R.ORIGIN, side = home.size * R.SQ, at = shelfFront();
-      home.box = { minX: O.x, maxX: O.x + side, minZ: O.z - side, maxZ: O.z };
-      home.solid = roomSolid();
-      home.items = roomItems();
-      ctl.box(home.box);
-      ctl.teleport(at.x, at.z, Math.PI);
-      pal.place(ctl.state, true);
-      world.sparkle(at.x, at.z);
-      sound('allRead');
-      tick(0);
-      return true;
+    function upDoor() {
+      var i = up.info;
+      if (!i.ready) return roomSay(i.emoji, english(i.sign), fill(T.soon, { name: english(i.sign) }), [{ text: T.bye }]);
+      leaving(i.app);
+      openGame(i.app, Up.links(grade, i, town.snapshot(), terms).upper);
     }
-    function loftDesk(app) {
-      var d = (home.loft || []).filter(function (x) { return x.app === app; })[0];
-      if (!d) return;
-      if (!d.ready) return roomSay(d.emoji, english(d.sign), fill(T.soon, { name: english(d.sign) }), [{ text: T.bye }]);
-      leaving(d.app);
-      openGame(d.app, Loft.deskUrl(grade, d));
-    }
-    function examCorner() {
-      var list = Loft.examApps(L.APPS[grade], W.TermLessons || {});
-      if (!list.length) return roomSay('📝', T.exam, T.examNone, [{ text: T.bye }]);
-      roomSay('📝', T.exam, T.examPick, list.map(function (a) {
-        return { text: a.emoji + ' ' + english(a.sign), onClick: function () { leaving(a.app); openGame(a.app, Loft.examUrl(grade, a)); } };
-      }).concat([{ text: T.bye }]));
-    }
-    function oldLessons() {
-      roomSay('📚', T.shelf, T.oldPick, L.APPS[grade].map(function (a) {
-        return { text: a.emoji + ' ' + english(a.sign), onClick: function () { leaving(a.app); openGame(a.app, Loft.oldUrl(grade, a)); } };
-      }).concat([{ text: T.bye }]));
+    function upExam() {
+      var i = up.info;
+      if (!i.examReady) return roomSay('📝', T.exam, T.examNone, [{ text: T.bye }]);
+      leaving(i.app);
+      openGame(i.app, Up.links(grade, i, town.snapshot(), terms).exam);
     }
 
     function fill(text, values) {
@@ -970,7 +955,7 @@
       tapNdc.set((cx - r.left) / r.width * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
       S.scene.updateMatrixWorld();
       tapRay.setFromCamera(tapNdc, S.camera);
-      var h = home.loft ? null : home.view.hit(tapRay);
+      var h = home.view.hit(tapRay);
       if (!h || h.kind !== 'trophy') return false;
       trophyBubble(h.app);
       return true;
@@ -1021,7 +1006,7 @@
 
     // ✏️ Study: Hoot's ❓ Ask me! at her desk, at most 3 answers each time she comes in.
     function study() {
-      if (!home || home.visit || home.loft) return;
+      if (!home || home.visit) return;
       if (!seat || seat.kind !== 'desk') sit('desk');
       var d = R.center(R.DESK[0], R.DESK[1]), left = DESK_LIMIT - home.answers;
       if (left <= 0) return roomSay('✏️', T.desk, T.deskDone, [{ text: T.bye }]);
@@ -1040,7 +1025,7 @@
     // steps out of the picture (from above she would hide half the room) and her pet sits on the walkway, which always
     // stays clear, facing the camera; both come back beside each other on ✅ Done.
     function openDecorate() {
-      if (!home || home.visit || home.loft || deco || seat || maker || stall || overlay || talking) return false;
+      if (!home || home.visit || deco || seat || maker || stall || overlay || talking) return false;
       stopMove();
       hud.show(false);
       var w = R.center(R.WALK[0], R.WALK[1]);
@@ -1459,7 +1444,7 @@
         ctl.camera(dt);
         me.animate(t, 0, 0, Object.assign({ ride: true }, pose));
       } else {
-        me.group.position.set(st.x, 0, st.z);
+        me.group.position.set(st.x, up ? up.info.y : 0, st.z);
         me.group.visible = !hiddenMe && !deco;
         if (maker || stall) {
           me.group.rotation.y += dt * 0.8;
@@ -1485,7 +1470,7 @@
       // Every frame: only changed values are written, as each write makes the browser restyle the page.
       var heartNow = stamina.tick(dt, { running: !!st.sprint && st.mag > 0 && !pose, still: st.mag === 0 || !!pose });
       if (heartNow.tired && st.sprint) ctl.sprint(false);
-      var hideTreat = !free || !!pose, pressed = st.sprint ? 'true' : 'false';
+      var hideTreat = !free || !!pose || !!up, pressed = st.sprint ? 'true' : 'false';
       if (hud.treat.hidden !== hideTreat) hud.treat.hidden = hud.sprint.hidden = hideTreat;
       showHeart(heartNow, dt, hideTreat);
       if (hud.sprint.getAttribute('aria-pressed') !== pressed) hud.sprint.setAttribute('aria-pressed', pressed);
@@ -1494,14 +1479,15 @@
       if (hud.zoomBox.hidden === zoomOn) hud.zoomBox.hidden = !zoomOn;
       showZoom(st.zoom);
       if (hud.stop.hidden === play.stoppable()) hud.stop.hidden = !play.stoppable();
-      var showDone = !!seat && free, showCheer = !!(home && home.visit) && free, showDeco = !!(home && !home.visit && !home.loft) && free && !seat;
+      var showDone = !!seat && free, showCheer = !!(home && home.visit) && free, showDeco = !!(home && !home.visit) && free && !seat;
       if (hud.done.hidden === showDone) hud.done.hidden = !showDone;
       if (hud.deco.hidden === showDeco) hud.deco.hidden = !showDeco;
       if (hud.cheer.hidden === showCheer) hud.cheer.hidden = !showCheer;
-      bar.show(free && !pose);
-      useBar.show(free && !pose);
+      bar.show(free && !pose && !up);
+      useBar.show(free && !pose && !up);
       // A kid is only the thing to tap when no door, ride or other character is in reach.
-      if (home) near = free ? L.nearest(home.items, st.x, st.z) : null;
+      if (up) near = free ? L.nearest(Up.items(up.info), st.x, st.z) : null;
+      else if (home) near = free ? L.nearest(home.items, st.x, st.z) : null;
       else near = free ? L.nearest(outdoorItems().concat(kin.items(), loot.items(), games.items()), st.x, st.z) || L.nearest(mates.items(), st.x, st.z) : null;
       showAct();
       world.animate(t, dt, near && near.kind === 'door' ? near.id : null);
@@ -1517,7 +1503,7 @@
       if (!maker && !stall && !home) {
         town.tick(t, st, dt);
         folk.tick(t);
-        kin.tick(t, dt, st, free && !town.visiting());
+        kin.tick(t, dt, st, free && !town.visiting() && !up);
         if (!overlay) mates.tick(t, dt, st, play.now(), near);
         if (!overlay) life.tick(t, dt, st);
       }
@@ -1533,7 +1519,7 @@
       var chatOut = !maker && !stall && !home && !overlay;
       bubbles.show(chatter.step(dt, { mode: prefs.chatter, her: st, speakers: chatOut && !chatQuiet ? chatSpeakers() : [], silent: !chatOut || chatSilent(st) }));
       if (!home) {
-        loot.tick(t, dt, st, !free || !!pose);
+        loot.tick(t, dt, st, !free || !!pose || !!up);
         games.tick(t, dt, st, !!maker || !!stall || !!overlay);
       }
       if (home && home.pending && free) {
@@ -1547,7 +1533,7 @@
       // Time to learn: the nudge ends a game too.
       if (nudgeDue && games.playing()) games.stop();
       // In her room Mimi's words come as a bubble; her Go ▶ takes her out first.
-      if (nudgeDue && free && (home ? town.nudgeHere(goOut) : !kin.visiting() && town.nudge(st))) nudgeDue = false;
+      if (nudgeDue && free && (home ? town.nudgeHere(goOut) : up ? town.nudgeHere(goDown) : !kin.visiting() && town.nudge(st))) nudgeDue = false;
       S.follow(replayFocus ? replayFocus.x : st.x, replayFocus ? replayFocus.z : st.z);
       if (prefs.quality === 'auto' && quality === 'high' && slow(dt)) {
         quality = 'low';
@@ -1614,6 +1600,7 @@
     });
     root.addEventListener('pageshow', function (e) {
       if (e.persisted) {
+        if (up) goDown();
         refresh();
         welcome(W.Prefs.readReturn(session));
       }
@@ -1654,7 +1641,9 @@
         mine = W.Look.read(store, myBoy);
         look = mine.look;
         dress(worn(look));
-        if (!mine.made) openMaker();
+        if (mine.made) return;
+        if (up) goDown();
+        openMaker();
       }, 8000);
     }
     if (!mine.made) {
@@ -1756,6 +1745,11 @@
     };
     debug.nudgeNow = nudge.force;
     debug.refresh = refresh;
+    debug.up = function () { return up ? { app: up.info.app, y: me.group.position.y, pet: pal.groups()[0].position.y } : null; };
+    debug.goUp = goUp;
+    debug.goDown = goDown;
+    debug.floor = function (app) { return floorOf(app); };
+    debug.upBlocked = function (x, z) { return !!up && Up.blocked(up.info, x, z, L.PLAYER_R); };
     debug.stand = function (x, z, face) { ctl.teleport(x, z, face === undefined ? ctl.state.face : face); pal.place(ctl.state); tick(0); };
     debug.actText = function () { return hud.act.textContent; };
     debug.waking = function () { return !hud.waking.hidden; };
@@ -1769,10 +1763,7 @@
     // My Room: in and out, what the room holds, her sister's room, a trophy tap, the desk and the window seat.
     debug.goIn = function () { return goIn(null); };
     debug.goOut = goOut;
-    debug.climbUp = climbUp;
-    debug.climbDown = climbDown;
     debug.roomBlocked = function (x, z) { return !!home && roomBlocked(x, z, L.PLAYER_R); };
-    debug.loft = function () { return home && home.loft ? home.loft.map(function (d) { return { app: d.app, ready: d.ready, c: d.c, r: d.r }; }) : null; };
     debug.inside = function () { return !!home; };
     debug.visit = function () { return sister ? goIn(sister) : false; };
     debug.room = function () {
@@ -1781,7 +1772,7 @@
       return {
         size: home.size, placed: r.placed.map(function (p) { return Object.assign({}, p); }), wall: r.wall, floor: r.floor, stars: r.stars,
         visit: home.visit ? home.visit.id : null, trophies: Object.assign({}, home.trophies), answers: home.answers,
-        items: home.items.map(function (it) { return it.id; }), hidden: home.hidden.length, loft: !!home.loft
+        items: home.items.map(function (it) { return it.id; }), hidden: home.hidden.length
       };
     };
     // How many groups and meshes stand shown in the scene itself (not sprites or lights): a few inside, hundreds outdoors.
@@ -1819,7 +1810,7 @@
       seeThrough: function () { return home ? home.view.seeThrough() : []; }
     };
     debug.seat = function () { return seat ? { kind: seat.kind, x: seat.pose.x, y: seat.pose.y, z: seat.pose.z } : null; };
-    debug.sit = function (kind) { if (home && !home.loft) sit(kind === 'nook' ? 'nook' : 'desk'); };
+    debug.sit = function (kind) { if (home) sit(kind === 'nook' ? 'nook' : 'desk'); };
     debug.standUp = standUp;
 
     // The e2e driver stops the frame loop once it has its answer, so software rendering does not eat the time budget.

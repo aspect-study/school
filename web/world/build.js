@@ -54,35 +54,36 @@
 
     // Local +z is the front, turned to face the street. parts[app] keeps what decor.js changes with her medals.
     function building(b) {
+      var F2 = L.BUILDING.floor2;
       var g = group(b.x, b.z, b.rot), roofs = [], top, flagY;
       add(rbox(11.5, 0.7, 9.5, 0.3), '#ffffff', 0, 0.35, 0, g);
-      add(rbox(10, 6.4, 8, 1.2), b.wall, 0, 3.7, 0, g);
+      add(rbox(10, 6.4 + F2, 8, 1.2), b.wall, 0, 3.7 + F2 / 2, 0, g);
       if (b.shape === 'dome') {
-        roofs.push(add(ball(5.4), b.roof, 0, 6.9, 0, g));
+        roofs.push(add(ball(5.4), b.roof, 0, 6.9 + F2, 0, g));
         roofs[0].scale.set(1, 0.62, 0.8);
-        add(ball(0.6), '#fff6a8', 0, 10.5, 0, g);
-        top = 10.5;
-        flagY = 8.8;
+        add(ball(0.6), '#fff6a8', 0, 10.5 + F2, 0, g);
+        top = 10.5 + F2;
+        flagY = 8.8 + F2;
       } else if (b.shape === 'cone') {
-        roofs.push(add(S.cone(6.6, 4.6, 32), b.roof, 0, 9.3, 0, g));
+        roofs.push(add(S.cone(6.6, 4.6, 32), b.roof, 0, 9.3 + F2, 0, g));
         roofs[0].scale.z = 0.8;
-        add(ball(0.55), '#fff6a8', 0, 11.8, 0, g);
-        top = 11.8;
-        flagY = 8.5;
+        add(ball(0.55), '#fff6a8', 0, 11.8 + F2, 0, g);
+        top = 11.8 + F2;
+        flagY = 8.5 + F2;
       } else {
-        roofs.push(add(rbox(10.6, 1.4, 8.6, 0.6), b.roof, 0, 7.4, 0, g));
-        for (var d = -4; d <= 4; d += 1.6) roofs.push(add(ball(0.55), b.roof, d, 6.7, 4.2, g));
-        add(rbox(3, 2.4, 3, 0.6), '#ffffff', 0, 9, 0, g);
-        add(ball(0.7), '#ff6f91', 0, 10.7, 0, g);
-        top = 10.7;
-        flagY = 8.1;
+        roofs.push(add(rbox(10.6, 1.4, 8.6, 0.6), b.roof, 0, 7.4 + F2, 0, g));
+        for (var d = -4; d <= 4; d += 1.6) roofs.push(add(ball(0.55), b.roof, d, 6.7 + F2, 4.2, g));
+        add(rbox(3, 2.4, 3, 0.6), '#ffffff', 0, 9 + F2, 0, g);
+        add(ball(0.7), '#ff6f91', 0, 10.7 + F2, 0, g);
+        top = 10.7 + F2;
+        flagY = 8.1 + F2;
       }
       add(rbox(2.6, 3.8, 0.5, 0.25), '#c98b6b', 0, 2.6, 4.05, g);
       add(ball(1.3), '#c98b6b', 0, 4.5, 4.05, g).scale.set(1, 0.6, 0.38);
       add(ball(0.2), '#ffd166', 0.8, 2.5, 4.35, g);
       porthole(g, -3.3, 4.3, 4.05);
       porthole(g, 3.3, 4.3, 4.05);
-      var signY = b.shape === 'cake' ? 12.2 : 11.8;
+      var signY = (b.shape === 'cake' ? 12.2 : 11.8) + F2;
       floatSign(b.emoji + ' ' + b.sign, b.roof, 0, signY, 0, 6.4 * cfg.signScale, g);
       doorMats[b.app] = flat(add(S.cyl(2.1, 2.1, 0.12, 40), toon('#ffffff', { transparent: true, opacity: 0.85 }, true), 0, 0.1, L.BUILDING.doorOut, g));
       parts[b.app] = { group: g, roofs: roofs, roofColor: b.roof, top: top, flagY: flagY, signY: signY };

@@ -67,7 +67,7 @@ function inlineLessons(html) {
   return out;
 }
 
-// How many Term 2 lessons (and exam-only Term 2 lessons) each game has, for the Study Loft's desks.
+// How many Term 2 lessons (and exam-only Term 2 lessons) each game has, and their ids, for the upper floors.
 function termCounts(base = path.join(WEB, 'subjects')) {
   const out = {};
   for (const g of fs.readdirSync(base).sort()) {
@@ -79,29 +79,36 @@ function termCounts(base = path.join(WEB, 'subjects')) {
       const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
       const files = [...html.matchAll(/<script src="(lessons\/[^"]+\.js)"><\/script>/g)].map((m) => m[1]);
       let lessons = 0, exams = 0;
+      const ids = [];
+      const take = (src, idRe) => {
+        const m = src.match(idRe);
+        if (m) ids.push(m[1]);
+      };
       if (files.length) {
         for (const f of files) {
           const src = fs.readFileSync(path.join(dir, f), 'utf8');
           if (!/^\s*term:\s*2,?\s*$/m.test(src)) continue;
           if (/^\s*exam:\s*true,?\s*$/m.test(src)) exams++;
           else lessons++;
+          take(src, /^\s*id:\s*['"]([^'"]+)['"]/m);
         }
       } else {
         for (const l of inlineLessons(html)) {
           if (!/\bterm:\s*2\s*[,}\n]/.test(l)) continue;
           if (/\bexam:\s*true\b/.test(l)) exams++;
           else lessons++;
+          take(l, /\bid:\s*['"]([^'"]+)['"]/);
         }
       }
-      out[id] = { lessons, exams };
+      out[id] = { lessons, exams, ids };
     }
   }
   return out;
 }
 
 function termSource() {
-  return '/* Made by tools/update-precache.js; do not edit. Each game\'s Term 2 lesson count (exams = summative practice\n'
-    + '   lessons), which the Study Loft uses to light its desks (loft.js). */\n'
+  return '/* Made by tools/update-precache.js; do not edit. Each game\'s Term 2 lessons: how many (exams = summative\n'
+    + '   practice lessons) and their ids, which the upper floors use (upstairs.js). */\n'
     + '(function (root) {\n'
     + "  'use strict';\n"
     + '  var TERMS = ' + JSON.stringify(termCounts(), null, 2).replace(/\n/g, '\n  ') + ';\n'

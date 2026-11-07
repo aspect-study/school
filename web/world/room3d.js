@@ -565,7 +565,7 @@
     var size = 0, L = 0, state = { size: 0, placed: [], wall: '', floor: '', stars: !!o.stars, trophies: {} };
     var shell = null, starSprites = [], floorTiles = {}, wallTiles = {}, tileList = [];
     var recs = [], selK = null, outline = null, glowSet = {}, faded = false, ghostRec = null, preview = {};
-    var cups = {}, cupAt = {}, mirrorSign = null, parts = [];
+    var cups = {}, cupAt = {}, mirrorSign = null;
     // Each wall's see-through state: its own wall and trim materials fade in place (direct); what stands on it (door,
     // mirror, shelf, alcove, wall pieces) swaps to see-through copies. sideOn is what shows, camOut where the camera is.
     var direct = {}, directList = [], fixedOn = {}, shellOn = {}, sideOn = {}, camOut = {}, seeCopies = {};
@@ -637,7 +637,6 @@
       shell = sub(S, group);
       floorTiles = {}; wallTiles = {}; tileList = []; starSprites = [];
       SIDES.forEach(function (sd) { shellOn[sd] = []; });
-      parts = [];
       var base = flat(S.add(geo('base', function () { return new THREE.PlaneGeometry(160, 160); }), S.toon('#ffe3f1'), L / 2, -0.6, -L / 2, shell));
       base.rotation.x = -HALF;
       flat(S.add(S.rbox(L + 1.6, 0.6, L + 1.6, 0.3), '#fff6fb', L / 2, -0.31, -L / 2, shell));
@@ -669,7 +668,6 @@
         }
       });
       doorFrame();
-      if (!o.visit) { ladder(); bookcase(); }
       if (size >= 6) windowSeat();
 
       for (var r = 0; r < size; r++) for (var c = 0; c < size; c++) {
@@ -703,38 +701,6 @@
       var leaf = S.add(S.rbox(DOOR_W - 0.1, DOOR_H - 0.1, 0.12, 0.05), '#c98b6b', a + 0.08, DOOR_H / 2, THICK + DOOR_W / 2, g);
       leaf.rotation.y = HALF;
       leaf.castShadow = false;
-    }
-
-    // The ladder up to the Study Loft in the south-east corner square, leaning on the south wall, rungs toward the room.
-    function ladder() {
-      var c = Room.LADDER(size), p = Room.center(c[0], c[1]), g = sub(S, shell, p.x - O.x, 0, p.z - O.z + SQ / 2 - 0.35);
-      shellOn.s.push(g);
-      pair(function (s) { box(S, g, 0.16, WALL_H + 0.6, 0.16, DARK_WOOD, s * 0.55, (WALL_H + 0.6) / 2, 0, 0.04); });
-      for (var k = 0; k < 7; k++) box(S, g, 1.1, 0.1, 0.14, WOOD, 0, 0.55 + k * 0.75, 0, 0.03);
-      var hatch = sprite(emojiTex('🪜'), 0.9, 0.9);
-      hatch.position.set(0, WALL_H + 1.1, 0);
-      g.add(hatch);
-      parts.push('ladder');
-    }
-
-    // The Old lessons bookcase on east wall square e1: back to the wall, three shelves of books and a sign.
-    function bookcase() {
-      var p = wallPoint('e', 1.5 * SQ, L), g = sub(S, shell, p.x + p.nx * 0.4, 0, p.z + p.nz * 0.4);
-      g.rotation.y = p.rot;
-      shellOn.e.push(g);
-      box(S, g, 2.0, 3.0, 0.08, DARK_WOOD, 0, 1.5, -0.31, 0.02);
-      pair(function (s) { box(S, g, 0.1, 3.0, 0.7, DARK_WOOD, s * 0.95, 1.5, 0, 0.03); });
-      box(S, g, 2.0, 0.1, 0.7, DARK_WOOD, 0, 2.95, 0, 0.03);
-      box(S, g, 1.8, 0.1, 0.7, DARK_WOOD, 0, 0.05, 0, 0.03);
-      for (var k = 0; k < 3; k++) {
-        var top = 0.1 + k * 0.95;
-        if (k > 0) box(S, g, 1.8, 0.08, 0.64, WOOD, 0, top, 0.02, 0.02);
-        for (var b = 0; b < 6; b++) box(S, g, 0.22, 0.6, 0.4, BOOKS[(b + k) % BOOKS.length], -0.7 + b * 0.28, top + 0.04 + 0.3, 0.08, 0.03);
-      }
-      var sign = sprite(emojiTex('📚'), 0.9, 0.9);
-      sign.position.set(0, 3.6, 0);
-      g.add(sign);
-      parts.push('bookcase');
     }
 
     // At 6x6 an alcove opens in north wall square n5 with a cushioned window seat.
@@ -1107,7 +1073,6 @@
     return {
       group: group, show: show, ghost: ghost, roomGhost: roomGhost, select: select, glow: glow, fade: fade, see: see, hit: hit,
       trophyAt: trophyAt, shake: shake, animate: animate, dispose: dispose,
-      fixedParts: function () { return parts.slice(); },
       seeThrough: function () { return SIDES.filter(function (sd) { return sideOn[sd]; }); }
     };
   }

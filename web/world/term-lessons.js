@@ -1,75 +1,102 @@
-/* Made by tools/update-precache.js; do not edit. Each game's Term 2 lesson count (exams = summative practice
-   lessons), which the Study Loft uses to light its desks (loft.js). */
+/* Made by tools/update-precache.js; do not edit. Each game's Term 2 lessons: how many (exams = summative
+   practice lessons) and their ids, which the upper floors use (upstairs.js). */
 (function (root) {
   'use strict';
   var TERMS = {
     "byte-buddies": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "word-train": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "kuwentista": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "growing-good": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "batang-bayani": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "block-bot": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "science-detectives": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "history-explorers": {
       "lessons": 9,
-      "exams": 0
+      "exams": 0,
+      "ids": [
+        "kolonyalismo",
+        "dahilan",
+        "magellan",
+        "mactan",
+        "ekspedisyon",
+        "legazpi",
+        "puwersangmilitar",
+        "tributopolo",
+        "bandalagalyon"
+      ]
     },
     "net-navigators": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "page-turners": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "wikaharian": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "rise-shine": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "math-mastery": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "rhythm-hues": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "rally-ready": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "life-lab": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     },
     "craft-corner": {
       "lessons": 0,
-      "exams": 0
+      "exams": 0,
+      "ids": []
     }
   };
   if (typeof module !== 'undefined' && module.exports) {

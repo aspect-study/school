@@ -40,7 +40,7 @@ test('a friend asks for any game, each equally likely', () => {
 });
 
 test('her fence and her place come from the game', () => {
-  assert.match(main, /blocked: function \(x, z\) \{ (if \(home\) return roomBlocked\(x, z, L\.PLAYER_R\); )?return L\.blocked\(obs, bounds, x, z, L\.PLAYER_R\) \|\| \(!!games && \(games\.blocked\(x, z, L\.PLAYER_R\) \|\| games\.fence\(x, z\)\)\); \}/);
+  assert.match(main, /blocked: function \(x, z\) \{ (if \(up\) return Up\.blocked\(up\.info, x, z, L\.PLAYER_R\); )?(if \(home\) return roomBlocked\(x, z, L\.PLAYER_R\); )?return L\.blocked\(obs, bounds, x, z, L\.PLAYER_R\) \|\| \(!!games && \(games\.blocked\(x, z, L\.PLAYER_R\) \|\| games\.fence\(x, z\)\)\); \}/);
   assert.match(main, /place: function \(x, z, face\) \{ ctl\.teleport\(x, z, face\); pal\.place\(ctl\.state, true\); \}/);
   assert.match(games, /fence: function \(x, z\) \{ return pat\.fence\(x, z\); \}/);
 });

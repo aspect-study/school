@@ -61,7 +61,7 @@ function check(r) {
   assert.equal(r.near, 'life-lab');
   assert.equal(r.first, 'opening', 'the camera glides in first');
   assert.equal(r.pausedWhileOpening, true, 'the world stops drawing during the glide');
-  assert.equal(r.url, '../subjects/grade-5/science/index.html?reset=1&embed=1');
+  assert.equal(r.url, '../subjects/grade-5/science/index.html?reset=1&term=1&embed=1');
   assert.equal(r.entry, true, 'one history entry for the frame');
   assert.equal(r.opened, 'open');
   assert.equal(r.blurred, true, 'the frozen town is blurred');

@@ -145,7 +145,7 @@ test('wiring: loot files load in order; world-main pays through the wallet and s
   assert.match(main, /root\.Wallet\.addBonus\(n\)/);
   assert.match(main, /W\.Closet\.found\(store, id, Date\.now\(\)\)/);
   assert.match(main, /pal\.hit\(x, y\) \|\| loot\.hit\(x, y\)/);
-  assert.match(main, /loot\.tick\(t, dt, st, !free \|\| !!pose\)/);
+  assert.match(main, /loot\.tick\(t, dt, st, !free \|\| !!pose( \|\| !!up)?\)/);
   assert.match(l3, /o\.teach\(v, opt, function \(\) \{ sayGift\(LT\.stillClosed/);
   assert.match(l3, /Loot\.markAsked\(o\.store, today, q\.key/);
   assert.match(l3, /asker\.answer\(list, 0, j\)/, 'scored like Ask me!');

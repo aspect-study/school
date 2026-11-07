@@ -141,15 +141,19 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   walkway in Decorate (she stays hidden) and at the desk hops onto it at shoulder size if small or sits by the stool,
   and a Grade 2 trophy bubble is one line. Owner decisions: keep `noRoom` "para dito"; keep the inside camera (looks
   down, walls in its way see-through). Merged into `main` 2026-10-08.
-- Term 2 Study Loft (2026-11-07): a lesson file tagged `term: 2` (`exam: true` for summative practice) joins Term 2; untagged
-  = Term 1. A ladder in the south-east corner of My Room (🪜 Climb up / Go down) leads to a 6×6 loft with a desk per game
-  of her grade (opens it with `&term=2` in the portal frame; 🌱 dimmed and "coming soon" until it has Term 2 lessons), an
-  Exam Corner (games with Term 2 lessons, opens `&term=2&exam=1`) and, downstairs, a 📚 Old lessons bookcase on the east
-  wall (her games, opens `&term=1`). Town buildings still open both terms (under Term 1 / Term 2 headings). The engine
-  reads `?term=` (`StudyKit.pick/lessons/all/term/examView`); the final exam best is kept per view; review and boss ask
-  the viewed term's due questions. `web/world/term-lessons.js` is generated. Pending: tablet check (climbing feel, desk
-  sign readability, the Exam Corner list on a phone, a game closed inside the loft returning to the loft). Spec and plan:
-  `docs/superpowers/specs/2026-11-07-term-2-study-loft-design.md`, `docs/superpowers/plans/2026-11-07-term-2-study-loft.md`.
+- Term 2 (2026-11-07): a lesson file tagged `term: 2` (`exam: true` for summative practice) joins Term 2; untagged =
+  Term 1. The engine reads `?term=` (`StudyKit.pick/lessons/all/term/examView`); the final exam best is kept per view;
+  review and boss ask the viewed term's due questions. In the world every subject building is one floor taller: the
+  ground door opens `&term=1`; spiral stairs at its north front corner (⬆️ Go up to Term 2, the sparkle hop) lead to a
+  balcony with the 🌟 Term 2 door (`&term=2`; 🌱 greyed with "coming soon" until the game has Term 2 lessons) and the
+  📝 exam board (`&term=2&exam=1`). A guide step to a Term 2 lesson opens upstairs and Mimi's trail ends at the
+  stairs; review, boss, the Boss Fort and quests keep both terms; a buddy opens Term 2 once it is ready. The Study
+  Loft, its ladder and the Old lessons bookcase were removed the same day (the owner wanted Term 2 in each building).
+  `web/world/term-lessons.js` (counts and Term 2 lesson ids) is generated. Pending: tablet check (balcony camera,
+  including when she turns to face the street and her own roof may block the view, stairs reach, plaque readability,
+  Grade 2 tap-to-walk on the balcony). Specs and plans:
+  `docs/superpowers/specs/2026-11-07-term-2-upper-floors-design.md` (engine part:
+  `2026-11-07-term-2-study-loft-design.md` section 1) and their plans in `docs/superpowers/plans/`.
 - Games inside the world (2026-10-11): a door, a buddy's "Let's go" or the Boss Fort opens the real game page in a
   framed iframe over the paused, blurred town (`web/world/portal.js`); the game runs with `?embed=1` (`Nav.embedded`):
   ←/🏠 on the game home, the menu's 🏠 Back to town and the lesson path's home stop close the frame, ☰ Shop closes it
@@ -204,7 +208,7 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
-- **Term 2 lessons, one subject per commit** (sub-project 2 of the Study Loft spec; tag each file `term: 2`, see README "Adding content"). Sources received: Grade 5 Math, Science, Filipino, English, Araling Panlipunan, GMRC, Music & Arts, P.E. & Health, TLE; Grade 2 GMRC, Math, Makabansa. Not yet: Grade 2 English, Filipino, Science, Computer; Grade 5 Computer. Done: Grade 5 Araling Panlipunan (History Explorers 30-38, 2026-11-07: kolonyalismo through bandala/galyon/tabako; where deck and textbook disagree the teacher's deck is keyed and the textbook figure is noted on the card; the Kristiyanismo method, textbook pp.140-146, and Real Compania were left out by the owner).
+- **Term 2 lessons, one subject per commit** (sub-project 2 of the Term 2 spec; tag each file `term: 2`, see README "Adding content"). Sources received: Grade 5 Math, Science, Filipino, English, Araling Panlipunan, GMRC, Music & Arts, P.E. & Health, TLE; Grade 2 GMRC, Math, Makabansa. Not yet: Grade 2 English, Filipino, Science, Computer; Grade 5 Computer. Done: Grade 5 Araling Panlipunan (History Explorers 30-38, 2026-11-07: kolonyalismo through bandala/galyon/tabako; where deck and textbook disagree the teacher's deck is keyed and the textbook figure is noted on the card; the Kristiyanismo method, textbook pp.140-146, and Real Compania were left out by the owner).
 - **Character chatter, what is left:** A3 is done (2026-10-13): her own pet speaks ambient bubbles while it walks, with the shared pet lines and no `{pet}` lines (`Speech.without`). The owner decided to SKIP Jesus's and her sister's chatter (both are sensitive; do not propose them). Later and optional: pet tap chat, `studied` and `medal` tags, reply chats for town characters, chat memory (remember reply taps; needs one synced key), Part B (characters talking to each other).
 - **Lesson audit (SUPERSEDED 2026-10-14: the project is private, new lessons follow the source wording; ignore this item and its `source-overlap.js` rule)** (rewrite text that copies a source; `docs/lesson-writing.md`, "Rewording an existing question"),
   one game per commit, hits at the start in brackets (3356 in all on 2026-10-11).

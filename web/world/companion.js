@@ -19,9 +19,14 @@
     var S = o.S, THREE = S.THREE, PB = W.PetBody, PT = W.PetTricks, PL = W.PetLife, Walk = W.Walk, Pets = W.Pets;
     var life = PL.create(), pet = null, petType = '', me = null, spot = 'walk', down = false, bubble = null, shown = '', mood = 'idle', tex = {};
     var toy = null, fetch = null, buddy = null, playing = null, now = 0, lastCheer = '', teaching = null, resting = null;
-    var ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), v = new THREE.Vector3();
+    var ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), v = new THREE.Vector3(), wp = new THREE.Vector3();
+    // The pet and a thrown toy stand in this group, so lift() can raise them onto a balcony with her.
+    var holder = new S.THREE.Group();
+    S.scene.add(holder);
 
     function emoji(e) { return tex[e] || (tex[e] = S.emoji(e)); }
+    // Turns g toward (x, z) without tilting: lookAt takes a world point, and the holder may be raised.
+    function aim(g, x, z) { g.lookAt(x, g.getWorldPosition(wp).y, z); }
 
     function dropToy(sparkle) {
       if (!toy) return;
@@ -76,7 +81,7 @@
       pet.group.add(bubble);
       shown = '';
       spot = PB.mount(pet, me, l.petSpot) ? l.petSpot : 'walk';
-      if (spot === 'walk') S.scene.add(pet.group);
+      if (spot === 'walk') holder.add(pet.group);
     }
 
     function beside(her) {
@@ -101,7 +106,7 @@
       g.scale.setScalar(PB.SCALE);
       g.rotation.set(0, 0, 0);
       g.position.set(f.x, 0, f.z);
-      S.scene.add(g);
+      holder.add(g);
       down = true;
     }
 
@@ -119,7 +124,7 @@
     function show(her) {
       var p = pet.group.position;
       p.set(her.x + Math.sin(her.face) * 2.2 + Math.cos(her.face) * 2.4, 0, her.z + Math.cos(her.face) * 2.2 - Math.sin(her.face) * 2.4);
-      pet.group.lookAt(her.x + Math.sin(her.face) * 18, 0, her.z + Math.cos(her.face) * 18);
+      aim(pet.group, her.x + Math.sin(her.face) * 18, her.z + Math.cos(her.face) * 18);
     }
 
     // Moves group g toward (tx, tz) at speed (her walk speed × speed), sliding along walls. True when it moved.
@@ -130,13 +135,13 @@
       var n = Walk.step(p.x, p.z, dir, dt, blockedPet), moved = n.x !== p.x || n.z !== p.z;
       p.x = n.x;
       p.z = n.z;
-      g.lookAt(tx, 0, tz);
+      aim(g, tx, tz);
       return moved;
     }
     // Eases group g to (tx, tz) with no walls (play by the gate, an open spot).
     function ease(g, tx, tz, dt) {
       var p = g.position, k = Math.min(1, dt * 8), x = p.x + (tx - p.x) * k, z = p.z + (tz - p.z) * k;
-      if (Math.hypot(x - p.x, z - p.z) > 0.01) g.lookAt(x + (x - p.x) * 10, 0, z + (z - p.z) * 10);
+      if (Math.hypot(x - p.x, z - p.z) > 0.01) aim(g, x + (x - p.x) * 10, z + (z - p.z) * 10);
       p.x = x;
       p.z = z;
     }
@@ -157,7 +162,7 @@
           p.z = n.z;
         }
       }
-      if (Math.hypot(her.x - p.x, her.z - p.z) > 0.5) pet.group.lookAt(her.x, 0, her.z);
+      if (Math.hypot(her.x - p.x, her.z - p.z) > 0.5) aim(pet.group, her.x, her.z);
       return moved;
     }
 
@@ -174,7 +179,7 @@
       };
       toy = PT.toy(S, it.id);
       toy.position.set(her.x, 2.4, her.z);
-      S.scene.add(toy);
+      holder.add(toy);
       var p = pet.group.position, h = o.sister ? o.sister(p.x, p.z) : null;
       if (h) {
         h.borrow();
@@ -248,8 +253,8 @@
       }
       ease(g, c.x + u.x * 0.8, c.z + u.z * 0.8, dt);
       ease(bg, c.x - u.x * 0.8, c.z - u.z * 0.8, dt);
-      g.lookAt(bg.position.x, 0, bg.position.z);
-      bg.lookAt(g.position.x, 0, g.position.z);
+      aim(g, bg.position.x, bg.position.z);
+      aim(bg, g.position.x, g.position.z);
       buddy.pet.animate(now, 'idle');
       return false;
     }
@@ -281,7 +286,7 @@
       resting = at;
       pet.group.scale.setScalar((at.scale || 1) * PB.SCALE);
       pet.group.position.set(at.x, at.y, at.z);
-      pet.group.lookAt(at.lookX, at.y, at.lookZ);
+      aim(pet.group, at.lookX, at.lookZ);
       return true;
     }
     function restStep(t) {
@@ -315,11 +320,11 @@
     function teachStep(dt, t, her) {
       teaching.t += dt;
       var g = pet.group, c = S.camera.position;
-      if (resting) g.lookAt(c.x, g.position.y, c.z);
+      if (resting) aim(g, c.x, c.z);
       else if (walking()) {
         var f = free(her);
         ease(g, f.x, f.z, dt);
-        g.lookAt(c.x, 0, c.z);
+        aim(g, c.x, c.z);
       }
       pet.animate(t, 'idle');
       if (teaching.t < TEACH_HOP) PT.trick(pet, 'trick-jump', teaching.t / TEACH_HOP, !walking());
@@ -364,7 +369,7 @@
       var moved = false;
       if (a && a.kind === 'fetch') moved = fetchStep(dt, her, a);
       else if (a && a.kind === 'play') moved = playStep(dt, a);
-      else if (a && a.kind === 'watch') { if (walking()) pet.group.lookAt(her.x, 0, her.z); }
+      else if (a && a.kind === 'watch') { if (walking()) aim(pet.group, her.x, her.z); }
       else if (spot === 'walk' && her.front) show(her);
       else if (spot === 'walk' && !her.hold) moved = follow(dt, her);
       if (life.fired) {
@@ -442,13 +447,12 @@
       };
     }
 
-    // Her pet's things that stand in the scene itself (the pet when it walks, a thrown toy), so her room keeps them shown.
-    function groups() {
-      return [pet && pet.group, toy].filter(function (g) { return !!g && g.parent === S.scene; });
-    }
+    // Her pet's things that stand in the world (the pet when it walks, a thrown toy), so her room keeps them shown.
+    function groups() { return [holder]; }
+    function lift(h) { holder.position.y = h || 0; }
 
     return {
-      set: set, place: place, tick: tick, hit: hit, pat: pat, treat: treat, tapCenter: tapCenter, state: state, groups: groups,
+      set: set, place: place, tick: tick, hit: hit, pat: pat, treat: treat, tapCenter: tapCenter, state: state, groups: groups, lift: lift,
       play: play, demo: demo, celebrate: celebrate, watch: watch, unwatch: unwatch, teach: teach, rest: rest
     };
   }

@@ -1,6 +1,7 @@
 # Term 2 Study Loft
 
-Date: 2026-11-07. Status: approved by the owner in brainstorming; plan next.
+Date: 2026-11-07. Status: built. Section 2 (the house, the Study Loft) is replaced by
+`2026-11-07-term-2-upper-floors-design.md`: Term 2 moves to each subject building's upper floor.
 
 ## Goal
 

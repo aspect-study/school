@@ -60,8 +60,10 @@
     function startTrail(id) {
       var pts = L.route(grade, id);
       if (!pts.length) return;
+      var end = o.trailEnd ? o.trailEnd(id) : null;
+      if (end) pts[pts.length - 1] = [end.x, end.z];
       decor.showTrail(pts);
-      trailTo = allSpots.filter(function (s) { return s.id === id; })[0] || null;
+      trailTo = end ? { id: id, x: end.x, z: end.z } : allSpots.filter(function (s) { return s.id === id; })[0] || null;
       o.sound('allRead');
     }
 
@@ -213,7 +215,6 @@
     return {
       refresh: refresh, label: label, act: act, tick: tick, nudge: nudge, nudgeHere: nudgeHere,
       handles: function (kind) { return kind === 'mimi' || kind === 'fort'; },
-      doorHref: function (app, plain) { return P.doorHref(snap, app, plain); },
       snapshot: function () { return snap; },
       fortDebug: function () { return fortBoss ? fortBoss.debug() : null; },
       visiting: function () { return !!visit; },

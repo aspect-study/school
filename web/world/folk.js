@@ -95,7 +95,7 @@
     // All caught up with Hoot: Go ▶ to the guide's next step when there is one.
     function stepButtons() {
       var s = snap;
-      var go = s && s.stepHref ? [{ text: T.goTrail, main: true, onClick: function () { o.open(s.step.app || null, s.stepHref); } }] : [];
+      var go = s && s.stepHref ? [{ text: T.goTrail, main: true, onClick: function () { o.open(s.step.app || null, o.stepHref ? o.stepHref(s) : s.stepHref); } }] : [];
       return go.concat([{ text: T.bye }]);
     }
 

@@ -6,7 +6,8 @@
 
   var PLAYER_R = 0.9;
   var STREET = { side: 15, half: 4.5, firstRow: -22, rowGap: 18 };
-  var BUILDING = { hx: 4.75, hz: 5.75, doorOut: 6.6 };
+  // floor2: the Term 2 floor's height on every building; upY: its balcony floor, the top of the ground floor.
+  var BUILDING = { hx: 4.75, hz: 5.75, doorOut: 6.6, floor2: 4.6, upY: 6.9 };
   var DOOR_R = 2.6;
   var BUDDY_AHEAD = 3.6;
   // Two more talking trees inside Whispering Park, besides its ring of six.

@@ -28,7 +28,7 @@ Read this before opening files in `web/world/`. Each file is an ES5 IIFE that ad
 | Playground games | `mategame.js` + `games3d.js` (tag, hide-and-seek), `patintero.js` + `replay.js` |
 | Gifts and monsters | `loot.js` (pure), `loot3d.js` |
 | Review questions in the world | `quiz.js`, `ask.js`, `teach.js`, `lesson-files.js` (generated) |
-| The Study Loft (Term 2 desks, Exam Corner) | `loft.js`, `loft3d.js`, `world-main.js` `climbUp` / `climbDown` |
+| Term 2 upstairs (stairs, balcony, Term 2 door, exam board) | `upstairs.js`, `upstairs3d.js`, `world-main.js` `goUp` / `goDown` |
 | A game opening inside the world | `portal.js` |
 | Rendering, quality, resize | `scene.js` (stage), `world-main.js` `frame()` / `applyQuality()` |
 
@@ -37,16 +37,16 @@ Read this before opening files in `web/world/`. Each file is an ES5 IIFE that ad
 | File | Lines | Job |
 | --- | --- | --- |
 | `scene.js` | 204 | Renderer, camera, lights, sky, cached toon materials and shapes (`S.add`, `S.rbox`, `S.label`...), quality, resize, context-loss texture refresh. Everything draws through it. |
-| `world-main.js` | 1870 | Page start, the frame loop, doors, overlays (settings, travel), HUD wiring, My Room enter/exit, the Study Loft, the mirror. Wires every module below with a context object. Read it by line range, never whole. |
-| `layout.js` | 345 | Where everything stands, per grade. Pure data and geometry. |
-| `text.js` | 185 | Words for the world (Grade 2 pairs Filipino with English). |
+| `world-main.js` | 1870 | Page start, the frame loop, doors, overlays (settings, travel), HUD wiring, My Room enter/exit, going up to a balcony, the mirror. Wires every module below with a context object. Read it by line range, never whole. |
+| `layout.js` | 346 | Where everything stands, per grade. Pure data and geometry. |
+| `text.js` | 192 | Words for the world (Grade 2 pairs Filipino with English). |
 | `prefs.js` | 111 | Device prefs, return door, frame-rate watcher (asks for low quality). Pure. |
-| `walk.js` / `move.js` | 55 / 278 | Movement maths (pure) / pointer, keys, joystick and camera. |
+| `walk.js` / `move.js` | 55 / 284 | Movement maths (pure) / pointer, keys, joystick and camera. |
 | `stamina.js` | 50 | Her heart while she sprints. Pure. |
 | `hud.js` | 21 | Coins pill and quests pill. |
 | `intro.js` + `intro.css` | | The opening animation (loads first, before the manifest scripts). |
 
-## `tick()` order (world-main.js, about line 1351)
+## `tick()` order (world-main.js, about line 1423)
 
 `ctl.update` (input) -> ride or seat pose -> footsteps -> her move runner -> her avatar pose -> pet (`pal.tick`) -> stamina
 and HUD toggles -> nearest interactable -> `world.animate` -> room view -> then, outdoors only: `town`, `folk`, `kin`,
@@ -57,15 +57,15 @@ next frame first, runs `tick(min(dt, 0.05))`, then `S.render()`.
 
 | File | Lines | Job |
 | --- | --- | --- |
-| `build.js` | 401 | Ground, paths, buildings, fort, plaza, gardens, playground, gate, signs. |
+| `build.js` | 402 | Ground, paths, buildings (each body one floor taller for Term 2), fort, plaza, gardens, playground, gate, signs. |
 | `decor.js` | 137 | Medal flags, banners, floating markers that follow her progress. |
 | `cast.js` | 606 | Mayor Mimi, the subject buddies, Hoot, Bunny, talking trees. |
 | `fort-boss.js` | 196 | The weekly boss and his finale. |
 | `avatar.js` / `wear.js` | 194 / 509 | Her chibi character / one builder per wardrobe item. |
 | `petbody.js` / `pettricks.js` | 358 / 91 | One builder per pet and gear / trick and toy shapes. |
-| `companion.js` | 457 | Her pet in the world (follows, rides, bubble). |
-| `room3d.js` | 1120 | My Room in 3D: walls, desk, mirror, shelf, the ladder up to the Study Loft and the open Old lessons bookcase, one builder per furniture piece. |
-| `loft3d.js` | 90 | The Study Loft in 3D: floor and low railing, a desk per game with emoji and English sign (🌱 dimmed when not ready), the Exam Corner board. |
+| `companion.js` | 461 | Her pet in the world (follows, rides, bubble). A walking pet and a thrown toy stand in one group that `lift()` raises onto a balcony with her. |
+| `room3d.js` | 1090 | My Room in 3D: walls, desk, mirror, shelf, one builder per furniture piece. |
+| `upstairs3d.js` | 70 | Each building's spiral stairs, balcony, Term 2 door (🌱 greyed until ready), exam board and Term 1 / Term 2 plaques. |
 | `mates3d.js` | 332 | The playground kids in 3D. |
 | `life.js` | 190 | The living world in 3D (routines for characters and pets). |
 | `games3d.js` | 736 | Playground games in 3D. |
@@ -76,7 +76,7 @@ next frame first, runs `tick(min(dt, 0.05))`, then `S.render()`.
 
 | File | Lines | Job |
 | --- | --- | --- |
-| `town.js` | 239 | Progress on the map; Mimi, the fort gate, the nudge. |
+| `town.js` | 240 | Progress on the map; Mimi, the fort gate, the nudge. |
 | `folk.js` | 251 | The talking characters; Ask me!; study desk. |
 | `kin.js` | 462 | Jesus, her sister, comfort days, cheers. |
 | `talk.js` | 106 | The speech bubble panel (face, words, buttons). |
@@ -94,8 +94,8 @@ next frame first, runs `tick(min(dt, 0.05))`, then `S.render()`.
 | `petlife.js`, `lifedata.js`, `routines.js` | Pet mood; routine data; the state machine for characters and pets. |
 | `loot.js`, `quiz.js`, `teach.js` | Gift and monster rules; Ask me! questions; the pet teacher's steps. |
 | `rides.js`, `moves.js`, `moverun.js` | Ride maths; move poses; running one move at a time. |
-| `room.js`, `trophies.js` | My Room squares (keeps the ladder corner and the Old lessons bookcase spot clear); the trophy shelf. |
-| `loft.js` | The Study Loft layout: 6×6 floor, a desk per game of her grade, Exam Corner, the ladder down. |
+| `room.js`, `trophies.js` | My Room squares; the trophy shelf. |
+| `upstairs.js` | Term 2 upstairs: balcony box, stairs, spots, game links, which floor the guide's step belongs to. |
 | `look.js`, `closet.js`, `house.js` | Saved data: her look, what she owns, her house (each syncs). |
 | `items.js`, `pets.js`, `emotes.js`, `furniture.js`, `buddies.js` | Catalogs (data). |
 | `sfx.js`, `music.js` | Sound effects and the music-box loop (Web Audio). |
@@ -107,7 +107,7 @@ next frame first, runs `tick(min(dt, 0.05))`, then `S.render()`.
 
 ## Generated or separate
 
-`lesson-files.js` and `term-lessons.js` (`World3D.TermLessons`: Term 2 and exam counts per game) are written by `tools/update-precache.js`: never edit them. `backdrop*.js` and `backdrop.html` are the start
+`lesson-files.js` and `term-lessons.js` (`World3D.TermLessons`: Term 2 counts and lesson ids per game) are written by `tools/update-precache.js`: never edit them. `backdrop*.js` and `backdrop.html` are the start
 page's town. `world.css` styles the world page.
 
 ## Rules that save tokens

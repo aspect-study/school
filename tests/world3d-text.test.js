@@ -25,7 +25,7 @@ const ENGLISH_ONLY = new Set(['sprint', 'stop', 'go', 'mirror', 'signpost', 'clo
   'maker.none', 'maker.hairs.braids', 'maker.hairs.ponytail', 'maker.hairs.curly',
   'maker.eyesNames.round', 'maker.eyesNames.sleepy', 'maker.eyesNames.sparkly', 'maker.eyesNames.smiley',
   'zoomIn', 'zoomOut', 'zoom', 'breath', 'goIn', 'goOut', 'visitAte', 'visitKuya', 'visitBunso', 'visitSister', 'visitBrother', 'decorate', 'done', 'study', 'sit', 'cheerPill', 'turn', 'putAway', 'tasyoGo', 'yay',
-  'climb', 'down', 'oldLessons', 'examCorner',
+  'goUp', 'goDown', 'termDoor', 'examBoard', 'termOne',
   'tabs.furniture', 'tabs.wall', 'tabs.fun', 'tabs.room', 'tabs.earned', 'credit',
   // The earn line put in {how} is already a pair on Grade 2.
   'chatterNames.quiet', 'chatterNames.calm', 'chatterNames.chatty', 'chat',

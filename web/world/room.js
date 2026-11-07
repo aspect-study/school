@@ -19,15 +19,8 @@
     return size;
   }
 
-  // The ladder up to the Study Loft stands in the south-east corner; the Old lessons bookcase hangs on e1 beside it.
-  function LADDER(size) { return [size - 1, 0]; }
-  function SHELF(size) { return [size - 1, 1]; }
-
-  // The door, the mirror and the trophy shelf take these wall squares; at 6x6 the window seat's alcove takes n5; the
-  // ladder leans on the south-east corner and the bookcase takes e1.
-  function WALL_TAKEN(size) {
-    return (size >= 6 ? ['s1', 's2', 'w1', 'w2', 'n5'] : ['s1', 's2', 'w1', 'w2']).concat(['s' + (size - 1), 'e0', 'e1']);
-  }
+  // The door, the mirror and the trophy shelf take these wall squares; at 6x6 the window seat's alcove takes n5.
+  function WALL_TAKEN(size) { return size >= 6 ? ['s1', 's2', 'w1', 'w2', 'n5'] : ['s1', 's2', 'w1', 'w2']; }
 
   function center(c, r) { return { x: ORIGIN.x + (c + 0.5) * SQ, z: ORIGIN.z - (r + 0.5) * SQ }; }
   function squareAt(x, z, size) {
@@ -74,9 +67,9 @@
     if (!isInt(p.c) || !isInt(p.r) || !isInt(p.turn || 0)) return false;
     var sq = footprint(it, p), rug = !!it.rug;
     var ok = sq.every(function (s) {
-      if (s[0] < 0 || s[1] < 0 || s[0] >= size || s[1] >= size || same(DESK, s[0], s[1]) || same(LADDER(size), s[0], s[1])) return false;
+      if (s[0] < 0 || s[1] < 0 || s[0] >= size || s[1] >= size || same(DESK, s[0], s[1])) return false;
       // At 6x6 the square before the window seat stays clear too, so she can reach 🪑 Sit.
-      return rug || !(same(DOOR, s[0], s[1]) || same(WALK, s[0], s[1]) || same(MIRROR, s[0], s[1]) || same(SHELF(size), s[0], s[1]) || (size >= 6 && same(SEAT, s[0], s[1])));
+      return rug || !(same(DOOR, s[0], s[1]) || same(WALK, s[0], s[1]) || same(MIRROR, s[0], s[1]) || (size >= 6 && same(SEAT, s[0], s[1])));
     });
     if (!ok) return false;
     // A rug lies under one standing piece: rugs never overlap rugs, standing pieces never overlap standing pieces.
@@ -231,7 +224,7 @@
 
   var exported = {
     SQ: SQ, ORIGIN: ORIGIN, WALL_H: WALL_H, SIZES: SIZES, DOOR: DOOR, WALK: WALK, MIRROR: MIRROR, DESK: DESK, SEAT: SEAT,
-    LADDER: LADDER, SHELF: SHELF, WALL_TAKEN: WALL_TAKEN, sizeFor: sizeFor, center: center, squareAt: squareAt, footprint: footprint,
+    WALL_TAKEN: WALL_TAKEN, sizeFor: sizeFor, center: center, squareAt: squareAt, footprint: footprint,
     wallSquares: wallSquares, fits: fits, autoPlace: autoPlace, place: place, move: move, moveWall: moveWall, turn: turn,
     putAway: putAway, spots: spots, repair: repair, start: start, solid: solid
   };
