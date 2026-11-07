@@ -290,6 +290,7 @@ The unit tests also check the quiz content itself. For example: every wrong opti
 - To add a lesson: copy a lesson file from the same game (each game family has its own question format), give it the next number, add its script tag after the last lesson tag, then run `node tools/update-precache.js`.
 - New questions need an explanation for each wrong option (`why`) and a tip (`tip`); the tests enforce this.
 - Math Mastery's lessons generate fresh numbers each time, so they stay in its page; its case studies and walkthroughs are data files.
+- **A Term 2 lesson** is an ordinary lesson file with `  term: 2,` on its own top-level line (add `  exam: true,` for a summative practice lesson, which shows only in the exam view). A file with no `term:` line is Term 1. Number it after the game's last lesson, whatever its term. In Math Mastery the inline `ALL_LESSONS` object carries `term: 2` (or `term: 2, exam: true`). Then run `node tools/update-precache.js`: it regenerates `web/world/term-lessons.js`, so the game's desk in the Study Loft lights up (it shows "coming soon" until a Term 2 lesson exists).
 - Keep the correct answer from usually being the longest option, and keep true/false answers roughly half and half.
 - Follow the class deck's facts and terms, even where an outside source says something different, and base the lesson directly on the source's wording (the project is private, so no rewording for copyright and no `tools/source-overlap.js` check; see `docs/lesson-writing.md`).
 

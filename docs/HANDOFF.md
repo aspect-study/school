@@ -1,6 +1,6 @@
 # Handoff
 
-Where the project stands. Updated 2026-10-11. Working rules are in `CLAUDE.md`; what the app does is in `README.md`.
+Where the project stands. Updated 2026-11-07. Working rules are in `CLAUDE.md`; what the app does is in `README.md`.
 Keep this page current: when a feature lands, move it to "Built", and add new ideas under "Parked" or "Next".
 
 ## Project
@@ -141,6 +141,15 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   walkway in Decorate (she stays hidden) and at the desk hops onto it at shoulder size if small or sits by the stool,
   and a Grade 2 trophy bubble is one line. Owner decisions: keep `noRoom` "para dito"; keep the inside camera (looks
   down, walls in its way see-through). Merged into `main` 2026-10-08.
+- Term 2 Study Loft (2026-11-07): a lesson file tagged `term: 2` (`exam: true` for summative practice) joins Term 2; untagged
+  = Term 1. A ladder in the south-east corner of My Room (🪜 Climb up / Go down) leads to a 6×6 loft with a desk per game
+  of her grade (opens it with `&term=2` in the portal frame; 🌱 dimmed and "coming soon" until it has Term 2 lessons), an
+  Exam Corner (games with Term 2 lessons, opens `&term=2&exam=1`) and, downstairs, a 📚 Old lessons bookcase on the east
+  wall (her games, opens `&term=1`). Town buildings still open both terms (under Term 1 / Term 2 headings). The engine
+  reads `?term=` (`StudyKit.pick/lessons/all/term/examView`); the final exam best is kept per view; review and boss ask
+  the viewed term's due questions. `web/world/term-lessons.js` is generated. Pending: tablet check (climbing feel, desk
+  sign readability, the Exam Corner list on a phone, a game closed inside the loft returning to the loft). Spec and plan:
+  `docs/superpowers/specs/2026-11-07-term-2-study-loft-design.md`, `docs/superpowers/plans/2026-11-07-term-2-study-loft.md`.
 - Games inside the world (2026-10-11): a door, a buddy's "Let's go" or the Boss Fort opens the real game page in a
   framed iframe over the paused, blurred town (`web/world/portal.js`); the game runs with `?embed=1` (`Nav.embedded`):
   ←/🏠 on the game home, the menu's 🏠 Back to town and the lesson path's home stop close the frame, ☰ Shop closes it
@@ -195,8 +204,9 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
 
 ## Next
 
+- **Term 2 lessons, one subject per commit** (sub-project 2 of the Study Loft spec; tag each file `term: 2`, see README "Adding content"). Sources received: Grade 5 Math, Science, Filipino, English, Araling Panlipunan, GMRC, Music & Arts, P.E. & Health, TLE; Grade 2 GMRC, Math, Makabansa. Not yet: Grade 2 English, Filipino, Science, Computer; Grade 5 Computer.
 - **Character chatter, what is left:** A3 is done (2026-10-13): her own pet speaks ambient bubbles while it walks, with the shared pet lines and no `{pet}` lines (`Speech.without`). The owner decided to SKIP Jesus's and her sister's chatter (both are sensitive; do not propose them). Later and optional: pet tap chat, `studied` and `medal` tags, reply chats for town characters, chat memory (remember reply taps; needs one synced key), Part B (characters talking to each other).
-- **Lesson audit** (rewrite text that copies a source; `docs/lesson-writing.md`, "Rewording an existing question"),
+- **Lesson audit (SUPERSEDED 2026-10-14: the project is private, new lessons follow the source wording; ignore this item and its `source-overlap.js` rule)** (rewrite text that copies a source; `docs/lesson-writing.md`, "Rewording an existing question"),
   one game per commit, hits at the start in brackets (3356 in all on 2026-10-11).
   **Stopped 2026-10-12** by the owner (token cost). The unticked games stay as they are; don't audit them, not even
   when a new deck arrives. The rule applies to new lessons only: new lesson files must pass
