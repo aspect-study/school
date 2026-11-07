@@ -1,4 +1,4 @@
-// A game's term views, with Life Lab's last lesson marked Term 2: ?term=2 shows only it, ?term=1 every other lesson,
+// A game's term views, with only Life Lab's last lesson marked Term 2: ?term=2 shows only it, ?term=1 every other lesson,
 // no term shows both under 📘 Term 1 and 🌟 Term 2 · New headings (hidden with the cards in the path view), and
 // ?term=2&exam=1 opens the final exam drawn from the Term 2 lesson. Then Byte Buddies (stars keyed by position).
 // Run: node tests/e2e/term-e2e.js
@@ -13,11 +13,14 @@ try {
   const driver = fs.readFileSync(path.join(__dirname, 'driver-term.page.js'), 'utf8');
   const html = injectDriver(fs.readFileSync(appFile('life-lab'), 'utf8'), driver);
   const file = stage(path.join(work, 'site'), app('life-lab').page, html, ENGINE_FILES);
-  const last = path.join(path.dirname(file), 'lessons', '18-adapt.js');
+  // Life Lab has real Term 2 lessons: untag them all in the staged copy, then tag only the last one.
+  const lessonFiles = [...html.matchAll(/<script src="(lessons\/[^"]+\.js)"><\/script>/g)].map((m) => path.join(path.dirname(file), m[1]));
+  for (const f of lessonFiles) fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/^  term: 2,\n/m, ''));
+  const last = lessonFiles[lessonFiles.length - 1];
   const source = fs.readFileSync(last, 'utf8');
-  if (!source.includes('StudyKit.lesson({\n')) throw new Error('18-adapt.js does not start with StudyKit.lesson({');
+  if (!source.includes('StudyKit.lesson({\n')) throw new Error(path.basename(last) + ' does not start with StudyKit.lesson({');
   fs.writeFileSync(last, source.replace('StudyKit.lesson({\n', 'StudyKit.lesson({\n  term: 2,\n'));
-  const total = (html.match(/<script src="lessons\//g) || []).length;
+  const total = lessonFiles.length;
 
   function view(name, suffix) {
     const r = readOutput(dumpDom(path.join(work, 'profile-' + name), file, suffix, 3000));

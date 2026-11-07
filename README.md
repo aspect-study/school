@@ -33,15 +33,15 @@ The offline cache list is in `web/sw.js`. `tests/pwa.test.js` fails if any file 
 | Game | Subject | Lessons | Covers |
 |---|---|---|---|
 | Math Mastery (`math/`) | Math | 19 | Divisibility, GEMDAS, fraction operations, decimals (ordering, rounding, adding to multiplying), estimating products and quotients, multi-step money problems, UPAC word problems, 10 case studies |
-| Page Turners (`english/`) | English | 23 | Story elements, figurative language, main idea, summarizing, author's purpose, nouns and pronouns, fact vs opinion and more |
-| Wikaharian (`filipino/`) | Filipino | 20 | Poetry, fiction, informative text patterns, actor focus, linkers, denotation, degrees of adjectives, adverbs, myths and legends, letters, references, forms, literary works |
-| History Explorers (`araling-panlipunan/`) | Araling Panlipunan | 29 | Barangay, leaders and classes, trade, beliefs and traditions, the study of history, theories of origin, the first Filipinos, evidence, location, Islam and the sultanates, ties with China |
-| Life Lab (`science/`) | Science | 18 | Matter, measurement, scientific method, microorganisms, plant and animal groups |
-| Rise & Shine (`gmrc/`) | GMRC | 13 | Self, saving, dignity, faith, traffic rules, manners, gratitude, e-waste |
-| Rally Ready (`pe-health/`) | P.E. & Health | 18 | Net and wall games, ABC skills, pickleball, practical skills test, stress and coping, bullying, life skills, relaxation, Siyatong, puberty |
-| Craft Corner (`tle/`) | TLE | 9 | Home furnishings, embroidery, crochet, sewing |
-| Rhythm & Hues (`music-arts/`) | Music & Arts | 12 | Precolonial songs, instruments, dance and visual arts; recorder history, consorts, parts, care, notes and fingerings |
-| Net Navigators (`computer/`) | Computer | 8 | Search engines and keywords, evaluating websites, file sharing and its risks, online storage, netiquette, chat and IM, discussion boards |
+| Page Turners (`english/`) | English | 28 | Story elements, figurative language, main idea, summarizing, author's purpose, nouns and pronouns, fact vs opinion, verbs, explanation texts, news reports and more |
+| Wikaharian (`filipino/`) | Filipino | 24 | Poetry, fiction, informative text patterns, actor focus, linkers, denotation, degrees of adjectives, adverbs, myths and legends, letters, references, forms, literary works, personification, audio in multimedia, almanac and atlas |
+| History Explorers (`araling-panlipunan/`) | Araling Panlipunan | 38 | Barangay, leaders and classes, trade, beliefs and traditions, the study of history, theories of origin, the first Filipinos, evidence, location, Islam and the sultanates, ties with China, colonialism, Magellan and Mactan, Legazpi, tribute and polo y servicio, bandala, the galleon trade and the tobacco monopoly |
+| Life Lab (`science/`) | Science | 31 | Matter, measurement, scientific method, microorganisms, plant and animal groups, human organ systems, organ systems of frogs and birds, life cycles, camouflage and mimicry |
+| Rise & Shine (`gmrc/`) | GMRC | 15 | Self, saving, dignity, faith, traffic rules, manners, gratitude, e-waste, caring for others and compassion |
+| Rally Ready (`pe-health/`) | P.E. & Health | 24 | Net and wall games, ABC skills, pickleball, practical skills test, stress and coping, bullying, life skills, relaxation, Siyatong, puberty, badminton, medicine safety, gateway drugs |
+| Craft Corner (`tle/`) | TLE | 15 | Home furnishings, embroidery, crochet, sewing, wood, bamboo and metals, common damages, safety and measuring, repair tools and materials |
+| Rhythm & Hues (`music-arts/`) | Music & Arts | 17 | Precolonial songs, instruments, dance, vocal music, epic chants, drama and visual arts; recorder history, consorts, parts, care, notes, fingerings, technique and expression |
+| Net Navigators (`computer/`) | Computer | 13 | Search engines and keywords, evaluating websites, file sharing and its risks, online storage, netiquette, chat and IM, discussion boards, MS Word (the window, documents, pictures, shapes, SmartArt) |
 
 The Filipino and Araling Panlipunan games keep the textbook's Filipino wording and add optional English help: card translations, a "Hindi maintindihan?" button on questions, and "Paano Sagutin?" tip cards.
 

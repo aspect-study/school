@@ -791,8 +791,14 @@ try {
 
   // Upper floors: Araling Panlipunan's ground door opens Term 1; its stairs lead to the balcony, where the Term 2 door
   // and the exam board open Term 2 (History Explorers has lessons 30-38) and a closed game leaves her up there.
-  // Filipino has no Term 2 lessons yet: coming soon. Her room has no ladder or bookcase any more.
-  const up = run('upstairs', stageWorld('upstairs', 5, AVATAR_SCRIPT), 'upstairs');
+  // Filipino's Term 2 lessons are removed from the staged copy to check coming soon. Her room has no ladder or bookcase.
+  const upFile = stageWorld('upstairs', 5, AVATAR_SCRIPT);
+  const termsFile = path.join(path.dirname(upFile), 'term-lessons.js');
+  const terms = fs.readFileSync(termsFile, 'utf8');
+  const noFilipino = terms.replace(/("wikaharian": \{\s*"lessons": )\d+(,\s*"exams": )\d+(,\s*"ids": )\[[^\]]*\]/, '$10$20$3[]');
+  if (noFilipino === terms) throw new Error('wikaharian entry not found in term-lessons.js');
+  fs.writeFileSync(termsFile, noFilipino);
+  const up = run('upstairs', upFile, 'upstairs');
   assert.deepEqual(up.errors, [], 'upstairs: page errors');
   assert.equal(up.groundAct, '🇵🇭 Go to Araling Panlipunan! (Term 1)');
   // The guide's step on a new profile is the first visit to this game: the plain Term 1 door serves it.
