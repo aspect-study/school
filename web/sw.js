@@ -378,6 +378,8 @@ const PRECACHE = [
   'subjects/grade-5/gmrc/lessons/11-gratitude.js',
   'subjects/grade-5/gmrc/lessons/12-ewaste.js',
   'subjects/grade-5/gmrc/lessons/13-devices.js',
+  'subjects/grade-5/gmrc/lessons/14-caring.js',
+  'subjects/grade-5/gmrc/lessons/15-compassion.js',
   'subjects/grade-5/gmrc/strategy.js',
   'subjects/grade-5/gmrc/subject.json',
   'subjects/grade-5/gmrc/type-it.js',

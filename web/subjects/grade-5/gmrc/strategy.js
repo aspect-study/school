@@ -40,6 +40,11 @@ StudyKit.content('strategy', [
     body: 'Write the answer <b>exactly as the word bank prints it</b>, in <b>CAPITAL LETTERS</b>. Do not add, drop or change words &mdash; the computer checks letter by letter, even when your teacher later fixes it.'
   },
   {
+    kicker: 'Compassion Tip',
+    title: 'Feeling sorry is not enough',
+    body: '<b>Sympathy</b> = you only feel sorry. <b>Compassion</b> = you feel it AND act to help. For the <b>sick</b>: quiet, medicine, meals, visit. For the <b>elderly</b>: grateful, polite, help, listen. For <b>PWDs</b>: understand, no teasing, same respect, empower &mdash; and ask permission before helping.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Reread before you finalize',
     body: 'After choosing an answer, read the question one more time with your answer in mind. If it still makes sense and feels responsible and kind, you’ve got it right.'

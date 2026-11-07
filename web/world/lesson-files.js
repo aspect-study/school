@@ -286,7 +286,9 @@
         "lessons/10-sacred.js",
         "lessons/11-gratitude.js",
         "lessons/12-ewaste.js",
-        "lessons/13-devices.js"
+        "lessons/13-devices.js",
+        "lessons/14-caring.js",
+        "lessons/15-compassion.js"
       ]
     },
     "rhythm-hues": {

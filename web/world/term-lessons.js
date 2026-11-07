@@ -81,9 +81,12 @@
       "ids": []
     },
     "rise-shine": {
-      "lessons": 0,
+      "lessons": 2,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "caring",
+        "compassion"
+      ]
     },
     "math-mastery": {
       "lessons": 0,

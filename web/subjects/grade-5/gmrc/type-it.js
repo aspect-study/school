@@ -3,5 +3,7 @@ StudyKit.content('typeIt', {
   'This happens when a young child spends long hours working each day and misses school because of it.': ['child labor'],
   'What is this?': ['traffic light'],
   'Christians read and honor this sacred book. What is it called?': ['Bible'],
-  'Muslims read and honor this sacred book. What is it called?': ['Quran', 'Qur\'an']
+  'Muslims read and honor this sacred book. What is it called?': ['Quran', 'Qur\'an'],
+  'When people get sick, what is crucial for their recovery?': [],
+  'You should treat persons with disabilities with the same respect and consideration you would want for whom?': []
 });
