@@ -13,5 +13,12 @@ StudyKit.content('typeIt', {
   'In Siyatong, what does the hitter use to strike?': ['long stick'],
   'A sudden, big increase in height during puberty is called a ____.': [],
   'The uterus is also called the ____.': [],
-  'Ria feels happy one moment and upset the next. What is this called?': ['mood swing']
+  'Ria feels happy one moment and upset the next. What is this called?': ['mood swing'],
+  'What equipment is used to hit the shuttlecock in badminton?': [],
+  'What is another name for a shuttlecock?': [],
+  'Paolo hits the shuttlecock to start the rally. Which skill is this?': [],
+  'Mika quickly moves her feet to reach a shuttlecock that is far to her left. Which skill is she showing?': [],
+  'Which type of medicine prevents diseases?': ['vaccine'],
+  'Which harmful chemical released by smoking is addictive?': [],
+  'A family spends money on substances and treatment instead of food and education. Which effect is this?': []
 });

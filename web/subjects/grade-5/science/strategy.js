@@ -70,6 +70,16 @@ StudyKit.content('strategy', [
     body: 'Water boils at <b>100 &deg;C</b> and freezes at <b>0 &deg;C</b>. The numbers 212 and 32 are <b>&deg;F</b>. If a choice mixes them up, like &ldquo;water freezes at 32 &deg;C,&rdquo; it is wrong.'
   },
   {
+    kicker: 'Organ Systems Tip',
+    title: 'Name the main organ first',
+    body: 'Heart &rarr; <b>circulatory</b>. Lungs &rarr; <b>respiratory</b>. Food &rarr; <b>digestive</b>. Brain &rarr; <b>nervous</b>. Urine &rarr; <b>urinary</b>. Hormones &rarr; <b>endocrine</b>. Shape and protection &rarr; <b>skeletal</b>. Movement &rarr; <b>muscular</b>. Watch the look-alikes: <b>a</b>rteries go <b>a</b>way from the heart, ureters (two, in) vs urethra (one, out), thymus (immune) vs thyroid (metabolism).'
+  },
+  {
+    kicker: 'Life Cycles Tip',
+    title: 'Put the stages in order before you choose',
+    body: 'Butterfly and mosquito: <b>egg &rarr; larva &rarr; pupa &rarr; adult</b>. Frog: <b>egg &rarr; tadpole &rarr; froglet &rarr; adult</b>. Bird: <b>egg &rarr; hatching &rarr; chick &rarr; adult</b>. Human: <b>infancy &rarr; childhood &rarr; adolescence &rarr; adulthood &rarr; old age</b>. Plant: <b>seed &rarr; germination &rarr; seedling &rarr; mature plant &rarr; flowering &rarr; seed formation</b>. Blends in = <b>camouflage</b>; looks like another living thing = <b>mimicry</b>.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Reread before you finalize',
     body: 'Read the question once more with your answer in mind. If it still matches what the lesson actually said, you have got it.'

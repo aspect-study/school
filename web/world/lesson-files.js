@@ -334,7 +334,13 @@
         "lessons/15-siyatong.js",
         "lessons/16-puberty.js",
         "lessons/17-pubertychanges.js",
-        "lessons/18-pubertycare.js"
+        "lessons/18-pubertycare.js",
+        "lessons/19-badminton.js",
+        "lessons/20-badmintonskills.js",
+        "lessons/21-medicine.js",
+        "lessons/22-medicinesafety.js",
+        "lessons/23-gatewaydrugs.js",
+        "lessons/24-gatewayeffects.js"
       ]
     },
     "life-lab": {
@@ -360,7 +366,20 @@
         "lessons/15-shootsystem.js",
         "lessons/16-specialized.js",
         "lessons/17-classify.js",
-        "lessons/18-adapt.js"
+        "lessons/18-adapt.js",
+        "lessons/19-circulatory.js",
+        "lessons/20-respiratory.js",
+        "lessons/21-digestive.js",
+        "lessons/22-nervous.js",
+        "lessons/23-urinaryendocrine.js",
+        "lessons/24-skeletalmuscular.js",
+        "lessons/25-reproductive.js",
+        "lessons/26-frogsbirds.js",
+        "lessons/27-humanlifecycle.js",
+        "lessons/28-animallifecycles.js",
+        "lessons/29-camouflagemimicry.js",
+        "lessons/30-plantlifecycle.js",
+        "lessons/31-birdlifecycle.js"
       ]
     },
     "craft-corner": {

@@ -65,6 +65,11 @@ StudyKit.content('strategy', [
     body: 'Puberty myths usually say something is <b>dirty</b>, <b>wrong</b>, <b>only</b> for one group, or the <b>same</b> for everyone. The facts say it is <b>normal</b>, happens to <b>both</b> boys and girls, and comes at each person&rsquo;s <b>own pace</b>.'
   },
   {
+    kicker: 'Medicine and Gateway Drugs Tip',
+    title: 'Find the clue word first',
+    body: '"Ordered by a doctor" &rarr; <b>prescription</b>. "Without a prescription" &rarr; <b>OTC</b>. "Plant parts" &rarr; <b>herbal</b>. "Stimulates" &rarr; <b>caffeine</b>. "Depressant" &rarr; <b>alcohol</b>. "Nicotine" &rarr; <b>tobacco</b> or <b>vapes</b>. For effects, sort by who is hurt: the <b>individual</b> (health, behavior, mind), the <b>family</b> (relationships, money, emotions) or the <b>community</b> (crime, health care, social influence).'
+  },
+  {
     kicker: 'General Tip',
     title: 'Reread before you finalize',
     body: 'Read the question one more time with your answer in mind. If it still matches what the lesson actually said, you have got it.'

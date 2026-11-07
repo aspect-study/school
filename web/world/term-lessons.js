@@ -99,14 +99,35 @@
       "ids": []
     },
     "rally-ready": {
-      "lessons": 0,
+      "lessons": 6,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "badminton",
+        "badmintonskills",
+        "medicine",
+        "medicinesafety",
+        "gatewaydrugs",
+        "gatewayeffects"
+      ]
     },
     "life-lab": {
-      "lessons": 0,
+      "lessons": 13,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "circulatory",
+        "respiratory",
+        "digestive",
+        "nervous",
+        "urinaryendocrine",
+        "skeletalmuscular",
+        "reproductive",
+        "frogsbirds",
+        "humanlifecycle",
+        "animallifecycles",
+        "camouflagemimicry",
+        "plantlifecycle",
+        "birdlifecycle"
+      ]
     },
     "craft-corner": {
       "lessons": 6,
