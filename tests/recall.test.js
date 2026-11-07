@@ -707,3 +707,12 @@ test('tidy without renames retires the old box and gives the new question none',
   assert.equal(items(s)[keyOf('a', info(now))], undefined);
   assert.equal(items(s)[keyOf('a', info(old))].gone, true);
 });
+
+const { partialList } = require(engineFile('recall.js'));
+
+test('partialList: tidy keeps every box when a lesson file failed or the page shows one term', () => {
+  assert.equal(partialList(10, 10, null), false);
+  assert.equal(partialList(9, 10, null), true);
+  assert.equal(partialList(3, 10, 2), true);
+  assert.equal(partialList(10, 10, 1), true);
+});

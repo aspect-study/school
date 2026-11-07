@@ -286,3 +286,20 @@ test('a refused medal payment tells no news', () => {
   m.update('life-lab', [lesson('l1', ['a'])]);
   assert.deepEqual(told, []);
 });
+
+test('keep: a term view updates its lessons and keeps the others in their place', () => {
+  const s = memory({ review_v1: boxes({ a: 4, b: 4, c: 2 }) });
+  const m = create(s, now, 'grade5');
+  m.update('life-lab', [lesson('l1', ['a']), lesson('l2', ['b']), lesson('l3', ['c'])]);
+  m.update('life-lab', [lesson('l3', ['c'])], { keep: true });
+  assert.deepEqual(saved(s).apps['life-lab'].order, ['l1', 'l2', 'l3']);
+  assert.equal(counts(saved(s).apps['life-lab']).total, 3);
+});
+
+test('without keep, a shorter list still drops the missing lessons from the order (unchanged)', () => {
+  const s = memory({ review_v1: boxes({ a: 4, c: 2 }) });
+  const m = create(s, now, 'grade5');
+  m.update('life-lab', [lesson('l1', ['a']), lesson('l3', ['c'])]);
+  m.update('life-lab', [lesson('l3', ['c'])]);
+  assert.deepEqual(saved(s).apps['life-lab'].order, ['l3']);
+});

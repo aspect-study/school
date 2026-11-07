@@ -155,7 +155,8 @@
       },
 
       // lessons: [{ id, title, icon, keys }], keys being the lesson's review_v1 keys. A lesson with no keys has no medal.
-      update: function (app, lessons) {
+      // opt.keep (a ?term= view): lessons missing from this list keep their place in the saved order.
+      update: function (app, lessons, opt) {
         var boxes = readJson(storage, 'review_v1'), items = isObj(boxes) && isObj(boxes.items) ? boxes.items : {};
         var state = read(storage), old = isObj(state.apps[app]) && isObj(state.apps[app].lessons) ? state.apps[app].lessons : {};
         var entry = { t: now(), order: [], lessons: {} }, result = { lessons: {}, newly: [], coins: 0 }, raised = false, unpaid = {};
@@ -179,7 +180,13 @@
         Object.keys(old).forEach(function (id) {
           if (!has(entry.lessons, id) && isObj(old[id])) entry.lessons[id] = old[id];
         });
-        var prev = state.apps[app], after = subjectLevel(entry);
+        var prev = state.apps[app];
+        if (opt && opt.keep && isObj(prev) && Array.isArray(prev.order)) {
+          var mine = entry.order;
+          entry.order = prev.order.filter(function (id, i) { return prev.order.indexOf(id) === i && has(entry.lessons, id); })
+            .concat(mine.filter(function (id) { return prev.order.indexOf(id) < 0; }));
+        }
+        var after = subjectLevel(entry);
         result.subjectUp = isObj(prev) && raised && after > subjectLevel(prev) ? after : 0;
         result.toNext = after < 3 ? lessonsOf(entry).filter(function (l) { return level(l.best) <= after; }).length : 0;
         if (!isObj(prev) || JSON.stringify([prev.order, prev.lessons]) !== JSON.stringify([entry.order, entry.lessons])) {
@@ -330,6 +337,13 @@
       news: function (kind, data) { if (root.Family && root.Family.note) root.Family.note(kind, data); }
     })) : {};
     Object.keys(exported).forEach(function (k) { api[k] = exported[k]; });
+    var plainUpdate = api.update;
+    if (plainUpdate) {
+      api.update = function (app, lessons) {
+        var SK = root.StudyKit;
+        return plainUpdate(app, lessons, { keep: !!(SK && SK.term && SK.term()) });
+      };
+    }
     root.Mastery = api;
   } catch (e) {}
 })(this);

@@ -93,6 +93,9 @@
     return app + '|' + hash(String(info.q) + '|' + String(info.art || '') + '|' + String(info.answer || ''));
   }
 
+  // Tidy may drop boxes only when the page holds every lesson: none failed to load and no ?term= view.
+  function partialList(listLength, tags, term) { return listLength < tags || !!term; }
+
   // A reworded question carries was: '<old hash>'; this maps its stem to that hash. A stem used by two questions is
   // left out, since it cannot tell which one was reworded.
   function renamesOf(lessons) {
@@ -538,8 +541,8 @@
     // A lesson file that failed to load must not cost her that lesson's boxes.
     core.tidy = function (app, questions, info, entries) {
       var tags = doc.querySelectorAll('script[src*="lessons/"]').length;
-      var list = win.StudyKit && win.StudyKit.lessons ? win.StudyKit.lessons() : null;
-      return tidy(app, questions, info, entries, (list ? list.length : tags) < tags, list ? renamesOf(list) : null);
+      var SK = win.StudyKit, list = SK && SK.all ? SK.all() : null, term = SK && SK.term ? SK.term() : null;
+      return tidy(app, questions, info, entries, partialList(list ? list.length : tags, tags, term), list ? renamesOf(list) : null);
     };
     core.textOf = function (html) {
       var d = doc.createElement('div');
@@ -551,7 +554,7 @@
     return core;
   }
 
-  var exported = { create: create, matches: matches, normalize: normalize, keyOf: keyOf, renamesOf: renamesOf, TEXT: TEXT,
+  var exported = { create: create, matches: matches, normalize: normalize, keyOf: keyOf, renamesOf: renamesOf, partialList: partialList, TEXT: TEXT,
     REST_DAYS: REST_DAYS, TYPED_BONUS: TYPED_BONUS, BOX_DAYS: BOX_DAYS, GAP_BONUS: GAP_BONUS, REVIEW_SIZE: REVIEW_SIZE, SEED_DAYS: SEED_DAYS };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
