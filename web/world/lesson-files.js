@@ -171,7 +171,16 @@
         "lessons/26-islam.js",
         "lessons/27-sultanato.js",
         "lessons/28-katuruan-islam.js",
-        "lessons/29-tsina.js"
+        "lessons/29-tsina.js",
+        "lessons/30-kolonyalismo.js",
+        "lessons/31-dahilan.js",
+        "lessons/32-magellan.js",
+        "lessons/33-mactan.js",
+        "lessons/34-ekspedisyon.js",
+        "lessons/35-legazpi.js",
+        "lessons/36-puwersang-militar.js",
+        "lessons/37-tributo-polo.js",
+        "lessons/38-bandala-galyon-tabako.js"
       ]
     },
     "net-navigators": {

@@ -32,7 +32,7 @@
       "exams": 0
     },
     "history-explorers": {
-      "lessons": 0,
+      "lessons": 9,
       "exams": 0
     },
     "net-navigators": {

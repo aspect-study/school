@@ -58,5 +58,19 @@ StudyKit.content('typeIt', {
   'Ano ang tawag sa komunidad ng mga mananampalataya at tagasunod ng Islam?': [],
   'Anong haligi ng Islam ang pagdarasal nang limang beses sa loob ng isang araw?': [],
   'Anong haligi ng Islam ang pag-aayuno sa panahon ng Ramadan?': [],
-  'Isang bansa na nakipag-ugnayan sa ating bansa noong sinaunang panahon at may kaugalian ng paggunita sa mga yumao. Anong bansa ito?': ['China']
+  'Isang bansa na nakipag-ugnayan sa ating bansa noong sinaunang panahon at may kaugalian ng paggunita sa mga yumao. Anong bansa ito?': ['China'],
+  'Ano ang tawag sa teritoryong sinakop?': [],
+  'Anong taon pinagtibay ng Portugal at Espanya ang hatian sa pamamagitan ng paglagda sa Kasunduan sa Tordesillas?': [],
+  'Sino ang tagapagtala ng kasaysayan (chronicler) ng ekspedisyon ni Magellan?': ['Pigafetta'],
+  'Ano ang ibig sabihin ng salitang <b>pacifico</b>?': [],
+  'Sino ang alipin na kasama ng ekspedisyon na nagsilbing tagasalin ng mga Espanyol sa mga katutubo?': [],
+  'Ano ang ritwal na isinagawa nina Magellan at Rajah Humabon bilang tanda ng pagkakaibigan?': [],
+  'Ano ang ipinangalan ng pangkat ni Villalobos sa ating kapuluan?': ['Islas Filipinas','Filipinas'],
+  'Sino ang prayleng kasama ni Legazpi?': ['Urdaneta'],
+  'Sino ang pinuno ng Cebu na tumanggi kay Legazpi?': ['Tupas','Raha Tupas'],
+  'Ano ang tawag sa mga taong sinanay upang lumaban?': [],
+  'Noong 1884, ano ang ipinalit sa tributo?': ['cedula'],
+  'Ano ang tawag sa mga sumasailalim sa polo y servicio?': [],
+  'Ayon sa aklat, saan pangunahing ginagawa ang mga galyon?': [],
+  'Ayon sa aklat, ano ang kailangan ng isang mangangalakal para makalahok sa Kalakalang Galyon?': []
 });
