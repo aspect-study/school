@@ -752,14 +752,23 @@
       return out;
     }
 
-    // What she bumps into inside: the desk (she stands by its stool), the space under the trophy shelf, and the
-    // standing pieces.
+    // The bookcase stands 0.05 to 0.75 out from the east wall (room3d.js bookcase()).
+    var BOOKCASE_HX = 0.375;
+    // What she bumps into inside: the desk (she stands by its stool), the space under the trophy shelf, the standing
+    // pieces and, in her own room, the Old lessons bookcase on east wall square e1.
     function roomSolid() {
-      var O = R.ORIGIN, d = R.center(R.DESK[0], R.DESK[1]);
-      return R.solid(F, home.room).concat([
+      var O = R.ORIGIN, d = R.center(R.DESK[0], R.DESK[1]), sh = R.center(R.SHELF(home.size)[0], R.SHELF(home.size)[1]);
+      var out = R.solid(F, home.room).concat([
         { x: O.x + 0.65, z: d.z, hx: 0.55, hz: 1.05 },
         { x: O.x + 0.375, z: O.z - (R.WALK[1] + 1) * R.SQ, hx: 0.375, hz: R.SQ }
       ]);
+      if (!home.visit) out.push({ x: O.x + home.size * R.SQ - BOOKCASE_HX, z: sh.z, hx: BOOKCASE_HX, hz: R.SQ / 2 });
+      return out;
+    }
+    // Where she stands after 🪜 Go down: in front of the bookcase, clear of its solid box.
+    function shelfFront() {
+      var sh = R.center(R.SHELF(home.size)[0], R.SHELF(home.size)[1]);
+      return { x: R.ORIGIN.x + home.size * R.SQ - 2 * BOOKCASE_HX - L.PLAYER_R - 0.1, z: sh.z };
     }
     function roomBlocked(x, z, r) {
       var b = home.box;
@@ -886,7 +895,7 @@
       home.loft = null;
       home.view = W.Room3D.create(S, { grade: home.grade, apps: home.apps, visit: false });
       home.view.show(roomState());
-      var O = R.ORIGIN, side = home.size * R.SQ, sh = R.SHELF(home.size), at = R.center(sh[0], sh[1]);
+      var O = R.ORIGIN, side = home.size * R.SQ, at = shelfFront();
       home.box = { minX: O.x, maxX: O.x + side, minZ: O.z - side, maxZ: O.z };
       home.solid = roomSolid();
       home.items = roomItems();
@@ -1762,6 +1771,7 @@
     debug.goOut = goOut;
     debug.climbUp = climbUp;
     debug.climbDown = climbDown;
+    debug.roomBlocked = function (x, z) { return !!home && roomBlocked(x, z, L.PLAYER_R); };
     debug.loft = function () { return home && home.loft ? home.loft.map(function (d) { return { app: d.app, ready: d.ready, c: d.c, r: d.r }; }) : null; };
     debug.inside = function () { return !!home; };
     debug.visit = function () { return sister ? goIn(sister) : false; };

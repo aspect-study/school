@@ -811,6 +811,8 @@ try {
   assert.equal(sl.down.loft, false, 'back in her room');
   assert.deepEqual(sl.down.items, ['room-out', 'room-out:walk', 'mirror', 'desk', 'ladder-up', 'old-lessons']);
   assert.equal(sl.downAt.near, 'old-lessons', 'she lands in front of the bookcase');
+  assert.equal(sl.downBlocked, false, 'she lands clear of the bookcase');
+  assert.equal(sl.intoShelf, true, 'she cannot walk into the bookcase');
   assert.equal(sl.shelfNear, 'old-lessons');
   assert.equal(sl.shelfAct, '📚 Old lessons');
   assert.equal(sl.shelfButtons.length, 11, 'ten subjects and Bye');

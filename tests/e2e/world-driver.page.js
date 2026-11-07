@@ -1350,7 +1350,9 @@
       D.act();
       o.down = D.room();
       o.downAt = D.state();
+      o.downBlocked = D.roomBlocked(o.downAt.x, o.downAt.z);
       var sh = RL.center(RL.SHELF(size)[0], RL.SHELF(size)[1]);
+      o.intoShelf = D.roomBlocked(RL.ORIGIN.x + size * RL.SQ - 1.2, sh.z);
       D.stand(sh.x - 1, sh.z);
       o.shelfNear = D.state().near;
       o.shelfAct = D.actText();

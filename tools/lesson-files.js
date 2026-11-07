@@ -42,6 +42,31 @@ function source() {
 
 const TERM_OUT = path.join(WEB, 'world', 'term-lessons.js');
 
+// The top-level {...} objects of a page's inline ALL_LESSONS array (Math Mastery), skipping braces inside quotes and
+// comments.
+function inlineLessons(html) {
+  const at = html.indexOf('ALL_LESSONS = [');
+  if (at < 0) return [];
+  const out = [];
+  let brackets = 0, braces = 0, start = -1;
+  for (let i = html.indexOf('[', at); i < html.length; i++) {
+    const c = html[i];
+    if (c === '"' || c === "'" || c === '`') {
+      for (i++; i < html.length && html[i] !== c; i++) if (html[i] === '\\') i++;
+    } else if (c === '/' && html[i + 1] === '/') {
+      i = html.indexOf('\n', i);
+      if (i < 0) break;
+    } else if (c === '/' && html[i + 1] === '*') {
+      i = html.indexOf('*/', i + 2) + 1;
+      if (i < 1) break;
+    } else if (c === '[') brackets++;
+    else if (c === ']' && --brackets === 0) break;
+    else if (c === '{' && braces++ === 0 && brackets === 1) start = i;
+    else if (c === '}' && --braces === 0 && start >= 0) { out.push(html.slice(start, i + 1)); start = -1; }
+  }
+  return out;
+}
+
 // How many Term 2 lessons (and exam-only Term 2 lessons) each game has, for the Study Loft's desks.
 function termCounts(base = path.join(WEB, 'subjects')) {
   const out = {};
@@ -62,8 +87,11 @@ function termCounts(base = path.join(WEB, 'subjects')) {
           else lessons++;
         }
       } else {
-        exams = (html.match(/\bterm:\s*2,\s*exam:\s*true\b/g) || []).length;
-        lessons = (html.match(/\bterm:\s*2\b/g) || []).length - exams;
+        for (const l of inlineLessons(html)) {
+          if (!/\bterm:\s*2\s*[,}\n]/.test(l)) continue;
+          if (/\bexam:\s*true\b/.test(l)) exams++;
+          else lessons++;
+        }
       }
       out[id] = { lessons, exams };
     }
@@ -86,4 +114,4 @@ function termSource() {
     + '})(this);\n';
 }
 
-module.exports = { collect, source, OUT, termCounts, termSource, TERM_OUT };
+module.exports = { collect, source, OUT, termCounts, termSource, TERM_OUT, inlineLessons };

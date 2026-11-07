@@ -33,3 +33,19 @@ test('web/world/term-lessons.js is up to date (run node tools/update-precache.js
 test('every one of the 17 games is listed', () => {
   assert.equal(Object.keys(require(worldFile('term-lessons.js'))).length, 17);
 });
+
+test('the inline Math list counts each lesson object on its own: any key order, several lines, braces in strings', () => {
+  const html = "<script>\nconst ALL_LESSONS = [\n"
+    + "  { id:'a', exam: true, term: 2, title:'A' },\n"
+    + "  {\n    id:'b',\n    title:'B {term: 2}',\n    term: 2\n  },\n"
+    + "  {\n    id:'c',\n    // term: 2 in a comment\n    exam: true,\n    generate: function () { return { q: '}' }; }\n  },\n"
+    + "  { id:'d', term: 2,\n    exam: true }\n"
+    + "];\nconst other = { term: 2 };\n</script>";
+  assert.equal(gen.inlineLessons(html).length, 4);
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'terms-'));
+  const dir = path.join(base, 'grade-5', 'math');
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, 'subject.json'), JSON.stringify({ id: 'math-mastery' }));
+  fs.writeFileSync(path.join(dir, 'index.html'), html);
+  assert.deepEqual(gen.termCounts(base), { 'math-mastery': { lessons: 1, exams: 2 } });
+});

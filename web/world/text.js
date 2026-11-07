@@ -136,7 +136,7 @@
       needMore: 'Kailangan mo pa ng {n} coins. 🪙 · You need {n} more coins. 🪙', placed: '🏠 Nasa kuwarto · In the room',
       decoHello: 'Pindutin ang isang gamit para ilagay ito sa kuwarto mo, o pindutin ang nasa kuwarto para ilipat ito. · Tap a piece to put it in your room, or tap one in the room to move it.',
       decoMove: 'Pindutin ang kumikinang na parisukat para ilipat ito roon. ✨ · Tap a glowing square to move it there. ✨',
-      loft: 'Silid-Aralan sa Itaas · Study Loft', shelf: 'Lumang Aralin · Old lessons', exam: 'Sulok ng Pagsusulit · Exam Corner',
+      loft: 'Silid-Aralan sa Itaas · Study Loft', shelf: 'Mga Lumang Aralin · Old lessons', exam: 'Sulok ng Pagsusulit · Exam Corner',
       oldPick: 'Pumili ng asignatura para balikan ang mga aralin sa Term 1. · Pick a subject to look back at your Term 1 lessons.',
       soon: 'Malapit na ang mga aralin sa Term 2 ng {name}! 🌱 · Term 2 lessons for {name} are coming soon! 🌱',
       examPick: 'Pumili ng asignatura para sa pagsasanay na pagsusulit sa Term 2. · Pick a subject for a Term 2 practice exam.',

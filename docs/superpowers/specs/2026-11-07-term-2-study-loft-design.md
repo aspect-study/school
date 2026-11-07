@@ -22,21 +22,28 @@ subject per commit after this lands.
 ## 1. Lesson data and engine
 
 - A lesson file may carry `term: 2`. A file without `term` is Term 1, so no existing lesson changes.
-- A Term 2 summative-test practice lesson also carries `exam: true`. It is left out of the lesson list and the lesson
-  path and is offered only in the Exam Corner view.
+- A Term 2 summative-test practice lesson also carries `exam: true`. In a term view it is left out of the lesson list
+  and the lesson path and is offered only in the Exam Corner view (`?term=2&exam=1`). With no `?term=` (the full view)
+  it shows as a normal lesson card.
 - `StudyKit` reads `?term=1` or `?term=2` from the page URL and exposes `StudyKit.term()` (1, 2 or null).
 - The lesson list a game builds its home, lesson path (`trail.js`), search (`search.js`) and medals from is filtered by
   that term. With no `?term=`, the game home shows a "Term 1" heading above the first lesson and a "Term 2 · New" heading above
   the first Term 2 lesson (file order, so the list, the lesson path and the search stay in step). With no Term 2 lesson
-  in the game, the home shows no headings (looks as today). The headings hide while a search is typed.
+  in the game, the home shows no headings (looks as today). The headings hide while a search is typed and, with the
+  cards, in the lesson path view. Grade 2 reads "📘 Unang Termino · Term 1" and "🌟 Ikalawang Termino (bago) · Term 2 (new)".
 - `?term=2&exam=1` opens the game straight into its final exam drawn only from Term 2 lessons, with the `exam: true`
   lessons offered beside it. Each game's final exam takes its questions from the filtered list.
 - Review boxes, medals, points, coins, quests, weekly boss, boss army, parent Focus and history keep every lesson of
   both terms. In a term view the game's review round and boss stage ask that term's due questions; the town building
-  (no `?term=`) asks both. A term view never drops review boxes or medals of the other term (Recall.tidy keeps all,
-  Mastery keeps the other lessons in order).
+  (no `?term=`) asks both. In a term view the review card, the path's review stop and the boss stop count only that
+  term's boxes (Recall.tidy, or Recall.scopeSkills for Math Mastery, scopes the counts to the view's questions), so a
+  stop never shows "ready" with nothing to ask. A term view never drops review boxes or medals of the other term
+  (Recall.tidy keeps all, Mastery keeps the other lessons in order).
+- Games that key stars by lesson position (Grade 2 Byte Buddies, Word Train, Growing Good, Batang Bayani, Science
+  Detectives) use the lesson's position in the full list, so a term view reads and writes the right lesson's stars.
 - The final exam's best score is kept per view: `final` (both terms), `final-t1`, `final-t2` in the game's progress.
-- `?term=` survives the in-game navigation the same way `?lesson=` does; `?reset=1` keeps stripping only `?lesson=`.
+- `?term=` survives the in-game navigation the same way `?lesson=` does; `?reset=1` keeps `term=` (and `embed=1`)
+  and drops the rest, `exam=` and `lesson=` included.
 
 ## 2. The house
 
@@ -54,7 +61,8 @@ subject per commit after this lands.
   - The Exam Corner board on the far wall lists each game that has Term 2 lessons; a row opens `?term=2&exam=1`.
   - A 🪜 Down spot returns her to her room at the ladder square.
 - **Downstairs:** a fixed 📚 Old lessons bookcase on wall square `e1` beside the ladder; its front floor square
-  (size − 1, 1) stays clear (rugs allowed). It opens a picker of her grade's games; each opens `?term=1` in the frame.
+  (size − 1, 1) stays clear (rugs allowed) and she cannot walk into the bookcase itself. It opens a picker of her
+  grade's games; each opens `?term=1` in the frame. 🪜 Down lands her on that square, clear of the bookcase.
 - Town buildings, buddies' "Let's go" and the Boss Fort keep opening the full game (both terms).
 - Her sister's room (view only) gets no ladder and no shelf.
 - Which games have Term 2 lessons comes from a new generated `web/world/term-lessons.js` (`World3D.TermLessons`,

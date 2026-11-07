@@ -638,7 +638,7 @@
       floorTiles = {}; wallTiles = {}; tileList = []; starSprites = [];
       SIDES.forEach(function (sd) { shellOn[sd] = []; });
       parts = [];
-      var base =flat(S.add(geo('base', function () { return new THREE.PlaneGeometry(160, 160); }), S.toon('#ffe3f1'), L / 2, -0.6, -L / 2, shell));
+      var base = flat(S.add(geo('base', function () { return new THREE.PlaneGeometry(160, 160); }), S.toon('#ffe3f1'), L / 2, -0.6, -L / 2, shell));
       base.rotation.x = -HALF;
       flat(S.add(S.rbox(L + 1.6, 0.6, L + 1.6, 0.3), '#fff6fb', L / 2, -0.31, -L / 2, shell));
       var fl = flat(S.add(geo('floor' + size, function () { return new THREE.PlaneGeometry(L, L); }), floorMat, L / 2, 0, -L / 2, shell));
