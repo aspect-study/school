@@ -27,9 +27,9 @@ test('squares, their centres and the wall squares the door, mirror, shelf and al
   assert.deepEqual(R.squareAt(200 + 3.5 * 2.4, 200 - 2.5 * 2.4, 4), { c: 3, r: 2 });
   assert.equal(R.squareAt(199, 199, 4), null);
   assert.equal(R.squareAt(201, 190, 4), null, 'row 4 is off a 4x4 room');
-  assert.deepEqual(R.WALL_TAKEN(4), ['s1', 's2', 'w1', 'w2']);
-  assert.deepEqual(R.WALL_TAKEN(5), ['s1', 's2', 'w1', 'w2']);
-  assert.deepEqual(R.WALL_TAKEN(6), ['s1', 's2', 'w1', 'w2', 'n5']);
+  assert.deepEqual(R.WALL_TAKEN(4), ['s1', 's2', 'w1', 'w2', 's3', 'e0', 'e1']);
+  assert.deepEqual(R.WALL_TAKEN(5), ['s1', 's2', 'w1', 'w2', 's4', 'e0', 'e1']);
+  assert.deepEqual(R.WALL_TAKEN(6), ['s1', 's2', 'w1', 'w2', 'n5', 's5', 'e0', 'e1']);
   assert.deepEqual(R.footprint(F.find('home-bed'), { c: 0, r: 3, turn: 1 }), [[0, 3], [1, 3]]);
   assert.deepEqual(R.wallSquares(F.find('home-lights'), { side: 'n', i: 2 }), ['n2', 'n3']);
 });
@@ -68,6 +68,8 @@ test('auto-place never stands a piece on the door, walkway, mirror or desk squar
           assert.ok(c >= 0 && r >= 0 && c < size && r < size, id + ' off the room');
           assert.notEqual(c + ',' + r, R.DESK.join(','), id + ' on the desk');
           if (!it.rug) assert.ok(!KEPT.includes(c + ',' + r), id + ' stands on a kept square ' + c + ',' + r);
+          if (!it.rug) assert.notEqual(c + ',' + r, R.SHELF(size).join(','), id + ' stands before the bookcase');
+          assert.notEqual(c + ',' + r, R.LADDER(size).join(','), id + ' on the ladder');
           if (!it.rug && size >= 6) assert.notEqual(c + ',' + r, R.SEAT.join(','), id + ' stands before the window seat');
         }
       }
@@ -112,7 +114,9 @@ test('move and turn refuse overlaps, walls and kept squares and leave the room u
   assert.equal(R.move(F, withLamp, lamp, 2, 0), null, 'the mirror square');
   assert.equal(R.move(F, withLamp, lamp, 0, 0), null, 'the desk');
   assert.equal(R.move(F, withLamp, lamp, 0.5, 2), null, 'between squares');
-  assert.deepEqual(R.move(F, withLamp, lamp, 3, 0).placed[lamp], { id: 'home-lamp', c: 3, r: 0, turn: 0 });
+  assert.deepEqual(R.move(F, withLamp, lamp, 3, 2).placed[lamp], { id: 'home-lamp', c: 3, r: 2, turn: 0 });
+  assert.equal(R.move(F, withLamp, lamp, 3, 0), null, 'the ladder square');
+  assert.equal(R.move(F, withLamp, lamp, 3, 1), null, 'before the bookcase');
   assert.equal(JSON.stringify(room), before, 'the room itself never changes');
 });
 
@@ -166,7 +170,7 @@ test('rugs lie under one standing piece, never under another rug, and may cover 
   assert.equal(R.fits(F, beanbag, { id: 'home-tea-table', c: 2, r: 2, turn: 0 }), true, 'another rug square is free');
   assert.equal(R.fits(F, room, { id: 'home-rug-heart', c: 2, r: 1, turn: 0 }), false, 'a second rug may not overlap the first');
   assert.equal(R.fits(F, room, { id: 'home-rug-heart', c: 2, r: 0, turn: 0 }), false);
-  assert.equal(R.fits(F, empty(5), { id: 'home-rug-heart', c: 3, r: 0, turn: 0 }), true);
+  assert.equal(R.fits(F, empty(5), { id: 'home-rug-heart', c: 2, r: 0, turn: 0 }), true);
   assert.equal(R.fits(F, empty(4), { id: 'home-rug-round', c: 1, r: 0, turn: 0 }), true, 'a rug may cover the door, walkway and mirror');
   assert.equal(R.fits(F, empty(4), { id: 'home-rug-round', c: 0, r: 0, turn: 0 }), false, 'never the desk');
   assert.equal(R.fits(F, empty(4), { id: 'home-tent', c: 1, r: 1, turn: 0 }), false, 'a tent stands, so not on the walkway');
@@ -239,4 +243,26 @@ test('spots lists exactly the squares where a move succeeds', () => {
     assert.deepEqual(list.slice().sort(), want.sort(), p.id);
     assert.ok(list.length > 0, p.id + ' can at least stay where it is');
   });
+});
+
+test('the ladder corner and the bookcase front stay clear at every size; a rug may lie before the bookcase', () => {
+  [4, 5, 6, 7, 8].forEach((size) => {
+    assert.deepEqual(R.LADDER(size), [size - 1, 0]);
+    assert.deepEqual(R.SHELF(size), [size - 1, 1]);
+    const room = empty(size);
+    assert.equal(R.fits(F, room, { id: 'home-lamp', c: size - 1, r: 0, turn: 0 }), false, 'no lamp on the ladder');
+    assert.equal(R.fits(F, room, { id: 'home-lamp', c: size - 1, r: 1, turn: 0 }), false, 'no lamp before the bookcase');
+    assert.equal(R.fits(F, room, { id: 'home-rug-round', c: size - 2, r: 1, turn: 0 }), true, 'a 2x2 rug may lie before the bookcase');
+    assert.equal(R.fits(F, room, { id: 'home-rug-round', c: size - 2, r: 0, turn: 0 }), false, 'a 2x2 rug never reaches the ladder');
+    const rug = F.ITEMS.find((it) => it.kind === 'floor' && it.rug && it.size[0] === 1 && it.size[1] === 1);
+    if (rug) {
+      assert.equal(R.fits(F, room, { id: rug.id, c: size - 1, r: 1, turn: 0 }), true, 'a rug before the bookcase');
+      assert.equal(R.fits(F, room, { id: rug.id, c: size - 1, r: 0, turn: 0 }), false, 'never under the ladder');
+    }
+  });
+});
+
+test('a saved piece on the ladder square goes back to storage on load', () => {
+  const r = R.repair(F, { placed: [{ id: 'home-lamp', c: 3, r: 0, turn: 0 }] }, 4, all);
+  assert.deepEqual(r.placed, []);
 });
