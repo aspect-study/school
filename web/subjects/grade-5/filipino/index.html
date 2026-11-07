@@ -607,6 +607,7 @@ function renderFlash(){
   SH && SH.cardViewed(historyLessonId, flashIdx + 1);
   document.getElementById('flashFront').innerHTML = c.front;
   document.getElementById('flashBack').innerHTML = c.back;
+  document.getElementById('flashCard').classList.toggle('t2', l.term === 2);
   const enBox = document.getElementById('flashEn');
   enBox.innerHTML = c.en ? '<span class="en-label">SA ENGLISH</span>' + c.en : '';
   enBox.style.display = c.en ? 'block' : 'none';

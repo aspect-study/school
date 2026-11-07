@@ -594,6 +594,7 @@ function renderFlash(){
   SH && SH.cardViewed(historyLessonId, flashIdx + 1);
   document.getElementById('flashFront').innerHTML = c.front;
   document.getElementById('flashBack').innerHTML = c.back;
+  document.getElementById('flashCard').classList.toggle('t2', l.term === 2);
   document.getElementById('flashDots').textContent = `${flashIdx+1} / ${l.cards.length}`;
   window.ReadGate && ReadGate.show(flashIdx);
 }

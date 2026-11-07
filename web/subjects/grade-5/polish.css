@@ -84,3 +84,7 @@
   .lesson-card:active,
   .option:not(:disabled):active { transform: none; }
 }
+.flashcard.t2 {
+  align-items: stretch;
+  text-align: left;
+}
