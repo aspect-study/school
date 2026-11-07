@@ -29,5 +29,11 @@ StudyKit.content('typeIt', {
   '“We cleaned the whole room by ___.”': [],
   'Which visual element shows <b>where the subject is looking</b>?': [],
   'Which visual element suggests <b>mood</b> and creates atmosphere?': ['color'],
-  'Which visual element is the <b>layout</b> that draws attention to the subject?': []
+  'Which visual element is the <b>layout</b> that draws attention to the subject?': [],
+  'What type of action verb is <b>believe</b> in &ldquo;I believe we can win this game&rdquo;?': [],
+  '&ldquo;The children seem excited.&rdquo; What is the linking verb?': [],
+  'Helping verbs are also called&hellip;': ['auxiliary'],
+  'A helping verb and the main verb together form a&hellip;': [],
+  'What is the first paragraph of a news report called?': ['the lead'],
+  'What is the conclusion of a news report called?': ['tail']
 });

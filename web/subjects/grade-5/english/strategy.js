@@ -73,5 +73,15 @@ StudyKit.content('strategy', [
     kicker: 'Generalization Tip',
     title: 'Many examples, not just one',
     body: 'A good generalization comes from <b>several</b> examples. Words like <b>everyone</b> can make it faulty; <b>many</b> is safer.'
+  },
+  {
+    kicker: 'Verbs Tip',
+    title: 'Action, linking, or helping?',
+    body: 'Shows an action &rarr; <b>action</b>. Joins the subject to a description or a name &rarr; <b>linking</b>. Comes right before another verb &rarr; <b>helping</b>. The same word can change jobs: Maria <b>is</b> intelligent (linking), She <b>is</b> reading (helping).'
+  },
+  {
+    kicker: 'Text Types Tip',
+    title: 'Explanation text or news report?',
+    body: 'How or why something happens, with steps like First, Next, As a result &rarr; <b>explanation text</b>. A recent real event with Who, What, Where, When and quotes &rarr; <b>news report</b>. News report parts: lead, body, tail.'
   }
 ]);

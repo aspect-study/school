@@ -227,7 +227,12 @@
         "lessons/20-pronouns.js",
         "lessons/21-pronouns2.js",
         "lessons/22-factopinion.js",
-        "lessons/23-visual.js"
+        "lessons/23-visual.js",
+        "lessons/24-action-verbs.js",
+        "lessons/25-linking-helping.js",
+        "lessons/26-explanation-text.js",
+        "lessons/27-news-report.js",
+        "lessons/28-delivering-news.js"
       ]
     },
     "wikaharian": {

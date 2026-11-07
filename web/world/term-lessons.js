@@ -59,9 +59,15 @@
       "ids": []
     },
     "page-turners": {
-      "lessons": 0,
+      "lessons": 5,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "actionverbs",
+        "linkinghelping",
+        "explanation",
+        "newsreport",
+        "deliveringnews"
+      ]
     },
     "wikaharian": {
       "lessons": 0,
