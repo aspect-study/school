@@ -26,18 +26,24 @@ subject per commit after this lands.
   path and is offered only in the Exam Corner view.
 - `StudyKit` reads `?term=1` or `?term=2` from the page URL and exposes `StudyKit.term()` (1, 2 or null).
 - The lesson list a game builds its home, lesson path (`trail.js`), search (`search.js`) and medals from is filtered by
-  that term. With no `?term=`, the game home shows two headings: "Term 2 · New" first, then "Term 1". With no Term 2
-  lesson in the game, the home shows no headings (looks as today).
+  that term. With no `?term=`, the game home shows a "Term 1" heading above the first lesson and a "Term 2 · New" heading above
+  the first Term 2 lesson (file order, so the list, the lesson path and the search stay in step). With no Term 2 lesson
+  in the game, the home shows no headings (looks as today). The headings hide while a search is typed.
 - `?term=2&exam=1` opens the game straight into its final exam drawn only from Term 2 lessons, with the `exam: true`
   lessons offered beside it. Each game's final exam takes its questions from the filtered list.
-- Unchanged and cross-term: spaced review (Term 1 questions keep returning), points, coins, quests, weekly boss, boss
-  army, parent Focus and history.
+- Review boxes, medals, points, coins, quests, weekly boss, boss army, parent Focus and history keep every lesson of
+  both terms. In a term view the game's review round and boss stage ask that term's due questions; the town building
+  (no `?term=`) asks both. A term view never drops review boxes or medals of the other term (Recall.tidy keeps all,
+  Mastery keeps the other lessons in order).
+- The final exam's best score is kept per view: `final` (both terms), `final-t1`, `final-t2` in the game's progress.
 - `?term=` survives the in-game navigation the same way `?lesson=` does; `?reset=1` keeps stripping only `?lesson=`.
 
 ## 2. The house
 
-- **Ladder:** a fixed 🪜 ladder on a reserved square of her room (like `DESK` and `SEAT` in `room.js`): Decorate never
-  places furniture there, it cannot be moved or sold, and it exists at every room size (4×4 up). Near it a 🪜 Climb
+- **Ladder:** a fixed 🪜 ladder in the south-east corner of her room, floor square (size − 1, 0), leaning on wall squares
+  `s{size-1}` and `e0` (like `DESK` and `SEAT` in `room.js`): Decorate never places furniture there, it cannot be
+  moved or sold, and it moves with the corner when the room grows. A piece already standing on a newly reserved square
+  goes back to her storage (the load repair), still owned. Near it a 🪜 Climb
   button shows; a tap plays a short climb and loads the Study Loft.
 - **Study Loft:** a second interior built with the room's builder, walls and inside camera (`room3d.js`), fixed layout,
   not decoratable, nothing saved (no change to `house_v1`).
@@ -47,12 +53,13 @@ subject per commit after this lands.
     (`portal.js`) with `?term=2`. A desk with none is dimmed and says "Coming soon" when tapped.
   - The Exam Corner board on the far wall lists each game that has Term 2 lessons; a row opens `?term=2&exam=1`.
   - A 🪜 Down spot returns her to her room at the ladder square.
-- **Downstairs:** a fixed 📚 Old lessons bookshelf on another reserved wall square of her room opens a picker of her
-  grade's games; each opens `?term=1` in the frame.
+- **Downstairs:** a fixed 📚 Old lessons bookcase on wall square `e1` beside the ladder; its front floor square
+  (size − 1, 1) stays clear (rugs allowed). It opens a picker of her grade's games; each opens `?term=1` in the frame.
 - Town buildings, buddies' "Let's go" and the Boss Fort keep opening the full game (both terms).
 - Her sister's room (view only) gets no ladder and no shelf.
-- Which games have Term 2 lessons comes from `web/world/lesson-files.js`, which `tools/update-precache.js` already
-  writes; it will also write each game's Term 2 lesson count (normal and exam) by reading the `term:` and `exam:` fields.
+- Which games have Term 2 lessons comes from a new generated `web/world/term-lessons.js` (`World3D.TermLessons`,
+  `{ app: { lessons, exams } }` for all 17 games, Math Mastery included), written by `tools/update-precache.js` from
+  the `term: 2` and `exam: true` lines of the lesson files (and the inline Math Mastery list).
 
 ## 3. Content workflow (sub-project 2)
 
