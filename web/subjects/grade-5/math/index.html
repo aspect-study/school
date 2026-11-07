@@ -2290,7 +2290,7 @@ function genAddSubDecSet(n){
 
 /* ================= LESSONS ================= */
 const LESSON_QUIZ_LEN = 10;
-const LESSONS = [
+const ALL_LESSONS = [
   {
     id:'divisibility', emoji:'🔍', title:'Divisibility Rules', subtitle:'2, 3, 4, 5, 6, 8, 9, 10',
     flashcards:[
@@ -2481,6 +2481,7 @@ const LESSONS = [
     generate: genAddSubDecSet
   },
 ];
+const LESSONS = StudyKit.pick(ALL_LESSONS);
 
 const SH = window.StudyHistory, SH_APP = 'math-mastery', SH_TITLE = 'Math Mastery';
 window.Focus && Focus.home(SH_APP);

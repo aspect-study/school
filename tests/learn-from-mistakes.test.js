@@ -89,13 +89,13 @@ function sandbox() {
 // The generators and walkthrough stages are code in the page; the case studies and walkthroughs are data files.
 function loadMath() {
   const html = fs.readFileSync(appFile('math-mastery'), 'utf8');
-  const lessonsAt = html.indexOf('\nconst LESSONS = [');
+  const lessonsAt = html.indexOf('\nconst ALL_LESSONS = [');
   const start = html.lastIndexOf('<script>', lessonsAt) + 8;
   const code = html.slice(start, html.indexOf('\n];', lessonsAt) + 3);
   const stagesAt = html.indexOf('\nconst WT_STAGES = [');
   const stages = html.slice(stagesAt, html.indexOf('\n];', stagesAt) + 3);
   return {
-    LESSONS: vm.runInNewContext(code + '\nLESSONS', sandbox()),
+    LESSONS: vm.runInNewContext(code + '\nALL_LESSONS', sandbox()),
     WT_STAGES: vm.runInNewContext(stages + '\nWT_STAGES', sandbox()),
     CASES: content('math-mastery', 'cases'),
     WALKTHROUGH: content('math-mastery', 'walkthroughs'),
