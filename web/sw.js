@@ -91,6 +91,7 @@ const PRECACHE = [
   'world/lifedata.js',
   'world/lines.js',
   'world/loft.js',
+  'world/loft3d.js',
   'world/look.js',
   'world/loot.js',
   'world/loot3d.js',
