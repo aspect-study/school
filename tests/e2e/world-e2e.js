@@ -700,7 +700,7 @@ try {
   assert.equal(hs.room.size, 4, 'a new room is 4 by 4');
   assert.deepEqual(hs.room.placed, [{ id: 'home-bed', c: 0, r: 3, turn: 1 }, { id: 'home-rug-round', c: 1, r: 1, turn: 0 }], 'the starter bed and rug');
   assert.deepEqual([hs.room.wall, hs.room.floor, hs.room.stars], ['home-wall-pink', 'home-floor-wood', false]);
-  assert.deepEqual(hs.room.items, ['room-out', 'room-out:walk', 'mirror', 'desk']);
+  assert.deepEqual(hs.room.items, ['room-out', 'room-out:walk', 'mirror', 'desk', 'ladder-up', 'old-lessons']);
   assert.ok(hs.shownOut > 50, 'outdoors: ' + hs.shownOut);
   assert.ok(hs.shownIn <= 4, 'inside only the room, her and her pet show: ' + hs.shownIn);
   assert.ok(hs.room.hidden > 50, 'the outdoors is hidden');
