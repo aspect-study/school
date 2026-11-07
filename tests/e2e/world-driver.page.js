@@ -1,5 +1,5 @@
 // Drives the 3D world page for world-e2e.js. The mode comes from the URL hash:
-// #e2e=fresh|back|lost|resting|grade2|progress|fort|finale|talk|kin|comfort|family|wardrobe|pets|tricks|cheer|toys|sounds|controls|zoomed|mates|life|teach|loot|games|patintero|house|grow|visit.
+// #e2e=fresh|back|lost|resting|grade2|progress|fort|finale|talk|kin|comfort|family|wardrobe|pets|tricks|cheer|toys|sounds|controls|zoomed|mates|life|teach|loot|games|patintero|house|loft|grow|visit.
 (function () {
   var mode = (location.hash.match(/e2e=(\w+)/) || [])[1];
   var sent = false;
@@ -1308,6 +1308,91 @@
         o.shopInside = D.inside();
         o.shopTrail = D.trail().to;
         out(o);
+      });
+    }
+    if (mode === 'loft') {
+      D.pause();
+      var RL = World3D.Room, Lo = World3D.Loft;
+      var hinL = World3D.Layout.interactables('grade5').filter(function (i) { return i.id === 'house-in'; })[0];
+      var closed = function () { return D.portal.state() === 'closed'; };
+      D.teleport('house');
+      D.stand(hinL.x, hinL.z);
+      D.act();
+      var size = D.room().size;
+      var la = RL.center(RL.LADDER(size)[0], RL.LADDER(size)[1]);
+      D.stand(la.x - 1, la.z);
+      o.ladderNear = D.state().near;
+      o.ladderAct = D.actText();
+      o.roomShown = D.sceneShown();
+      D.act();
+      o.up = D.room();
+      o.upAt = D.state();
+      o.desks = D.loft();
+      o.upShown = D.sceneShown();
+      var first = o.desks[0], dk = RL.center(first.c, first.r);
+      // The desks stand along the north wall first: she stands south of the first one (z grows southward).
+      D.stand(dk.x, dk.z + 1.4);
+      o.deskNear = D.state().near;
+      o.deskAct = D.actText();
+      D.act();
+      o.deskTalk = D.talkText();
+      D.pressTalk('👋 Bye');
+      var ex = RL.center(Lo.EXAM[0], Lo.EXAM[1]);
+      D.stand(ex.x + 1.2, ex.z);
+      o.examNear = D.state().near;
+      D.act();
+      o.examTalk = D.talkText();
+      D.pressTalk('👋 Bye');
+      var dn = RL.center(Lo.LADDER[0], Lo.LADDER[1]);
+      D.stand(dn.x - 1, dn.z);
+      o.downNear = D.state().near;
+      o.downAct = D.actText();
+      D.act();
+      o.down = D.room();
+      o.downAt = D.state();
+      var sh = RL.center(RL.SHELF(size)[0], RL.SHELF(size)[1]);
+      D.stand(sh.x - 1, sh.z);
+      o.shelfNear = D.state().near;
+      o.shelfAct = D.actText();
+      D.act();
+      o.shelfText = D.talkText();
+      o.shelfButtons = D.talkButtons();
+      D.portal.instant(true);
+      D.pressTalk(o.shelfButtons[0]);
+      o.shelfUrl = D.portal.url();
+      o.shelfOpen = D.portal.isOpen();
+      // Closing the game frame from inside the house: the town must stay hidden.
+      D.portal.close();
+      return waitFor(closed, function () {
+        D.pause();
+        o.afterShelf = D.room();
+        o.afterShelfShown = D.sceneShown();
+        // Life Lab with one Term 2 lesson: its desk opens the game, and the Exam Corner lists it.
+        World3D.TermLessons = World3D.TermLessons || {};
+        World3D.TermLessons['life-lab'] = { lessons: 1, exams: 0 };
+        D.stand(la.x - 1, la.z);
+        D.act();
+        var life = D.loft().filter(function (d) { return d.app === 'life-lab'; })[0];
+        o.lifeReady = life.ready;
+        var lp = RL.center(life.c, life.r);
+        D.stand(life.r === Lo.SIZE - 1 ? lp.x : lp.x - 1.4, life.r === Lo.SIZE - 1 ? lp.z + 1.4 : lp.z);
+        o.lifeNear = D.state().near;
+        D.act();
+        o.lifeUrl = D.portal.url();
+        D.portal.close();
+        waitFor(closed, function () {
+          D.pause();
+          o.afterLife = D.room();
+          o.afterLifeShown = D.sceneShown();
+          D.stand(ex.x + 1.2, ex.z);
+          D.act();
+          o.examReady = D.talkText();
+          o.examButtons = D.talkButtons();
+          D.pressTalk(o.examButtons[0]);
+          o.examUrl = D.portal.url();
+          D.portal.close();
+          waitFor(closed, function () { out(o); });
+        });
       });
     }
     if (mode === 'grow') {

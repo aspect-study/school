@@ -789,6 +789,46 @@ try {
   assert.deepEqual([hs.shopInside, hs.shopTrail], [false, 'shop'], "the mirror's More at … takes her out, then the trail starts");
   console.log('ok My Room: in, mirror, desk, trophy, Decorate, out; Tito Tasyo: preview, locked, buy');
 
+  // The Study Loft: up the ladder in her room, a desk per subject (not ready yet: coming soon), the Exam Corner with
+  // nothing ready, down again; the Old lessons bookcase opens a game's Term 1 lessons; a game closed inside the house
+  // keeps the town hidden. Then Life Lab with one Term 2 lesson: its desk and the Exam Corner open it in the frame.
+  const sl = run('loft', stageWorld('loft', 5, AVATAR_SCRIPT), 'loft');
+  assert.deepEqual(sl.errors, [], 'loft: page errors');
+  assert.equal(sl.ladderNear, 'ladder-up');
+  assert.equal(sl.ladderAct, '🪜 Climb up');
+  assert.equal(sl.up.loft, true, 'the ladder climbs to the loft');
+  assert.equal(sl.upAt.near, null, 'she lands beside the ladder, not on it');
+  assert.equal(sl.desks.length, 10, 'a desk per Grade 5 subject');
+  assert.ok(sl.desks.every((d) => !d.ready), 'no Term 2 lessons yet');
+  assert.ok(sl.upShown <= 4, 'the loft hides the town too: ' + sl.upShown);
+  assert.equal(sl.deskNear, 'loft:' + sl.desks[0].app);
+  assert.equal(sl.deskAct, '🇵🇭 Araling Panlipunan');
+  assert.equal(sl.deskTalk, 'Term 2 lessons for Araling Panlipunan are coming soon! 🌱');
+  assert.equal(sl.examNear, 'loft-exam');
+  assert.equal(sl.examTalk, 'No Term 2 lessons yet. Check back soon! 🌱');
+  assert.equal(sl.downNear, 'ladder-down');
+  assert.equal(sl.downAct, '🪜 Go down');
+  assert.equal(sl.down.loft, false, 'back in her room');
+  assert.deepEqual(sl.down.items, ['room-out', 'room-out:walk', 'mirror', 'desk', 'ladder-up', 'old-lessons']);
+  assert.equal(sl.downAt.near, 'old-lessons', 'she lands in front of the bookcase');
+  assert.equal(sl.shelfNear, 'old-lessons');
+  assert.equal(sl.shelfAct, '📚 Old lessons');
+  assert.equal(sl.shelfButtons.length, 11, 'ten subjects and Bye');
+  assert.equal(sl.shelfButtons[10], '👋 Bye');
+  assert.equal(sl.shelfUrl, '../subjects/grade-5/araling-panlipunan/index.html?reset=1&term=1&embed=1');
+  assert.equal(sl.shelfOpen, true);
+  assert.equal(sl.afterShelf.loft, false, 'still in her room after the game closes');
+  assert.ok(sl.afterShelfShown <= 4, 'the town stays hidden after a game closes inside the house: ' + sl.afterShelfShown);
+  assert.equal(sl.lifeReady, true);
+  assert.equal(sl.lifeNear, 'loft:life-lab');
+  assert.equal(sl.lifeUrl, '../subjects/grade-5/science/index.html?reset=1&term=2&embed=1');
+  assert.equal(sl.afterLife.loft, true, 'still in the loft after the game closes');
+  assert.ok(sl.afterLifeShown <= 4, 'the town stays hidden: ' + sl.afterLifeShown);
+  assert.equal(sl.examReady, 'Pick a subject for a Term 2 practice exam.');
+  assert.deepEqual(sl.examButtons, ['🔬 Science', '👋 Bye']);
+  assert.equal(sl.examUrl, '../subjects/grade-5/science/index.html?reset=1&term=2&exam=1&embed=1');
+  console.log('ok Study Loft: ladder, desks, Exam Corner, Old lessons, games closed inside the house');
+
   // The room grows with medals: 15 lessons with a medal (one gold) and a 7-day streak, after a visit at 4 by 4.
   const GROW = AVATAR_SCRIPT.replace('</script>', '') + '(function () {'
     + 'var lessons = {}, order = [];'
