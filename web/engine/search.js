@@ -11,12 +11,14 @@
     grade5: {
       label: 'Search lessons', placeholder: '🔎 Search a lesson or a word', clear: 'Clear the search',
       found: function (n) { return n === 1 ? '1 lesson found' : n + ' lessons found'; },
-      none: 'No lesson found. Try a shorter word.', lesson: 'Lesson'
+      none: 'No lesson found. Try a shorter word.', lesson: 'Lesson',
+      term1: '📘 Term 1', term2: '🌟 Term 2 · New'
     },
     grade2: {
       label: 'Search lessons', placeholder: '🔎 Search lessons · Hanapin ang aralin', clear: 'Clear the search',
       found: function (n) { return (n === 1 ? '1 lesson found' : n + ' lessons found') + ' · ' + n + ' aralin ang nakita'; },
-      none: 'No lesson found. Try a shorter word. · Walang aralin na nakita. Subukan ang mas maikling salita.', lesson: 'Lesson'
+      none: 'No lesson found. Try a shorter word. · Walang aralin na nakita. Subukan ang mas maikling salita.', lesson: 'Lesson',
+      term1: '📘 Unang Termino · Term 1', term2: '🌟 Ikalawang Termino, bago · Term 2 · New'
     }
   };
 
@@ -75,6 +77,14 @@
     return out;
   }
 
+  // Where the Term headings go in a page that shows both terms: [{ before: lesson index, term }].
+  function termHeads(lessons) {
+    var first2 = -1;
+    for (var i = 0; i < lessons.length; i++) if (lessons[i] && lessons[i].term === 2) { first2 = i; break; }
+    if (first2 < 0) return [];
+    return first2 === 0 ? [{ before: 0, term: 2 }] : [{ before: 0, term: 1 }, { before: first2, term: 2 }];
+  }
+
   var CSS =
     '.lsearch{display:block;max-width:720px;margin:0 auto 14px;box-sizing:border-box;}' +
     '.lsearch-row{position:relative;display:flex;align-items:center;}' +
@@ -89,13 +99,37 @@
     '.lsearch-count{margin:6px 4px 0;font-size:.9rem;font-weight:700;color:var(--ink,#1d1d1f);opacity:.8;}' +
     '.lsearch-count:empty{display:none;}' +
     '.lsearch-hit{display:block;margin-top:4px;font-size:.85rem;font-weight:700;opacity:.85;}' +
+    '.lterm{margin:14px 4px 6px;font-size:1.05rem;font-weight:800;}' +
+    '.lterm:has(+ [data-trail-hidden]){display:none;}' +
     '[data-search-hidden]{display:none !important;}' +
     '@media print{.lsearch{display:none !important;}}';
 
   function create(win, grade) {
     var doc = win.document;
     var t = forGrade(grade, TEXT[grade] || TEXT.grade5);
-    var list = null, input = null, clearBtn = null, count = null, idx = null;
+    var list = null, input = null, clearBtn = null, count = null, idx = null, heads = [];
+
+    function placeHeads() {
+      var want = input && input.value ? [] : heads;
+      Array.prototype.slice.call(list.querySelectorAll('.lterm')).forEach(function (h) {
+        var ok = want.some(function (w) {
+          var next = h.nextElementSibling;
+          return h.getAttribute('data-term') === String(w.term) && next && next.getAttribute('data-search-lesson') === String(w.before);
+        });
+        if (!ok) h.parentNode.removeChild(h);
+      });
+      want.forEach(function (w) {
+        var card = list.querySelector('[data-search-lesson="' + w.before + '"]');
+        if (!card || card.parentNode !== list) return;
+        var prev = card.previousElementSibling;
+        if (prev && prev.classList.contains('lterm') && prev.getAttribute('data-term') === String(w.term)) return;
+        var h = doc.createElement('h3');
+        h.className = 'lterm';
+        h.setAttribute('data-term', String(w.term));
+        h.textContent = w.term === 2 ? t.term2 : t.term1;
+        list.insertBefore(h, card);
+      });
+    }
 
     function cardsOf() {
       return Array.prototype.slice.call(list.children);
@@ -125,6 +159,7 @@
       });
       clearBtn.hidden = !input.value;
       count.textContent = found ? (shown ? t.found(shown) : t.none) : '';
+      placeHeads();
     }
 
     function firstShown() {
@@ -183,6 +218,7 @@
       list = doc.getElementById(opts.list);
       if (!list || !opts.lessons) { list = null; return; }
       idx = index(opts.lessons);
+      heads = win.StudyKit && win.StudyKit.term && win.StudyKit.term() ? [] : termHeads(opts.lessons);
       build();
       // The home screen redraws its cards after every lesson; keep the search applied to the new ones.
       new win.MutationObserver(apply).observe(list, { childList: true });
@@ -192,7 +228,7 @@
     return { start: start, query: function () { return input ? input.value : ''; } };
   }
 
-  var exported = { TEXT: TEXT, plain: plain, fold: fold, index: index, find: find };
+  var exported = { TEXT: TEXT, plain: plain, fold: fold, index: index, find: find, termHeads: termHeads };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;

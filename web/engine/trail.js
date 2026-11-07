@@ -276,6 +276,8 @@
       } catch (e) {
         try { unmount(); } catch (e2) {}
       }
+      var SK = win.StudyKit;
+      if (o && SK && SK.examView && SK.examView()) { win.setTimeout(function () { o.final(); }, 0); return; }
       // Opening the lesson needs only the cards, so a map link still works when the path could not be drawn.
       var want = list && o ? indexOfId(o.lessons, wanted) : -1;
       if (want >= 0) win.setTimeout(function () { openAt(want); }, 0);

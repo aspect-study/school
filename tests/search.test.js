@@ -81,3 +81,11 @@ for (const app of APPS.filter((a) => a.id !== 'math-mastery')) {
     lessons.forEach((l, i) => assert.ok(find(sidx, plain(l.title)).some((f) => f.i === i), plain(l.title)));
   });
 }
+
+const { termHeads } = require(engineFile('search.js'));
+
+test('termHeads: headings only when a Term 2 lesson exists, Term 1 above the first lesson, Term 2 above its first', () => {
+  assert.deepEqual(termHeads([{}, {}, {}]), []);
+  assert.deepEqual(termHeads([{}, { term: 1 }, { term: 2 }, { term: 2 }]), [{ before: 0, term: 1 }, { before: 2, term: 2 }]);
+  assert.deepEqual(termHeads([{ term: 2 }, { term: 2 }]), [{ before: 0, term: 2 }]);
+});
