@@ -17,5 +17,11 @@ StudyKit.content('typeIt', {
   'Paolo mends a torn shirt using only a needle and thread, with no electric sewing machine. Which sewing method is he using?': [],
   'Which sewing machine part presses the fabric down and keeps it firm against the feed dogs?': [],
   'Stitching colourful flowers onto a plain handkerchief with a needle and thread, just to decorate it, is called what?': [],
-  'What tool do people usually use to make crochet projects?': ['crochet hook', 'hook']
+  'What tool do people usually use to make crochet projects?': ['crochet hook', 'hook'],
+  'Which tool is used to draw circles of different sizes?': [],
+  'Which tool measures electric current in amperes?': [],
+  'Which property is the ability of a metal to be hammered or rolled into thin sheets without breaking?': [],
+  'Which tool is used for turning screws to drive them into or remove them from materials?': ['screwdriver'],
+  'Which material is used for wrapping wires and insulating and protecting electrical connections?': [],
+  'Lauan is also known as&hellip;': []
 });

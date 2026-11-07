@@ -55,6 +55,21 @@ StudyKit.content('strategy', [
     body: '<b>Before</b> your foot goes on the pedal: make sure of the threading and the needle. <b>During</b> sewing, when the fabric will not move: stop, then look at the presser foot and where the fabric sits.'
   },
   {
+    kicker: 'Repair Tip #1',
+    title: 'Sort the tool by its job',
+    body: 'Measures &rarr; <b>measuring</b> (ruler, compass, L-square, pull-push rule, ammeter, voltmeter, continuity tester). Cuts &rarr; <b>cutting</b>. Pushes nails or screws in or out &rarr; <b>driving</b>. Makes a hole &rarr; <b>boring</b>. Smooths the surface &rarr; <b>finishing</b>.'
+  },
+  {
+    kicker: 'Repair Tip #2',
+    title: 'Look-alike answers',
+    body: 'Moisture and air &rarr; <b>rusting</b>; chemicals or salt air &rarr; <b>corrosion</b>. Primer and paint = finishing and protecting from corrosion; anti-corrosion spray = protects from rust <b>after repair</b>. Fuse = avoids overheating; switch = connects or disconnects. AMMeter = AMPeres; VOLTmeter = VOLTs.'
+  },
+  {
+    kicker: 'Repair Tip #3',
+    title: 'The four metal properties',
+    body: 'Resists scratching &rarr; <b>hardness</b>. Hammered into thin sheets &rarr; <b>malleability</b>. Goes back to its shape &rarr; <b>elasticity</b>. Melts easily &rarr; <b>fusibility</b>. Steel and cast iron are <b>ferrous</b>; aluminum and copper are <b>non-ferrous</b>.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Read it again before you lock it in',
     body: 'Go over the question one more time with your answer in mind. If the two still fit what the lesson taught, you are done.'

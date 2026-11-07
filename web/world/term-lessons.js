@@ -100,9 +100,16 @@
       "ids": []
     },
     "craft-corner": {
-      "lessons": 0,
+      "lessons": 6,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "woodbamboo",
+        "metals",
+        "damages",
+        "repairsafety",
+        "repairtools",
+        "repairmaterials"
+      ]
     }
   };
   if (typeof module !== 'undefined' && module.exports) {

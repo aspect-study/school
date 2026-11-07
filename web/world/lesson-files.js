@@ -370,7 +370,13 @@
         "lessons/06-embstitches.js",
         "lessons/07-crochetabbr.js",
         "lessons/08-handsewing.js",
-        "lessons/09-machinesewing.js"
+        "lessons/09-machinesewing.js",
+        "lessons/10-wood-bamboo.js",
+        "lessons/11-metals.js",
+        "lessons/12-damages.js",
+        "lessons/13-safety-measuring.js",
+        "lessons/14-repair-tools.js",
+        "lessons/15-repair-materials.js"
       ]
     }
   };
