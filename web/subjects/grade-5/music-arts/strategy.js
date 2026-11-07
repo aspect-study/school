@@ -35,6 +35,16 @@ StudyKit.content('strategy', [
     body: 'With the thumb hole covered: <b>7 = low C, 6 = D, 5 = E, 4 = F, 3 = G, 2 = A, 1 = B, 0 = high C</b>. And the letters: do-C, re-D, mi-E, fa-F, sol-G, la-A, ti-B.'
   },
   {
+    kicker: 'Epic and Drama Tip',
+    title: 'Hudhud or Darangen? Myth, mimesis or spectacle?',
+    body: '<b>Hudhud</b> = Ifugao, 200 stories in 40 episodes (Aliguyon, Pumbakhayon). <b>Darangen</b> = Maranao, 25 chapters (Bantugan, Mabanine, Madali). Drama elements: <b>story = myth</b>, <b>act = mimesis</b>, <b>see = spectacle</b>.'
+  },
+  {
+    kicker: 'Expression Tip',
+    title: 'Forte is loud, piano is soft',
+    body: 'Regular pulse &rarr; <b>steady beat</b>. Cleanly and in tune &rarr; <b>accuracy</b>. Louder (forte) and softer (piano) &rarr; <b>dynamics</b>. Separate or connect notes &rarr; <b>articulation</b>. Groups like sentences &rarr; <b>phrasing</b>.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Reread before you finalize',
     body: 'Read the question one more time with your answer in mind. Check for little words like <b>NOT</b>, <b>ONLY</b>, <b>FIRST</b> and <b>NEXT</b> &mdash; they change the answer.'

@@ -312,7 +312,12 @@
         "lessons/09-recorder-parts.js",
         "lessons/10-recorder-care.js",
         "lessons/11-reading-notes.js",
-        "lessons/12-fingerings.js"
+        "lessons/12-fingerings.js",
+        "lessons/13-vocal-music.js",
+        "lessons/14-epic-chants.js",
+        "lessons/15-precolonial-drama.js",
+        "lessons/16-recorder-technique.js",
+        "lessons/17-recorder-expression.js"
       ]
     },
     "rally-ready": {

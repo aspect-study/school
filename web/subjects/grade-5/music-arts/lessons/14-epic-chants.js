@@ -1,0 +1,24 @@
+StudyKit.lesson({
+  term: 2,
+  id: 'epic-chants',
+  icon: '📜',
+  title: 'Epic Chants: Hudhud & Darangen',
+  subtitle: 'Epic chants keep memory alive',
+  cards: [
+    { front: 'Hudhud', back: '<b>Ifugao</b> epic: <b>200 stories in 40 episodes</b>.<br>Heard in <b>rituals, harvesting rites, weddings, and funerals</b>.<br>It is about Ifugao heroes, including <b>Aliguyon and Pumbakhayon</b>, customs, and culture.' },
+    { front: 'Darangen', back: '<b>Maranao</b> epic: <b>25 chapters</b>, with roots <b>before Islam in Mindanao</b>.<br>Heroes include <b>Bantugan, Mabanine, and Madali</b>.<br>Performed in <b>celebration</b> and as a form of <b>entertainment</b>.' },
+    { front: 'Why Epic Chants Matter', back: 'Both connect living culture to precolonial traditions &mdash; preserving <b>story, identity, and vocal style</b>.' },
+    { front: '🔑 How to Answer', tip: true, back: '<b>H</b>udhud = <b>I</b>fugao, 200 stories, 40 episodes, Aliguyon and Pumbakhayon.<br><b>D</b>arangen = <b>M</b>aranao (Mindanao), 25 chapters, Bantugan, Mabanine, Madali.<br>Hook: Darangen is the <b>M</b> epic: <b>M</b>aranao, <b>M</b>indanao, <b>M</b>abanine, <b>M</b>adali.' }
+  ],
+  quiz: [
+    { q: 'What is the Ifugao epic chant called?', options: ['Hudhud', 'Darangen', 'Duplo', 'Buklog'], correct: 0, explain: 'The Hudhud is the Ifugao epic: 200 stories in 40 episodes.', why: ['', 'The Darangen is the MARANAO epic.', 'Duplo is a verbal joust of the Tagalog people.', 'Buklog is a Subanen ritual on a raised platform.'], tip: 'Hudhud = Ifugao.' },
+    { q: 'What is the Maranao epic chant called?', options: ['Hudhud', 'Darangen', 'Balitaw', 'Pagdiwata'], correct: 1, explain: 'The Darangen is the Maranao epic: 25 chapters, with roots before Islam in Mindanao.', why: ['The Hudhud is the IFUGAO epic.', '', 'Balitaw is a verbal joust.', 'Pagdiwata is a Tagbanwa ritual.'], tip: 'Darangen = Maranao, Mindanao.' },
+    { q: 'How is the Hudhud described in the deck?', options: ['200 stories in 40 episodes', '25 chapters with roots before Islam', 'A debate between two poets', 'A dance on a raised platform'], correct: 0, explain: 'The Hudhud has 200 stories in 40 episodes.', why: ['', '25 chapters with roots before Islam describes the DARANGEN.', 'A poetic debate is a verbal joust.', 'The dance on a raised platform is the Buklog.'], tip: 'Hudhud: 200 stories, 40 episodes.' },
+    { q: 'How many chapters does the Darangen have?', options: ['25', '40', '200', '10'], correct: 0, explain: 'The Darangen has 25 chapters.', why: ['', '40 is the number of episodes of the Hudhud.', '200 is the number of stories of the Hudhud.', 'The deck does not give 10 chapters.'], tip: 'Darangen = 25 chapters.' },
+    { q: 'Aliguyon and Pumbakhayon are heroes of which epic?', options: ['Hudhud', 'Darangen', 'Balagtasan', 'Duplo'], correct: 0, explain: 'The Hudhud is about Ifugao heroes, including Aliguyon and Pumbakhayon.', why: ['', 'The Darangen heroes are Bantugan, Mabanine, and Madali.', 'The balagtasan is a 20th-century debate, not an epic.', 'Duplo is a verbal joust, not an epic.'], tip: 'Aliguyon and Pumbakhayon = Hudhud. Bantugan, Mabanine, Madali = Darangen.' },
+    { q: 'Which of these is a hero of the Darangen?', options: ['Bantugan', 'Aliguyon', 'Pumbakhayon', 'Balagtas'], correct: 0, explain: 'Darangen heroes include Bantugan, Mabanine, and Madali.', why: ['', 'Aliguyon is a Hudhud hero.', 'Pumbakhayon is a Hudhud hero.', 'The deck does not name Balagtas as a Darangen hero.'], tip: 'Darangen heroes: Bantugan, Mabanine, Madali.' },
+    { q: 'When was the Hudhud heard?', options: ['In rituals, harvesting rites, weddings, and funerals', 'Only in school programs', 'Only during wars', 'Only on the radio'], correct: 0, explain: 'The Hudhud was heard in rituals, harvesting rites, weddings, and funerals.', why: ['', 'The deck does not mention school programs.', 'The deck names rituals, harvests, weddings and funerals, not wars.', 'It is a precolonial chant, not a radio show.'], tip: 'Hudhud: rituals, harvest, weddings, funerals.' },
+    { q: 'What do the Hudhud and the Darangen preserve?', options: ['Story, identity, and vocal style', 'Recipes and cooking methods', 'Written laws of the Spanish', 'Western measures'], correct: 0, explain: 'Both connect living culture to precolonial traditions &mdash; preserving story, identity, and vocal style.', why: ['', 'They are epic chants about heroes, not recipes.', 'They come from precolonial times, before the Spanish.', 'Precolonial music did not follow fixed Western measures.'], tip: 'Epic chants keep memory alive.' },
+    { q: 'True or False: The Darangen has roots before Islam in Mindanao.', options: ['True', 'False'], correct: 0, explain: 'True. The Darangen is the Maranao epic, with roots before Islam in Mindanao.', why: ['', 'False is not right. The deck says its roots are before Islam in Mindanao.'], tip: 'Darangen: older than Islam in Mindanao.' }
+  ]
+});

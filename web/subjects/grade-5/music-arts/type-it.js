@@ -8,5 +8,10 @@ StudyKit.content('typeIt', {
   'Who led the revival of the recorder by building a modern recorder in 1919?': ['Dolmetsch'],
   'Which recorder plays the lowest notes?': [],
   'What do you call the flared, curved end of the recorder where the sound exits?': [],
-  'What is the letter name of SOL?': []
+  'What is the letter name of SOL?': [],
+  'What is the Ifugao epic chant called?': [],
+  'What is the Maranao epic chant called?': [],
+  'Sliding, shaking, trilling, and trembling in singing are called ___.': [],
+  'Costumes, props, and visual stagecraft make up which element of drama?': [],
+  'In dynamics, what does FORTE mean?': []
 });

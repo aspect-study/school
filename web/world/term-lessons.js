@@ -99,9 +99,15 @@
       "ids": []
     },
     "rhythm-hues": {
-      "lessons": 0,
+      "lessons": 5,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "vocal-music",
+        "epic-chants",
+        "precolonial-drama",
+        "recorder-technique",
+        "recorder-expression"
+      ]
     },
     "rally-ready": {
       "lessons": 6,
