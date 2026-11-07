@@ -263,3 +263,56 @@ test('a broken army never breaks scoring', () => {
   kit.startRound();
   assert.equal(kit.answer(true, {}), 10);
 });
+
+const { viewOf, pick } = require(engineFile('study-kit.js'));
+
+test('viewOf reads ?term=1|2, and &exam=1 only with a term', () => {
+  assert.deepEqual(viewOf(''), { term: null, exam: false });
+  assert.deepEqual(viewOf('?term=2'), { term: 2, exam: false });
+  assert.deepEqual(viewOf('?reset=1&term=1&embed=1'), { term: 1, exam: false });
+  assert.deepEqual(viewOf('?term=2&exam=1'), { term: 2, exam: true });
+  assert.deepEqual(viewOf('?exam=1'), { term: null, exam: false });
+  assert.deepEqual(viewOf('?term=3'), { term: null, exam: false });
+});
+
+test('pick: no term shows every lesson; a term view shows its lessons, exam-only ones only in the exam view', () => {
+  const ls = [{ id: 'a' }, { id: 'b', term: 2 }, { id: 'c', term: 2, exam: true }, { id: 'd', term: 1 }];
+  assert.deepEqual(pick(ls, null, false).map((l) => l.id), ['a', 'b', 'c', 'd']);
+  assert.deepEqual(pick(ls, 1, false).map((l) => l.id), ['a', 'd']);
+  assert.deepEqual(pick(ls, 2, false).map((l) => l.id), ['b']);
+  assert.deepEqual(pick(ls, 2, true).map((l) => l.id), ['b', 'c']);
+});
+
+test('a term view keeps its own final-exam best and leaves the both-terms best alone', () => {
+  const { kit, root } = page({ search: '?term=2', stored: { riseshine_progress_v1: JSON.stringify({ final: 30, l1: 4, 'final-t2': 8 }), riseshine_progress_v1_day: '2026-10-2' } });
+  const p = kit.progress();
+  assert.equal(p.final, 8, 'the Term 2 best shows as final');
+  assert.equal(p.l1, 4, 'lesson stars are shared');
+  p.final = 12;
+  kit.saveProgress(p);
+  assert.deepEqual(JSON.parse(root.localStorage.data.riseshine_progress_v1), { final: 30, l1: 4, 'final-t2': 12 });
+});
+
+test('a term view with no Term 2 best yet starts with none', () => {
+  const { kit, root } = page({ search: '?term=2', stored: { riseshine_progress_v1: JSON.stringify({ final: 30 }), riseshine_progress_v1_day: '2026-10-2' } });
+  const p = kit.progress();
+  assert.equal(p.final, undefined);
+  kit.saveProgress(p);
+  assert.deepEqual(JSON.parse(root.localStorage.data.riseshine_progress_v1), { final: 30 });
+});
+
+test('?reset=1 keeps term= in the address, drops exam=', () => {
+  const { log } = page({ search: '?reset=1&term=2&exam=1' });
+  assert.deepEqual(log.filter((l) => l[0] === 'replaceState'), [['replaceState', '/school/subjects/grade-5/gmrc/index.html?term=2#top']]);
+  const { log: log2 } = page({ search: '?reset=1&embed=1&term=1' });
+  assert.deepEqual(log2.filter((l) => l[0] === 'replaceState'), [['replaceState', '/school/subjects/grade-5/gmrc/index.html?embed=1&term=1#top']]);
+});
+
+test('library().lessons(view) filters, all() does not', () => {
+  const { library } = require(engineFile('study-kit.js'));
+  const lib = library({ term: 2, exam: false });
+  lib.lesson({ id: 'a' });
+  lib.lesson({ id: 'b', term: 2 });
+  assert.deepEqual(lib.lessons().map((l) => l.id), ['b']);
+  assert.deepEqual(lib.all().map((l) => l.id), ['a', 'b']);
+});

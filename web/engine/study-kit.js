@@ -7,6 +7,18 @@
 
   function dayKey(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 
+  // ?term=1|2 picks the lessons a page shows; &exam=1 (with a term) opens that term's final exam.
+  function viewOf(search) {
+    var t = /(?:^|[?&])term=([12])(?:&|$)/.exec(search || '');
+    return { term: t ? Number(t[1]) : null, exam: !!t && /(?:^|[?&])exam=1(?:&|$)/.test(search || '') };
+  }
+
+  // A lesson without term is Term 1. An exam-only lesson (summative practice) shows only in the exam view.
+  function pick(list, term, examView) {
+    if (!term) return list.slice();
+    return list.filter(function (l) { return (l.term || 1) === term && (examView || !l.exam); });
+  }
+
   // opts: { app, title, pointsKey, progressKey, liveLabel = 'pts', liveSelector = '#points-live' }
   function start(opts, win, now) {
     var store = win.Learner ? win.Learner.storage : win.localStorage;
@@ -27,9 +39,20 @@
     }
 
     var search = win.location ? win.location.search : '';
+    var view = viewOf(search), finalKey = view.term ? 'final-t' + view.term : null, bothFinal = progress.final;
+    if (finalKey) {
+      progress = Object.assign({}, progress);
+      if (progress[finalKey] === undefined) delete progress.final;
+      else progress.final = progress[finalKey];
+      delete progress[finalKey];
+    }
+
     if (/(^|[?&])reset=1(&|$)/.test(search)) {
       if (win.StudyHistory) win.StudyHistory.appOpened(opts.app, opts.title);
-      if (win.history && win.history.replaceState) win.history.replaceState(null, '', win.location.pathname + (/[?&]embed=1(&|$)/.test(search) ? '?embed=1' : '') + win.location.hash);
+      var keep = [];
+      if (/[?&]embed=1(&|$)/.test(search)) keep.push('embed=1');
+      if (view.term) keep.push('term=' + view.term);
+      if (win.history && win.history.replaceState) win.history.replaceState(null, '', win.location.pathname + (keep.length ? '?' + keep.join('&') : '') + win.location.hash);
     }
 
     function renderLive() {
@@ -54,7 +77,14 @@
       progress: function () { return progress; },
       saveProgress: function (p) {
         progress = p;
-        set(opts.progressKey, JSON.stringify(p));
+        var out = p;
+        if (finalKey) {
+          out = Object.assign({}, p);
+          if (p.final !== undefined) out[finalKey] = p.final;
+          if (bothFinal === undefined) delete out.final;
+          else out.final = bothFinal;
+        }
+        set(opts.progressKey, JSON.stringify(out));
       },
       // A round is one quiz, one walkthrough problem or one case study; a streak carries across the whole round.
       startRound: function () {
@@ -106,11 +136,12 @@
 
   // Each subjects/<grade>/<subject>/lessons/NN-name.js file calls lesson({...}); the page's script tags set the order.
   // content(name, value) holds the rest of a subject's data (exam tips, type-it answers, case studies).
-  function library() {
-    var lessons = [], content = {};
+  function library(view) {
+    var lessons = [], content = {}, v = view || { term: null, exam: false };
     return {
       lesson: function (l) { lessons.push(l); },
-      lessons: function () { return lessons; },
+      lessons: function () { return pick(lessons, v.term, v.exam); },
+      all: function () { return lessons.slice(); },
       content: function (name, value) {
         if (arguments.length > 1) content[name] = value;
         return content[name];
@@ -118,17 +149,22 @@
     };
   }
 
-  var exported = { start: start, library: library, RULES: RULES };
+  var exported = { start: start, library: library, viewOf: viewOf, pick: pick, RULES: RULES };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;
     return;
   }
-  var lib = library();
+  var VIEW = viewOf(root.location ? root.location.search : '');
+  var lib = library(VIEW);
   root.StudyKit = {
     RULES: RULES,
     start: function (opts) { return start(opts, root, function () { return new Date(); }); },
     lesson: lib.lesson,
     lessons: lib.lessons,
+    all: lib.all,
+    pick: function (list) { return pick(list, VIEW.term, VIEW.exam); },
+    term: function () { return VIEW.term; },
+    examView: function () { return VIEW.exam; },
     content: lib.content
   };
 })(this);
