@@ -196,7 +196,12 @@
         "lessons/05-online.js",
         "lessons/06-netiquette.js",
         "lessons/07-chat.js",
-        "lessons/08-discussion.js"
+        "lessons/08-discussion.js",
+        "lessons/09-word-window.js",
+        "lessons/10-word-documents.js",
+        "lessons/11-word-pictures.js",
+        "lessons/12-word-shapes.js",
+        "lessons/13-word-smartart.js"
       ]
     },
     "page-turners": {

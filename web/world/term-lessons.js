@@ -54,9 +54,15 @@
       ]
     },
     "net-navigators": {
-      "lessons": 0,
+      "lessons": 5,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "wordwindow",
+        "worddocs",
+        "wordpictures",
+        "wordshapes",
+        "wordsmartart"
+      ]
     },
     "page-turners": {
       "lessons": 5,

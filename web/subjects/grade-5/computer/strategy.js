@@ -50,6 +50,16 @@ StudyKit.content('strategy', [
     body: '<b>Chat</b> is the GENERAL way to talk online, with chat rooms for topics. <b>IM</b> is SPECIFIC and quick, with a contact list. Remember <b>AWARE</b>: Ask, Wary, Avoid, Respect, Examine.'
   },
   {
+    kicker: 'MS Word Tip',
+    title: 'Count the groups, match the tab',
+    body: 'Picture Format = <b>4</b> groups (Adjust, Picture Styles, Arrange, Size). Shape (Drawing Tools) Format = <b>6</b> (Insert Shapes, Shape Styles, WordArt Styles, Text, Arrange, Size). SmartArt Design = <b>4</b>, SmartArt Format = <b>5</b>. Shortcuts: <b>N</b>ew, <b>S</b>ave, <b>O</b>pen, Ctrl + W closes, F12 is Save As.'
+  },
+  {
+    kicker: 'Close vs Exit Tip',
+    title: 'Document or the whole program?',
+    body: '<b>File &gt; Close</b> or <b>Ctrl + W</b> closes only the document; Word stays open. The <b>&times; Close button</b> closes the window and exits Word when it is the last window. <b>Minimize</b> only hides it on the taskbar.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Reread before you finalize',
     body: 'Read the question one more time with your answer in mind. Check for little words like <b>NOT</b>, <b>FIRST</b>, <b>LAST</b> and <b>NEXT</b> &mdash; they change the answer.'
