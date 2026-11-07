@@ -34,7 +34,7 @@
       add(S.rbox(w[2], 0.12, w[3], 0.04), '#e7b58c', w[0], 0.4, w[1]);
     });
 
-    var deskGroups = o.desks.map(function (d) {
+    var deskGroups = o.desks.map(function (d, i) {
       var p = local(d.c, d.r), g = new THREE.Group();
       g.position.set(p.x, 0, p.z);
       group.add(g);
@@ -43,7 +43,7 @@
       [[-0.7, -0.45], [0.7, -0.45], [-0.7, 0.45], [0.7, 0.45]].forEach(function (k) { add(S.rbox(0.12, 1.55, 0.12, 0.03), '#c98f62', k[0], 0.78, k[1], g); });
       add(S.rbox(0.9, 0.08, 0.6, 0.02), '#ffffff', 0, 1.72, 0.1, g);
       sprite(S.emoji(d.emoji), 0.9, 0.9, 0, 2.45, 0, g);
-      sprite(S.label(d.sign, d.ready ? '#5fcf9a' : '#b8b8c8'), 2.2, 2.2 * 180 / 512, 0, 3.25, 0, g);
+      sprite(S.label(d.sign, d.ready ? '#5fcf9a' : '#b8b8c8'), 3.0, 3.0 * 180 / 512, 0, 3.5 + (i % 2) * 0.6, 0, g);
       if (!d.ready) sprite(S.emoji('🌱'), 0.6, 0.6, 0.6, 2.1, 0.3, g);
       return g;
     });
@@ -52,7 +52,7 @@
     add(S.rbox(0.25, 2.6, 3.2, 0.06), '#5a7f5a', 0.2, 2.2, e.z);
     add(S.rbox(0.3, 0.2, 3.4, 0.04), '#c98f62', 0.22, 0.85, e.z);
     sprite(S.emoji('📝'), 1.0, 1.0, 0.6, 2.4, e.z);
-    sprite(S.label('📝 Exam Corner', '#ff9f68'), 2.6, 2.6 * 180 / 512, 0.8, 4.0, e.z);
+    sprite(S.label('📝 Exam Corner', '#ff9f68'), 3.2, 3.2 * 180 / 512, 0.8, 4.0, e.z);
 
     var l = local(Loft.LADDER[0], Loft.LADDER[1]);
     add(S.rbox(1.6, 0.05, 1.6, 0.02), '#5a3e2b', l.x, 0.02, l.z);

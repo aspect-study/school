@@ -722,10 +722,14 @@
       var p = wallPoint('e', 1.5 * SQ, L), g = sub(S, shell, p.x + p.nx * 0.4, 0, p.z + p.nz * 0.4);
       g.rotation.y = p.rot;
       shellOn.e.push(g);
-      box(S, g, 2.0, 3.0, 0.7, DARK_WOOD, 0, 1.5, 0, 0.06);
+      box(S, g, 2.0, 3.0, 0.08, DARK_WOOD, 0, 1.5, -0.31, 0.02);
+      pair(function (s) { box(S, g, 0.1, 3.0, 0.7, DARK_WOOD, s * 0.95, 1.5, 0, 0.03); });
+      box(S, g, 2.0, 0.1, 0.7, DARK_WOOD, 0, 2.95, 0, 0.03);
+      box(S, g, 1.8, 0.1, 0.7, DARK_WOOD, 0, 0.05, 0, 0.03);
       for (var k = 0; k < 3; k++) {
-        box(S, g, 1.8, 0.08, 0.6, WOOD, 0, 0.5 + k * 0.9, 0.05, 0.02);
-        for (var b = 0; b < 6; b++) box(S, g, 0.22, 0.6, 0.45, BOOKS[(b + k) % BOOKS.length], -0.7 + b * 0.28, 0.85 + k * 0.9, 0.08, 0.03);
+        var top = 0.1 + k * 0.95;
+        if (k > 0) box(S, g, 1.8, 0.08, 0.64, WOOD, 0, top, 0.02, 0.02);
+        for (var b = 0; b < 6; b++) box(S, g, 0.22, 0.6, 0.4, BOOKS[(b + k) % BOOKS.length], -0.7 + b * 0.28, top + 0.04 + 0.3, 0.08, 0.03);
       }
       var sign = sprite(emojiTex('📚'), 0.9, 0.9);
       sign.position.set(0, 3.6, 0);
