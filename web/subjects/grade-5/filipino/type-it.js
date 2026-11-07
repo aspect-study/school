@@ -19,5 +19,11 @@ StudyKit.content('typeIt', {
   'Dito nakasulat ang pangunahing kuwento, balita, o mensahe para sa kaibigan. Anong bahagi ng liham ito?': ['katawan'],
   'Ito ang unang bati mo sa padadalhan ng liham, bago ka magkuwento. Anong bahagi ng liham ito?': [],
   'Sa pinakaibaba ng liham, isinusulat dito ng nagpadala ang kaniyang pangalan. Anong bahagi ng liham ito?': [],
-  '&ldquo;8 Kalye Kamagong, Barangay Masaya, Nobyembre 12, 2026&rdquo; ang nakasulat sa bahaging ito ng liham. Anong bahagi ito?': []
+  '&ldquo;8 Kalye Kamagong, Barangay Masaya, Nobyembre 12, 2026&rdquo; ang nakasulat sa bahaging ito ng liham. Anong bahagi ito?': [],
+  'Ano pa ang tawag sa tayutay na personipikasyon?': [],
+  'Ayon sa tula, kailan tila nag-iiba ang paligid?': [],
+  'Tauhan A: &ldquo;Saan tayo pupunta?&rdquo; Tauhan B: &ldquo;Sa parke!&rdquo; Anong uri ng audio ito?': [],
+  'Naririnig ang busina ng sasakyan at ang kulog sa isang video. Anong uri ng audio ito?': [],
+  'Gusto mong hanapin sa mapa ang lokasyon ng Pilipinas at mga karatig-bansa nito. Anong sanggunian ang gagamitin mo?': [],
+  'Hinahanap mo ang mga tala tungkol sa mahahalagang pangyayari sa isang partikular na taon. Anong sanggunian ang gagamitin mo?': []
 });

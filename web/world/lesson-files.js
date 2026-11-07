@@ -265,7 +265,11 @@
         "lessons/17-angkop-wika.js",
         "lessons/18-pormularyo.js",
         "lessons/19-pananda.js",
-        "lessons/20-mga-akda.js"
+        "lessons/20-mga-akda.js",
+        "lessons/21-mundo-sa-laro.js",
+        "lessons/22-personipikasyon.js",
+        "lessons/23-audio.js",
+        "lessons/24-almanac-atlas.js"
       ]
     },
     "rise-shine": {

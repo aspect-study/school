@@ -76,9 +76,14 @@
       ]
     },
     "wikaharian": {
-      "lessons": 0,
+      "lessons": 4,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "mundosalaro",
+        "personipikasyon",
+        "audio",
+        "almanacatlas"
+      ]
     },
     "rise-shine": {
       "lessons": 2,

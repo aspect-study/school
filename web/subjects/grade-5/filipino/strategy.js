@@ -66,6 +66,18 @@ StudyKit.content('strategy', [
     en: '<b>Who are you talking to?</b> To an <b>older person or a stranger</b>: po, opo, kayo, and a title (Lola, Ma&rsquo;am). To a <b>friend</b>: you can be casual. To <b>someone younger</b>: simple words. Avoid &ldquo;Hoy&rdquo; (Hey!) with older people.'
   },
   {
+    kicker: 'Audio',
+    title: 'Ano ang naririnig?',
+    body: 'Nag-uusap ang mga tauhan &rarr; <b>dialogue</b>. Isang boses na nagkukuwento &rarr; <b>recorded narration</b>. Kanta o tugtugin &rarr; <b>musika</b>. Busina, kulog, palakpak &rarr; <b>sound effects</b>.',
+    en: '<b>What do you hear?</b> Characters talking &rarr; <b>dialogue</b>. One voice telling a story &rarr; <b>recorded narration</b>. A song or tune &rarr; <b>music</b>. A horn, thunder, clapping &rarr; <b>sound effects</b>.'
+  },
+  {
+    kicker: 'Almanac o Atlas?',
+    title: 'Taon o lugar?',
+    body: 'Pangyayari, balita, o isports sa <b>isang taon</b> &rarr; <b>almanac</b> 📅. Mapa, lokasyon, anyong lupa at tubig, populasyon ng <b>lugar</b> &rarr; <b>atlas</b> 🗺️.',
+    en: '<b>Year or place?</b> Events, news, or sports in <b>one year</b> &rarr; <b>almanac</b> 📅. Maps, location, landforms and bodies of water, population of a <b>place</b> &rarr; <b>atlas</b> 🗺️.'
+  },
+  {
     kicker: 'Pangkalahatan',
     title: 'Basahin muli bago isumite',
     body: 'Basahin ang tanong kasama ang iyong sagot. Kung wasto pa rin ito ayon sa aralin, tama ka.',
