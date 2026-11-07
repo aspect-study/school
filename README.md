@@ -32,7 +32,7 @@ The offline cache list is in `web/sw.js`. `tests/pwa.test.js` fails if any file 
 
 | Game | Subject | Lessons | Covers |
 |---|---|---|---|
-| Math Mastery (`math/`) | Math | 11 | Divisibility, GEMDAS, fraction operations, ordering decimals, UPAC word problems, 10 case studies |
+| Math Mastery (`math/`) | Math | 19 | Divisibility, GEMDAS, fraction operations, decimals (ordering, rounding, adding to multiplying), estimating products and quotients, multi-step money problems, UPAC word problems, 10 case studies |
 | Page Turners (`english/`) | English | 23 | Story elements, figurative language, main idea, summarizing, author's purpose, nouns and pronouns, fact vs opinion and more |
 | Wikaharian (`filipino/`) | Filipino | 20 | Poetry, fiction, informative text patterns, actor focus, linkers, denotation, degrees of adjectives, adverbs, myths and legends, letters, references, forms, literary works |
 | History Explorers (`araling-panlipunan/`) | Araling Panlipunan | 29 | Barangay, leaders and classes, trade, beliefs and traditions, the study of history, theories of origin, the first Filipinos, evidence, location, Islam and the sultanates, ties with China |

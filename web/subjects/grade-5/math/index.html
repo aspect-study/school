@@ -2288,6 +2288,534 @@ function genAddSubDecSet(n){
   });
 }
 
+/* ================= TERM 2 HELPERS: money and decimal factors ================= */
+/* Money is whole centavos and decimals are integers scaled by 10^p, so nothing is a float. */
+function peso(c){
+  return '₱' + Math.floor(c / 100).toLocaleString('en-US') + '.' + String(c % 100).padStart(2, '0');
+}
+function pesoCents(){
+  return Math.random() < 0.5 ? pick([0, 25, 50, 75]) : randInt(1, 99);
+}
+function pesoAmount(minWhole, maxWhole){
+  let c;
+  do { c = randInt(minWhole, maxWhole) * 100 + pesoCents(); } while(c <= 0);
+  return c;
+}
+/* Wrong money answers that are a fixed step away, each saying how far off it is */
+function pesoNear(R, list){
+  [100, 10, 1000].forEach(step => {
+    if(R + step > 0) list.push([R + step, `This is ${peso(step)} more than the right answer. Recheck each column and the carrying or borrowing.`]);
+    if(R - step > 0) list.push([R - step, `This is ${peso(step)} less than the right answer. Recheck each column and the carrying or borrowing.`]);
+  });
+  return list;
+}
+function pesoWrongs(R, list){
+  const seen = new Set([R]), out = [];
+  pesoNear(R, list.slice()).forEach(w => {
+    if(w[0] <= 0 || seen.has(w[0])) return;
+    seen.add(w[0]);
+    out.push([peso(w[0]), w[1]]);
+  });
+  return out;
+}
+/* Adding many numbers without carrying: each column keeps only its ones digit */
+function noCarrySum(nums){
+  const len = Math.max(...nums.map(n => String(n).length));
+  let out = '';
+  for(let i = 0; i < len; i++){
+    out += nums.reduce((s, n) => s + Number(String(n).padStart(len, '0')[i]), 0) % 10;
+  }
+  return Number(out);
+}
+
+/* A decimal with p places, a whole part in [minW, maxW] and a non-zero last digit */
+function decFactor(minW, maxW, p){
+  let v;
+  do { v = randInt(minW, maxW) * Math.pow(10, p) + randInt(1, Math.pow(10, p) - 1); } while(v % 10 === 0);
+  return {v, p, str: fmtScaled(v, p)};
+}
+/* Rounding to the nearest whole number, the deck's way: only the tenths digit decides */
+function wholeRound(x){
+  const w = Math.floor(x.v / Math.pow(10, x.p)), t = Math.floor(x.v / Math.pow(10, x.p - 1)) % 10;
+  return {w, t, r: t >= 5 ? w + 1 : w, up: t >= 5};
+}
+function wholeRoundLine(x){
+  const r = wholeRound(x);
+  return `${x.str} &asymp; ${r.r} (the tenths digit is ${r.t}, so round ${r.up ? 'up' : 'down'})`;
+}
+/* Why a rounded whole number is not the right one for x */
+function wholeRoundWhy(x, used){
+  const r = wholeRound(x);
+  return r.up
+    ? `${x.str} was rounded to ${used}, but its tenths digit is ${r.t}. 5 to 9 means round UP, so ${x.str} &asymp; ${r.r}.`
+    : `${x.str} was rounded to ${used}, but its tenths digit is ${r.t}. 0 to 4 means round DOWN, so ${x.str} &asymp; ${r.r}.`;
+}
+const WHOLE_ROUND_TIP = 'To round to the nearest whole number, look only at the tenths digit (right after the point): 0-4 round down, 5-9 round up.';
+function genWholeRound(){
+  const x = decFactor(1, 25, Math.random() < 0.7 ? 1 : 2), r = wholeRound(x);
+  const other = r.up ? r.w : r.w + 1;
+  const wrongs = [[String(other), wholeRoundWhy(x, other)], [x.str, 'This is the number before rounding. A whole number has no digits after the point.']];
+  if(x.p === 2) wrongs.push([fmtScaled(Math.round(x.v / 10), 1), 'This is rounded to the nearest tenth. The question asks for the nearest WHOLE number.']);
+  return mcQuestion(`Round ${x.str} to the nearest whole number.`, String(r.r),
+    distinctWrongs(String(r.r), distinctNumeric(String(r.r), wrongs)),
+    `Look at the tenths digit: ${wholeRoundLine(x)}. Answer: <b>${r.r}</b>.`, WHOLE_ROUND_TIP);
+}
+/* The four ways to round a pair: each factor up or down. One of them is right. */
+function roundPairs(a, b, sign){
+  const ra = wholeRound(a), rb = wholeRound(b);
+  const out = [];
+  [ra.w, ra.w + 1].forEach(x => [rb.w, rb.w + 1].forEach(y => {
+    if(x === ra.r && y === rb.r) return;
+    const why = [];
+    if(x !== ra.r) why.push(wholeRoundWhy(a, x));
+    if(y !== rb.r) why.push(wholeRoundWhy(b, y));
+    out.push([`${x} ${sign} ${y}`, why.join(' ')]);
+  }));
+  return {right: `${ra.r} ${sign} ${rb.r}`, wrongs: out};
+}
+
+/* ================= GENERATOR: Multi-Step Problems with Addition & Subtraction ================= */
+/* Term 2 Week 1 Day 2-3: find the total, then (for "how much is left") subtract it from
+   the money. The wrong choices are the real slips: stopping after step 1, forgetting one
+   item, adding an item back, and a missed carry. */
+const ADD_STORIES = [
+  ['Maria', 'she', ['a notebook', 'a pen', 'paper']],
+  ['Juan', 'he', ['a sandwich', 'juice', 'a snack']],
+  ['Carlo', 'he', ['a notebook', 'a ruler', 'a pencil case']],
+  ['Sarah', 'she', ['a book', 'art materials', 'a folder']]
+];
+const LEFT_STORIES = [
+  ['Maria', 'she', 'a school bag', 'a lunch box'],
+  ['Anna', 'she', 'clothes', 'school supplies'],
+  ['A family', 'they', 'groceries', 'other items'],
+  ['Paolo', 'he', 'a pair of shoes', 'a shirt']
+];
+const STEPS_TIP = 'Read the problem carefully, find what is given and what is asked, then choose the operation for each step. Line up the decimal points and write the ₱ sign.';
+function genAddStepsTotal(){
+  const [name, , items] = pick(ADD_STORIES);
+  const amts = items.map(() => pesoAmount(10, 130)), R = amts.reduce((s, x) => s + x, 0);
+  const list = [];
+  amts.forEach((x, i) => list.push([R - x, `This adds only two of the prices and leaves out ${items[i]} (${peso(x)}). Add all three.`]));
+  const slip = noCarrySum(amts);
+  if(slip !== R) list.push([slip, 'This forgot to carry. When a column adds up to 10 or more, write the ones digit and carry the rest to the next column on the left.']);
+  return mcQuestion(
+    `${name} bought ${items[0]} for ${peso(amts[0])}, ${items[1]} for ${peso(amts[1])}, and ${items[2]} for ${peso(amts[2])}. How much did ${name} spend in all?`,
+    peso(R), shuffle(pesoWrongs(R, list).slice(0, 4)).slice(0, 3),
+    `&ldquo;In all&rdquo; means put the amounts together, so ADD all three. Write them one under the other with the decimal points lined up:<br>` +
+    `${amts.map(peso).join(' + ')} = <b>${peso(R)}</b>.`,
+    STEPS_TIP
+  );
+}
+function genAddStepsLeft(){
+  const [name, pron, item1, item2] = pick(LEFT_STORIES);
+  const budget = pick([500, 1000, 1500, 2000]) * 100;
+  let a, b;
+  do { a = pesoAmount(50, budget / 200); b = pesoAmount(20, budget / 400); } while(a + b >= budget - 1000);
+  const spent = a + b, R = budget - spent;
+  const has = pron === 'they' ? 'have' : 'has', spends = pron === 'they' ? 'spend' : 'spends';
+  const list = [
+    [spent, `This is the total ${pron === 'they' ? 'they' : pron} spent &mdash; only Step 1. Step 2 subtracts that total from ${peso(budget)} to find what is left.`],
+    [budget - a, `This subtracts only ${item1}. ${item2.charAt(0).toUpperCase() + item2.slice(1)} (${peso(b)}) was bought too, so subtract the TOTAL spent.`],
+    [budget - a + b, `This adds ${item2} back instead of taking it away. Both amounts were spent, so add them first and subtract the total.`]
+  ];
+  const slip = columnWise(budget, spent, 2, '-');
+  if(slip !== R) list.push([slip, 'In some columns this took the smaller digit from the bigger one. When the top digit is smaller, borrow 1 from the next column on the left.']);
+  return mcQuestion(
+    `${name} ${has} ${peso(budget)}. ${pron.charAt(0).toUpperCase() + pron.slice(1)} ${spends} ${peso(a)} on ${item1} and ${peso(b)} on ${item2}. How much money is left?`,
+    peso(R), pesoWrongs(R, list).slice(0, 3),
+    `<b>Step 1:</b> Find the total amount spent: ${peso(a)} + ${peso(b)} = ${peso(spent)}.<br>` +
+    `<b>Step 2:</b> Subtract the total spent from ${peso(budget)}: ${peso(budget)} &minus; ${peso(spent)} = <b>${peso(R)}</b>.`,
+    'For &ldquo;how much is left&rdquo;: Step 1 adds everything that was spent, Step 2 subtracts that total from the money at the start. ' + STEPS_TIP
+  );
+}
+function genAddStepsPlan(){
+  const [name, pron, item1, item2] = pick(LEFT_STORIES);
+  const budget = pick([500, 1000, 1500, 2000]) * 100, a = pesoAmount(50, budget / 200), b = pesoAmount(20, budget / 400);
+  const has = pron === 'they' ? 'have' : 'has', spends = pron === 'they' ? 'spend' : 'spends';
+  return mcQuestion(
+    `${name} ${has} ${peso(budget)}. ${pron.charAt(0).toUpperCase() + pron.slice(1)} ${spends} ${peso(a)} on ${item1} and ${peso(b)} on ${item2}. Which steps find how much money is left?`,
+    `Add the two amounts, then subtract the sum from ${peso(budget)}`,
+    [
+      [`Add the two amounts, then add the sum to ${peso(budget)}`, `Adding to ${peso(budget)} makes the money grow. Money that is spent is taken away, so the last step is to subtract.`],
+      [`Subtract the two amounts, then add the result to ${peso(budget)}`, 'Both amounts were spent, so they go together first (add). Subtracting one from the other finds a difference, which the question does not ask for.'],
+      [`Add the two amounts, and that sum is the money left`, `The sum is the money spent, not the money left. One more step: subtract it from ${peso(budget)}.`]
+    ],
+    `<b>Step 1:</b> Find the total amount spent (add). <b>Step 2:</b> Subtract the total spent from ${peso(budget)}.`,
+    'A multi-step problem needs two or more steps. Ask: what do I need first? Here it is the total spent, then what is left.'
+  );
+}
+function genAddStepsSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.35 ? genAddStepsTotal() : r < 0.85 ? genAddStepsLeft() : genAddStepsPlan();
+  });
+}
+
+/* ================= GENERATOR: Estimating Products of Decimals ================= */
+/* Term 2 Week 2 Day 1: round both factors to the nearest whole number, then multiply. */
+const EST_PROD_TIP = 'Round BOTH factors to the nearest whole number first (tenths digit 0-4 down, 5-9 up), then multiply the rounded numbers.';
+/* Money answers ("about ₱295") stay whole: the exact and half-rounded products are left out */
+function estProdWrongs(a, b, unitOf, wholeOnly){
+  const ra = wholeRound(a), rb = wholeRound(b), right = ra.r * rb.r;
+  const u = unitOf || (s => s);
+  const list = [], raw = String(right);
+  if(ra.w * rb.w !== right) list.push([String(ra.w * rb.w), `This drops the digits after the point instead of rounding. ${wholeRoundLine(ra.up ? a : b)}.`]);
+  if(!wholeOnly){
+    list.push([trimDecimal(a.v * b.v, a.p + b.p), 'This is the exact product, not the estimate. To estimate, round both factors to whole numbers first, then multiply.']);
+    list.push([trimDecimal(ra.r * b.v, b.p), `This rounds only the first factor (${a.str} &asymp; ${ra.r}) and multiplies it by ${b.str}. Round the second factor too: ${b.str} &asymp; ${rb.r}.`]);
+  }
+  if((ra.w + 1) * (rb.w + 1) !== right) list.push([String((ra.w + 1) * (rb.w + 1)), `This rounds both factors up. ${wholeRoundLine(ra.up ? b : a)}.`]);
+  list.push([String((ra.r + 1) * rb.r), `${ra.r + 1} &times; ${rb.r} = ${(ra.r + 1) * rb.r}, but ${wholeRoundLine(a)}. Multiply ${ra.r} &times; ${rb.r}.`]);
+  list.push([String(ra.r * (rb.r + 1)), `${ra.r} &times; ${rb.r + 1} = ${ra.r * (rb.r + 1)}, but ${wholeRoundLine(b)}. Multiply ${ra.r} &times; ${rb.r}.`]);
+  return distinctWrongs(raw, distinctNumeric(raw, list)).slice(0, 3).map(w => [u(w[0]), w[1]]);
+}
+function genEstProdQuestion(){
+  const a = Math.random() < 0.25 ? decFactor(10, 30, 2) : decFactor(2, 15, 1), b = decFactor(1, 9, 1);
+  const ra = wholeRound(a), rb = wholeRound(b);
+  return mcQuestion(
+    `Estimate the product by rounding both factors to the nearest whole number: <b>${a.str} &times; ${b.str} &asymp; ?</b>`,
+    String(ra.r * rb.r), estProdWrongs(a, b),
+    `First factor: ${wholeRoundLine(a)}.<br>Second factor: ${wholeRoundLine(b)}.<br>` +
+    `Multiply the rounded numbers: ${ra.r} &times; ${rb.r} = ${ra.r * rb.r}, so ${a.str} &times; ${b.str} &asymp; <b>${ra.r * rb.r}</b>.`,
+    EST_PROD_TIP
+  );
+}
+function genEstProdPair(){
+  const a = decFactor(2, 15, 1), b = decFactor(1, 9, 1), p = roundPairs(a, b, '&times;');
+  return mcQuestion(
+    `To estimate <b>${a.str} &times; ${b.str}</b>, which multiplication do you do?`,
+    p.right, p.wrongs,
+    `Round each factor to the nearest whole number: ${wholeRoundLine(a)}; ${wholeRoundLine(b)}. So multiply <b>${p.right}</b>.`,
+    EST_PROD_TIP
+  );
+}
+function genEstProdStory(){
+  if(Math.random() < 0.5){
+    const a = decFactor(4, 15, 1), b = decFactor(2, 9, 1), ra = wholeRound(a), rb = wholeRound(b);
+    const u = s => s + ' square meters';
+    return mcQuestion(
+      `A rectangular garden is ${a.str} meters long and ${b.str} meters wide. Estimate its area.`,
+      u(String(ra.r * rb.r)), estProdWrongs(a, b, u),
+      `Area = length &times; width, so multiply ${a.str} &times; ${b.str}.<br>${wholeRoundLine(a)}; ${wholeRoundLine(b)}.<br>` +
+      `${ra.r} &times; ${rb.r} = <b>${ra.r * rb.r} square meters</b> (about).`,
+      'Find the two numbers to multiply, round each to the nearest whole number, then multiply. ' + EST_PROD_TIP
+    );
+  }
+  const item = pick([['rice', 'kilo', 'kg'], ['chicken', 'kilo', 'kg'], ['cloth', 'meter', 'm'], ['ribbon', 'meter', 'm']]);
+  const price = decFactor(20, 60, 2), qty = decFactor(1, 6, 1), rp = wholeRound(price), rq = wholeRound(qty);
+  const u = s => 'about ₱' + s;
+  return mcQuestion(
+    `One ${item[1]} of ${item[0]} costs ₱${price.str}. About how much do ${qty.str} ${item[2]} cost?`,
+    u(String(rp.r * rq.r)), estProdWrongs(price, qty, u, true),
+    `${wholeRoundLine(price)}; ${wholeRoundLine(qty)}.<br>${rp.r} &times; ${rq.r} = ${rp.r * rq.r}, so the cost is <b>about ₱${rp.r * rq.r}</b>.`,
+    '&ldquo;About how much&rdquo; asks for an estimate. ' + EST_PROD_TIP
+  );
+}
+function genEstProdFacts(){
+  const t = pick([
+    {q:'True or False: The symbol &asymp; means &ldquo;approximately equal to.&rdquo;', a:true,
+      e:'True &mdash; &asymp; means approximately equal to. We write 4.8 &times; 3.2 &asymp; 15 because 15 is an estimate, not the exact product.',
+      why:'The statement is right, so it is not False: &asymp; is the symbol for &ldquo;approximately equal to&rdquo;.'},
+    {q:'True or False: When estimating a product, you multiply first and then round the answer.', a:false,
+      e:'False &mdash; round BOTH factors to the nearest whole number first, then multiply the rounded numbers.',
+      why:'The order is swapped. The steps round both factors before multiplying, so the statement is not True.'},
+    {q:'True or False: Estimating a product means finding an approximate answer to a multiplication problem.', a:true,
+      e:'True &mdash; an estimate is an approximate answer. We get it by rounding both factors to the nearest whole number before multiplying.',
+      why:'The statement is right, so it is not False: estimating gives an approximate answer, not the exact one.'},
+    {q:'True or False: To estimate 6.8 &times; 4.2, you multiply 6 &times; 4.', a:false,
+      e:'False &mdash; 6.8 &asymp; 7 because its tenths digit is 8 (round up), and 4.2 &asymp; 4. So 6.8 &times; 4.2 &asymp; 7 &times; 4 = 28.',
+      why:'6.8 rounds UP to 7, because its tenths digit is 8. Dropping the .8 is not rounding, so the statement is not True.'}
+  ]);
+  return mcQuestion(t.q, t.a ? 'True' : 'False', [[t.a ? 'False' : 'True', t.why]], t.e, EST_PROD_TIP);
+}
+function genEstProdSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.4 ? genEstProdQuestion() : r < 0.55 ? genEstProdPair() : r < 0.75 ? genEstProdStory() : r < 0.88 ? genWholeRound() : genEstProdFacts();
+  });
+}
+
+/* ================= GENERATOR: Multiplying Decimals ================= */
+/* Term 2 Week 2 Day 2-3: by 10/100/1000 the point moves right, by 0.1/0.01/0.001 it moves
+   left, and otherwise multiply as whole numbers and count the decimal places. */
+function shiftStr(v, p){ return p <= 0 ? String(v * Math.pow(10, -p)) : trimDecimal(v, p); }
+const POWERS = ['10', '100', '1000'], TENTHS = ['0.1', '0.01', '0.001'], PLACE_WORD = ['one place', 'two places', 'three places'];
+function genMulPowerQuestion(){
+  const x = decFactor(Math.random() < 0.3 ? 0 : 1, 99, randInt(1, 3)), k = randInt(1, 3);
+  const right = Math.random() < 0.5;
+  const by = right ? POWERS[k - 1] : TENTHS[k - 1], dir = right ? 'right' : 'left';
+  const answer = shiftStr(x.v, right ? x.p - k : x.p + k);
+  const list = [[shiftStr(x.v, right ? x.p + k : x.p - k), `This moved the point to the ${right ? 'left' : 'right'}. Multiplying by ${by} moves it to the <b>${dir}</b>.`]];
+  [k - 1, k + 1].forEach(m => {
+    if(m < 1 || m > 4) return;
+    list.push([shiftStr(x.v, right ? x.p - m : x.p + m), `This moved the point ${m === 1 ? 'one place' : m + ' places'}. Multiplying by ${by} moves it ${PLACE_WORD[k - 1]} &mdash; ${right ? `one for each zero in ${by}` : `one for each decimal place in ${by}`}.`]);
+  });
+  if(right) list.push([x.str + '0'.repeat(k), `Writing zeros at the end of a decimal does not change its value: ${x.str + '0'.repeat(k)} = ${x.str}. Move the decimal point instead.`]);
+  return mcQuestion(
+    `Find the product: <b>${x.str} &times; ${by} = ?</b>`,
+    answer, distinctWrongs(answer, distinctNumeric(answer, list)).slice(0, 3),
+    `Multiplying by ${by} moves the decimal point <b>${PLACE_WORD[k - 1]} to the ${dir}</b>` +
+    (right ? (x.p < k ? ' (add zeros when needed)' : '') : (x.p + k > String(x.v).length ? ' (place zeros before the first nonzero digit)' : '')) +
+    `: ${x.str} &times; ${by} = <b>${answer}</b>.`,
+    'By 10, 100 or 1,000 the point moves RIGHT; by 0.1, 0.01 or 0.001 it moves LEFT. Count the zeros (or the decimal places) to know how many places.'
+  );
+}
+function mulWrongs(prod, P, places, factors){
+  const answer = trimDecimal(prod, P), list = [];
+  list.push([String(prod), `This forgot the decimal point. ${places} Put the point ${P === 1 ? '1 place' : P + ' places'} from the right.`]);
+  if(P > 1) list.push([trimDecimal(prod, P - 1), `The point is ${P - 1 === 1 ? '1 place' : (P - 1) + ' places'} from the right, but ${places} It needs ${P}.`]);
+  list.push([trimDecimal(prod, P + 1), `The point is ${P + 1} places from the right, one too many. ${places}`]);
+  if(factors) list.push([factors, 'This adds the factors. The sign &times; means multiply.']);
+  return distinctWrongs(answer, distinctNumeric(answer, list)).slice(0, 3);
+}
+function genMulWholeQuestion(){
+  const x = decFactor(Math.random() < 0.3 ? 0 : 1, 12, randInt(1, 2)), n = Math.random() < 0.7 ? randInt(2, 9) : randInt(11, 30);
+  const prod = x.v * n, answer = trimDecimal(prod, x.p);
+  const places = `${x.str} has ${x.p} decimal place${x.p > 1 ? 's' : ''}, and ${n} has none.`;
+  return mcQuestion(
+    `Find the product: <b>${x.str} &times; ${n} = ?</b>`,
+    answer, mulWrongs(prod, x.p, places, trimDecimal(x.v + n * Math.pow(10, x.p), x.p)),
+    `<b>Step 1:</b> Multiply as whole numbers: ${x.v} &times; ${n} = ${prod.toLocaleString('en-US')}.<br>` +
+    `<b>Step 2:</b> Count the decimal places in ${x.str}: ${x.p}.<br>` +
+    `<b>Step 3:</b> Place the point ${x.p === 1 ? 'one place' : 'two places'} from the right: ` +
+    (fmtScaled(prod, x.p) !== answer ? `${fmtScaled(prod, x.p)} = <b>${answer}</b> (a zero at the end can be dropped).` : `<b>${answer}</b>.`),
+    'Multiply as if they were whole numbers, then count the decimal places in the decimal factor and put that many places in the product.'
+  );
+}
+function genMulDecQuestion(){
+  const a = decFactor(Math.random() < 0.2 ? 0 : 1, 9, randInt(1, 2)), b = decFactor(Math.random() < 0.3 ? 0 : 1, 9, 1);
+  const P = a.p + b.p, prod = a.v * b.v, answer = trimDecimal(prod, P);
+  const places = `${a.str} has ${a.p} and ${b.str} has ${b.p}: a total of ${P} decimal places.`;
+  return mcQuestion(
+    `Find the product: <b>${a.str} &times; ${b.str} = ?</b>`,
+    answer, mulWrongs(prod, P, places),
+    `<b>Step 1:</b> Multiply as whole numbers: ${a.v} &times; ${b.v} = ${prod.toLocaleString('en-US')}.<br>` +
+    `<b>Step 2:</b> Count the decimal places: ${places}<br>` +
+    `<b>Step 3:</b> Place the point ${P} places from the right: ${fmtScaled(prod, P)}` + (fmtScaled(prod, P) !== answer ? ` = <b>${answer}</b> (a zero at the end can be dropped).` : `. So the answer is <b>${answer}</b>.`),
+    'Count the decimal places in BOTH factors and add them. The product gets that many decimal places.'
+  );
+}
+function genMulCount(){
+  const a = decFactor(1, 9, randInt(1, 2)), b = decFactor(Math.random() < 0.5 ? 0 : 1, 9, randInt(1, 2)), P = a.p + b.p;
+  const opts = [1, 2, 3, 4].filter(m => m !== P);
+  return mcQuestion(
+    `To multiply <b>${a.str} &times; ${b.str}</b>, you first multiply ${a.v} &times; ${b.v}. How many places from the right do you put the decimal point?`,
+    String(P), opts.map(m => [String(m), m === a.p || m === b.p
+      ? `${m} counts the decimal places of only one factor. ${a.str} has ${a.p} and ${b.str} has ${b.p}: add them, ${a.p} + ${b.p} = ${P}.`
+      : `Count the digits after each point: ${a.str} has ${a.p} and ${b.str} has ${b.p}, so ${a.p} + ${b.p} = ${P}, not ${m}.`]),
+    `${a.str} has ${a.p} decimal place${a.p > 1 ? 's' : ''} and ${b.str} has ${b.p}. Total: ${a.p} + ${b.p} = <b>${P}</b> places from the right.`,
+    'Count the decimal places in BOTH factors and add them. The product gets that many decimal places.'
+  );
+}
+function genMulRules(){
+  const t = pick([
+    {q:'True or False: When multiplying a decimal by 10, 100 or 1,000, the decimal point moves to the right.', a:true,
+      e:'True &mdash; multiplying by 10, 100 or 1,000 makes the number bigger, so the point moves to the right: 3.45 &times; 10 = 34.5.',
+      why:'The statement is right, so it is not False: by 10, 100 or 1,000 the point moves right (3.45 &times; 100 = 345).'},
+    {q:'True or False: When multiplying by 0.1, 0.01 or 0.001, the decimal point moves to the right.', a:false,
+      e:'False &mdash; multiplying by 0.1, 0.01 or 0.001 moves the point to the LEFT: 45.6 &times; 0.1 = 4.56.',
+      why:'The direction is swapped. By 0.1, 0.01 or 0.001 the point moves LEFT, so the statement is not True.'},
+    {q:'True or False: To multiply by 1,000, move the decimal point three places to the right.', a:true,
+      e:'True &mdash; 1,000 has three zeros, so the point moves three places to the right: 3.450 &times; 1000 = 3450.',
+      why:'The statement is right, so it is not False: 1,000 has three zeros, so the point moves three places right.'},
+    {q:'True or False: To multiply by 0.01, move the decimal point one place to the left.', a:false,
+      e:'False &mdash; by 0.01 the point moves TWO places to the left: 45.6 &times; 0.01 = 0.456. By 0.1 it moves one place.',
+      why:'0.01 has two decimal places, so the point moves two places, not one. The statement is not True.'},
+    {q:'True or False: In 2.5 &times; 1.4, the product has 2 decimal places before any zero at the end is dropped.', a:true,
+      e:'True &mdash; 2.5 has 1 decimal place and 1.4 has 1, a total of 2: 25 &times; 14 = 350, so 2.5 &times; 1.4 = 3.50 = 3.5.',
+      why:'The statement is right, so it is not False: 1 + 1 = 2 decimal places, giving 3.50, which is 3.5.'}
+  ]);
+  return mcQuestion(t.q, t.a ? 'True' : 'False', [[t.a ? 'False' : 'True', t.why]], t.e,
+    'By 10, 100 or 1,000 move the point right; by 0.1, 0.01 or 0.001 move it left. Otherwise multiply as whole numbers and count the decimal places.');
+}
+function genMulDecimalsSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.35 ? genMulPowerQuestion() : r < 0.55 ? genMulWholeQuestion() : r < 0.8 ? genMulDecQuestion() : r < 0.9 ? genMulCount() : genMulRules();
+  });
+}
+
+/* ================= GENERATOR: Multi-Step Problems with Multiplication ================= */
+/* Term 2 Week 2 Day 4: multiply to find the cost of the same items, then add or subtract.
+   The wrong choices skip the multiplication, stop a step early, or add an item back. */
+const MUL_ITEMS = [
+  ['notebooks', 20, 40], ['sandwiches', 25, 45], ['pencils', 5, 15], ['shirts', 120, 200], ['books', 60, 150]
+];
+const MUL_EXTRAS = [['a pen', 10, 25], ['an eraser', 8, 20], ['a ruler', 12, 25], ['a cap', 80, 110], ['a folder', 15, 30]];
+const MUL_NAMES = [['Carlo', 'he'], ['Mia', 'she'], ['Ana', 'she'], ['Ben', 'he'], ['Ella', 'she'], ['Mark', 'he']];
+const MUL_STEPS_TIP = 'Count decimal places when multiplying; line up the decimal points when adding or subtracting. Read the problem carefully to find the operation for each step.';
+function mulStory(){
+  const [name, pron] = pick(MUL_NAMES), item = pick(MUL_ITEMS), extra = pick(MUL_EXTRAS);
+  const n = randInt(2, 5), price = pesoAmount(item[1], item[2]), q = pesoAmount(extra[1], extra[2]);
+  return {name, pron, n, item: item[0], price, extra: extra[0], q, cost: n * price};
+}
+function genMulStepsTotal(){
+  const s = mulStory(), R = s.cost + s.q;
+  return mcQuestion(
+    `${s.name} buys ${s.n} ${s.item} at ${peso(s.price)} each and ${s.extra} for ${peso(s.q)}. How much does ${s.pron} spend altogether?`,
+    peso(R), pesoWrongs(R, [
+      [s.price + s.q, `This adds the price of only ONE of the ${s.item}. There are ${s.n}, so multiply first: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.`],
+      [s.cost, `This is only Step 1, the cost of the ${s.item}. Step 2 adds ${s.extra} (${peso(s.q)}).`],
+      [s.cost - s.q, `This subtracts ${s.extra}, but it was bought too. &ldquo;Altogether&rdquo; means add.`]
+    ]).slice(0, 3),
+    `<b>Step 1:</b> Find the cost of the ${s.item}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.<br>` +
+    `<b>Step 2:</b> Add the cost of ${s.extra}: ${peso(s.cost)} + ${peso(s.q)} = <b>${peso(R)}</b>.`,
+    MUL_STEPS_TIP
+  );
+}
+function genMulStepsLeft(){
+  const s = mulStory(), budget = pick([500, 800, 1000, 1500]) * 100;
+  if(s.cost + s.q >= budget - 1000) return genMulStepsTotal();
+  const withExtra = Math.random() < 0.5, spent = s.cost + (withExtra ? s.q : 0), R = budget - spent;
+  const extraText = withExtra ? ` and ${s.extra} for ${peso(s.q)}` : '';
+  const list = [
+    [budget - s.price - (withExtra ? s.q : 0), `This takes away the price of only ONE of the ${s.item}. There are ${s.n}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.`],
+    [spent, `This is the total cost &mdash; it stops before the last step. Subtract it from ${peso(budget)} to find what is left.`]
+  ];
+  if(withExtra){
+    list.push([budget - s.cost, `This forgot ${s.extra} (${peso(s.q)}). Add it to the cost of the ${s.item} before subtracting.`]);
+    list.push([budget - s.cost + s.q, `This adds ${s.extra} back instead of taking it away. It was bought too, so it is part of the money spent.`]);
+  }
+  const steps = withExtra
+    ? `<b>Step 1:</b> ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.<br><b>Step 2:</b> Add ${s.extra}: ${peso(s.cost)} + ${peso(s.q)} = ${peso(spent)}.<br><b>Step 3:</b> ${peso(budget)} &minus; ${peso(spent)} = <b>${peso(R)}</b>.`
+    : `<b>Step 1:</b> Find the total cost: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.<br><b>Step 2:</b> Subtract it from ${peso(budget)}: ${peso(budget)} &minus; ${peso(s.cost)} = <b>${peso(R)}</b>.`;
+  return mcQuestion(
+    `${s.name} has ${peso(budget)}. ${s.pron.charAt(0).toUpperCase() + s.pron.slice(1)} buys ${s.n} ${s.item} at ${peso(s.price)} each${extraText}. How much money does ${s.pron} have left?`,
+    peso(R), pesoWrongs(R, list).slice(0, 3), steps,
+    'For &ldquo;how much is left&rdquo;, find the total of everything bought first, then subtract it from the money at the start. ' + MUL_STEPS_TIP
+  );
+}
+function genMulStepsKg(){
+  const fruit = pick(['apples', 'grapes', 'mangoes', 'oranges']), extra = pick([['a loaf of bread', 50, 80], ['a bottle of juice', 40, 70], ['a pack of rice', 50, 90]]);
+  const kg = pick([5, 15, 25, 35]);
+  let price;
+  do { price = pesoAmount(60, 150); } while(price % 2);
+  const cost = price * kg / 10, q = pesoAmount(extra[1], extra[2]), R = cost + q;
+  const kgStr = fmtScaled(kg, 1);
+  return mcQuestion(
+    `A family buys ${kgStr} kg of ${fruit} at ${peso(price)} per kilogram and ${extra[0]} for ${peso(q)}. How much do they spend altogether?`,
+    peso(R), pesoWrongs(R, [
+      [price + q, `This uses the price of only 1 kg. They buy ${kgStr} kg, so multiply first: ${peso(price)} &times; ${kgStr} = ${peso(cost)}.`],
+      [cost, `This is only the cost of the ${fruit}. Add ${extra[0]} (${peso(q)}) too.`],
+      [cost * 10 + q, `The decimal point in the ${fruit}&rsquo; cost is one place off. ${(price / 100).toFixed(2)} has 2 decimal places and ${kgStr} has 1: put the point 3 places from the right.`]
+    ]).slice(0, 3),
+    `<b>Step 1:</b> Cost of the ${fruit}: ${peso(price)} &times; ${kgStr} = ${peso(cost)} (2 + 1 = 3 decimal places, then drop the zero at the end).<br>` +
+    `<b>Step 2:</b> Add ${extra[0]}: ${peso(cost)} + ${peso(q)} = <b>${peso(R)}</b>.`,
+    MUL_STEPS_TIP
+  );
+}
+function genMulStepsPlan(){
+  const s = mulStory(), budget = pick([500, 800, 1000]) * 100;
+  return mcQuestion(
+    `${s.name} has ${peso(budget)}. ${s.pron.charAt(0).toUpperCase() + s.pron.slice(1)} buys ${s.n} ${s.item} at ${peso(s.price)} each. What is the FIRST step to find how much money is left?`,
+    `Multiply ${peso(s.price)} by ${s.n}`,
+    [
+      [`Subtract ${peso(s.price)} from ${peso(budget)}`, `That takes away only ONE of the ${s.item}. First find the cost of all ${s.n}: multiply ${peso(s.price)} by ${s.n}.`],
+      [`Add ${peso(s.price)} and ${s.n}`, `${s.n} is how many ${s.item}, not an amount of money. ${s.n} items at ${peso(s.price)} each means multiply.`],
+      [`Divide ${peso(budget)} by ${s.n}`, `Dividing shares the money into ${s.n} parts, which the question does not ask. First find the cost of the ${s.item} by multiplying.`]
+    ],
+    `<b>Step 1:</b> Find the total cost of the ${s.item}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}. <b>Step 2:</b> Subtract it from ${peso(budget)}.`,
+    '&ldquo;N items at ₱__ each&rdquo; means multiply. Find the total cost first, then subtract it from the money at the start.'
+  );
+}
+function genMulStepsSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.3 ? genMulStepsTotal() : r < 0.7 ? genMulStepsLeft() : r < 0.87 ? genMulStepsKg() : genMulStepsPlan();
+  });
+}
+
+/* ================= GENERATOR: Estimating Quotients of Decimals ================= */
+/* Term 2 Week 3 Day 4: round the dividend and the divisor to whole numbers, then divide.
+   Like the deck's practice items, the rounded numbers always divide exactly. */
+const EST_QUOT_TIP = 'Round the dividend and the divisor to the nearest whole number (tenths digit 0-4 down, 5-9 up), then divide the rounded numbers.';
+function roundsTo(r, minW){
+  let t, w;
+  do { t = randInt(1, 9); w = t >= 5 ? r - 1 : r; } while(w < minW);
+  return {v: w * 10 + t, p: 1, str: fmtScaled(w * 10 + t, 1)};
+}
+function quotItem(){
+  const q = randInt(2, 9), d = randInt(2, 9), D = q * d;
+  return {q, d, D, a: roundsTo(D, 1), b: roundsTo(d, 1)};
+}
+function genEstQuotQuestion(){
+  const it = quotItem(), {a, b, q, d, D} = it, fa = wholeRound(a).w, fb = wholeRound(b).w;
+  const list = [];
+  if(fa % fb === 0 && fa / fb !== q) list.push([String(fa / fb), `This drops the digits after the point instead of rounding (${fa} &divide; ${fb}). ${wholeRoundLine(wholeRound(a).up ? a : b)}.`]);
+  [q - 1, q + 1, q + 2, q - 2].forEach(w => {
+    if(w > 0) list.push([String(w), `${D} &divide; ${d} = ${q}, not ${w}. Check: ${d} &times; ${w} = ${d * w}, but ${d} &times; ${q} = ${D}.`]);
+  });
+  return mcQuestion(
+    `Estimate the quotient by rounding to the nearest whole number: <b>${a.str} &divide; ${b.str} &asymp; ?</b>`,
+    String(q), distinctWrongs(String(q), list).slice(0, 3),
+    `Round the dividend: ${wholeRoundLine(a)}.<br>Round the divisor: ${wholeRoundLine(b)}.<br>` +
+    `Divide: ${D} &divide; ${d} = ${q}, so ${a.str} &divide; ${b.str} &asymp; <b>${q}</b>.`,
+    EST_QUOT_TIP
+  );
+}
+function genEstQuotPair(){
+  const it = quotItem(), p = roundPairs(it.a, it.b, '&divide;');
+  return mcQuestion(
+    `To estimate <b>${it.a.str} &divide; ${it.b.str}</b>, which division do you do?`,
+    p.right, p.wrongs,
+    `Round the dividend: ${wholeRoundLine(it.a)}. Round the divisor: ${wholeRoundLine(it.b)}. So divide <b>${p.right}</b> = ${it.q}.`,
+    EST_QUOT_TIP
+  );
+}
+const QUOT_TERMS = {
+  Dividend: 'the number being divided',
+  Divisor: 'the number we divide by',
+  Quotient: 'the answer to division'
+};
+function genQuotTerms(){
+  const d = randInt(2, 9), q = randInt(2, 9), D = d * q;
+  if(d === q) return genQuotTerms();
+  const nums = {Dividend: D, Divisor: d, Quotient: q};
+  const fact = `${D} &divide; ${d} = ${q}`;
+  if(Math.random() < 0.5){
+    const term = pick(['Dividend', 'Divisor', 'Quotient']);
+    return mcQuestion(
+      `In <b>${fact}</b>, what is ${nums[term]} called?`,
+      term,
+      ['Dividend', 'Divisor', 'Quotient'].filter(t => t !== term).map(t => [t, `The ${t.toLowerCase()} is ${QUOT_TERMS[t]}: here that is ${nums[t]}. ${nums[term]} is ${QUOT_TERMS[term]}, the ${term.toLowerCase()}.`])
+        .concat([['Product', `A product is the answer to multiplication. In division, ${nums[term]} is ${QUOT_TERMS[term]}, the ${term.toLowerCase()}.`]]),
+      `In ${fact}: ${D} is the <b>dividend</b> (${QUOT_TERMS.Dividend}), ${d} is the <b>divisor</b> (${QUOT_TERMS.Divisor}), and ${q} is the <b>quotient</b> (${QUOT_TERMS.Quotient}).`,
+      'Dividend &divide; divisor = quotient. The dividend comes first, the divisor second, and the quotient is the answer.'
+    );
+  }
+  const term = pick(['Dividend', 'Divisor', 'Quotient']);
+  return mcQuestion(
+    `In <b>${fact}</b>, which number is the <b>${term.toLowerCase()}</b> (${QUOT_TERMS[term]})?`,
+    String(nums[term]),
+    ['Dividend', 'Divisor', 'Quotient'].filter(t => t !== term).map(t => [String(nums[t]), `${nums[t]} is the ${t.toLowerCase()}, ${QUOT_TERMS[t]}. The ${term.toLowerCase()} is ${nums[term]}.`]),
+    `${D} is the dividend, ${d} is the divisor, and ${q} is the quotient. So the ${term.toLowerCase()} is <b>${nums[term]}</b>.`,
+    'Dividend &divide; divisor = quotient. The dividend comes first, the divisor second, and the quotient is the answer.'
+  );
+}
+function genEstQuotFacts(){
+  const t = pick([
+    {q:'True or False: Estimating the quotient means finding an approximate answer to a division problem instead of the exact answer.', a:true,
+      e:'True &mdash; an estimate is an approximate answer. Round the dividend and the divisor to whole numbers, then divide.',
+      why:'The statement is right, so it is not False: an estimated quotient is approximate, not exact.'},
+    {q:'True or False: To estimate a quotient, round only the dividend and keep the divisor as it is.', a:false,
+      e:'False &mdash; round BOTH the dividend and the divisor to the nearest whole number, then divide. 19.6 &divide; 4.2 &asymp; 20 &divide; 4 = 5.',
+      why:'The steps round the divisor too, not only the dividend, so the statement is not True.'},
+    {q:'True or False: To estimate 15.8 &divide; 3.7, you divide 16 &divide; 4.', a:true,
+      e:'True &mdash; 15.8 &asymp; 16 (tenths digit 8, round up) and 3.7 &asymp; 4 (tenths digit 7, round up). 16 &divide; 4 = 4.',
+      why:'The statement is right, so it is not False: 15.8 rounds to 16 and 3.7 rounds to 4.'},
+    {q:'True or False: To estimate 28.4 &divide; 6.6, you divide 29 &divide; 7.', a:false,
+      e:'False &mdash; 28.4 &asymp; 28 (tenths digit 4, round down) and 6.6 &asymp; 7. So 28.4 &divide; 6.6 &asymp; 28 &divide; 7 = 4.',
+      why:'28.4 rounds DOWN to 28, because its tenths digit is 4. So the statement is not True.'}
+  ]);
+  return mcQuestion(t.q, t.a ? 'True' : 'False', [[t.a ? 'False' : 'True', t.why]], t.e, EST_QUOT_TIP);
+}
+function genEstQuotSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.4 ? genEstQuotQuestion() : r < 0.55 ? genEstQuotPair() : r < 0.75 ? genQuotTerms() : r < 0.87 ? genWholeRound() : genEstQuotFacts();
+  });
+}
+
 /* ================= LESSONS ================= */
 const LESSON_QUIZ_LEN = 10;
 const ALL_LESSONS = [
@@ -2479,6 +3007,78 @@ const ALL_LESSONS = [
       {icon:'⚠️', term:'Zeros Go at the END', def:'5.1 = 5.10 = 5.100. But 5.001 is a different, much smaller number &mdash; never put the zeros right after the point.'},
     ],
     generate: genAddSubDecSet
+  },
+  {
+    id:'decimalsteps', emoji:'🛒', title:'Multi-Step Problems: Adding &amp; Subtracting Decimals', subtitle:'Find the total, then what is left',
+    term: 2,
+    flashcards:[
+      {icon:'🪜', term:'What Is a Multi-Step Problem?', def:'A multi-step problem requires <b>two or more steps</b> to find the answer.'},
+      {icon:'📍', term:'Let&rsquo;s Remember', def:'<b>Step 1:</b> Align the decimal points. <b>Step 2:</b> Align the place values. <b>Step 3:</b> Add or subtract from right to left. <b>Step 4:</b> Bring down the decimal point. <b>Step 5:</b> Check your answer. Decimal points must be aligned!'},
+      {icon:'✏️', term:'Example: How Much Altogether?', def:'Maria bought a notebook for ₱35.50, a pen for ₱18.75 and paper for ₱24.25. Write the amounts vertically and add: 35.50 + 18.75 + 24.25 = <b>₱78.50</b>.'},
+      {icon:'✏️', term:'Example: How Much Is Left?', def:'Maria has ₱1,000.00. She buys a school bag for ₱425.75 and a lunch box for ₱185.50.<br><b>Step 1:</b> Find the total amount spent: 425.75 + 185.50 = 611.25.<br><b>Step 2:</b> Subtract the total spent from 1,000.00: 1,000.00 &minus; 611.25 = <b>₱388.75</b>.'},
+      {icon:'✏️', term:'Guided Practice: Anna', def:'Anna has ₱1,500.00. She spends ₱625.75 on clothes and ₱248.50 on school supplies. 625.75 + 248.50 = 874.25, and 1,500.00 &minus; 874.25 = <b>₱625.75</b> left.'},
+      {icon:'⚠️', term:'Do Not Stop at Step 1', def:'For &ldquo;how much is left&rdquo;, the sum of the prices is the money <b>spent</b>, not the money left. Subtract it from the money at the start.'},
+      {icon:'✅', term:'Wrap Up', def:'Read the problem carefully. Identify what is given and what is being asked. Choose the correct operation. Align the decimal points. Show your solution. Write the correct unit, such as ₱. Check if your answer makes sense.'},
+    ],
+    generate: genAddStepsSet
+  },
+  {
+    id:'estimateproducts', emoji:'🤏', title:'Estimating Products of Decimals', subtitle:'Round both factors, then multiply',
+    term: 2,
+    flashcards:[
+      {icon:'🎯', term:'Rounding to the Nearest Whole Number', def:'<b>1.</b> Look at the digit in the tenths place. <b>2.</b> If it is 0&ndash;4, round down. <b>3.</b> If it is 5&ndash;9, round up. Example: 6.7 &rarr; <b>7</b>. And 12.5 &rarr; <b>13</b>.'},
+      {icon:'💭', term:'What Is Estimating Products?', def:'Estimating a product means finding an <b>approximate answer</b> to a multiplication problem. We can estimate by rounding both decimal factors to the nearest whole number before multiplying.'},
+      {icon:'≈', term:'The Symbol &asymp;', def:'&asymp; means &ldquo;<b>approximately equal to</b>.&rdquo; 4.8 &times; 3.2 &rarr; 5 &times; 3 = 15, so 4.8 &times; 3.2 &asymp; 15.'},
+      {icon:'🪜', term:'Steps in Estimating Products', def:'<b>1.</b> Round the first decimal factor to the nearest whole number. <b>2.</b> Round the second decimal factor to the nearest whole number. <b>3.</b> Multiply the rounded whole numbers. <b>4.</b> Write the estimated product using &asymp;.'},
+      {icon:'✏️', term:'Example 1: 6.8 &times; 4.2', def:'First factor: 6.8 &asymp; 7. Second factor: 4.2 &asymp; 4. 7 &times; 4 = 28, so 6.8 &times; 4.2 &asymp; <b>28</b>.'},
+      {icon:'💰', term:'Example 2: Real-Life Application', def:'A notebook costs ₱24.75 and Mia buys 3.8 times that worth of school supplies. Step 1: 24.75 &asymp; 25. Step 2: 3.8 &asymp; 4. Step 3: 25 &times; 4 = 100. Approximately <b>₱100</b>.'},
+      {icon:'🌱', term:'Estimate the Area', def:'A rectangular garden is 7.6 meters long and 5.3 meters wide. 7.6 &asymp; 8 and 5.3 &asymp; 5, so the area is about 8 &times; 5 = <b>40 square meters</b>.'},
+      {icon:'⚠️', term:'Round Both Factors Before Multiplying!', def:'Rounding is helpful because whole numbers like 5 &times; 3 are easier to multiply mentally than 4.8 &times; 3.2. Round first, then multiply.'},
+    ],
+    generate: genEstProdSet
+  },
+  {
+    id:'multiplydecimals', emoji:'✳️', title:'Multiplying Decimals', subtitle:'By 10s, by 0.1s, by whole numbers &amp; decimals',
+    term: 2,
+    flashcards:[
+      {icon:'➡️', term:'By 10, 100 and 1,000', def:'The decimal point moves to the <b>right</b>. Multiply by 10: one place. By 100: two places. By 1,000: three places. Add zeros when needed.<br>3.45 &times; 10 = 34.5 &middot; 3.45 &times; 100 = 345 &middot; 3.45 &times; 1000 = 3450'},
+      {icon:'⬅️', term:'By 0.1, 0.01 and 0.001', def:'The decimal point moves to the <b>left</b>. Multiply by 0.1: one place. By 0.01: two places. By 0.001: three places. Place zeros before the first nonzero digit when necessary.<br>45.6 &times; 0.1 = 4.56 &middot; 45.6 &times; 0.01 = 0.456 &middot; 45.6 &times; 0.001 = 0.0456'},
+      {icon:'🪜', term:'Steps in Multiplying Decimals', def:'<b>1.</b> Multiply the numbers as if they were whole numbers. <b>2.</b> Count the decimal places in the decimal factor. <b>3.</b> Place the decimal point in the product so it has the same number of decimal places.'},
+      {icon:'✏️', term:'Example: 3.24 &times; 3', def:'Multiply without the decimal point: 324 &times; 3 = 972. 3.24 has 2 decimal places. So 3.24 &times; 3 = <b>9.72</b>.'},
+      {icon:'✏️', term:'Example: 4.6 &times; 25', def:'46 &times; 25 = 1,150. 4.6 has 1 decimal place, so place the point one place from the right: 115.0 = <b>115</b>.'},
+      {icon:'✏️', term:'Decimal &times; Decimal: 2.5 &times; 1.4', def:'25 &times; 14 = 350. 2.5 has 1 decimal place and 1.4 has 1 decimal place: a total of 2. Place the point two places from the right: 3.50 = <b>3.5</b>.'},
+      {icon:'✏️', term:'Decimal &times; Decimal: 3.25 &times; 2.6', def:'325 &times; 26 = 8,450. 3.25 has 2 decimal places and 2.6 has 1: a total of 3. Place the point three places from the right: 8.450 = <b>8.45</b>.'},
+      {icon:'⚠️', term:'Count BOTH Factors', def:'When both factors are decimals, add up the decimal places of both. Do not line up the points the way you do when adding.'},
+    ],
+    generate: genMulDecimalsSet
+  },
+  {
+    id:'multiplysteps', emoji:'🧺', title:'Multi-Step Problems with Multiplication', subtitle:'Multiply, then add or subtract',
+    term: 2,
+    flashcards:[
+      {icon:'🪜', term:'What Is a Multi-Step Problem?', def:'A multi-step problem requires <b>two or more operations</b> to find the final answer.'},
+      {icon:'📍', term:'Remember', def:'Align decimal points when adding and subtracting. Count decimal places when multiplying decimals. Read the problem carefully to identify the correct operations.'},
+      {icon:'✏️', term:'Example 1: Carlo', def:'Carlo buys 3 notebooks at ₱25.50 each and a pen for ₱18.75.<br><b>Step 1:</b> Cost of the notebooks: 25.50 &times; 3 = 76.50.<br><b>Step 2:</b> Add the pen: 76.50 + 18.75 = 95.25. Carlo spends <b>₱95.25</b> altogether.'},
+      {icon:'✏️', term:'Example 2: Mia', def:'Mia has ₱500.00. She buys 4 sandwiches at ₱35.75 each.<br><b>Step 1:</b> 35.75 &times; 4 = 143.00.<br><b>Step 2:</b> 500.00 &minus; 143.00 = 357.00. Mia has <b>₱357.00</b> left.'},
+      {icon:'✏️', term:'Three Steps: Ben', def:'Ben has ₱800.00. He buys 2 shirts at ₱185.75 each and a cap for ₱99.50.<br><b>Step 1:</b> 185.75 &times; 2 = 371.50. <b>Step 2:</b> 371.50 + 99.50 = 471.00. <b>Step 3:</b> 800.00 &minus; 471.00 = <b>₱329.00</b> left.'},
+      {icon:'🍎', term:'Price per Kilogram', def:'A family buys 2.5 kg of apples at ₱120.50 per kilogram and a loaf of bread for ₱65.75. 120.50 &times; 2.5 = 301.25 (3 decimal places: 301.250), then 301.25 + 65.75 = <b>₱367.00</b>.'},
+      {icon:'⚠️', term:'&ldquo;Each&rdquo; Means Multiply First', def:'&ldquo;3 notebooks at ₱25.50 each&rdquo; costs 25.50 &times; 3, not just ₱25.50. Find that cost before you add or subtract.'},
+    ],
+    generate: genMulStepsSet
+  },
+  {
+    id:'estimatequotients', emoji:'🍰', title:'Estimating Quotients of Decimals', subtitle:'Dividend, divisor &amp; quotient',
+    term: 2,
+    flashcards:[
+      {icon:'🎯', term:'Review: Rounding Decimals', def:'Look at the tenths digit when rounding to the nearest whole number. If it is 0, 1, 2, 3 or 4, round down. If it is 5, 6, 7, 8 or 9, round up.<br>4.3 &rarr; 4 &middot; 6.8 &rarr; 7 &middot; 12.5 &rarr; 13 &middot; 9.2 &rarr; 9 &middot; 15.7 &rarr; 16'},
+      {icon:'📘', term:'Three Important Terms', def:'24 &divide; 6 = 4<br><b>24 &ndash; Dividend:</b> the number being divided.<br><b>6 &ndash; Divisor:</b> the number we divide by.<br><b>4 &ndash; Quotient:</b> the answer to division.'},
+      {icon:'💭', term:'What Is Estimating the Quotient?', def:'Finding an <b>approximate answer</b> to a division problem instead of getting the exact answer. <b>1.</b> Round the dividend to the nearest whole number. <b>2.</b> Round the divisor to the nearest whole number. <b>3.</b> Divide the rounded numbers.'},
+      {icon:'✏️', term:'Example: 19.6 &divide; 4.2', def:'Round the dividend: 19.6 &asymp; 20. Round the divisor: 4.2 &asymp; 4. 20 &divide; 4 = 5, so 19.6 &divide; 4.2 &asymp; <b>5</b>.'},
+      {icon:'✏️', term:'Example: 15.8 &divide; 3.7', def:'15.8 &asymp; 16 and 3.7 &asymp; 4. 16 &divide; 4 = 4, so 15.8 &divide; 3.7 &asymp; <b>4</b>.'},
+      {icon:'✏️', term:'Example: 28.4 &divide; 6.6', def:'28.4 &asymp; 28 (the tenths digit is 4, so round down) and 6.6 &asymp; 7. 28 &divide; 7 = 4, so 28.4 &divide; 6.6 &asymp; <b>4</b>.'},
+      {icon:'⚠️', term:'Round BOTH Before Dividing', def:'Round the dividend and the divisor first, then divide. Write the estimate with &asymp;.'},
+    ],
+    generate: genEstQuotSet
   },
 ];
 const LESSONS = StudyKit.pick(ALL_LESSONS);

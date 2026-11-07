@@ -94,9 +94,15 @@
       ]
     },
     "math-mastery": {
-      "lessons": 0,
+      "lessons": 5,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "decimalsteps",
+        "estimateproducts",
+        "multiplydecimals",
+        "multiplysteps",
+        "estimatequotients"
+      ]
     },
     "rhythm-hues": {
       "lessons": 5,
