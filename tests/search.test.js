@@ -89,3 +89,12 @@ test('termHeads: headings only when a Term 2 lesson exists, Term 1 above the fir
   assert.deepEqual(termHeads([{}, { term: 1 }, { term: 2 }, { term: 2 }]), [{ before: 0, term: 1 }, { before: 2, term: 2 }]);
   assert.deepEqual(termHeads([{ term: 2 }, { term: 2 }]), [{ before: 0, term: 2 }]);
 });
+
+test('Grade 2 term headings pair Filipino · English once, and their English half names the term', () => {
+  const Lang = require(engineFile('lang.js'));
+  for (const [key, english] of [['term1', 'Term 1'], ['term2', 'Term 2']]) {
+    const text = TEXT.grade2[key];
+    assert.equal(text.split(' · ').length, 2, key + ': exactly one " · " in ' + text);
+    assert.ok(Lang.en(text).includes(english), key + ': Lang.en gives ' + Lang.en(text));
+  }
+});

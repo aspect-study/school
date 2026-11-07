@@ -8,6 +8,7 @@
     out.heads = [].slice.call(list.querySelectorAll('.lterm')).map(function (h) {
       return [h.textContent, h.nextElementSibling ? h.nextElementSibling.getAttribute('data-search-lesson') : null];
     });
+    out.headsHidden = list.querySelectorAll('.lterm[data-trail-hidden]').length;
     out.quiz = currentQuizMeta ? currentQuizMeta.id : null;
     out.questions = currentQuizSet.length;
     var pre = document.createElement('pre');

@@ -3846,6 +3846,7 @@ function newWorksheet(){
   window.setTimeout(()=>{ try{ window.print(); }catch(e){} }, 250);
 }
 
+if (window.Recall && Recall.scopeSkills) Recall.scopeSkills(SH_APP, LESSONS.map(l => l.id));
 showMedals(document.getElementById('points-total-badge'));
 window.Search && Search.start({ list: 'lesson-grid', lessons: LESSONS });
 window.Trail && window.Recall && Trail.start({ app: SH_APP, title: SH_TITLE, list: 'lesson-grid', lessons: medalLessons(), review: startReview, final: startFinalExam, finalStars: function () { return starsFor((progress['final'] || 0) / (LESSONS.length * FINAL_EXAM_PER_LESSON)); } });

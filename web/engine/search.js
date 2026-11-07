@@ -18,7 +18,7 @@
       label: 'Search lessons', placeholder: '🔎 Search lessons · Hanapin ang aralin', clear: 'Clear the search',
       found: function (n) { return (n === 1 ? '1 lesson found' : n + ' lessons found') + ' · ' + n + ' aralin ang nakita'; },
       none: 'No lesson found. Try a shorter word. · Walang aralin na nakita. Subukan ang mas maikling salita.', lesson: 'Lesson',
-      term1: '📘 Unang Termino · Term 1', term2: '🌟 Ikalawang Termino, bago · Term 2 · New'
+      term1: '📘 Unang Termino · Term 1', term2: '🌟 Ikalawang Termino (bago) · Term 2 (new)'
     }
   };
 
@@ -100,7 +100,6 @@
     '.lsearch-count:empty{display:none;}' +
     '.lsearch-hit{display:block;margin-top:4px;font-size:.85rem;font-weight:700;opacity:.85;}' +
     '.lterm{margin:14px 4px 6px;font-size:1.05rem;font-weight:800;}' +
-    '.lterm:has(+ [data-trail-hidden]){display:none;}' +
     '[data-search-hidden]{display:none !important;}' +
     '@media print{.lsearch{display:none !important;}}';
 

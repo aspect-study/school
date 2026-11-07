@@ -96,6 +96,13 @@
   // Tidy may drop boxes only when the page holds every lesson: none failed to load and no ?term= view.
   function partialList(listLength, tags, term) { return listLength < tags || !!term; }
 
+  // A ?term= view holds one term's questions: view is { app: { key: true } } for the apps scoped to it, and boxes of a
+  // scoped app count only when their key is in that view.
+  function inView(view, key) {
+    var app = key.slice(0, key.indexOf('|'));
+    return !view || !Object.prototype.hasOwnProperty.call(view, app) || view[app][key] === true;
+  }
+
   // A reworded question carries was: '<old hash>'; this maps its stem to that hash. A stem used by two questions is
   // left out, since it cannot tell which one was reworded.
   function renamesOf(lessons) {
@@ -149,7 +156,7 @@
   function create(storage, now, grade, plain, paused) {
     if (!Object.prototype.hasOwnProperty.call(TEXT, grade || '')) throw new Error('Recall needs a grade like "grade5".');
     var KEY = 'review_v1', OLD_KEY = 'recall_v1';
-    var current = null, lastQuiz = null, round = { resting: 0, moved: 0, bonus: 0, fixed: 0 };
+    var current = null, lastQuiz = null, round = { resting: 0, moved: 0, bonus: 0, fixed: 0 }, view = null;
     plain = plain || function (s) { return String(s == null ? '' : s); };
     paused = paused || function () { return false; };
 
@@ -193,7 +200,7 @@
     function dueByApp() {
       var items = load().items, t = today(), counts = {};
       Object.keys(items).forEach(function (k) {
-        if (!isDue(items[k], t)) return;
+        if (!isDue(items[k], t) || !inView(view, k)) return;
         var app = k.slice(0, k.indexOf('|'));
         counts[app] = (counts[app] || 0) + 1;
       });
@@ -204,7 +211,7 @@
       var items = load().items, t = today(), best = null;
       Object.keys(items).forEach(function (k) {
         var it = items[k];
-        if (!valid(it) || (app && k.indexOf(app + '|') !== 0)) return;
+        if (!valid(it) || (app && k.indexOf(app + '|') !== 0) || !inView(view, k)) return;
         var d = dayNumber(it.due) - t;
         if (d <= 0 && it.started === dayKeyOf(t)) d = 1;
         if (d <= 0) return;
@@ -322,6 +329,20 @@
       },
 
       dueByApp: dueByApp,
+
+      // Limits this app's counts to these keys (a term view's questions, or Math's skill keys).
+      scope: function (app, keys) {
+        var set = {};
+        keys.forEach(function (k) { set[k] = true; });
+        view = view || {};
+        view[app] = set;
+      },
+
+      // A boss stage asks from any box, due or not: false when this app (in its view) has none.
+      hasBoxes: function (app) {
+        var items = load().items;
+        return Object.keys(items).some(function (k) { return k.indexOf(app + '|') === 0 && valid(items[k]) && inView(view, k); });
+      },
 
       // The world's gifts and monsters: 'due' (in a box, due today), 'rest' (in a box, not due yet) or 'new' (never
       // answered), with its box (0 when new).
@@ -542,7 +563,13 @@
     core.tidy = function (app, questions, info, entries) {
       var tags = doc.querySelectorAll('script[src*="lessons/"]').length;
       var SK = win.StudyKit, list = SK && SK.all ? SK.all() : null, term = SK && SK.term ? SK.term() : null;
+      if (term) core.scope(app, questions.map(function (q) { return keyOf(app, info(q)); }));
       return tidy(app, questions, info, entries, partialList(list ? list.length : tags, tags, term), list ? renamesOf(list) : null);
+    };
+    // Math Mastery keeps a box per skill and never calls tidy: it names its view's skills here.
+    core.scopeSkills = function (app, ids) {
+      var SK = win.StudyKit;
+      if (SK && SK.term && SK.term()) core.scope(app, ids.map(function (id) { return app + '|skill:' + id; }));
     };
     core.textOf = function (html) {
       var d = doc.createElement('div');
@@ -554,7 +581,7 @@
     return core;
   }
 
-  var exported = { create: create, matches: matches, normalize: normalize, keyOf: keyOf, renamesOf: renamesOf, partialList: partialList, TEXT: TEXT,
+  var exported = { create: create, matches: matches, normalize: normalize, keyOf: keyOf, renamesOf: renamesOf, partialList: partialList, inView: inView, TEXT: TEXT,
     REST_DAYS: REST_DAYS, TYPED_BONUS: TYPED_BONUS, BOX_DAYS: BOX_DAYS, GAP_BONUS: GAP_BONUS, REVIEW_SIZE: REVIEW_SIZE, SEED_DAYS: SEED_DAYS };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = exported;

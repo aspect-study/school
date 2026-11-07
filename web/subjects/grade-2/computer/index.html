@@ -500,6 +500,7 @@
   function isWidePic(p){ return typeof p === 'string' && p.indexOf('<svg') === 0; }
   /* ================= LESSONS ================= */
   var lessons = StudyKit.lessons();
+  function lessonKey(i) { return StudyKit.all().indexOf(lessons[i]); }
 
   var TYPE_IT = StudyKit.content('typeIt');
 
@@ -562,7 +563,7 @@
 
     var lessonCards = lessons.map(function(l, i){
       var total = l.quiz.length;
-      var best = progress[i] || 0;
+      var best = progress[lessonKey(i)] || 0;
       var stars = starsFor(best / total);
       return '<div class="card lesson-card" data-search-lesson="' + i + '">' +
         '<div class="lesson-top">' +
@@ -599,7 +600,7 @@
       b.addEventListener('click', function(){
         currentLesson = parseInt(b.getAttribute('data-lesson'), 10);
         flashIdx = 0;
-        historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, currentLesson, lessons[currentLesson].title, lessons[currentLesson].flashcards.length) : null;
+        historyLessonId = SH ? SH.lessonOpened(SH_APP, SH_TITLE, lessonKey(currentLesson), lessons[currentLesson].title, lessons[currentLesson].flashcards.length) : null;
         window.ReadGate && ReadGate.open({ cards: lessons[currentLesson].flashcards.length, next: 'btn-flash-next' });
         window.Focus && Focus.start(SH_APP + ':' + lessons[currentLesson].title);
         renderFlash();
@@ -656,7 +657,7 @@
   function startQuiz(){
     var lesson = lessons[currentLesson];
     currentQuizSet = buildQuizSet(lesson);
-    currentQuizMeta = { id: currentLesson, title: lesson.title };
+    currentQuizMeta = { id: lessonKey(currentLesson), title: lesson.title };
     historyQuizId = SH ? SH.quizStarted(SH_APP, SH_TITLE, currentQuizMeta.id, currentQuizMeta.title, false, currentQuizSet.length) : null;
     qIdx = 0; score = 0; missedQuestions = []; kit.startRound(); resetPc();
     showScreen('quiz');

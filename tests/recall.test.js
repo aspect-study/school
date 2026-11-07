@@ -716,3 +716,48 @@ test('partialList: tidy keeps every box when a lesson file failed or the page sh
   assert.equal(partialList(3, 10, 2), true);
   assert.equal(partialList(10, 10, 1), true);
 });
+
+const { inView } = require(engineFile('recall.js'));
+
+test('inView: no scope, or another app, counts every box; a scoped app counts only its listed keys', () => {
+  assert.equal(inView(null, 'a|1'), true);
+  const view = { a: { 'a|1': true } };
+  assert.equal(inView(view, 'a|1'), true);
+  assert.equal(inView(view, 'a|2'), false);
+  assert.equal(inView(view, 'b|9'), true);
+  assert.equal(inView({ a: {} }, 'a|skill:x'), false);
+});
+
+test('a term view (scope) counts only its own questions in dueByApp, homeCard, nextDue and hasBoxes', () => {
+  const s = memory(), p = pool(5);
+  setItem(s, 'a', p[0], 1, '2026-10-01');
+  setItem(s, 'a', p[1], 1, '2026-10-01');
+  setItem(s, 'a', p[2], 2, '2026-10-05');
+  setItem(s, 'a', p[3], 2, '2026-10-03');
+  setItem(s, 'b', p[4], 1, '2026-10-01');
+  const r = create(s, clock(2026, 10, 2), 'grade5');
+  assert.equal(r.hasBoxes('a'), true);
+  r.scope('a', [keyOf('a', info(p[2]))]);
+  assert.deepEqual(r.dueByApp(), { b: 1 });
+  assert.equal(r.dueCount('a'), 0);
+  assert.deepEqual(r.homeCard('a'), { ready: false, title: '🔁 Review', line: 'Next: in 3 days' });
+  assert.deepEqual(r.nextDue('a'), { days: 3, count: 1 });
+  assert.equal(r.hasBoxes('a'), true);
+  r.scope('a', [keyOf('a', info(p[0])), keyOf('a', info(p[4]))]);
+  assert.deepEqual(r.dueByApp(), { a: 1, b: 1 });
+  assert.deepEqual(r.homeCard('a'), { ready: true, title: '🔁 Review', line: '1 due' });
+  r.scope('a', []);
+  assert.equal(r.hasBoxes('a'), false);
+  assert.equal(r.hasBoxes('b'), true);
+  assert.deepEqual(r.homeCard('a'), { ready: false, title: '🔁 Review', line: 'Answer some questions first' });
+});
+
+test('Math skill boxes scope by skill key', () => {
+  const s = memory({ review_v1: JSON.stringify({ v: 1, items: {
+    'm|skill:L1': { box: 1, due: '2026-10-01', t: 1 }, 'm|skill:L2': { box: 1, due: '2026-10-01', t: 1 },
+  } }) });
+  const r = create(s, clock(2026, 10, 2), 'grade5');
+  r.scope('m', ['m|skill:L2']);
+  assert.deepEqual(r.dueByApp(), { m: 1 });
+  assert.deepEqual(r.homeCard('m', 3), { ready: true, title: '🔁 Review', line: '1 due' });
+});

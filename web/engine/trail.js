@@ -180,7 +180,8 @@
     function searching() { var S = win.Search; return !!(S && S.query && S.query().trim()); }
     function entry() { try { return win.Mastery.summary().apps[o.app]; } catch (e) { return null; } }
     function avatar() { var G = win.Guide; return G && G.avatarOf ? G.avatarOf(storage) : '🐱'; }
-    function lessonCards() { return Array.prototype.filter.call(list.children, function (c) { return c.hasAttribute('data-search-lesson'); }); }
+    // The lesson cards and the search's term headings above them: the path view hides both.
+    function listRows() { return Array.prototype.filter.call(list.children, function (c) { return c.hasAttribute('data-search-lesson') || c.classList.contains('lterm'); }); }
 
     // Opens a lesson the way a tap on its card does, so every game's own open code runs (cards may be hidden).
     function openAt(i) {
@@ -245,7 +246,7 @@
     function draw() {
       if (!path) return;
       var view = readView(storage), found = searching(), on = view === 'path' && !found;
-      lessonCards().forEach(function (c) {
+      listRows().forEach(function (c) {
         if (on) c.setAttribute('data-trail-hidden', '');
         else c.removeAttribute('data-trail-hidden');
       });
@@ -265,7 +266,7 @@
     function unmount() {
       if (watcher) watcher.disconnect();
       [style, top, path].forEach(function (el) { if (el && el.parentNode) el.parentNode.removeChild(el); });
-      if (list) lessonCards().forEach(function (c) { c.removeAttribute('data-trail-hidden'); });
+      if (list) listRows().forEach(function (c) { c.removeAttribute('data-trail-hidden'); });
       path = null;
     }
 

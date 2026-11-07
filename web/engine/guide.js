@@ -214,6 +214,11 @@
       var safe = function (fn, fallback) {
         try { var v = fn(); return v === undefined || v === null ? fallback : v; } catch (e) { return fallback; }
       };
+      // A game's ?term= view may hold none of the boxes a boss stage asks from; then its boss stop waits for the full view.
+      var bossInView = function (st) {
+        var SK = root.StudyKit, R = root.Recall;
+        return !(SK && SK.term && SK.term()) || !R || !R.hasBoxes || R.hasBoxes(st.app);
+      };
       // cards: [{ app, name, href }]; opts: { app (inside a game), finalStars, canAfford }.
       api.step = function (cards, opts) {
         opts = opts || {};
@@ -221,7 +226,7 @@
         return next({
           cards: cards,
           app: opts.app,
-          stages: safe(function () { return root.Boss.current().stages; }, []),
+          stages: safe(function () { return root.Boss.current().stages.filter(bossInView); }, []),
           due: safe(function () { return root.Recall.dueByApp(); }, {}),
           quests: safe(function () { return todayQuests(root.Quests.state(), Date.now()); }, []),
           mastery: safe(function () { return root.Mastery.summary().apps; }, {}),
