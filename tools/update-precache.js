@@ -1,6 +1,6 @@
 // Rewrites PRECACHE in web/sw.js from the files in web/, so new pages and lessons work offline.
 // Run after adding, renaming or removing a file under web/: node tools/update-precache.js
-// It also rewrites web/world/lesson-files.js (tools/lesson-files.js).
+// It also rewrites web/world/lesson-files.js and web/world/term-lessons.js (tools/lesson-files.js).
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -11,6 +11,7 @@ const SW = path.join(WEB, 'sw.js');
 
 // The world's list of lesson files is written first, so it is precached too.
 fs.writeFileSync(lessonFiles.OUT, lessonFiles.source());
+fs.writeFileSync(lessonFiles.TERM_OUT, lessonFiles.termSource());
 
 function walk(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>

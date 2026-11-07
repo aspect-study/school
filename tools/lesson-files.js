@@ -1,5 +1,6 @@
 // Builds web/world/lesson-files.js: each game's lesson scripts (in its page's order), title, points key and progress
 // key, so the 3D world can load a subject's questions when she asks. update-precache.js writes it.
+// It also builds web/world/term-lessons.js: each game's Term 2 lesson and exam counts.
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -39,4 +40,50 @@ function source() {
     + '})(this);\n';
 }
 
-module.exports = { collect, source, OUT };
+const TERM_OUT = path.join(WEB, 'world', 'term-lessons.js');
+
+// How many Term 2 lessons (and exam-only Term 2 lessons) each game has, for the Study Loft's desks.
+function termCounts(base = path.join(WEB, 'subjects')) {
+  const out = {};
+  for (const g of fs.readdirSync(base).sort()) {
+    for (const s of fs.readdirSync(path.join(base, g)).sort()) {
+      const dir = path.join(base, g, s);
+      const json = path.join(dir, 'subject.json');
+      if (!fs.existsSync(json)) continue;
+      const id = JSON.parse(fs.readFileSync(json, 'utf8')).id;
+      const html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
+      const files = [...html.matchAll(/<script src="(lessons\/[^"]+\.js)"><\/script>/g)].map((m) => m[1]);
+      let lessons = 0, exams = 0;
+      if (files.length) {
+        for (const f of files) {
+          const src = fs.readFileSync(path.join(dir, f), 'utf8');
+          if (!/^\s*term:\s*2,?\s*$/m.test(src)) continue;
+          if (/^\s*exam:\s*true,?\s*$/m.test(src)) exams++;
+          else lessons++;
+        }
+      } else {
+        exams = (html.match(/\bterm:\s*2,\s*exam:\s*true\b/g) || []).length;
+        lessons = (html.match(/\bterm:\s*2\b/g) || []).length - exams;
+      }
+      out[id] = { lessons, exams };
+    }
+  }
+  return out;
+}
+
+function termSource() {
+  return '/* Made by tools/update-precache.js; do not edit. Each game\'s Term 2 lesson count (exams = summative practice\n'
+    + '   lessons), which the Study Loft uses to light its desks (loft.js). */\n'
+    + '(function (root) {\n'
+    + "  'use strict';\n"
+    + '  var TERMS = ' + JSON.stringify(termCounts(), null, 2).replace(/\n/g, '\n  ') + ';\n'
+    + "  if (typeof module !== 'undefined' && module.exports) {\n"
+    + '    module.exports = TERMS;\n'
+    + '    return;\n'
+    + '  }\n'
+    + '  root.World3D = root.World3D || {};\n'
+    + '  root.World3D.TermLessons = TERMS;\n'
+    + '})(this);\n';
+}
+
+module.exports = { collect, source, OUT, termCounts, termSource, TERM_OUT };
