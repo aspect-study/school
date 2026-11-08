@@ -54,7 +54,7 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 | Word Train (`english/`) | English | 13 | Alphabet, onset and rime, CVC words, nouns, pronouns, verbs, adjectives, sentences, intonation, sequencing |
 | Batang Bayani (`makabansa/`) | Makabansa | 14 | Komunidad, klima, mapa, mga tungkulin |
 | Growing Good (`gmrc/`) | GMRC | 8 | Family, feelings, prayer, saving, obeying, talents |
-| Byte Buddies (`computer/`) | Computer | 10 | Computer care, parts, the desktop, the Internet |
+| Byte Buddies (`computer/`) | Computer | 12 | Computer care, parts, the desktop, the Internet, the web browser |
 | Science Detectives (`science/`) | Science | 6 | Body, senses, objects, animals, habitats |
 
 ## How a game works

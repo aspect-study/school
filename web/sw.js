@@ -161,6 +161,8 @@ const PRECACHE = [
   'subjects/grade-2/computer/lessons/08-understanding-the-internet.js',
   'subjects/grade-2/computer/lessons/09-exploring-the-places-on-the-internet.js',
   'subjects/grade-2/computer/lessons/10-connecting-to-the-internet.js',
+  'subjects/grade-2/computer/lessons/11-using-the-internet-browser.js',
+  'subjects/grade-2/computer/lessons/12-surfing-the-web.js',
   'subjects/grade-2/computer/subject.json',
   'subjects/grade-2/computer/type-it.js',
   'subjects/grade-2/english/index.html',

@@ -18,7 +18,9 @@
         "lessons/07-quick-launch-bar-and-notification-area.js",
         "lessons/08-understanding-the-internet.js",
         "lessons/09-exploring-the-places-on-the-internet.js",
-        "lessons/10-connecting-to-the-internet.js"
+        "lessons/10-connecting-to-the-internet.js",
+        "lessons/11-using-the-internet-browser.js",
+        "lessons/12-surfing-the-web.js"
       ]
     },
     "word-train": {

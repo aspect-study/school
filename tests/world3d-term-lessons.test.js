@@ -53,6 +53,11 @@ test('the inline Math list counts each lesson object on its own: any key order, 
   assert.deepEqual(gen.termCounts(base), { 'math-mastery': { lessons: 1, exams: 2, ids: ['a', 'b', 'd'] } });
 });
 
+test('a Grade 2 lesson file has no id, so its plain title is the id its game keys it by', () => {
+  const t = require(worldFile('term-lessons.js'))['byte-buddies'];
+  assert.deepEqual(t.ids, ['Using the Internet Browser', 'Surfing the Web']);
+});
+
 test('History Explorers lists its nine Term 2 lesson ids', () => {
   const t = require(worldFile('term-lessons.js'))['history-explorers'];
   assert.equal(t.ids.length, 9);

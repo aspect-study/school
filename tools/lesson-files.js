@@ -67,6 +67,14 @@ function inlineLessons(html) {
   return out;
 }
 
+const ENTITIES = { amp: '&', rsquo: '’', lsquo: '‘', ldquo: '“', rdquo: '”', middot: '·', mdash: '—', ndash: '–', nbsp: ' ' };
+
+function plainTitle(src) {
+  const m = src.match(/^\s*title:\s*'((?:[^'\\]|\\.)*)'/m);
+  if (!m) throw new Error('a Term 2 lesson needs an id or a title');
+  return m[1].replace(/<[^>]*>/g, '').replace(/&(\w+);/g, (e, n) => (n in ENTITIES ? ENTITIES[n] : e));
+}
+
 // How many Term 2 lessons (and exam-only Term 2 lessons) each game has, and their ids, for the upper floors.
 function termCounts(base = path.join(WEB, 'subjects')) {
   const out = {};
@@ -90,7 +98,9 @@ function termCounts(base = path.join(WEB, 'subjects')) {
           if (!/^\s*term:\s*2,?\s*$/m.test(src)) continue;
           if (/^\s*exam:\s*true,?\s*$/m.test(src)) exams++;
           else lessons++;
-          take(src, /^\s*id:\s*['"]([^'"]+)['"]/m);
+          // Grade 2 lessons have no id: their games key a lesson by its plain title (Recall.textOf).
+          if (/^\s*id:/m.test(src)) take(src, /^\s*id:\s*['"]([^'"]+)['"]/m);
+          else ids.push(plainTitle(src));
         }
       } else {
         for (const l of inlineLessons(html)) {

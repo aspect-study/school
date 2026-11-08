@@ -4,9 +4,12 @@
   'use strict';
   var TERMS = {
     "byte-buddies": {
-      "lessons": 0,
+      "lessons": 2,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "Using the Internet Browser",
+        "Surfing the Web"
+      ]
     },
     "word-train": {
       "lessons": 0,

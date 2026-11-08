@@ -49,18 +49,21 @@ try {
   fs.rmSync(work, { recursive: true, force: true });
 }
 
-// Byte Buddies keys stars by lesson position: with its last lesson marked Term 2, finishing it in ?term=2 must put the
+// Byte Buddies keys stars by lesson position: with only its last lesson marked Term 2, finishing it in ?term=2 must put the
 // stars on that lesson's card, not on lesson 1's.
 const work2 = makeWorkDir('term-e2e-g2');
 try {
   const driver = fs.readFileSync(path.join(__dirname, 'driver-term-g2.page.js'), 'utf8');
   const html = injectDriver(fs.readFileSync(appFile('byte-buddies'), 'utf8'), driver);
   const file = stage(path.join(work2, 'site'), app('byte-buddies').page, html, ENGINE_FILES);
-  const last = path.join(path.dirname(file), 'lessons', '10-connecting-to-the-internet.js');
+  // Byte Buddies has real Term 2 lessons: untag them all in the staged copy, then tag only the last one.
+  const lessonFiles = [...html.matchAll(/<script src="(lessons\/[^"]+\.js)"><\/script>/g)].map((m) => path.join(path.dirname(file), m[1]));
+  for (const f of lessonFiles) fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace(/^  term: 2,\n/m, ''));
+  const last = lessonFiles[lessonFiles.length - 1];
   const source = fs.readFileSync(last, 'utf8');
-  if (!source.includes('StudyKit.lesson({\n')) throw new Error('10-connecting-to-the-internet.js does not start with StudyKit.lesson({');
+  if (!source.includes('StudyKit.lesson({\n')) throw new Error(path.basename(last) + ' does not start with StudyKit.lesson({');
   fs.writeFileSync(last, source.replace('StudyKit.lesson({\n', 'StudyKit.lesson({\n  term: 2,\n'));
-  const total = (html.match(/<script src="lessons\//g) || []).length;
+  const total = lessonFiles.length;
   const profile = path.join(work2, 'profile');
 
   const t2 = readOutput(dumpDom(profile, file, '?term=2', 3000));

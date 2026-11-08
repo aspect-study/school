@@ -17,5 +17,11 @@ StudyKit.content('typeIt', {
   'Complete the word.\nYou can get to know more of your school by visiting your school&rsquo;s w______.': ['website'],
   'Complete the word.\nThe I______ is working when I can go to other pages on the website.': [],
   'Which connection is usually the slowest?': ['dialup'],
-  'Look at the picture. What device did the ISP technician bring?': []
+  'Look at the picture. What device did the ISP technician bring?': [],
+  'Where do we type what we want to find?': [],
+  'Which button takes us to the page we came from?': [],
+  'Which button reloads the page?': [],
+  'We like a page and want to find it again later. What do we use?': ['favorite'],
+  'The WWW is all the ___ you can visit.': ['website'],
+  'The World Wide Web is like a BIG ___ full of pages and pictures.': []
 });
