@@ -19,5 +19,16 @@ StudyKit.content('typeIt', {
   'Which habitat is cold and covered in snow all year round?': ['polar'],
   'What is in the air that animals breathe?': [],
   'Animals need oxygen to turn the food they ate into ___.': [],
-  'What do we call animals that get food by hunting or eating other animals?': ['predator']
+  'What do we call animals that get food by hunting or eating other animals?': ['predator'],
+  'Which part of the plant grows under the ground?': ['root'],
+  'Which part is the main part that stands tall above the ground?': [],
+  'Which part is the colorful part of the plant?': [],
+  'Which part grows from the flower and protects the seeds inside?': [],
+  'What is the food making process of plants called?': [],
+  'What do we call anything that helps carry pollen to fertilize plants?': [],
+  'What do we call animals or organisms that eat plants to survive?': ['herbivore'],
+  'What do we call plants growing in an area where they are not desired?': ['weed'],
+  'Plants give off ___, the air that we breathe.': [],
+  'Trees are big plants. What do they give us for our shelter?': [],
+  'Where do plants get nutrients?': ['soil']
 });
