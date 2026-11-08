@@ -46,14 +46,24 @@
       ]
     },
     "block-bot": {
-      "lessons": 0,
+      "lessons": 5,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "circles",
+        "composite",
+        "subnumberline",
+        "subnoregroup",
+        "subregroup"
+      ]
     },
     "science-detectives": {
-      "lessons": 0,
+      "lessons": 3,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "A Part of Me: Discovering Plants and Their Parts",
+        "Everybody Needs Plants",
+        "Plants Need Us Too"
+      ]
     },
     "history-explorers": {
       "lessons": 9,

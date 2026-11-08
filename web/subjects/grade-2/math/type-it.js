@@ -29,5 +29,14 @@ StudyKit.content('typeIt', {
   '186 + 447 = ?': [],
   '489 + 156 = ?': [],
   'Which bill is this?': ['100', '100 peso'],
-  'How many centavos make 1 peso?': []
+  'How many centavos make 1 peso?': [],
+  'A circle cut into four equal parts is called a ___.': [],
+  'How many sides does a triangle have?': ['three'],
+  '10 - 2 = ?': ['eight'],
+  '13 - 9 = ?': ['four'],
+  '457 - 22 = ?': [],
+  'What do we call the answer in subtraction?': [],
+  '252 - 136 = ?': [],
+  '312 - 168 = ?': [],
+  '5 tens 2 ones = 4 tens and ___ ones.': ['twelve']
 });

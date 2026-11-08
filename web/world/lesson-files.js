@@ -133,7 +133,12 @@
         "lessons/09-expanded.js",
         "lessons/10-addnoregroup.js",
         "lessons/11-addregroup.js",
-        "lessons/12-money.js"
+        "lessons/12-money.js",
+        "lessons/13-circles.js",
+        "lessons/14-composite.js",
+        "lessons/15-subnumberline.js",
+        "lessons/16-subnoregroup.js",
+        "lessons/17-subregroup.js"
       ]
     },
     "science-detectives": {
@@ -147,7 +152,10 @@
         "lessons/03-what-is-matter.js",
         "lessons/04-animals-and-their-babies.js",
         "lessons/05-each-animal-has-its-own-home.js",
-        "lessons/06-how-do-animals-survive.js"
+        "lessons/06-how-do-animals-survive.js",
+        "lessons/07-discovering-plants-and-their-parts.js",
+        "lessons/08-everybody-needs-plants.js",
+        "lessons/09-plants-need-us-too.js"
       ]
     },
     "history-explorers": {
