@@ -108,7 +108,12 @@
         "lessons/11-mga-taong-naninirahan-sa-komunidad.js",
         "lessons/12-mga-institusyong-panlipunan.js",
         "lessons/13-gawain-at-tungkulin-ng-mga-bumubuo-sa-ko.js",
-        "lessons/14-gawain-at-tungkulin-ng-bata-sa-komunidad.js"
+        "lessons/14-gawain-at-tungkulin-ng-bata-sa-komunidad.js",
+        "lessons/15-ano-ang-kultura.js",
+        "lessons/16-katangian-ng-kultura.js",
+        "lessons/17-kulturang-materyal.js",
+        "lessons/18-kulturang-di-materyal.js",
+        "lessons/19-laro-panitikan-at-awit.js"
       ]
     },
     "block-bot": {

@@ -29,5 +29,10 @@ StudyKit.content('typeIt', {
   'Sino ang umaapula ng sunog?': [],
   'Sino ang nagtuturo sa mga mag-aaral sa paaralan?': [],
   'Sino ang gumugupit ng buhok?': [],
-  'Saan sinusuri at ginagamot ng doktor ang mga may sakit?': []
+  'Saan sinusuri at ginagamot ng doktor ang mga may sakit?': [],
+  'Ano ang tawag sa mga gawain o pagdiriwang na ipinagpapatuloy at ipinapasa sa susunod na henerasyon?': [],
+  'Ang parol ay simbolo ng anong pagdiriwang?': [],
+  'Ano ang tradisyonal na kasuotan ng mga lalaki?': ['Barong'],
+  'Anong wika ang ginagamit ng komunidad sa Maynila?': [],
+  'Ano ang tradisyonal na paraan ng panliligaw ng mga Pilipino?': []
 });

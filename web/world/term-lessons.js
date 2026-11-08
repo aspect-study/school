@@ -35,9 +35,15 @@
       ]
     },
     "batang-bayani": {
-      "lessons": 0,
+      "lessons": 5,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "Ano ang Kultura?",
+        "Katangian ng Kultura",
+        "Kulturang Materyal",
+        "Kulturang Di-Materyal",
+        "Laro, Panitikan, at Awit"
+      ]
     },
     "block-bot": {
       "lessons": 0,
