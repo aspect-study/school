@@ -22,5 +22,14 @@ StudyKit.content('typeIt', {
   'The dog is far away. Which word fits?\n"___ dog is barking loudly."': [],
   'What do we call a group of words that expresses a complete thought?': [],
   'Who is Ou Ou?': ['porcupine', 'a porcupine', 'little porcupine'],
-  'What did the little mouse make for Ou Ou first?': ['shirt', 'special shirt', 'a shirt']
+  'What did the little mouse make for Ou Ou first?': ['shirt', 'special shirt', 'a shirt'],
+  'Which word is a synonym of "big"?': [],
+  'Which word is the antonym of "hot"?': [],
+  'Which word is the antonym of "full"?': [],
+  'What is the antonym of "slow"?': [],
+  'What is the antonym of "enemy"?': [],
+  'What is the antonym of "difficult"?': [],
+  'What is the antonym of "awake"?': [],
+  'What is the antonym of "late"?': [],
+  'What is the action word?\n"Wash your hands before eating."': []
 });

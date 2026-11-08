@@ -51,7 +51,7 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 |---|---|---|---|
 | Block Bot (`math/`) | Math | 12 | Numbers, place value, number lines, Philippine money (drawn in SVG) |
 | Kuwentista (`filipino/`) | Filipino | 15 | Alpabeto, pangngalan, panghalip, pang-uri, pandiwa, kongkreto at di-kongkreto, pangungusap at parirala, pantukoy, sight words |
-| Word Train (`english/`) | English | 13 | Alphabet, onset and rime, CVC words, nouns, pronouns, verbs, adjectives, sentences, intonation, sequencing |
+| Word Train (`english/`) | English | 16 | Alphabet, onset and rime, CVC words, nouns, pronouns, verbs, adjectives, sentences, intonation, sequencing, synonyms and antonyms, kinds of sentences |
 | Batang Bayani (`makabansa/`) | Makabansa | 14 | Komunidad, klima, mapa, mga tungkulin |
 | Growing Good (`gmrc/`) | GMRC | 8 | Family, feelings, prayer, saving, obeying, talents |
 | Byte Buddies (`computer/`) | Computer | 12 | Computer care, parts, the desktop, the Internet, the web browser |

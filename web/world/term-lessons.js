@@ -12,9 +12,13 @@
       ]
     },
     "word-train": {
-      "lessons": 0,
+      "lessons": 3,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "Synonyms and Antonyms",
+        "Telling and Asking Sentences",
+        "Commanding and Requesting Sentences"
+      ]
     },
     "kuwentista": {
       "lessons": 0,

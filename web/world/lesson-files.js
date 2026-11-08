@@ -41,7 +41,10 @@
         "lessons/10-demonstrative-pronouns.js",
         "lessons/11-sentences-and-predicate.js",
         "lessons/12-intonation.js",
-        "lessons/13-sequence-of-events.js"
+        "lessons/13-sequence-of-events.js",
+        "lessons/14-synonyms-and-antonyms.js",
+        "lessons/15-telling-and-asking-sentences.js",
+        "lessons/16-commanding-and-requesting-sentences.js"
       ]
     },
     "kuwentista": {
