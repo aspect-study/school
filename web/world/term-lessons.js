@@ -26,9 +26,13 @@
       "ids": []
     },
     "growing-good": {
-      "lessons": 0,
+      "lessons": 3,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "We Build Good Relationships",
+        "We Care for Public Properties",
+        "I Have Patience"
+      ]
     },
     "batang-bayani": {
       "lessons": 0,

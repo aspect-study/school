@@ -83,7 +83,10 @@
         "lessons/05-i-spend-wisely.js",
         "lessons/06-thrifty-ways.js",
         "lessons/07-i-obey.js",
-        "lessons/08-i-can.js"
+        "lessons/08-i-can.js",
+        "lessons/09-we-build-good-relationships.js",
+        "lessons/10-we-care-for-public-properties.js",
+        "lessons/11-i-have-patience.js"
       ]
     },
     "batang-bayani": {

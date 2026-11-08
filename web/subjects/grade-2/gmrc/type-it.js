@@ -10,5 +10,8 @@ StudyKit.content('typeIt', {
   'Which thrifty way is Jo doing?\nJo gives her old books, which are still in good condition, to a friend in exchange for puzzles.': ['trading'],
   'Learning, playing, and being treated with respect are examples of ___.': [],
   'Obedience is doing what we ought to do as instructed by parents, people in charge, and ___.': ['law'],
-  'Who gave us our talents?': []
+  'Who gave us our talents?': [],
+  'What is the ability to understand the feelings and situation of other people so that you will not judge them?': [],
+  'Using things responsibly and considering other users is showing ___.': [],
+  'What do we call a person who peacefully resolves misunderstandings and conflicts?': []
 });
