@@ -37,6 +37,5 @@ StudyKit.content('typeIt', {
   '457 - 22 = ?': [],
   'What do we call the answer in subtraction?': [],
   '252 - 136 = ?': [],
-  '312 - 168 = ?': [],
-  '5 tens 2 ones = 4 tens and ___ ones.': ['twelve']
+  '312 - 168 = ?': []
 });
