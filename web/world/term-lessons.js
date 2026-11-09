@@ -21,9 +21,13 @@
       ]
     },
     "kuwentista": {
-      "lessons": 0,
+      "lessons": 3,
       "exams": 0,
-      "ids": []
+      "ids": [
+        "tagpuan",
+        "tambalan",
+        "impormatibo"
+      ]
     },
     "growing-good": {
       "lessons": 3,

@@ -67,7 +67,10 @@
         "lessons/12-sightwords.js",
         "lessons/13-kongkreto.js",
         "lessons/14-parirala.js",
-        "lessons/15-pantukoy.js"
+        "lessons/15-pantukoy.js",
+        "lessons/16-tagpuan.js",
+        "lessons/17-tambalan.js",
+        "lessons/18-impormatibo.js"
       ]
     },
     "growing-good": {

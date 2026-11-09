@@ -17,5 +17,9 @@ StudyKit.content('typeIt', {
   'Anong antas ng paglalarawan?\n"Mabango ang rosas."': [],
   'Anong antas ng paglalarawan?\n"Pinakamabango ang rosas sa lahat ng bulaklak."': [],
   'Ano ang tawag sa grupo ng mga salita na buo ang diwa?': [],
-  'Ano ang tawag sa salitang may malaking titik?\n"ANG bata ay tila basáng-sisiw."': []
+  'Ano ang tawag sa salitang may malaking titik?\n"ANG bata ay tila basáng-sisiw."': [],
+  'Ano ang tagpuan?\n"Nagluluto si Nanay sa kusina."': [],
+  'Ilang payak na pangungusap ang bumubuo sa tambalang pangungusap?': ['dalawa'],
+  'Ano ang tawag sa pinag-uusapan sa pangungusap?': [],
+  'Ano ang tawag sa bahaging nagsasabi tungkol sa paksa?': []
 });
