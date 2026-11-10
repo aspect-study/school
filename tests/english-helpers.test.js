@@ -84,9 +84,9 @@ test('kuwentista Term 2: every card and quiz item has English', () => {
   }
 });
 
-test('batang-bayani Term 2: every card and quiz item has English', () => {
-  const list = term2('batang-bayani');
-  assert.ok(list.length > 0, 'Batang Bayani has Term 2 lessons');
+test('batang-bayani: every card and quiz item has English', () => {
+  const list = lessons('batang-bayani');
+  assert.ok(list.length > 0, 'Batang Bayani has lessons');
   for (const lesson of list) {
     for (const card of lesson.flashcards) {
       assert.ok(filled(card.en), `${lesson.title}: card "${card.title}" is missing en`);
