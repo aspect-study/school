@@ -68,3 +68,47 @@ for (const file of APPS) {
     }
   });
 }
+
+const filled = (s) => typeof s === 'string' && s.trim().length > 0;
+const term2 = (id) => lessons(id).filter((l) => l.term === 2);
+
+test('kuwentista Term 2: every card and quiz item has English', () => {
+  const list = term2('kuwentista');
+  assert.ok(list.length > 0, 'Kuwentista has Term 2 lessons');
+  for (const lesson of list) {
+    for (const card of lesson.flashcards) assert.ok(filled(card.en), `${lesson.title}: card "${card.term}" is missing en`);
+    for (const item of lesson.quiz) {
+      for (const k of ['qen', 'en', 'tipEn']) assert.ok(filled(item[k]), `${lesson.title}: "${item.q}" is missing ${k}`);
+      item.why.forEach((w, i) => { if (w) assert.ok(filled(item.whyEn[i]), `${lesson.title}: "${item.q}" option ${i} is missing whyEn`); });
+    }
+  }
+});
+
+test('batang-bayani Term 2: every card and quiz item has English', () => {
+  const list = term2('batang-bayani');
+  assert.ok(list.length > 0, 'Batang Bayani has Term 2 lessons');
+  for (const lesson of list) {
+    for (const card of lesson.flashcards) {
+      assert.ok(filled(card.en), `${lesson.title}: card "${card.title}" is missing en`);
+      assert.notEqual(card.en, card.text, `${lesson.title}: card "${card.title}" en copies the Filipino`);
+    }
+    for (const item of lesson.quiz) {
+      for (const k of ['qen', 'goodEn', 'badEn', 'tipEn']) assert.ok(filled(item[k]), `${lesson.title}: "${item.q}" is missing ${k}`);
+      assert.notEqual(item.qen, item.q, `${lesson.title}: "${item.q}" qen copies the Filipino`);
+      if (item.type === 'tf') assert.ok(filled(item.whyEn), `${lesson.title}: "${item.q}" is missing whyEn`);
+      for (const o of item.options || []) {
+        if (o.why) assert.ok(filled(o.whyEn), `${lesson.title}: "${item.q}" option "${o.text}" is missing whyEn`);
+      }
+    }
+  }
+});
+
+test('batang-bayani page shows the English helpers', () => {
+  const html = require('node:fs').readFileSync(require('./paths.js').appFile('batang-bayani'), 'utf8');
+  assert.match(html, /id="q-help"[^>]*>🤔 Hindi maintindihan\? Tingnan sa English</, 'the question English button');
+  assert.match(html, /SA ENGLISH/, 'the flashcard English label');
+  for (const k of ['f.en', 'item.qen', 'item.goodEn', 'item.badEn', 'item.tipEn', 'opt.whyEn', '.whyEn']) {
+    assert.ok(html.includes(k), `the page reads ${k}`);
+  }
+  assert.match(html, /qen:item\.qen[\s\S]*goodEn:item\.goodEn[\s\S]*badEn:item\.badEn[\s\S]*tipEn:item\.tipEn/, 'prepareQuestion keeps the English fields');
+});
