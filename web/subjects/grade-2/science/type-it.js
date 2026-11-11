@@ -30,5 +30,11 @@ StudyKit.content('typeIt', {
   'What do we call plants growing in an area where they are not desired?': ['weed'],
   'Plants give off ___, the air that we breathe.': [],
   'Trees are big plants. What do they give us for our shelter?': [],
-  'Where do plants get nutrients?': ['soil']
+  'Where do plants get nutrients?': ['soil'],
+  'What do we call plants grown as food such as grains and vegetables?': [],
+  'A cow eats ___.': [],
+  'A bee gets nectar from the ___.': [],
+  'Which plant part usually grows below the ground?': [],
+  'A carrot is an example of which plant part that we eat?': [],
+  'Which food comes from plants?': []
 });
