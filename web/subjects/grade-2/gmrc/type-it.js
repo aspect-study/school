@@ -13,5 +13,7 @@ StudyKit.content('typeIt', {
   'Who gave us our talents?': [],
   'What is the ability to understand the feelings and situation of other people so that you will not judge them?': [],
   'Using things responsibly and considering other users is showing ___.': [],
-  'What do we call a person who peacefully resolves misunderstandings and conflicts?': []
+  'What do we call a person who peacefully resolves misunderstandings and conflicts?': [],
+  'What is the English word for katapatan?': [],
+  'Waiting calmly without becoming upset is called ___.': []
 });

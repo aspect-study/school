@@ -89,7 +89,9 @@
         "lessons/08-i-can.js",
         "lessons/09-we-build-good-relationships.js",
         "lessons/10-we-care-for-public-properties.js",
-        "lessons/11-i-have-patience.js"
+        "lessons/11-i-have-patience.js",
+        "lessons/12-i-am-honest.js",
+        "lessons/13-review-for-st1.js"
       ]
     },
     "batang-bayani": {
@@ -158,7 +160,10 @@
         "lessons/06-how-do-animals-survive.js",
         "lessons/07-discovering-plants-and-their-parts.js",
         "lessons/08-everybody-needs-plants.js",
-        "lessons/09-plants-need-us-too.js"
+        "lessons/09-plants-need-us-too.js",
+        "lessons/10-living-things-and-their-interactions.js",
+        "lessons/11-i-am-a-responsible-living-thing.js",
+        "lessons/12-review-for-st1.js"
       ]
     },
     "history-explorers": {

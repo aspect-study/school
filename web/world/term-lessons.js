@@ -30,12 +30,14 @@
       ]
     },
     "growing-good": {
-      "lessons": 3,
+      "lessons": 5,
       "exams": 0,
       "ids": [
         "We Build Good Relationships",
         "We Care for Public Properties",
-        "I Have Patience"
+        "I Have Patience",
+        "I Am Honest",
+        "Review for ST #1"
       ]
     },
     "batang-bayani": {
@@ -61,12 +63,15 @@
       ]
     },
     "science-detectives": {
-      "lessons": 3,
+      "lessons": 6,
       "exams": 0,
       "ids": [
         "A Part of Me: Discovering Plants and Their Parts",
         "Everybody Needs Plants",
-        "Plants Need Us Too"
+        "Plants Need Us Too",
+        "Finding Out About Living Things and Their Interactions",
+        "I Am a Responsible Living Thing",
+        "Review for ST #1: Plants"
       ]
     },
     "history-explorers": {
