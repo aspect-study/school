@@ -209,7 +209,9 @@
         "lessons/35-legazpi.js",
         "lessons/36-puwersang-militar.js",
         "lessons/37-tributo-polo.js",
-        "lessons/38-bandala-galyon-tabako.js"
+        "lessons/38-bandala-galyon-tabako.js",
+        "lessons/39-pagbabagong-pampolitika.js",
+        "lessons/40-anyo-at-sining.js"
       ]
     },
     "net-navigators": {
@@ -417,7 +419,8 @@
         "lessons/28-animallifecycles.js",
         "lessons/29-camouflagemimicry.js",
         "lessons/30-plantlifecycle.js",
-        "lessons/31-birdlifecycle.js"
+        "lessons/31-birdlifecycle.js",
+        "lessons/32-st1review.js"
       ]
     },
     "craft-corner": {
@@ -440,7 +443,8 @@
         "lessons/12-damages.js",
         "lessons/13-safety-measuring.js",
         "lessons/14-repair-tools.js",
-        "lessons/15-repair-materials.js"
+        "lessons/15-repair-materials.js",
+        "lessons/16-service-cost.js"
       ]
     }
   };

@@ -64,5 +64,8 @@ StudyKit.content('typeIt', {
   'What do you call the clusters of frog eggs found in water?': [],
   'Which butterfly looks similar to the monarch butterfly, which predators often avoid?': ['viceroy'],
   'What is the process in which a seed begins to sprout?': [],
-  'What is a baby bird called right after it breaks out of its eggshell?': []
+  'What is a baby bird called right after it breaks out of its eggshell?': [],
+  'What is the windpipe also called?': [],
+  'What is the process of spreading seeds away from the parent plant to new places where they can grow?': [],
+  'What are chemical messengers produced by the endocrine glands that help control growth, development, and other body processes?': []
 });

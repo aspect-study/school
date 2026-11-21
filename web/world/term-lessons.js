@@ -75,7 +75,7 @@
       ]
     },
     "history-explorers": {
-      "lessons": 9,
+      "lessons": 11,
       "exams": 0,
       "ids": [
         "kolonyalismo",
@@ -86,7 +86,9 @@
         "legazpi",
         "puwersangmilitar",
         "tributopolo",
-        "bandalagalyon"
+        "bandalagalyon",
+        "pampolitika",
+        "anyosining"
       ]
     },
     "net-navigators": {
@@ -164,7 +166,7 @@
       ]
     },
     "life-lab": {
-      "lessons": 13,
+      "lessons": 14,
       "exams": 0,
       "ids": [
         "circulatory",
@@ -179,11 +181,12 @@
         "animallifecycles",
         "camouflagemimicry",
         "plantlifecycle",
-        "birdlifecycle"
+        "birdlifecycle",
+        "st1review"
       ]
     },
     "craft-corner": {
-      "lessons": 6,
+      "lessons": 7,
       "exams": 0,
       "ids": [
         "woodbamboo",
@@ -191,7 +194,8 @@
         "damages",
         "repairsafety",
         "repairtools",
-        "repairmaterials"
+        "repairmaterials",
+        "servicecost"
       ]
     }
   };
