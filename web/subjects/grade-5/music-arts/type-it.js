@@ -13,5 +13,9 @@ StudyKit.content('typeIt', {
   'What is the Maranao epic chant called?': [],
   'Sliding, shaking, trilling, and trembling in singing are called ___.': [],
   'Costumes, props, and visual stagecraft make up which element of drama?': [],
-  'In dynamics, what does FORTE mean?': []
+  'In dynamics, what does FORTE mean?': [],
+  'The hagabi is a symbol of wealth for which people?': [],
+  'What does the okir motif NAGA stand for?': [],
+  'Tying threads before dyeing is called ___.': [],
+  'Applying wax before dyeing is called ___.': []
 });

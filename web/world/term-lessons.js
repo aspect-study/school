@@ -114,13 +114,16 @@
       ]
     },
     "wikaharian": {
-      "lessons": 4,
+      "lessons": 7,
       "exams": 0,
       "ids": [
         "mundosalaro",
         "personipikasyon",
         "audio",
-        "almanacatlas"
+        "almanacatlas",
+        "kondisyunal",
+        "pokuslayon",
+        "reynadanaya"
       ]
     },
     "rise-shine": {
@@ -143,14 +146,17 @@
       ]
     },
     "rhythm-hues": {
-      "lessons": 5,
+      "lessons": 8,
       "exams": 0,
       "ids": [
         "vocal-music",
         "epic-chants",
         "precolonial-drama",
         "recorder-technique",
-        "recorder-expression"
+        "recorder-expression",
+        "art-mediums",
+        "okir-patterns",
+        "art-techniques"
       ]
     },
     "rally-ready": {

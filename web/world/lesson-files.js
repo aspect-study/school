@@ -300,7 +300,10 @@
         "lessons/21-mundo-sa-laro.js",
         "lessons/22-personipikasyon.js",
         "lessons/23-audio.js",
-        "lessons/24-almanac-atlas.js"
+        "lessons/24-almanac-atlas.js",
+        "lessons/25-kondisyunal.js",
+        "lessons/26-pokus-layon.js",
+        "lessons/27-reyna-danaya.js"
       ]
     },
     "rise-shine": {
@@ -348,7 +351,10 @@
         "lessons/14-epic-chants.js",
         "lessons/15-precolonial-drama.js",
         "lessons/16-recorder-technique.js",
-        "lessons/17-recorder-expression.js"
+        "lessons/17-recorder-expression.js",
+        "lessons/18-art-mediums.js",
+        "lessons/19-okir-patterns.js",
+        "lessons/20-art-techniques.js"
       ]
     },
     "rally-ready": {

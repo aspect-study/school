@@ -45,6 +45,11 @@ StudyKit.content('strategy', [
     body: 'Regular pulse &rarr; <b>steady beat</b>. Cleanly and in tune &rarr; <b>accuracy</b>. Louder (forte) and softer (piano) &rarr; <b>dynamics</b>. Separate or connect notes &rarr; <b>articulation</b>. Groups like sentences &rarr; <b>phrasing</b>.'
   },
   {
+    kicker: 'Visual Arts Term 2 Tip',
+    title: 'Medium, motif, technique',
+    body: 'Rock &amp; wood = <b>carved, shaped</b>; metal = <b>cast, hammered</b>; mud &amp; clay = <b>formed, fired</b>; plant fibers = <b>woven, dyed</b>. Okir: <b>male = curvilinear</b>, <b>female = geometry</b>. <b>Ikat = tie</b> threads before dyeing; <b>batik = wax</b> before dyeing.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Reread before you finalize',
     body: 'Read the question one more time with your answer in mind. Check for little words like <b>NOT</b>, <b>ONLY</b>, <b>FIRST</b> and <b>NEXT</b> &mdash; they change the answer.'
