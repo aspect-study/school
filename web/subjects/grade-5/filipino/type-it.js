@@ -25,5 +25,12 @@ StudyKit.content('typeIt', {
   'Tauhan A: &ldquo;Saan tayo pupunta?&rdquo; Tauhan B: &ldquo;Sa parke!&rdquo; Anong uri ng audio ito?': [],
   'Naririnig ang busina ng sasakyan at ang kulog sa isang video. Anong uri ng audio ito?': [],
   'Gusto mong hanapin sa mapa ang lokasyon ng Pilipinas at mga karatig-bansa nito. Anong sanggunian ang gagamitin mo?': [],
-  'Hinahanap mo ang mga tala tungkol sa mahahalagang pangyayari sa isang partikular na taon. Anong sanggunian ang gagamitin mo?': []
+  'Hinahanap mo ang mga tala tungkol sa mahahalagang pangyayari sa isang partikular na taon. Anong sanggunian ang gagamitin mo?': [],
+  'Sa salitang <b>maglaro</b>, ano ang salitang-ugat?': [],
+  'Anong uri ng panlapi ang nasa <b>unahan</b> ng salitang-ugat, gaya ng mag + sulat = magsulat?': [],
+  'ka- + ganda + -han = kagandahan. Anong uri ng panlapi ito?': [],
+  'Anong tanong ang ginagamit sa pokus sa layon?': [],
+  '&ldquo;Niluto ni Tatay ang isda.&rdquo; Ano ang sagot sa tanong na &ldquo;Ano ang niluto?&rdquo;': [],
+  'Saan pupunta si Danaya at si Nanay para tumingin ng damit na maaari niyang isuot?': [],
+  'Sino ang mahiwagang babaeng may suot na magarbong damit na nakilala ni Danaya sa silid-aklatan?': []
 });

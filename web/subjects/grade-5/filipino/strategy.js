@@ -78,6 +78,18 @@ StudyKit.content('strategy', [
     en: '<b>Year or place?</b> Events, news, or sports in <b>one year</b> &rarr; <b>almanac</b> 📅. Maps, location, landforms and bodies of water, population of a <b>place</b> &rarr; <b>atlas</b> 🗺️.'
   },
   {
+    kicker: 'Panlapi at Kondisyunal',
+    title: 'Saan nakakabit? May kung o kapag?',
+    body: 'Unahan &rarr; <b>unlapi</b> (magsulat). Loob &rarr; <b>gitlapi</b> (sumulat). Hulihan &rarr; <b>hulapi</b> (basahin). Unahan at hulihan &rarr; <b>kabilaan</b> (kagandahan). Ang bahaging may <b>kung, kapag, pag, o pagka-</b> ang <b>kondisyon</b>; ang mangyayari ang <b>bunga</b>.',
+    en: '<b>Where is it attached? Is there kung or kapag?</b> Front &rarr; <b>unlapi</b> (prefix: magsulat). Inside &rarr; <b>gitlapi</b> (infix: sumulat). End &rarr; <b>hulapi</b> (suffix: basahin). Front and end &rarr; <b>kabilaan</b> (circumfix: kagandahan). The part with <b>kung, kapag, pag, or pagka-</b> is the <b>condition</b>; what will happen is the <b>result</b>.'
+  },
+  {
+    kicker: 'Pokus sa Layon',
+    title: 'Sino o Ano?',
+    body: 'Hanapin ang pandiwa, saka itanong. Kung ang paksa ay sagot sa &ldquo;<b>Sino?</b>&rdquo; (Kumain si Mang Kiko) &rarr; <b>pokus sa tagaganap</b>. Kung sagot sa &ldquo;<b>Ano?</b>&rdquo; (Kinain ni Mang Kiko ang almusal) &rarr; <b>pokus sa layon</b>.',
+    en: '<b>Who or what?</b> Find the verb, then ask. If the subject answers &ldquo;<b>Sino?</b>&rdquo; (Who? Kumain si Mang Kiko) &rarr; <b>actor focus</b>. If it answers &ldquo;<b>Ano?</b>&rdquo; (What? Kinain ni Mang Kiko ang almusal) &rarr; <b>object focus</b>.'
+  },
+  {
     kicker: 'Pangkalahatan',
     title: 'Basahin muli bago isumite',
     body: 'Basahin ang tanong kasama ang iyong sagot. Kung wasto pa rin ito ayon sa aralin, tama ka.',
