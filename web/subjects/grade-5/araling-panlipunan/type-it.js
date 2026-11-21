@@ -72,5 +72,11 @@ StudyKit.content('typeIt', {
   'Noong 1884, ano ang ipinalit sa tributo?': ['cedula'],
   'Ano ang tawag sa mga sumasailalim sa polo y servicio?': [],
   'Ayon sa aklat, saan pangunahing ginagawa ang mga galyon?': [],
-  'Ayon sa aklat, ano ang kailangan ng isang mangangalakal para makalahok sa Kalakalang Galyon?': []
+  'Ayon sa aklat, ano ang kailangan ng isang mangangalakal para makalahok sa Kalakalang Galyon?': [],
+  'Anong taon binuwag ang Consejo de Indias?': [],
+  'Ano ang tawag sa kumakatawan sa konseho ng isang kolonya?': [],
+  'Sino ang haring nagtatag ng Real Audiencia?': ['Felipe II', 'King Felipe II'],
+  'Ayon sa tsart, sino ang namumuno sa mga pueblo o bayan (towns)?': [],
+  'Ano ang tawag sa sining ng paggawa at pagdisenyo ng mga gusali?': [],
+  'Ano ang tawag sa paggawa ng mga hugis mula sa kahoy, bato, o iba pang materyales?': []
 });
