@@ -70,6 +70,11 @@ StudyKit.content('strategy', [
     body: 'Resists scratching &rarr; <b>hardness</b>. Hammered into thin sheets &rarr; <b>malleability</b>. Goes back to its shape &rarr; <b>elasticity</b>. Melts easily &rarr; <b>fusibility</b>. Steel and cast iron are <b>ferrous</b>; aluminum and copper are <b>non-ferrous</b>.'
   },
   {
+    kicker: 'Repair Tip #4',
+    title: 'Service cost in five steps',
+    body: 'Materials (add them all) &rarr; labor (<b>hours &times; hourly wage</b>) &rarr; add the overhead for the <b>total cost before profit</b> &rarr; profit (<b>total cost &times; profit %</b>) &rarr; <b>final service cost = total cost + profit</b>. Electricity, water, rent and advertising are <b>overhead</b>, not direct costs.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Read it again before you lock it in',
     body: 'Go over the question one more time with your answer in mind. If the two still fit what the lesson taught, you are done.'

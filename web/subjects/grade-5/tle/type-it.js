@@ -23,5 +23,7 @@ StudyKit.content('typeIt', {
   'Which property is the ability of a metal to be hammered or rolled into thin sheets without breaking?': [],
   'Which tool is used for turning screws to drive them into or remove them from materials?': ['screwdriver'],
   'Which material is used for wrapping wires and insulating and protecting electrical connections?': [],
-  'Lauan is also known as&hellip;': []
+  'Lauan is also known as&hellip;': [],
+  'A carpenter works for 3 hours. The hourly wage is ₱200. What is the labor cost?': ['600', 'P600', '600 pesos'],
+  'In the spreadsheet-based approach, which example of an overhead cost is allocated per project?': []
 });
