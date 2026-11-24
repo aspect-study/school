@@ -37,5 +37,11 @@ StudyKit.content('typeIt', {
   '457 - 22 = ?': [],
   'What do we call the answer in subtraction?': [],
   '252 - 136 = ?': [],
-  '312 - 168 = ?': []
+  '312 - 168 = ?': [],
+  '849 - 176 = ?': [],
+  'Hall A has 410 students. Hall B has 142 fewer students. How many students does Hall B have?': [],
+  'How do we write meter in short?': [],
+  'How do we write centimeter in short?': [],
+  'The bow is ___ centimeters long.': ['6 cm', 'six'],
+  'The comb is ___ centimeters long.': ['12 cm', 'twelve']
 });
