@@ -60,6 +60,21 @@ StudyKit.content('strategy', [
     body: '<b>File &gt; Close</b> or <b>Ctrl + W</b> closes only the document; Word stays open. The <b>&times; Close button</b> closes the window and exits Word when it is the last window. <b>Minimize</b> only hides it on the taskbar.'
   },
   {
+    kicker: 'Charts and Tables Tip',
+    title: 'Which chart? Which table tab?',
+    body: '<b>Column</b> = vertical bars, <b>Bar</b> = horizontal bars, <b>Line</b> = changes over time, <b>Pie</b> = parts of a whole. Chart numbers wrong? <b>Edit Data</b> on Chart Tools Design. Table looks (styles, borders) = <b>Table Design</b>; rows, merge, size, sort = <b>Layout</b>.'
+  },
+  {
+    kicker: 'Flyer or Poster Tip',
+    title: 'Handed out or hung up?',
+    body: 'Small and <b>handed out</b> = <b>flyer</b> (handbill). Large and <b>displayed on a wall</b> = <b>poster</b>. Flyer jobs: <b>Promote</b> a product, <b>Awareness</b> for a cause, <b>Introduce</b> an organization, <b>Advertise</b> an event. Print pane: <b>Printer &rarr; Copies and pages &rarr; Print</b>.'
+  },
+  {
+    kicker: 'PowerPoint Tip',
+    title: 'Slides Pane, Slide Area or Notes?',
+    body: '<b>Slides Pane</b> = choose or add slides. <b>Slide Area</b> = build the slide. <b>Notes Section</b> = reminders for speaking. Crop: <b>select &rarr; Picture Format &rarr; Crop &rarr; black handles &rarr; click outside</b>. SmartArt text: in the shapes <b>or</b> the Text Pane.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Reread before you finalize',
     body: 'Read the question one more time with your answer in mind. Check for little words like <b>NOT</b>, <b>FIRST</b>, <b>LAST</b> and <b>NEXT</b> &mdash; they change the answer.'

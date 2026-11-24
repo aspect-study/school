@@ -12,5 +12,12 @@ StudyKit.content('typeIt', {
   'Which key do you hold while drawing to make a perfect square or circle?': [],
   'You want to cut away the extra parts of a picture to show only one girl. Which tool do you use?': [],
   'You want to show the steps in making a sandwich. Which SmartArt category do you use?': [],
-  'You want to show the water cycle, which repeats again and again. Which SmartArt category do you use?': []
+  'You want to show the water cycle, which repeats again and again. Which SmartArt category do you use?': [],
+  'Which chart shows trends or changes over time with lines?': ['line'],
+  'Which chart displays parts of a whole as slices?': ['pie'],
+  'What is another name for a flyer?': [],
+  'You need 30 flyers for your class. Where in the Print pane do you type 30?': [],
+  'Where do you build the slide?': [],
+  'Which part of PowerPoint is where you find tools on tabs?': [],
+  'Which button makes text bold?': ['bold']
 });

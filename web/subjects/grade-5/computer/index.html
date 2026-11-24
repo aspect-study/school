@@ -244,7 +244,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
     <div class="hero">
       <span class="badge">Computer · Grade 5</span>
       <h1>Net Navigators 🧭</h1>
-      <p>Light up your laptop one correct answer at a time! Learn to search smart, check if a website is trustworthy, share files safely, use online storage, follow netiquette, chat and post the right way, and use MS Word: its window, saving and opening documents, pictures, shapes and SmartArt &mdash; then take the Mock Exam and read the Exam Strategy guide so you&rsquo;re ready for your teacher&rsquo;s test.</p>
+      <p>Light up your laptop one correct answer at a time! Learn to search smart, check if a website is trustworthy, share files safely, use online storage, follow netiquette, chat and post the right way, and use MS Word: its window, saving and opening documents, pictures, shapes, SmartArt, charts and tables, make and print flyers and posters, and get started with PowerPoint: slides, text, pictures and SmartArt &mdash; then take the Mock Exam and read the Exam Strategy guide so you&rsquo;re ready for your teacher&rsquo;s test.</p>
       <div class="points-total" id="points-total-badge"></div>
       <button type="button" class="coins-badge" data-coins="badge" data-coins-guide hidden></button>
     </div>
@@ -356,6 +356,13 @@ h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
 <script src="lessons/11-word-pictures.js"></script>
 <script src="lessons/12-word-shapes.js"></script>
 <script src="lessons/13-word-smartart.js"></script>
+<script src="lessons/14-word-charts.js"></script>
+<script src="lessons/15-word-tables.js"></script>
+<script src="lessons/16-flyers-posters.js"></script>
+<script src="lessons/17-create-print.js"></script>
+<script src="lessons/18-ppt-window.js"></script>
+<script src="lessons/19-ppt-slides.js"></script>
+<script src="lessons/20-ppt-smartart.js"></script>
 <script src="strategy.js"></script>
 <script src="type-it.js"></script>
 <script data-file-check>
@@ -383,7 +390,7 @@ const LESSONS = StudyKit.lessons();
 
 // Questions she may answer by typing first (+5 bonus). Value: other accepted answers.
 const TYPE_IT = StudyKit.content('typeIt');
-const FINAL_EXAM_PER_LESSON = 3;
+const FINAL_EXAM_PER_LESSON = 2;
 const SH = window.StudyHistory, SH_APP = 'net-navigators', SH_TITLE = 'Net Navigators';
 window.Focus && Focus.home(SH_APP);
 let historyLessonId = null, historyQuizId = null;
