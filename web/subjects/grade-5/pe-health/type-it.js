@@ -20,5 +20,7 @@ StudyKit.content('typeIt', {
   'Mika quickly moves her feet to reach a shuttlecock that is far to her left. Which skill is she showing?': [],
   'Which type of medicine prevents diseases?': ['vaccine'],
   'Which harmful chemical released by smoking is addictive?': [],
-  'A family spends money on substances and treatment instead of food and education. Which effect is this?': []
+  'A family spends money on substances and treatment instead of food and education. Which effect is this?': [],
+  'Polka started particularly in Bohemia. Bohemia is now part of which country?': ['Czech'],
+  'Place the heel of one foot in any direction on count 1, return it on count 2. Which step is this?': ['bleking']
 });

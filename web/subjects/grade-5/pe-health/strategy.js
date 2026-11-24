@@ -70,6 +70,11 @@ StudyKit.content('strategy', [
     body: '"Ordered by a doctor" &rarr; <b>prescription</b>. "Without a prescription" &rarr; <b>OTC</b>. "Plant parts" &rarr; <b>herbal</b>. "Stimulates" &rarr; <b>caffeine</b>. "Depressant" &rarr; <b>alcohol</b>. "Nicotine" &rarr; <b>tobacco</b> or <b>vapes</b>. For effects, sort by who is hurt: the <b>individual</b> (health, behavior, mind), the <b>family</b> (relationships, money, emotions) or the <b>community</b> (crime, health care, social influence).'
   },
   {
+    kicker: 'Dance Steps Tip',
+    title: 'Find the foot clue',
+    body: '<b>Point</b> a foot &rarr; touch step. Place the <b>heel</b> &rarr; bleking step. <b>Step</b> then close &rarr; close step. <b>Slide</b> then close &rarr; slide step. <b>Hop on the same foot</b> &rarr; hop step. <b>Cross</b> in front or behind &rarr; cross step. <b>And-2</b> &rarr; change step. Polka = <b>Step-Close-Step</b> in <b>2/4</b>, like a change step.'
+  },
+  {
     kicker: 'General Tip',
     title: 'Reread before you finalize',
     body: 'Read the question one more time with your answer in mind. If it still matches what the lesson actually said, you have got it.'
