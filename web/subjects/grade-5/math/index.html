@@ -2816,6 +2816,204 @@ function genEstQuotSet(n){
   });
 }
 
+/* ================= GENERATOR: GMDAS with Fractions & Decimals ================= */
+/* Term 2 Week 6: three or more operations mixing fractions and decimals. Values are exact
+   fractions {n, d}, so 1/2 + 0.25 never picks up float noise. */
+function gmQ(n, d){ const r = reduceFrac(n, d || 1); return {n: r.num, d: r.den}; }
+const gmAdd = (a, b) => gmQ(a.n * b.d + b.n * a.d, a.d * b.d);
+const gmSub = (a, b) => gmQ(a.n * b.d - b.n * a.d, a.d * b.d);
+const gmMul = (a, b) => gmQ(a.n * b.n, a.d * b.d);
+const gmDiv = (a, b) => gmQ(a.n * b.d, a.d * b.n);
+/* '0.75'; null when negative or longer than two decimal places */
+function gmDec(x){
+  if(x.n < 0 || (100 * x.n) % x.d) return null;
+  return trimDecimal(100 * x.n / x.d, 2);
+}
+const GM_FRACS = [[1, 2], [1, 4], [3, 4], [1, 5], [2, 5], [3, 5], [4, 5]];
+const GM_THIRDS = [[1, 3], [2, 3], [1, 4], [3, 4], [1, 2], [2, 5]];
+const GM_DECS = ['0.25', '0.5', '0.75', '1.25', '1.5', '2.5'];
+const GM_DIVISORS = ['0.5', '0.25'];
+function gmFrac(list){
+  const [n, d] = pick(list || GM_FRACS), q = gmQ(n, d);
+  return {q, str: `${n}/${d}`, dec: gmDec(q), n, d};
+}
+function gmNum(s){ const p = (s.split('.')[1] || '').length; return {q: gmQ(Math.round(parseFloat(s) * Math.pow(10, p)), Math.pow(10, p)), str: s}; }
+function gmWhole(min, max){ const w = randInt(min, max); return {q: gmQ(w, 1), str: String(w)}; }
+const GM_TIMES = ' &times; ', GM_DIVIDE = ' &divide; ', GM_MINUS = ' &minus; ';
+const GMDAS_TIP = 'G first (inside the parentheses), then &times; and &divide; from left to right, then + and &minus; from left to right. Change each fraction to a decimal by dividing the numerator by the denominator.';
+const GM_ORDER = 'Multiplication and division come before addition and subtraction.';
+function gmConvert(f){ return `Change ${f.str} to a decimal: ${f.n} &divide; ${f.d} = ${f.dec}.`; }
+
+/* Each shape is one of the deck's expressions. It returns the value, the solution lines,
+   the real slips as [value, why], and the part to solve first with the wrong first moves. */
+const GM_SHAPES = {
+  addMulSub(){ // 1/2 + 0.25 × 2 − 0.25
+    const f = gmFrac(), a = gmNum(pick(GM_DECS)), w = gmWhole(2, 4), b = gmNum(pick(['0.25', '0.5', '0.75']));
+    const p = gmMul(a.q, w.q), s = gmAdd(f.q, p), ans = gmSub(s, b.q), l2r = gmSub(gmMul(gmAdd(f.q, a.q), w.q), b.q);
+    return {expr: `${f.str} + ${a.str}${GM_TIMES}${w.str}${GM_MINUS}${b.str}`, ans, conv: [gmConvert(f)], f,
+      lines: [`${f.dec} + ${a.str}${GM_TIMES}${w.str}${GM_MINUS}${b.str}`, `${f.dec} + ${gmDec(p)}${GM_MINUS}${b.str}`, `${gmDec(s)}${GM_MINUS}${b.str}`],
+      slips: [[l2r, `You added ${f.str} + ${a.str} first. ${GM_ORDER} Solve ${a.str} &times; ${w.str} = ${gmDec(p)} first.`]],
+      first: [`${a.str}${GM_TIMES}${w.str}`, [[`${f.str} + ${a.str}`, `${GM_ORDER} The + waits until ${a.str} &times; ${w.str} is done.`],
+        [`${w.str}${GM_MINUS}${b.str}`, `The &minus; comes last. ${a.str} &times; ${w.str} is the only multiplication, so it goes first.`]]],
+      vals: [p, s]};
+  },
+  groupMulDiv(){ // (1/2 + 0.5) × 2 ÷ 0.5
+    const f = gmFrac(), a = gmNum(pick(['0.25', '0.5', '0.75', '1.5'])), w = gmWhole(2, 3), c = gmNum(pick(GM_DIVISORS));
+    const g = gmAdd(f.q, a.q), m = gmMul(g, w.q), ans = gmDiv(m, c.q);
+    return {expr: `(${f.str} + ${a.str})${GM_TIMES}${w.str}${GM_DIVIDE}${c.str}`, ans, conv: [gmConvert(f)], f,
+      lines: [`(${f.dec} + ${a.str})${GM_TIMES}${w.str}${GM_DIVIDE}${c.str}`, `${gmDec(g)}${GM_TIMES}${w.str}${GM_DIVIDE}${c.str}`, `${gmDec(m)}${GM_DIVIDE}${c.str}`],
+      slips: [[gmAdd(f.q, gmDiv(gmMul(a.q, w.q), c.q)), `You skipped the parentheses. G comes first: ${f.str} + ${a.str} = ${gmDec(g)} before you multiply or divide.`],
+        [gmMul(m, c.q), `You multiplied by ${c.str} instead of dividing. ${gmDec(m)} &divide; ${c.str} = ${gmDec(ans)}: dividing by a number less than 1 makes the answer bigger.`]],
+      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_TIMES}${w.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add ${f.str} + ${a.str} before multiplying.`],
+        [`${w.str}${GM_DIVIDE}${c.str}`, `Grouping symbols come first, then &times; and &divide; from left to right. ${w.str} &divide; ${c.str} is not the first step.`]]],
+      vals: [g, m]};
+  },
+  addMul(){ // 1/2 + 0.5 × 2
+    const f = gmFrac(), a = gmNum(pick(GM_DECS)), w = gmWhole(2, 4);
+    const p = gmMul(a.q, w.q), ans = gmAdd(f.q, p);
+    return {expr: `${f.str} + ${a.str}${GM_TIMES}${w.str}`, ans, conv: [gmConvert(f)], f,
+      lines: [`${f.dec} + ${a.str}${GM_TIMES}${w.str}`, `${f.dec} + ${gmDec(p)}`],
+      slips: [[gmMul(gmAdd(f.q, a.q), w.q), `You added ${f.str} + ${a.str} first. ${GM_ORDER} Solve ${a.str} &times; ${w.str} = ${gmDec(p)} first.`]],
+      first: [`${a.str}${GM_TIMES}${w.str}`, [[`${f.str} + ${a.str}`, `${GM_ORDER} The + waits until ${a.str} &times; ${w.str} is done.`]]],
+      vals: [p]};
+  },
+  subDiv(){ // 1.5 − 1/2 ÷ 0.5
+    const f = gmFrac(), c = gmNum(pick(GM_DIVISORS)), a = gmNum(pick(['1.5', '2.5', '3.5', '4.5', '5.25'])), qt = gmDiv(f.q, c.q), ans = gmSub(a.q, qt);
+    return {expr: `${a.str}${GM_MINUS}${f.str}${GM_DIVIDE}${c.str}`, ans, conv: [gmConvert(f)], f,
+      lines: [`${a.str}${GM_MINUS}${f.dec}${GM_DIVIDE}${c.str}`, `${a.str}${GM_MINUS}${gmDec(qt)}`],
+      slips: [[gmDiv(gmSub(a.q, f.q), c.q), `You subtracted ${a.str} &minus; ${f.str} first. Division comes before subtraction: ${f.dec} &divide; ${c.str} = ${gmDec(qt)} first.`],
+        [gmSub(a.q, gmMul(f.q, c.q)), `You multiplied ${f.dec} by ${c.str} instead of dividing. ${f.dec} &divide; ${c.str} = ${gmDec(qt)}.`]],
+      first: [`${f.str}${GM_DIVIDE}${c.str}`, [[`${a.str}${GM_MINUS}${f.str}`, `Division comes before subtraction, even though the &minus; comes first when you read left to right.`]]],
+      vals: [qt]};
+  },
+  groupMul(){ // (3/4 + 0.25) × 2
+    const f = gmFrac(), a = gmNum(pick(GM_DECS)), w = gmWhole(2, 4), g = gmAdd(f.q, a.q), ans = gmMul(g, w.q);
+    return {expr: `(${f.str} + ${a.str})${GM_TIMES}${w.str}`, ans, conv: [gmConvert(f)], f,
+      lines: [`(${f.dec} + ${a.str})${GM_TIMES}${w.str}`, `${gmDec(g)}${GM_TIMES}${w.str}`],
+      slips: [[gmAdd(f.q, gmMul(a.q, w.q)), `You skipped the parentheses. G comes first: ${f.str} + ${a.str} = ${gmDec(g)}, then multiply by ${w.str}.`],
+        [g, `${gmDec(g)} is only the part inside the parentheses. You stopped there and forgot to multiply by ${w.str}.`]],
+      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_TIMES}${w.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add before multiplying.`]]],
+      vals: [g]};
+  },
+  fracWholeAdd(){ // 2/3 × 3 + 0.5
+    const f = gmFrac(GM_THIRDS), w = gmWhole(1, 2), k = gmQ(f.d * w.q.n, 1), a = gmNum(pick(['0.25', '0.5', '0.75', '1.5']));
+    const p = gmMul(f.q, k), ans = gmAdd(p, a.q);
+    return {expr: `${f.str}${GM_TIMES}${k.n} + ${a.str}`, ans, conv: [],
+      lines: [`${f.str}${GM_TIMES}${k.n}/1 = ${f.n * k.n}/${f.d} = ${gmDec(p)}`, `${gmDec(p)} + ${a.str}`],
+      slips: [[gmMul(f.q, gmAdd(k, a.q)), `You added ${k.n} + ${a.str} first. Multiplication comes before addition: ${f.str} &times; ${k.n} = ${gmDec(p)} first.`]],
+      first: [`${f.str}${GM_TIMES}${k.n}`, [[`${k.n} + ${a.str}`, `${GM_ORDER} The + waits until ${f.str} &times; ${k.n} is done.`]]],
+      vals: [p]};
+  },
+  groupDiv(){ // (3/4 + 0.25) ÷ 0.5
+    const f = gmFrac(), a = gmNum(pick(GM_DECS)), c = gmNum(pick(GM_DIVISORS)), g = gmAdd(f.q, a.q), ans = gmDiv(g, c.q);
+    return {expr: `(${f.str} + ${a.str})${GM_DIVIDE}${c.str}`, ans, conv: [gmConvert(f)], f,
+      lines: [`(${f.dec} + ${a.str})${GM_DIVIDE}${c.str}`, `${gmDec(g)}${GM_DIVIDE}${c.str}`],
+      slips: [[gmAdd(f.q, gmDiv(a.q, c.q)), `You skipped the parentheses. G comes first: ${f.str} + ${a.str} = ${gmDec(g)}, then divide by ${c.str}.`],
+        [gmMul(g, c.q), `You multiplied by ${c.str} instead of dividing. ${gmDec(g)} &divide; ${c.str} = ${gmDec(ans)}: dividing by a number less than 1 makes the answer bigger.`]],
+      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_DIVIDE}${c.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add before dividing.`]]],
+      vals: [g]};
+  },
+  subMulAdd(){ // 2.5 − 1/2 × 3 + 0.5
+    const f = gmFrac(), w = gmWhole(2, 3), a = gmNum(pick(['2.5', '3.5', '4.25', '5.5'])), b = gmNum(pick(['0.25', '0.5', '0.75']));
+    const p = gmMul(f.q, w.q), s = gmSub(a.q, p), ans = gmAdd(s, b.q);
+    return {expr: `${a.str}${GM_MINUS}${f.str}${GM_TIMES}${w.str} + ${b.str}`, ans, conv: [gmConvert(f)], f,
+      lines: [`${a.str}${GM_MINUS}${f.dec}${GM_TIMES}${w.str} + ${b.str}`, `${a.str}${GM_MINUS}${gmDec(p)} + ${b.str}`, `${gmDec(s)} + ${b.str}`],
+      slips: [[gmSub(a.q, gmAdd(p, b.q)), `You added ${gmDec(p)} + ${b.str} before subtracting. Addition and subtraction have equal priority: solve whichever comes first from left to right, so ${a.str} &minus; ${gmDec(p)} comes first.`],
+        [gmAdd(gmMul(gmSub(a.q, f.q), w.q), b.q), `You subtracted ${a.str} &minus; ${f.str} first. Multiplication comes before subtraction: ${f.str} &times; ${w.str} = ${gmDec(p)} first.`]],
+      first: [`${f.str}${GM_TIMES}${w.str}`, [[`${a.str}${GM_MINUS}${f.str}`, `${GM_ORDER} ${f.str} &times; ${w.str} goes first.`],
+        [`${w.str} + ${b.str}`, `${GM_ORDER} The + comes last, after ${a.str} &minus; ${gmDec(p)}.`]]],
+      vals: [p, s]};
+  }
+};
+const GM_SHAPE_NAMES = Object.keys(GM_SHAPES);
+function gmItem(){
+  for(;;){
+    const it = GM_SHAPES[pick(GM_SHAPE_NAMES)]();
+    const val = gmDec(it.ans);
+    if(val === null || it.ans.n / it.ans.d > 20 || it.vals.some(v => gmDec(v) === null)) continue;
+    it.val = val;
+    return it;
+  }
+}
+function gmSolution(it){
+  return (it.conv.length ? it.conv.join(' ') + '<br>' : '') + it.lines.join('<br>') + `<br><b>${it.val}</b>`;
+}
+function gmNear(it, step){
+  const v = gmAdd(it.ans, gmQ(Math.round(step * 100), 100)), t = gmDec(v);
+  return t === null ? null : [t, `${t} is ${Math.abs(step)} ${step > 0 ? 'more' : 'less'} than the right answer, so the order may be right but a step slipped. Recheck each line of your solution.`];
+}
+function genGmdasFDQuestion(){
+  const it = gmItem();
+  const list = it.slips.map(([v, why]) => [gmDec(v), why]).filter(w => w[0] !== null);
+  [0.5, -0.5, 0.25, -0.25, 1, -1].forEach(s => { const w = gmNear(it, s); if(w) list.push(w); });
+  return mcQuestion(
+    `Follow GMDAS: <b>${it.expr} = ?</b>`,
+    it.val, distinctWrongs(it.val, list).slice(0, 3),
+    gmSolution(it), GMDAS_TIP
+  );
+}
+function genGmdasFDFirst(){
+  const it = gmItem(), [right, wrongs] = it.first;
+  return mcQuestion(
+    `In <b>${it.expr}</b>, which part do you solve FIRST?`,
+    right, wrongs,
+    `Solve <b>${right}</b> first.<br>${gmSolution(it)}`, GMDAS_TIP
+  );
+}
+function genGmdasFDConvert(){
+  let it;
+  do { it = gmItem(); } while(!it.f);
+  const fr = it.f, shown = it.expr;
+  const flipped = gmDec(gmQ(fr.d, fr.n));
+  return mcQuestion(
+    `To solve <b>${shown}</b>, change ${fr.str} to a decimal. What is ${fr.str} as a decimal?`,
+    fr.dec,
+    distinctWrongs(fr.dec, [
+      [`${fr.n}.${fr.d}`, `${fr.n}.${fr.d} just puts a point between the numerator and the denominator. Divide instead: ${fr.n} &divide; ${fr.d} = ${fr.dec}.`],
+      [flipped, `${flipped} is ${fr.d} &divide; ${fr.n}: the denominator divided by the numerator. Divide the numerator by the denominator: ${fr.n} &divide; ${fr.d} = ${fr.dec}.`],
+      [`0.${fr.n}${fr.d}`, `0.${fr.n}${fr.d} is not ${fr.str}. Divide the numerator by the denominator: ${fr.n} &divide; ${fr.d} = ${fr.dec}.`]
+    ].filter(w => w[0] !== null)).slice(0, 3),
+    `Divide the numerator by the denominator: ${fr.n} &divide; ${fr.d} = <b>${fr.dec}</b>.`,
+    'To change a fraction to a decimal, divide the numerator (top) by the denominator (bottom).'
+  );
+}
+const GM_FACTS = [
+  {q:'True or False: Multiplication and division have equal priority. Solve whichever comes first from left to right.', a:true,
+    e:'True &mdash; M and D are equal partners. Solve whichever comes first, reading left to right.',
+    why:'The statement is the rule from the lesson, so it is not False.'},
+  {q:'True or False: In GMDAS, you always multiply before you divide because M comes before D.', a:false,
+    e:'False &mdash; multiplication and division have equal priority. Solve whichever comes first from left to right.',
+    why:'M and D are equal partners, so the statement is not True: the one on the left goes first.'},
+  {q:'True or False: In GMDAS, you always add before you subtract because A comes before S.', a:false,
+    e:'False &mdash; addition and subtraction have equal priority. In 2.5 &minus; 1/2 &times; 3 + 0.5, multiply first (1.5), then go left to right: 2.5 &minus; 1.5 = 1, then 1 + 0.5 = <b>1.5</b>.',
+    why:'A and S are equal partners, so the statement is not True: the one on the left goes first.'},
+  {q:'True or False: Solve expressions inside parentheses ( ), brackets [ ] and braces { } first.', a:true,
+    e:'True &mdash; G (grouping symbols) is the first step of GMDAS.',
+    why:'The statement is the G rule, so it is not False.'},
+  {q:'True or False: To change a fraction into a decimal, divide the numerator by the denominator.', a:true,
+    e:'True &mdash; 1/2 is 1 &divide; 2 = 0.5, and 1/4 is 1 &divide; 4 = 0.25.',
+    why:'The statement is right, so it is not False: 1 &divide; 2 = 0.5.'},
+  {q:'True or False: To change 0.25 into a fraction, write 25/100 and simplify it to 1/4.', a:true,
+    e:'True &mdash; 0.25 = 25/100 = 1/4.',
+    why:'The statement is right, so it is not False: 25/100 simplifies to 1/4.'},
+  {q:'True or False: 1/2 + 1/4 &times; 2 &minus; 0.25 gives the same answer whether you change the fractions to decimals or the decimals to fractions.', a:true,
+    e:'True &mdash; with decimals the answer is 0.75, with fractions it is 3/4, and 0.75 = 3/4.',
+    why:'Both ways give the same amount (0.75 = 3/4), so the statement is not False.'},
+  {q:'True or False: 2 &divide; 0.5 = 1.', a:false,
+    e:'False &mdash; 2 &divide; 0.5 = 4. Move both decimal points one place: 20 &divide; 5 = 4.',
+    why:'2 &divide; 0.5 is 4, not 1, so the statement is not True. Dividing by 0.5 makes the answer bigger.'}
+];
+function genGmdasFDFacts(){
+  const t = pick(GM_FACTS);
+  return mcQuestion(t.q, t.a ? 'True' : 'False', [[t.a ? 'False' : 'True', t.why]], t.e, GMDAS_TIP);
+}
+function genGmdasFDSet(n){
+  return Array.from({length:n}, () => {
+    const r = Math.random();
+    return r < 0.5 ? genGmdasFDQuestion() : r < 0.7 ? genGmdasFDFirst() : r < 0.82 ? genGmdasFDConvert() : genGmdasFDFacts();
+  });
+}
+
 /* ================= LESSONS ================= */
 const LESSON_QUIZ_LEN = 10;
 const ALL_LESSONS = [
@@ -3079,6 +3277,25 @@ const ALL_LESSONS = [
       {icon:'⚠️', term:'Round BOTH Before Dividing', def:'Round the dividend and the divisor first, then divide. Write the estimate with &asymp;.'},
     ],
     generate: genEstQuotSet
+  },
+  {
+    id:'gmdasfracdec', emoji:'🧩', title:'GMDAS Rule for Fractions &amp; Decimals', subtitle:'Three or more operations, step by step',
+    term: 2,
+    flashcards:[
+      {icon:'🧮', term:'What Is GMDAS?', def:'GMDAS tells us the correct order for solving mathematical expressions.<br><b>G</b> &ndash; Grouping Symbols &middot; <b>M</b> &ndash; Multiplication &middot; <b>D</b> &ndash; Division &middot; <b>A</b> &ndash; Addition &middot; <b>S</b> &ndash; Subtraction'},
+      {icon:'(  )', term:'G &ndash; Grouping Symbols', def:'Solve expressions inside parentheses ( ), brackets [ ], and braces { } first.'},
+      {icon:'⚡', term:'M and D: Equal Priority', def:'Multiply from left to right. Divide from left to right. Multiplication and division have equal priority. Solve whichever comes first from left to right.'},
+      {icon:'➕', term:'A and S: Equal Priority', def:'Add from left to right. Subtract from left to right. Addition and subtraction also have equal priority. Solve whichever comes first from left to right.'},
+      {icon:'🔄', term:'Fractions and Decimals Together', def:'We can convert the fraction into decimals or vice versa. To change a fraction into a decimal, divide the numerator by the denominator: 1 &divide; 2 = 0.5 and 1 &divide; 4 = 0.25.'},
+      {icon:'✏️', term:'Example 1: Fractions to Decimals', def:'1/2 + 1/4 &times; 2 &minus; 0.25<br>0.5 + 0.25 &times; 2 &minus; 0.25<br>0.5 + 0.5 &minus; 0.25<br>1 &minus; 0.25<br><b>0.75</b>'},
+      {icon:'✏️', term:'Example 1: Decimals to Fractions', def:'2 = 2/1 and 0.25 = 25/100 = 1/4.<br>1/2 + 1/4 &times; 2/1 &minus; 1/4<br>1/4 &times; 2/1 = 2/4 = 1/2, so 1/2 + 1/2 &minus; 1/4<br>1/2 + 1/2 = 2/2 = 1, so 1 &minus; 1/4 = 4/4 &minus; 1/4 = <b>3/4</b>.<br>Same answer both ways: 3/4 = 0.75.'},
+      {icon:'✏️', term:'Example 2: (1/2 + 0.5) &times; 2 &divide; 0.5', def:'Since most of the given are in decimal form, convert the fraction into a decimal by dividing the numerator by the denominator.<br>(0.5 + 0.5) &times; 2 &divide; 0.5<br>1 &times; 2 &divide; 0.5<br>2 &divide; 0.5<br><b>4</b>'},
+      {icon:'➗', term:'Dividing by 0.5', def:'2 &divide; 0.5: move both decimal points one place to the right, so it becomes 20 &divide; 5 = <b>4</b>. Dividing by a number less than 1 makes the answer bigger.'},
+      {icon:'🧑‍🏫', term:'Guided Practice', def:'1. 1/2 + 0.5 &times; 2 = 0.5 + 1 = <b>1.5</b><br>2. 1.5 &minus; 1/2 &divide; 0.5 = 1.5 &minus; 1 = <b>0.5</b><br>3. (3/4 + 0.25) &times; 2 = 1 &times; 2 = <b>2</b><br>4. 2/3 &times; 3 + 0.5 = 6/3 + 0.5 = 2 + 0.5 = <b>2.5</b>'},
+      {icon:'🏁', term:'GMDAS Step-by-Step Challenge', def:'1. 1/2 + 0.75 &times; 2 &minus; 0.5 = 0.5 + 1.5 &minus; 0.5 = 2 &minus; 0.5 = <b>1.5</b><br>2. (3/4 + 0.25) &divide; 0.5 = 1 &divide; 0.5 = <b>2</b><br>3. 2.5 &minus; 1/2 &times; 3 + 0.5 = 2.5 &minus; 1.5 + 0.5 = 1 + 0.5 = <b>1.5</b>'},
+      {icon:'⚠️', term:'A Does Not Always Come Before S', def:'In 2.5 &minus; 1.5 + 0.5, go left to right: 2.5 &minus; 1.5 = 1, then 1 + 0.5 = <b>1.5</b>. Adding first (1.5 + 0.5 = 2, then 2.5 &minus; 2 = 0.5) gives the wrong answer.'},
+    ],
+    generate: genGmdasFDSet
   },
 ];
 const LESSONS = StudyKit.pick(ALL_LESSONS);
