@@ -35,7 +35,7 @@ The offline cache list is in `web/sw.js`. `tests/pwa.test.js` fails if any file 
 | Math Mastery (`math/`) | Math | 19 | Divisibility, GEMDAS, fraction operations, decimals (ordering, rounding, adding to multiplying), estimating products and quotients, multi-step money problems, UPAC word problems, 10 case studies |
 | Page Turners (`english/`) | English | 28 | Story elements, figurative language, main idea, summarizing, author's purpose, nouns and pronouns, fact vs opinion, verbs, explanation texts, news reports and more |
 | Wikaharian (`filipino/`) | Filipino | 27 | Poetry, fiction, informative text patterns, actor focus, linkers, denotation, degrees of adjectives, adverbs, myths and legends, letters, references, forms, literary works, personification, audio in multimedia, almanac and atlas, affixes and conditional adverbs, object focus, the play Reyna Danaya |
-| History Explorers (`araling-panlipunan/`) | Araling Panlipunan | 38 | Barangay, leaders and classes, trade, beliefs and traditions, the study of history, theories of origin, the first Filipinos, evidence, location, Islam and the sultanates, ties with China, colonialism, Magellan and Mactan, Legazpi, tribute and polo y servicio, bandala, the galleon trade and the tobacco monopoly |
+| History Explorers (`araling-panlipunan/`) | Araling Panlipunan | 42 | Barangay, leaders and classes, trade, beliefs and traditions, the study of history, theories of origin, the first Filipinos, evidence, location, Islam and the sultanates, ties with China, colonialism, Magellan and Mactan, Legazpi, tribute and polo y servicio, bandala, the galleon trade and the tobacco monopoly, political changes, forms of art, women in the Spanish colonial era, gender roles |
 | Life Lab (`science/`) | Science | 31 | Matter, measurement, scientific method, microorganisms, plant and animal groups, human organ systems, organ systems of frogs and birds, life cycles, camouflage and mimicry |
 | Rise & Shine (`gmrc/`) | GMRC | 15 | Self, saving, dignity, faith, traffic rules, manners, gratitude, e-waste, caring for others and compassion |
 | Rally Ready (`pe-health/`) | P.E. & Health | 24 | Net and wall games, ABC skills, pickleball, practical skills test, stress and coping, bullying, life skills, relaxation, Siyatong, puberty, badminton, medicine safety, gateway drugs |
@@ -49,12 +49,12 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 
 | Game | Subject | Lessons | Covers |
 |---|---|---|---|
-| Block Bot (`math/`) | Math | 17 | Numbers, place value, number lines, Philippine money, circles and composite figures (drawn in SVG), subtraction |
+| Block Bot (`math/`) | Math | 20 | Numbers, place value, number lines, Philippine money, circles and composite figures (drawn in SVG), subtraction and word problems, length in meters and centimeters |
 | Kuwentista (`filipino/`) | Filipino | 18 | Alpabeto, pangngalan, panghalip, pang-uri, pandiwa, kongkreto at di-kongkreto, pangungusap at parirala, pantukoy, sight words; Term 2: tagpuan, tambalang pangungusap, tekstong impormatibo |
 | Word Train (`english/`) | English | 16 | Alphabet, onset and rime, CVC words, nouns, pronouns, verbs, adjectives, sentences, intonation, sequencing, synonyms and antonyms, kinds of sentences |
 | Batang Bayani (`makabansa/`) | Makabansa | 19 | Komunidad, klima, mapa, mga tungkulin, kultura |
 | Growing Good (`gmrc/`) | GMRC | 11 | Family, feelings, prayer, saving, obeying, talents, good relationships, public properties, patience |
-| Byte Buddies (`computer/`) | Computer | 12 | Computer care, parts, the desktop, the Internet, the web browser |
+| Byte Buddies (`computer/`) | Computer | 15 | Computer care, parts, the desktop, the Internet, the web browser, links, searching, online safety |
 | Science Detectives (`science/`) | Science | 9 | Body, senses, objects, animals, habitats, plants |
 
 ## How a game works

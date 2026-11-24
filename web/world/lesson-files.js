@@ -20,7 +20,10 @@
         "lessons/09-exploring-the-places-on-the-internet.js",
         "lessons/10-connecting-to-the-internet.js",
         "lessons/11-using-the-internet-browser.js",
-        "lessons/12-surfing-the-web.js"
+        "lessons/12-surfing-the-web.js",
+        "lessons/13-using-hyperlinks.js",
+        "lessons/14-searching-online.js",
+        "lessons/15-staying-safe-online.js"
       ]
     },
     "word-train": {
@@ -143,7 +146,10 @@
         "lessons/14-composite.js",
         "lessons/15-subnumberline.js",
         "lessons/16-subnoregroup.js",
-        "lessons/17-subregroup.js"
+        "lessons/17-subregroup.js",
+        "lessons/18-subwordproblems.js",
+        "lessons/19-meters.js",
+        "lessons/20-centimeters.js"
       ]
     },
     "science-detectives": {
@@ -211,7 +217,9 @@
         "lessons/37-tributo-polo.js",
         "lessons/38-bandala-galyon-tabako.js",
         "lessons/39-pagbabagong-pampolitika.js",
-        "lessons/40-anyo-at-sining.js"
+        "lessons/40-anyo-at-sining.js",
+        "lessons/41-kababaihan.js",
+        "lessons/42-gampaning-pangkasarian.js"
       ]
     },
     "net-navigators": {
@@ -386,7 +394,9 @@
         "lessons/21-medicine.js",
         "lessons/22-medicinesafety.js",
         "lessons/23-gatewaydrugs.js",
-        "lessons/24-gatewayeffects.js"
+        "lessons/24-gatewayeffects.js",
+        "lessons/25-polka.js",
+        "lessons/26-dancesteps.js"
       ]
     },
     "life-lab": {

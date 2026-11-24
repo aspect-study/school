@@ -23,5 +23,8 @@ StudyKit.content('typeIt', {
   'Which button reloads the page?': [],
   'We like a page and want to find it again later. What do we use?': ['favorite'],
   'The WWW is all the ___ you can visit.': ['website'],
-  'The World Wide Web is like a BIG ___ full of pages and pictures.': []
+  'The World Wide Web is like a BIG ___ full of pages and pictures.': [],
+  'When the pointer turns into a ___, it&rsquo;s a link!': [],
+  'You want to learn about cats. What keyword do you type?': [],
+  'Be kind. Avoid ___.': ['stranger']
 });

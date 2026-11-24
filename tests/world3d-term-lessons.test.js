@@ -55,12 +55,13 @@ test('the inline Math list counts each lesson object on its own: any key order, 
 
 test('a Grade 2 lesson file has no id, so its plain title is the id its game keys it by', () => {
   const t = require(worldFile('term-lessons.js'))['byte-buddies'];
-  assert.deepEqual(t.ids, ['Using the Internet Browser', 'Surfing the Web']);
+  assert.deepEqual(t.ids, ['Using the Internet Browser', 'Surfing the Web', 'Using Hyperlinks', 'Searching Online', 'Staying Safe Online']);
 });
 
-test('History Explorers lists its eleven Term 2 lesson ids', () => {
+test('History Explorers lists its thirteen Term 2 lesson ids', () => {
   const t = require(worldFile('term-lessons.js'))['history-explorers'];
-  assert.equal(t.ids.length, 11);
+  assert.equal(t.ids.length, 13);
   assert.ok(t.ids.includes('bandalagalyon'));
   assert.ok(t.ids.includes('anyosining'));
+  assert.ok(t.ids.includes('kasarian'));
 });

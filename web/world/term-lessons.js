@@ -4,11 +4,14 @@
   'use strict';
   var TERMS = {
     "byte-buddies": {
-      "lessons": 2,
+      "lessons": 5,
       "exams": 0,
       "ids": [
         "Using the Internet Browser",
-        "Surfing the Web"
+        "Surfing the Web",
+        "Using Hyperlinks",
+        "Searching Online",
+        "Staying Safe Online"
       ]
     },
     "word-train": {
@@ -52,14 +55,17 @@
       ]
     },
     "block-bot": {
-      "lessons": 5,
+      "lessons": 8,
       "exams": 0,
       "ids": [
         "circles",
         "composite",
         "subnumberline",
         "subnoregroup",
-        "subregroup"
+        "subregroup",
+        "subwordproblems",
+        "meters",
+        "centimeters"
       ]
     },
     "science-detectives": {
@@ -75,7 +81,7 @@
       ]
     },
     "history-explorers": {
-      "lessons": 11,
+      "lessons": 13,
       "exams": 0,
       "ids": [
         "kolonyalismo",
@@ -88,7 +94,9 @@
         "tributopolo",
         "bandalagalyon",
         "pampolitika",
-        "anyosining"
+        "anyosining",
+        "kababaihan",
+        "kasarian"
       ]
     },
     "net-navigators": {
@@ -160,7 +168,7 @@
       ]
     },
     "rally-ready": {
-      "lessons": 6,
+      "lessons": 8,
       "exams": 0,
       "ids": [
         "badminton",
@@ -168,7 +176,9 @@
         "medicine",
         "medicinesafety",
         "gatewaydrugs",
-        "gatewayeffects"
+        "gatewayeffects",
+        "polka",
+        "dancesteps"
       ]
     },
     "life-lab": {
