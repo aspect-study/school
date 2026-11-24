@@ -100,14 +100,21 @@
       ]
     },
     "net-navigators": {
-      "lessons": 5,
+      "lessons": 12,
       "exams": 0,
       "ids": [
         "wordwindow",
         "worddocs",
         "wordpictures",
         "wordshapes",
-        "wordsmartart"
+        "wordsmartart",
+        "wordcharts",
+        "wordtables",
+        "flyersposters",
+        "createprint",
+        "pptwindow",
+        "pptslides",
+        "pptsmartart"
       ]
     },
     "page-turners": {
@@ -143,14 +150,15 @@
       ]
     },
     "math-mastery": {
-      "lessons": 5,
+      "lessons": 6,
       "exams": 0,
       "ids": [
         "decimalsteps",
         "estimateproducts",
         "multiplydecimals",
         "multiplysteps",
-        "estimatequotients"
+        "estimatequotients",
+        "gmdasfracdec"
       ]
     },
     "rhythm-hues": {

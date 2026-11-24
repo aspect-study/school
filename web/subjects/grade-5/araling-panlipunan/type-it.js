@@ -78,5 +78,8 @@ StudyKit.content('typeIt', {
   'Sino ang haring nagtatag ng Real Audiencia?': ['Felipe II', 'King Felipe II'],
   'Ayon sa tsart, sino ang namumuno sa mga pueblo o bayan (towns)?': [],
   'Ano ang tawag sa sining ng paggawa at pagdisenyo ng mga gusali?': [],
-  'Ano ang tawag sa paggawa ng mga hugis mula sa kahoy, bato, o iba pang materyales?': []
+  'Ano ang tawag sa paggawa ng mga hugis mula sa kahoy, bato, o iba pang materyales?': [],
+  'Sino ang espirituwal na lider sa sinaunang barangay?': ['Katalonan'],
+  'Ano ang tawag sa pangkalahatang paniniwala tungkol sa kilos o ugali ng isang grupo?': ['stereotype', 'istiryotipo'],
+  'Ano ang ibig sabihin ng GAD?': []
 });

@@ -32,7 +32,7 @@ The offline cache list is in `web/sw.js`. `tests/pwa.test.js` fails if any file 
 
 | Game | Subject | Lessons | Covers |
 |---|---|---|---|
-| Math Mastery (`math/`) | Math | 19 | Divisibility, GEMDAS, fraction operations, decimals (ordering, rounding, adding to multiplying), estimating products and quotients, multi-step money problems, UPAC word problems, 10 case studies |
+| Math Mastery (`math/`) | Math | 20 | Divisibility, GEMDAS (whole numbers, then fractions and decimals), fraction operations, decimals (ordering, rounding, adding to multiplying), estimating products and quotients, multi-step money problems, UPAC word problems, 10 case studies |
 | Page Turners (`english/`) | English | 28 | Story elements, figurative language, main idea, summarizing, author's purpose, nouns and pronouns, fact vs opinion, verbs, explanation texts, news reports and more |
 | Wikaharian (`filipino/`) | Filipino | 27 | Poetry, fiction, informative text patterns, actor focus, linkers, denotation, degrees of adjectives, adverbs, myths and legends, letters, references, forms, literary works, personification, audio in multimedia, almanac and atlas, affixes and conditional adverbs, object focus, the play Reyna Danaya |
 | History Explorers (`araling-panlipunan/`) | Araling Panlipunan | 42 | Barangay, leaders and classes, trade, beliefs and traditions, the study of history, theories of origin, the first Filipinos, evidence, location, Islam and the sultanates, ties with China, colonialism, Magellan and Mactan, Legazpi, tribute and polo y servicio, bandala, the galleon trade and the tobacco monopoly, political changes, forms of art, women in the Spanish colonial era, gender roles |
@@ -41,7 +41,7 @@ The offline cache list is in `web/sw.js`. `tests/pwa.test.js` fails if any file 
 | Rally Ready (`pe-health/`) | P.E. & Health | 24 | Net and wall games, ABC skills, pickleball, practical skills test, stress and coping, bullying, life skills, relaxation, Siyatong, puberty, badminton, medicine safety, gateway drugs |
 | Craft Corner (`tle/`) | TLE | 15 | Home furnishings, embroidery, crochet, sewing, wood, bamboo and metals, common damages, safety and measuring, repair tools and materials |
 | Rhythm & Hues (`music-arts/`) | Music & Arts | 17 | Precolonial songs, instruments, dance, vocal music, epic chants, drama and visual arts; recorder history, consorts, parts, care, notes, fingerings, technique and expression |
-| Net Navigators (`computer/`) | Computer | 13 | Search engines and keywords, evaluating websites, file sharing and its risks, online storage, netiquette, chat and IM, discussion boards, MS Word (the window, documents, pictures, shapes, SmartArt) |
+| Net Navigators (`computer/`) | Computer | 20 | Search engines and keywords, evaluating websites, file sharing and its risks, online storage, netiquette, chat and IM, discussion boards, MS Word (the window, documents, pictures, shapes, SmartArt, charts, tables), flyers and posters with the Print pane, PowerPoint (the window, slides, text, pictures, SmartArt) |
 
 The Filipino and Araling Panlipunan games keep the textbook's Filipino wording and add optional English help: card translations, a "Hindi maintindihan?" button on questions, and "Paano Sagutin?" tip cards.
 

@@ -138,6 +138,12 @@ StudyKit.content('strategy', [
     en: '<b>Five boxes: R-W-K-H-K</b> &mdash; <b>Religion</b>: Buddhism. <b>Language</b>: ate, ditse, sangko, kuya, gunting, susi, sipit. <b>Things</b>: porcelain, crystal, needles, blades, silk, jade. <b>Livelihood</b>: gunpowder and metal tools. <b>Customs</b>: close-knit family, respect for elders. Vegetables: petsay, kintsay, bataway. Jars &rarr; coffin or storage.'
   },
   {
+    kicker: 'Kababaihan at Kasarian',
+    title: 'Bago o kolonyal? Aling institusyon?',
+    body: '<b>Bago</b> dumating ang Espanyol = <b>pantay</b>, babaylan o katalonan. <b>Kolonyal</b> = <b>limitado</b>: tahanan, negosyo (Rosa), edukasyon (Elena). Sa gampaning pangkasarian, hanapin ang institusyon sa susing salita: unang asal &rarr; pamilya; GAD &rarr; paaralan; tagapagtaguyod/tagapag-alaga &rarr; relihiyon; teleserye &rarr; midya; aplikante &rarr; paggawa; boto at halalan &rarr; pamahalaan. Gampanin = <b>pamantayan</b> ng lipunan; estereotipo = <b>pangkalahatang paniniwala</b> tungkol sa isang grupo.',
+    en: '<b>Before or colonial? Which institution?</b> &mdash; <b>Before</b> the Spaniards = <b>equal</b>, babaylan or katalonan. <b>Colonial</b> = <b>limited</b>: home, business (Rosa), education (Elena). For gender roles, find the institution from the key word: first manners &rarr; family; GAD &rarr; school; provider/caregiver &rarr; religion; TV drama &rarr; media; job applicant &rarr; work; voting and elections &rarr; government. Gender role = a <b>standard</b> set by society; stereotype = a <b>general belief</b> about a group.'
+  },
+  {
     kicker: 'Pangkalahatan',
     title: 'Huwag matagalan ang isang tanong',
     body: 'Kung mahirap ang isang aitem, isulat ang pinakamalapit mong hula, magpatuloy, at balikan mo na lang kung may oras pa. Mas mahalagang matapos ang buong pagsusulit kaysa maperpekto ang isang tanong.',

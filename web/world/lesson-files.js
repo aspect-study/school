@@ -240,7 +240,14 @@
         "lessons/10-word-documents.js",
         "lessons/11-word-pictures.js",
         "lessons/12-word-shapes.js",
-        "lessons/13-word-smartart.js"
+        "lessons/13-word-smartart.js",
+        "lessons/14-word-charts.js",
+        "lessons/15-word-tables.js",
+        "lessons/16-flyers-posters.js",
+        "lessons/17-create-print.js",
+        "lessons/18-ppt-window.js",
+        "lessons/19-ppt-slides.js",
+        "lessons/20-ppt-smartart.js"
       ]
     },
     "page-turners": {
