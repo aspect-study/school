@@ -197,6 +197,13 @@ Do not redo, re-plan or overwrite these. Each one has a spec and a plan in `docs
   `FirebaseRemote.adminRemote()`. Live since 2026-10-09 (owner UID set in `admin-config.js` and the published rules).
   Still unchecked: a wrong password is refused, a family account sees "Not allowed". Still to do: error
   reporting hook, Vercel Web Analytics link, parent progress dashboard, play-world time tracking.
+- Longer quiz explanations, Term 2 (2026-11-26, the sisters found them too short): every Term 2 question in all 17
+  apps. A wrong pick's `why` says what that option really is, then the right idea in plain words, then a small
+  example from the lesson or kid life when it helps; right answers (`explain`/`good`) add an example. Grade 5 keeps
+  sentences under 25 words, Grade 2 under 15. Facts stay on the lesson's own cards. Filipino lessons update the
+  English helper too (`en` on quiz items, `whyEn`, `badEn`). Math wrong answers name the slip and show the working
+  with checked numbers. Math Mastery 18's first-step questions now start with enough money (a ₱1,500 option). New
+  Term 2 lessons should be written in this style. Term 1 lessons still have the older short explanations.
 
 ## Parked or excluded (ask the owner before starting)
 
