@@ -2301,17 +2301,21 @@ function pesoAmount(minWhole, maxWhole){
   do { c = randInt(minWhole, maxWhole) * 100 + pesoCents(); } while(c <= 0);
   return c;
 }
-/* Wrong money answers that are a fixed step away, each saying how far off it is */
-function pesoNear(R, list){
+/* Wrong money answers that are a fixed step away, each saying how far off it is and
+   showing the right working (`work`, e.g. "₱35.50 + ₱18.75 = ₱54.25") */
+const PESO_COLUMN = {10: 'ten-centavo (tenths)', 100: 'ones', 1000: 'tens'};
+function pesoNear(R, list, work){
+  const redo = work ? ` Work it again with the decimal points lined up: ${work}` : ` The right answer is ${peso(R)}.`;
   [100, 10, 1000].forEach(step => {
-    if(R + step > 0) list.push([R + step, `This is ${peso(step)} more than the right answer. Recheck each column and the carrying or borrowing.`]);
-    if(R - step > 0) list.push([R - step, `This is ${peso(step)} less than the right answer. Recheck each column and the carrying or borrowing.`]);
+    const where = `The steps may be right, but a digit in the ${PESO_COLUMN[step]} column slipped`;
+    if(R + step > 0) list.push([R + step, `This is ${peso(step)} more than the right answer. ${where}. Maybe there was an extra carry, or a borrow was missed.${redo}`]);
+    if(R - step > 0) list.push([R - step, `This is ${peso(step)} less than the right answer. ${where}. Maybe a carry was dropped, or there was an extra borrow.${redo}`]);
   });
   return list;
 }
-function pesoWrongs(R, list){
+function pesoWrongs(R, list, work){
   const seen = new Set([R]), out = [];
-  pesoNear(R, list.slice()).forEach(w => {
+  pesoNear(R, list.slice(), work).forEach(w => {
     if(w[0] <= 0 || seen.has(w[0])) return;
     seen.add(w[0]);
     out.push([peso(w[0]), w[1]]);
@@ -2346,19 +2350,22 @@ function wholeRoundLine(x){
 /* Why a rounded whole number is not the right one for x */
 function wholeRoundWhy(x, used){
   const r = wholeRound(x);
+  const way = used > r.r ? 'up' : 'down';
   return r.up
-    ? `${x.str} was rounded to ${used}, but its tenths digit is ${r.t}. 5 to 9 means round UP, so ${x.str} &asymp; ${r.r}.`
-    : `${x.str} was rounded to ${used}, but its tenths digit is ${r.t}. 0 to 4 means round DOWN, so ${x.str} &asymp; ${r.r}.`;
+    ? `${x.str} was rounded ${way} to ${used}, but its tenths digit is ${r.t}. A tenths digit of 5 to 9 means round UP, so ${x.str} &asymp; ${r.r}.`
+    : `${x.str} was rounded ${way} to ${used}, but its tenths digit is ${r.t}. A tenths digit of 0 to 4 means round DOWN, so ${x.str} &asymp; ${r.r}.`;
 }
 const WHOLE_ROUND_TIP = 'To round to the nearest whole number, look only at the tenths digit (right after the point): 0-4 round down, 5-9 round up.';
 function genWholeRound(){
   const x = decFactor(1, 25, Math.random() < 0.7 ? 1 : 2), r = wholeRound(x);
   const other = r.up ? r.w : r.w + 1;
-  const wrongs = [[String(other), wholeRoundWhy(x, other)], [x.str, 'This is the number before rounding. A whole number has no digits after the point.']];
-  if(x.p === 2) wrongs.push([fmtScaled(Math.round(x.v / 10), 1), 'This is rounded to the nearest tenth. The question asks for the nearest WHOLE number.']);
+  const wrongs = [[String(other), wholeRoundWhy(x, other)],
+    [x.str, `This is the number before rounding. A whole number has no digits after the point. The tenths digit of ${x.str} is ${r.t}, so ${x.str} &asymp; ${r.r}.`]];
+  if(x.p === 2) wrongs.push([fmtScaled(Math.round(x.v / 10), 1), `This is rounded to the nearest tenth, so it still has a digit after the point. For the nearest WHOLE number, look only at the tenths digit, ${r.t}: ${x.str} &asymp; ${r.r}.`]);
   return mcQuestion(`Round ${x.str} to the nearest whole number.`, String(r.r),
     distinctWrongs(String(r.r), distinctNumeric(String(r.r), wrongs)),
-    `Look at the tenths digit: ${wholeRoundLine(x)}. Answer: <b>${r.r}</b>.`, WHOLE_ROUND_TIP);
+    `Look at the tenths digit, the first digit after the point: ${wholeRoundLine(x)}. ` +
+    (x.p === 2 ? 'The hundredths digit does not matter here. ' : '') + `Answer: <b>${r.r}</b>.`, WHOLE_ROUND_TIP);
 }
 /* The four ways to round a pair: each factor up or down. One of them is right. */
 function roundPairs(a, b, sign){
@@ -2369,7 +2376,7 @@ function roundPairs(a, b, sign){
     const why = [];
     if(x !== ra.r) why.push(wholeRoundWhy(a, x));
     if(y !== rb.r) why.push(wholeRoundWhy(b, y));
-    out.push([`${x} ${sign} ${y}`, why.join(' ')]);
+    out.push([`${x} ${sign} ${y}`, why.join(' ') + ` So the rounded problem is ${ra.r} ${sign} ${rb.r}.`]);
   }));
   return {right: `${ra.r} ${sign} ${rb.r}`, wrongs: out};
 }
@@ -2394,14 +2401,15 @@ const STEPS_TIP = 'Read the problem carefully, find what is given and what is as
 function genAddStepsTotal(){
   const [name, , items] = pick(ADD_STORIES);
   const amts = items.map(() => pesoAmount(10, 130)), R = amts.reduce((s, x) => s + x, 0);
-  const list = [];
-  amts.forEach((x, i) => list.push([R - x, `This adds only two of the prices and leaves out ${items[i]} (${peso(x)}). Add all three.`]));
+  const list = [], sum = `${amts.map(peso).join(' + ')} = ${peso(R)}.`;
+  amts.forEach((x, i) => list.push([R - x, `This adds only two of the prices and leaves out ${items[i]} (${peso(x)}). &ldquo;In all&rdquo; means every item, so add all three: ${sum}`]));
   const slip = noCarrySum(amts);
-  if(slip !== R) list.push([slip, 'This forgot to carry. When a column adds up to 10 or more, write the ones digit and carry the rest to the next column on the left.']);
+  if(slip !== R) list.push([slip, `This forgot to carry. When a column adds up to 10 or more, write the ones digit and carry the rest to the next column on the left. With carrying: ${sum}`]);
   return mcQuestion(
     `${name} bought ${items[0]} for ${peso(amts[0])}, ${items[1]} for ${peso(amts[1])}, and ${items[2]} for ${peso(amts[2])}. How much did ${name} spend in all?`,
-    peso(R), shuffle(pesoWrongs(R, list).slice(0, 4)).slice(0, 3),
-    `&ldquo;In all&rdquo; means put the amounts together, so ADD all three. Write them one under the other with the decimal points lined up:<br>` +
+    peso(R), shuffle(pesoWrongs(R, list, sum).slice(0, 4)).slice(0, 3),
+    `&ldquo;In all&rdquo; means put the amounts together, so ADD all three. Write them one under the other with the decimal points lined up. ` +
+    `Add from the right, starting with the centavos, and carry when a column reaches 10:<br>` +
     `${amts.map(peso).join(' + ')} = <b>${peso(R)}</b>.`,
     STEPS_TIP
   );
@@ -2413,18 +2421,20 @@ function genAddStepsLeft(){
   do { a = pesoAmount(50, budget / 200); b = pesoAmount(20, budget / 400); } while(a + b >= budget - 1000);
   const spent = a + b, R = budget - spent;
   const has = pron === 'they' ? 'have' : 'has', spends = pron === 'they' ? 'spend' : 'spends';
+  const work = `Step 1: ${peso(a)} + ${peso(b)} = ${peso(spent)}. Step 2: ${peso(budget)} &minus; ${peso(spent)} = ${peso(R)}.`;
   const list = [
-    [spent, `This is the total ${pron === 'they' ? 'they' : pron} spent &mdash; only Step 1. Step 2 subtracts that total from ${peso(budget)} to find what is left.`],
-    [budget - a, `This subtracts only ${item1}. ${item2.charAt(0).toUpperCase() + item2.slice(1)} (${peso(b)}) was bought too, so subtract the TOTAL spent.`],
-    [budget - a + b, `This adds ${item2} back instead of taking it away. Both amounts were spent, so add them first and subtract the total.`]
+    [spent, `This is the total ${pron} spent, which is only Step 1. The question asks for the money LEFT, so Step 2 takes it away: ${peso(budget)} &minus; ${peso(spent)} = ${peso(R)}.`],
+    [budget - a, `This subtracts only ${item1}. ${item2.charAt(0).toUpperCase() + item2.slice(1)} (${peso(b)}) was bought too, so subtract the TOTAL spent. ${work}`],
+    [budget - a + b, `This adds ${item2} back instead of taking it away. Money spent on both items is gone, so add them first and subtract the total. ${work}`]
   ];
   const slip = columnWise(budget, spent, 2, '-');
-  if(slip !== R) list.push([slip, 'In some columns this took the smaller digit from the bigger one. When the top digit is smaller, borrow 1 from the next column on the left.']);
+  if(slip !== R) list.push([slip, `In some columns this took the smaller digit from the bigger one. When the top digit is smaller, borrow 1 from the next column on the left. ${work}`]);
   return mcQuestion(
     `${name} ${has} ${peso(budget)}. ${pron.charAt(0).toUpperCase() + pron.slice(1)} ${spends} ${peso(a)} on ${item1} and ${peso(b)} on ${item2}. How much money is left?`,
-    peso(R), pesoWrongs(R, list).slice(0, 3),
+    peso(R), pesoWrongs(R, list, work).slice(0, 3),
     `<b>Step 1:</b> Find the total amount spent: ${peso(a)} + ${peso(b)} = ${peso(spent)}.<br>` +
-    `<b>Step 2:</b> Subtract the total spent from ${peso(budget)}: ${peso(budget)} &minus; ${peso(spent)} = <b>${peso(R)}</b>.`,
+    `<b>Step 2:</b> Subtract the total spent from ${peso(budget)}: ${peso(budget)} &minus; ${peso(spent)} = <b>${peso(R)}</b>.<br>` +
+    `Check: money spent + money left should give the money at the start. ${peso(spent)} + ${peso(R)} = ${peso(budget)}.`,
     'For &ldquo;how much is left&rdquo;: Step 1 adds everything that was spent, Step 2 subtracts that total from the money at the start. ' + STEPS_TIP
   );
 }
@@ -2432,15 +2442,17 @@ function genAddStepsPlan(){
   const [name, pron, item1, item2] = pick(LEFT_STORIES);
   const budget = pick([500, 1000, 1500, 2000]) * 100, a = pesoAmount(50, budget / 200), b = pesoAmount(20, budget / 400);
   const has = pron === 'they' ? 'have' : 'has', spends = pron === 'they' ? 'spend' : 'spends';
+  const spent = a + b, work = `${peso(a)} + ${peso(b)} = ${peso(spent)}, then ${peso(budget)} &minus; ${peso(spent)} = ${peso(budget - spent)}.`;
   return mcQuestion(
     `${name} ${has} ${peso(budget)}. ${pron.charAt(0).toUpperCase() + pron.slice(1)} ${spends} ${peso(a)} on ${item1} and ${peso(b)} on ${item2}. Which steps find how much money is left?`,
     `Add the two amounts, then subtract the sum from ${peso(budget)}`,
     [
-      [`Add the two amounts, then add the sum to ${peso(budget)}`, `Adding to ${peso(budget)} makes the money grow. Money that is spent is taken away, so the last step is to subtract.`],
-      [`Subtract the two amounts, then add the result to ${peso(budget)}`, 'Both amounts were spent, so they go together first (add). Subtracting one from the other finds a difference, which the question does not ask for.'],
-      [`Add the two amounts, and that sum is the money left`, `The sum is the money spent, not the money left. One more step: subtract it from ${peso(budget)}.`]
+      [`Add the two amounts, then add the sum to ${peso(budget)}`, `Adding to ${peso(budget)} makes the money grow, but spending makes it smaller. So the last step is to subtract: ${work}`],
+      [`Subtract the two amounts, then add the result to ${peso(budget)}`, `Both amounts were spent, so they go together first (add). Subtracting one from the other finds a difference, which the question does not ask for. The right steps: ${work}`],
+      [`Add the two amounts, and that sum is the money left`, `The sum is the money spent, not the money left. One more step: subtract it from ${peso(budget)}. The right steps: ${work}`]
     ],
-    `<b>Step 1:</b> Find the total amount spent (add). <b>Step 2:</b> Subtract the total spent from ${peso(budget)}.`,
+    `<b>Step 1:</b> Find the total amount spent (add): ${peso(a)} + ${peso(b)} = ${peso(spent)}.<br>` +
+    `<b>Step 2:</b> Subtract the total spent from ${peso(budget)}: ${peso(budget)} &minus; ${peso(spent)} = ${peso(budget - spent)} left.`,
     'A multi-step problem needs two or more steps. Ask: what do I need first? Here it is the total spent, then what is left.'
   );
 }
@@ -2458,15 +2470,15 @@ const EST_PROD_TIP = 'Round BOTH factors to the nearest whole number first (tent
 function estProdWrongs(a, b, unitOf, wholeOnly){
   const ra = wholeRound(a), rb = wholeRound(b), right = ra.r * rb.r;
   const u = unitOf || (s => s);
-  const list = [], raw = String(right);
-  if(ra.w * rb.w !== right) list.push([String(ra.w * rb.w), `This drops the digits after the point instead of rounding. ${wholeRoundLine(ra.up ? a : b)}.`]);
+  const list = [], raw = String(right), redo = `So multiply ${ra.r} &times; ${rb.r} = ${right}.`;
+  if(ra.w * rb.w !== right) list.push([String(ra.w * rb.w), `This drops the digits after the point (${ra.w} &times; ${rb.w}) instead of rounding. ${wholeRoundLine(ra.up ? a : b)}. ${redo}`]);
   if(!wholeOnly){
-    list.push([trimDecimal(a.v * b.v, a.p + b.p), 'This is the exact product, not the estimate. To estimate, round both factors to whole numbers first, then multiply.']);
-    list.push([trimDecimal(ra.r * b.v, b.p), `This rounds only the first factor (${a.str} &asymp; ${ra.r}) and multiplies it by ${b.str}. Round the second factor too: ${b.str} &asymp; ${rb.r}.`]);
+    list.push([trimDecimal(a.v * b.v, a.p + b.p), `This is the exact product, not the estimate. To estimate, round both factors to whole numbers first: ${a.str} &asymp; ${ra.r} and ${b.str} &asymp; ${rb.r}. ${redo}`]);
+    list.push([trimDecimal(ra.r * b.v, b.p), `This rounds only the first factor (${a.str} &asymp; ${ra.r}) and multiplies it by ${b.str}. Round the second factor too: ${b.str} &asymp; ${rb.r}. ${redo}`]);
   }
-  if((ra.w + 1) * (rb.w + 1) !== right) list.push([String((ra.w + 1) * (rb.w + 1)), `This rounds both factors up. ${wholeRoundLine(ra.up ? b : a)}.`]);
-  list.push([String((ra.r + 1) * rb.r), `${ra.r + 1} &times; ${rb.r} = ${(ra.r + 1) * rb.r}, but ${wholeRoundLine(a)}. Multiply ${ra.r} &times; ${rb.r}.`]);
-  list.push([String(ra.r * (rb.r + 1)), `${ra.r} &times; ${rb.r + 1} = ${ra.r * (rb.r + 1)}, but ${wholeRoundLine(b)}. Multiply ${ra.r} &times; ${rb.r}.`]);
+  if((ra.w + 1) * (rb.w + 1) !== right) list.push([String((ra.w + 1) * (rb.w + 1)), `This rounds both factors up (${ra.w + 1} &times; ${rb.w + 1}). Round up only when the tenths digit is 5 to 9: ${wholeRoundLine(ra.up ? b : a)}. ${redo}`]);
+  list.push([String((ra.r + 1) * rb.r), `This multiplies ${ra.r + 1} &times; ${rb.r} = ${(ra.r + 1) * rb.r}, but ${wholeRoundLine(a)}. ${redo}`]);
+  list.push([String(ra.r * (rb.r + 1)), `This multiplies ${ra.r} &times; ${rb.r + 1} = ${ra.r * (rb.r + 1)}, but ${wholeRoundLine(b)}. ${redo}`]);
   return distinctWrongs(raw, distinctNumeric(raw, list)).slice(0, 3).map(w => [u(w[0]), w[1]]);
 }
 function genEstProdQuestion(){
@@ -2515,16 +2527,16 @@ function genEstProdFacts(){
   const t = pick([
     {q:'True or False: The symbol &asymp; means &ldquo;approximately equal to.&rdquo;', a:true,
       e:'True &mdash; &asymp; means approximately equal to. We write 4.8 &times; 3.2 &asymp; 15 because 15 is an estimate, not the exact product.',
-      why:'The statement is right, so it is not False: &asymp; is the symbol for &ldquo;approximately equal to&rdquo;.'},
+      why:'The statement is right, so it is not False: &asymp; is the symbol for &ldquo;approximately equal to&rdquo;. We write 4.8 &times; 3.2 &asymp; 15 because 5 &times; 3 = 15 is close to the exact product, not equal to it.'},
     {q:'True or False: When estimating a product, you multiply first and then round the answer.', a:false,
-      e:'False &mdash; round BOTH factors to the nearest whole number first, then multiply the rounded numbers.',
-      why:'The order is swapped. The steps round both factors before multiplying, so the statement is not True.'},
+      e:'False &mdash; round BOTH factors to the nearest whole number first, then multiply the rounded numbers. For 6.8 &times; 4.2: 6.8 &asymp; 7, 4.2 &asymp; 4, and 7 &times; 4 = 28.',
+      why:'The order is swapped, so the statement is not True. The steps round both factors before multiplying. For 6.8 &times; 4.2: round to 7 and 4 first, then 7 &times; 4 = 28.'},
     {q:'True or False: Estimating a product means finding an approximate answer to a multiplication problem.', a:true,
       e:'True &mdash; an estimate is an approximate answer. We get it by rounding both factors to the nearest whole number before multiplying.',
-      why:'The statement is right, so it is not False: estimating gives an approximate answer, not the exact one.'},
+      why:'The statement is right, so it is not False: estimating gives an approximate answer, not the exact one. For 4.8 &times; 3.2, the estimate 5 &times; 3 = 15 is close to the exact product.'},
     {q:'True or False: To estimate 6.8 &times; 4.2, you multiply 6 &times; 4.', a:false,
       e:'False &mdash; 6.8 &asymp; 7 because its tenths digit is 8 (round up), and 4.2 &asymp; 4. So 6.8 &times; 4.2 &asymp; 7 &times; 4 = 28.',
-      why:'6.8 rounds UP to 7, because its tenths digit is 8. Dropping the .8 is not rounding, so the statement is not True.'}
+      why:'6.8 rounds UP to 7, because its tenths digit is 8. Dropping the .8 is not rounding, so the statement is not True. The right estimate is 7 &times; 4 = 28.'}
   ]);
   return mcQuestion(t.q, t.a ? 'True' : 'False', [[t.a ? 'False' : 'True', t.why]], t.e, EST_PROD_TIP);
 }
@@ -2545,27 +2557,32 @@ function genMulPowerQuestion(){
   const right = Math.random() < 0.5;
   const by = right ? POWERS[k - 1] : TENTHS[k - 1], dir = right ? 'right' : 'left';
   const answer = shiftStr(x.v, right ? x.p - k : x.p + k);
-  const list = [[shiftStr(x.v, right ? x.p + k : x.p - k), `This moved the point to the ${right ? 'left' : 'right'}. Multiplying by ${by} moves it to the <b>${dir}</b>.`]];
+  const redo = `Move it ${PLACE_WORD[k - 1]} to the ${dir}: ${x.str} &times; ${by} = ${answer}.`;
+  const list = [[shiftStr(x.v, right ? x.p + k : x.p - k), `This moved the point to the ${right ? 'left' : 'right'}. Multiplying by ${by} makes the number ${right ? 'bigger' : 'smaller'}, so the point moves to the <b>${dir}</b>. ${redo}`]];
   [k - 1, k + 1].forEach(m => {
     if(m < 1 || m > 4) return;
-    list.push([shiftStr(x.v, right ? x.p - m : x.p + m), `This moved the point ${m === 1 ? 'one place' : m + ' places'}. Multiplying by ${by} moves it ${PLACE_WORD[k - 1]} &mdash; ${right ? `one for each zero in ${by}` : `one for each decimal place in ${by}`}.`]);
+    list.push([shiftStr(x.v, right ? x.p - m : x.p + m), `This moved the point ${m === 1 ? 'one place' : m + ' places'}. Multiplying by ${by} moves it ${PLACE_WORD[k - 1]}, ${right ? `one for each zero in ${by}` : `one for each decimal place in ${by}`}. So ${x.str} &times; ${by} = ${answer}.`]);
   });
-  if(right) list.push([x.str + '0'.repeat(k), `Writing zeros at the end of a decimal does not change its value: ${x.str + '0'.repeat(k)} = ${x.str}. Move the decimal point instead.`]);
+  if(right) list.push([x.str + '0'.repeat(k), `This only wrote zeros at the end. Zeros at the end of a decimal do not change its value: ${x.str + '0'.repeat(k)} = ${x.str}. Instead, move the decimal point ${PLACE_WORD[k - 1]} to the right: ${x.str} &times; ${by} = ${answer}.`]);
   return mcQuestion(
     `Find the product: <b>${x.str} &times; ${by} = ?</b>`,
     answer, distinctWrongs(answer, distinctNumeric(answer, list)).slice(0, 3),
-    `Multiplying by ${by} moves the decimal point <b>${PLACE_WORD[k - 1]} to the ${dir}</b>` +
+    (right ? `${by} has ${k === 1 ? 'one zero' : PLACE_WORD[k - 1].replace('places', 'zeros')}, and multiplying by it makes the number bigger. `
+      : `${by} has ${PLACE_WORD[k - 1].replace('place', 'decimal place')}, and multiplying by it makes the number smaller. `) +
+    `So the decimal point moves <b>${PLACE_WORD[k - 1]} to the ${dir}</b>` +
     (right ? (x.p < k ? ' (add zeros when needed)' : '') : (x.p + k > String(x.v).length ? ' (place zeros before the first nonzero digit)' : '')) +
     `: ${x.str} &times; ${by} = <b>${answer}</b>.`,
     'By 10, 100 or 1,000 the point moves RIGHT; by 0.1, 0.01 or 0.001 it moves LEFT. Count the zeros (or the decimal places) to know how many places.'
   );
 }
-function mulWrongs(prod, P, places, factors){
+/* `whole` is the whole-number step, e.g. "324 &times; 3 = 972" */
+function mulWrongs(prod, P, places, factors, whole){
   const answer = trimDecimal(prod, P), list = [];
-  list.push([String(prod), `This forgot the decimal point. ${places} Put the point ${P === 1 ? '1 place' : P + ' places'} from the right.`]);
-  if(P > 1) list.push([trimDecimal(prod, P - 1), `The point is ${P - 1 === 1 ? '1 place' : (P - 1) + ' places'} from the right, but ${places} It needs ${P}.`]);
-  list.push([trimDecimal(prod, P + 1), `The point is ${P + 1} places from the right, one too many. ${places}`]);
-  if(factors) list.push([factors, 'This adds the factors. The sign &times; means multiply.']);
+  const put = `Put the point ${P === 1 ? '1 place' : P + ' places'} from the right: ${fmtScaled(prod, P)}` + (fmtScaled(prod, P) !== answer ? ` = ${answer}.` : '.');
+  list.push([String(prod), `This forgot the decimal point. Step 1 gives ${whole}, but the point still has to go in. ${places} ${put}`]);
+  if(P > 1) list.push([trimDecimal(prod, P - 1), `The point is ${P - 1 === 1 ? '1 place' : (P - 1) + ' places'} from the right, one too few. ${places} ${put}`]);
+  list.push([trimDecimal(prod, P + 1), `The point is ${P + 1} places from the right, one too many. ${places} ${put}`]);
+  if(factors) list.push([factors, `This adds the factors, but the sign &times; means multiply. Step 1: ${whole}. ${places} ${put}`]);
   return distinctWrongs(answer, distinctNumeric(answer, list)).slice(0, 3);
 }
 function genMulWholeQuestion(){
@@ -2574,7 +2591,7 @@ function genMulWholeQuestion(){
   const places = `${x.str} has ${x.p} decimal place${x.p > 1 ? 's' : ''}, and ${n} has none.`;
   return mcQuestion(
     `Find the product: <b>${x.str} &times; ${n} = ?</b>`,
-    answer, mulWrongs(prod, x.p, places, trimDecimal(x.v + n * Math.pow(10, x.p), x.p)),
+    answer, mulWrongs(prod, x.p, places, trimDecimal(x.v + n * Math.pow(10, x.p), x.p), `${x.v} &times; ${n} = ${prod.toLocaleString('en-US')}`),
     `<b>Step 1:</b> Multiply as whole numbers: ${x.v} &times; ${n} = ${prod.toLocaleString('en-US')}.<br>` +
     `<b>Step 2:</b> Count the decimal places in ${x.str}: ${x.p}.<br>` +
     `<b>Step 3:</b> Place the point ${x.p === 1 ? 'one place' : 'two places'} from the right: ` +
@@ -2588,7 +2605,7 @@ function genMulDecQuestion(){
   const places = `${a.str} has ${a.p} and ${b.str} has ${b.p}: a total of ${P} decimal places.`;
   return mcQuestion(
     `Find the product: <b>${a.str} &times; ${b.str} = ?</b>`,
-    answer, mulWrongs(prod, P, places),
+    answer, mulWrongs(prod, P, places, null, `${a.v} &times; ${b.v} = ${prod.toLocaleString('en-US')}`),
     `<b>Step 1:</b> Multiply as whole numbers: ${a.v} &times; ${b.v} = ${prod.toLocaleString('en-US')}.<br>` +
     `<b>Step 2:</b> Count the decimal places: ${places}<br>` +
     `<b>Step 3:</b> Place the point ${P} places from the right: ${fmtScaled(prod, P)}` + (fmtScaled(prod, P) !== answer ? ` = <b>${answer}</b> (a zero at the end can be dropped).` : `. So the answer is <b>${answer}</b>.`),
@@ -2601,9 +2618,10 @@ function genMulCount(){
   return mcQuestion(
     `To multiply <b>${a.str} &times; ${b.str}</b>, you first multiply ${a.v} &times; ${b.v}. How many places from the right do you put the decimal point?`,
     String(P), opts.map(m => [String(m), m === a.p || m === b.p
-      ? `${m} counts the decimal places of only one factor. ${a.str} has ${a.p} and ${b.str} has ${b.p}: add them, ${a.p} + ${b.p} = ${P}.`
-      : `Count the digits after each point: ${a.str} has ${a.p} and ${b.str} has ${b.p}, so ${a.p} + ${b.p} = ${P}, not ${m}.`]),
-    `${a.str} has ${a.p} decimal place${a.p > 1 ? 's' : ''} and ${b.str} has ${b.p}. Total: ${a.p} + ${b.p} = <b>${P}</b> places from the right.`,
+      ? `${m} counts the decimal places of only one factor. When both factors are decimals, count BOTH: ${a.str} has ${a.p} and ${b.str} has ${b.p}, so ${a.p} + ${b.p} = ${P}.`
+      : `Count the digits after each point: ${a.str} has ${a.p} and ${b.str} has ${b.p}. Add them: ${a.p} + ${b.p} = ${P}, not ${m}.`]),
+    `Count the digits after the point in each factor. ${a.str} has ${a.p} decimal place${a.p > 1 ? 's' : ''} and ${b.str} has ${b.p}. ` +
+    `Total: ${a.p} + ${b.p} = <b>${P}</b> places from the right.`,
     'Count the decimal places in BOTH factors and add them. The product gets that many decimal places.'
   );
 }
@@ -2611,19 +2629,19 @@ function genMulRules(){
   const t = pick([
     {q:'True or False: When multiplying a decimal by 10, 100 or 1,000, the decimal point moves to the right.', a:true,
       e:'True &mdash; multiplying by 10, 100 or 1,000 makes the number bigger, so the point moves to the right: 3.45 &times; 10 = 34.5.',
-      why:'The statement is right, so it is not False: by 10, 100 or 1,000 the point moves right (3.45 &times; 100 = 345).'},
+      why:'The statement is right, so it is not False. Multiplying by 10, 100 or 1,000 makes the number bigger, so the point moves right: 3.45 &times; 100 = 345.'},
     {q:'True or False: When multiplying by 0.1, 0.01 or 0.001, the decimal point moves to the right.', a:false,
       e:'False &mdash; multiplying by 0.1, 0.01 or 0.001 moves the point to the LEFT: 45.6 &times; 0.1 = 4.56.',
-      why:'The direction is swapped. By 0.1, 0.01 or 0.001 the point moves LEFT, so the statement is not True.'},
+      why:'The direction is swapped, so the statement is not True. By 0.1, 0.01 or 0.001 the number gets smaller and the point moves LEFT: 45.6 &times; 0.1 = 4.56.'},
     {q:'True or False: To multiply by 1,000, move the decimal point three places to the right.', a:true,
       e:'True &mdash; 1,000 has three zeros, so the point moves three places to the right: 3.450 &times; 1000 = 3450.',
-      why:'The statement is right, so it is not False: 1,000 has three zeros, so the point moves three places right.'},
+      why:'The statement is right, so it is not False. 1,000 has three zeros, so the point moves three places right: 3.45 &times; 1000 = 3450.'},
     {q:'True or False: To multiply by 0.01, move the decimal point one place to the left.', a:false,
       e:'False &mdash; by 0.01 the point moves TWO places to the left: 45.6 &times; 0.01 = 0.456. By 0.1 it moves one place.',
-      why:'0.01 has two decimal places, so the point moves two places, not one. The statement is not True.'},
+      why:'0.01 has two decimal places, so the point moves two places, not one. The statement is not True. Example: 45.6 &times; 0.01 = 0.456.'},
     {q:'True or False: In 2.5 &times; 1.4, the product has 2 decimal places before any zero at the end is dropped.', a:true,
       e:'True &mdash; 2.5 has 1 decimal place and 1.4 has 1, a total of 2: 25 &times; 14 = 350, so 2.5 &times; 1.4 = 3.50 = 3.5.',
-      why:'The statement is right, so it is not False: 1 + 1 = 2 decimal places, giving 3.50, which is 3.5.'}
+      why:'The statement is right, so it is not False. 2.5 has 1 decimal place and 1.4 has 1, so 1 + 1 = 2. 25 &times; 14 = 350 becomes 3.50, which is 3.5.'}
   ]);
   return mcQuestion(t.q, t.a ? 'True' : 'False', [[t.a ? 'False' : 'True', t.why]], t.e,
     'By 10, 100 or 1,000 move the point right; by 0.1, 0.01 or 0.001 move it left. Otherwise multiply as whole numbers and count the decimal places.');
@@ -2651,13 +2669,14 @@ function mulStory(){
 }
 function genMulStepsTotal(){
   const s = mulStory(), R = s.cost + s.q;
+  const work = `Step 1: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}. Step 2: ${peso(s.cost)} + ${peso(s.q)} = ${peso(R)}.`;
   return mcQuestion(
     `${s.name} buys ${s.n} ${s.item} at ${peso(s.price)} each and ${s.extra} for ${peso(s.q)}. How much does ${s.pron} spend altogether?`,
     peso(R), pesoWrongs(R, [
-      [s.price + s.q, `This adds the price of only ONE of the ${s.item}. There are ${s.n}, so multiply first: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.`],
-      [s.cost, `This is only Step 1, the cost of the ${s.item}. Step 2 adds ${s.extra} (${peso(s.q)}).`],
-      [s.cost - s.q, `This subtracts ${s.extra}, but it was bought too. &ldquo;Altogether&rdquo; means add.`]
-    ]).slice(0, 3),
+      [s.price + s.q, `This adds the price of only ONE of the ${s.item}. &ldquo;${s.n} at ${peso(s.price)} each&rdquo; means multiply first. ${work}`],
+      [s.cost, `This is only Step 1, the cost of the ${s.item}. Step 2 adds ${s.extra}: ${peso(s.cost)} + ${peso(s.q)} = ${peso(R)}.`],
+      [s.cost - s.q, `This subtracts ${s.extra}, but it was bought too. &ldquo;Altogether&rdquo; means add. ${work}`]
+    ], work).slice(0, 3),
     `<b>Step 1:</b> Find the cost of the ${s.item}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.<br>` +
     `<b>Step 2:</b> Add the cost of ${s.extra}: ${peso(s.cost)} + ${peso(s.q)} = <b>${peso(R)}</b>.`,
     MUL_STEPS_TIP
@@ -2668,20 +2687,23 @@ function genMulStepsLeft(){
   if(s.cost + s.q >= budget - 1000) return genMulStepsTotal();
   const withExtra = Math.random() < 0.5, spent = s.cost + (withExtra ? s.q : 0), R = budget - spent;
   const extraText = withExtra ? ` and ${s.extra} for ${peso(s.q)}` : '';
+  const work = withExtra
+    ? `Step 1: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}. Step 2: ${peso(s.cost)} + ${peso(s.q)} = ${peso(spent)}. Step 3: ${peso(budget)} &minus; ${peso(spent)} = ${peso(R)}.`
+    : `Step 1: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}. Step 2: ${peso(budget)} &minus; ${peso(s.cost)} = ${peso(R)}.`;
   const list = [
-    [budget - s.price - (withExtra ? s.q : 0), `This takes away the price of only ONE of the ${s.item}. There are ${s.n}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.`],
-    [spent, `This is the total cost &mdash; it stops before the last step. Subtract it from ${peso(budget)} to find what is left.`]
+    [budget - s.price - (withExtra ? s.q : 0), `This takes away the price of only ONE of the ${s.item}. There are ${s.n}, so multiply first. ${work}`],
+    [spent, `This is the total cost, so it stops before the last step. The question asks what is LEFT: ${peso(budget)} &minus; ${peso(spent)} = ${peso(R)}.`]
   ];
   if(withExtra){
-    list.push([budget - s.cost, `This forgot ${s.extra} (${peso(s.q)}). Add it to the cost of the ${s.item} before subtracting.`]);
-    list.push([budget - s.cost + s.q, `This adds ${s.extra} back instead of taking it away. It was bought too, so it is part of the money spent.`]);
+    list.push([budget - s.cost, `This forgot ${s.extra} (${peso(s.q)}). Add it to the cost of the ${s.item} before subtracting. ${work}`]);
+    list.push([budget - s.cost + s.q, `This adds ${s.extra} back instead of taking it away. It was bought too, so it is part of the money spent. ${work}`]);
   }
   const steps = withExtra
-    ? `<b>Step 1:</b> ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.<br><b>Step 2:</b> Add ${s.extra}: ${peso(s.cost)} + ${peso(s.q)} = ${peso(spent)}.<br><b>Step 3:</b> ${peso(budget)} &minus; ${peso(spent)} = <b>${peso(R)}</b>.`
+    ? `<b>Step 1:</b> Find the cost of the ${s.item}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.<br><b>Step 2:</b> Add ${s.extra} to get the total spent: ${peso(s.cost)} + ${peso(s.q)} = ${peso(spent)}.<br><b>Step 3:</b> Subtract the total spent from the money at the start: ${peso(budget)} &minus; ${peso(spent)} = <b>${peso(R)}</b>.`
     : `<b>Step 1:</b> Find the total cost: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.<br><b>Step 2:</b> Subtract it from ${peso(budget)}: ${peso(budget)} &minus; ${peso(s.cost)} = <b>${peso(R)}</b>.`;
   return mcQuestion(
     `${s.name} has ${peso(budget)}. ${s.pron.charAt(0).toUpperCase() + s.pron.slice(1)} buys ${s.n} ${s.item} at ${peso(s.price)} each${extraText}. How much money does ${s.pron} have left?`,
-    peso(R), pesoWrongs(R, list).slice(0, 3), steps,
+    peso(R), pesoWrongs(R, list, work).slice(0, 3), steps,
     'For &ldquo;how much is left&rdquo;, find the total of everything bought first, then subtract it from the money at the start. ' + MUL_STEPS_TIP
   );
 }
@@ -2692,29 +2714,30 @@ function genMulStepsKg(){
   do { price = pesoAmount(60, 150); } while(price % 2);
   const cost = price * kg / 10, q = pesoAmount(extra[1], extra[2]), R = cost + q;
   const kgStr = fmtScaled(kg, 1);
+  const work = `Step 1: ${peso(price)} &times; ${kgStr} = ${peso(cost)}. Step 2: ${peso(cost)} + ${peso(q)} = ${peso(R)}.`;
   return mcQuestion(
     `A family buys ${kgStr} kg of ${fruit} at ${peso(price)} per kilogram and ${extra[0]} for ${peso(q)}. How much do they spend altogether?`,
     peso(R), pesoWrongs(R, [
-      [price + q, `This uses the price of only 1 kg. They buy ${kgStr} kg, so multiply first: ${peso(price)} &times; ${kgStr} = ${peso(cost)}.`],
-      [cost, `This is only the cost of the ${fruit}. Add ${extra[0]} (${peso(q)}) too.`],
-      [cost * 10 + q, `The decimal point in the ${fruit}&rsquo; cost is one place off. ${(price / 100).toFixed(2)} has 2 decimal places and ${kgStr} has 1: put the point 3 places from the right.`]
-    ]).slice(0, 3),
+      [price + q, `This uses the price of only 1 kg. They buy ${kgStr} kg, so multiply first. ${work}`],
+      [cost, `This is only Step 1, the cost of the ${fruit}. &ldquo;Altogether&rdquo; means add ${extra[0]} too: ${peso(cost)} + ${peso(q)} = ${peso(R)}.`],
+      [cost * 10 + q, `The decimal point in the ${fruit}&rsquo; cost is one place off. ${(price / 100).toFixed(2)} has 2 decimal places and ${kgStr} has 1, so the product needs 2 + 1 = 3. ${work}`]
+    ], work).slice(0, 3),
     `<b>Step 1:</b> Cost of the ${fruit}: ${peso(price)} &times; ${kgStr} = ${peso(cost)} (2 + 1 = 3 decimal places, then drop the zero at the end).<br>` +
     `<b>Step 2:</b> Add ${extra[0]}: ${peso(cost)} + ${peso(q)} = <b>${peso(R)}</b>.`,
     MUL_STEPS_TIP
   );
 }
 function genMulStepsPlan(){
-  const s = mulStory(), budget = pick([500, 800, 1000]) * 100;
+  const s = mulStory(), budget = pick([500, 800, 1000, 1500].map(b => b * 100).filter(b => b - s.cost >= 1000)), left = budget - s.cost;
   return mcQuestion(
     `${s.name} has ${peso(budget)}. ${s.pron.charAt(0).toUpperCase() + s.pron.slice(1)} buys ${s.n} ${s.item} at ${peso(s.price)} each. What is the FIRST step to find how much money is left?`,
     `Multiply ${peso(s.price)} by ${s.n}`,
     [
-      [`Subtract ${peso(s.price)} from ${peso(budget)}`, `That takes away only ONE of the ${s.item}. First find the cost of all ${s.n}: multiply ${peso(s.price)} by ${s.n}.`],
-      [`Add ${peso(s.price)} and ${s.n}`, `${s.n} is how many ${s.item}, not an amount of money. ${s.n} items at ${peso(s.price)} each means multiply.`],
-      [`Divide ${peso(budget)} by ${s.n}`, `Dividing shares the money into ${s.n} parts, which the question does not ask. First find the cost of the ${s.item} by multiplying.`]
+      [`Subtract ${peso(s.price)} from ${peso(budget)}`, `That takes away only ONE of the ${s.item}. First find the cost of all ${s.n}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.`],
+      [`Add ${peso(s.price)} and ${s.n}`, `${s.n} is how many ${s.item}, not an amount of money. ${s.n} items at ${peso(s.price)} each means multiply: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.`],
+      [`Divide ${peso(budget)} by ${s.n}`, `Dividing shares the money into ${s.n} equal parts, which the question does not ask. First find the cost of the ${s.item}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}.`]
     ],
-    `<b>Step 1:</b> Find the total cost of the ${s.item}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}. <b>Step 2:</b> Subtract it from ${peso(budget)}.`,
+    `<b>Step 1:</b> Find the total cost of the ${s.item}: ${peso(s.price)} &times; ${s.n} = ${peso(s.cost)}. <b>Step 2:</b> Subtract it from ${peso(budget)}: ${peso(budget)} &minus; ${peso(s.cost)} = ${peso(left)} left.`,
     '&ldquo;N items at ₱__ each&rdquo; means multiply. Find the total cost first, then subtract it from the money at the start.'
   );
 }
@@ -2740,16 +2763,16 @@ function quotItem(){
 }
 function genEstQuotQuestion(){
   const it = quotItem(), {a, b, q, d, D} = it, fa = wholeRound(a).w, fb = wholeRound(b).w;
-  const list = [];
-  if(fa % fb === 0 && fa / fb !== q) list.push([String(fa / fb), `This drops the digits after the point instead of rounding (${fa} &divide; ${fb}). ${wholeRoundLine(wholeRound(a).up ? a : b)}.`]);
+  const list = [], rounded = `${a.str} &asymp; ${D} and ${b.str} &asymp; ${d}`;
+  if(fa % fb === 0 && fa / fb !== q) list.push([String(fa / fb), `This drops the digits after the point (${fa} &divide; ${fb}) instead of rounding. ${wholeRoundLine(wholeRound(a).up ? a : b)}. So divide ${D} &divide; ${d} = ${q}.`]);
   [q - 1, q + 1, q + 2, q - 2].forEach(w => {
-    if(w > 0) list.push([String(w), `${D} &divide; ${d} = ${q}, not ${w}. Check: ${d} &times; ${w} = ${d * w}, but ${d} &times; ${q} = ${D}.`]);
+    if(w > 0) list.push([String(w), `Round first: ${rounded}. Then check ${w} with multiplication: ${d} &times; ${w} = ${d * w}, not ${D}. Since ${d} &times; ${q} = ${D}, ${D} &divide; ${d} = ${q}.`]);
   });
   return mcQuestion(
     `Estimate the quotient by rounding to the nearest whole number: <b>${a.str} &divide; ${b.str} &asymp; ?</b>`,
     String(q), distinctWrongs(String(q), list).slice(0, 3),
     `Round the dividend: ${wholeRoundLine(a)}.<br>Round the divisor: ${wholeRoundLine(b)}.<br>` +
-    `Divide: ${D} &divide; ${d} = ${q}, so ${a.str} &divide; ${b.str} &asymp; <b>${q}</b>.`,
+    `Divide the rounded numbers: ${D} &divide; ${d} = ${q}, because ${d} &times; ${q} = ${D}. So ${a.str} &divide; ${b.str} &asymp; <b>${q}</b>.`,
     EST_QUOT_TIP
   );
 }
@@ -2777,8 +2800,8 @@ function genQuotTerms(){
     return mcQuestion(
       `In <b>${fact}</b>, what is ${nums[term]} called?`,
       term,
-      ['Dividend', 'Divisor', 'Quotient'].filter(t => t !== term).map(t => [t, `The ${t.toLowerCase()} is ${QUOT_TERMS[t]}: here that is ${nums[t]}. ${nums[term]} is ${QUOT_TERMS[term]}, the ${term.toLowerCase()}.`])
-        .concat([['Product', `A product is the answer to multiplication. In division, ${nums[term]} is ${QUOT_TERMS[term]}, the ${term.toLowerCase()}.`]]),
+      ['Dividend', 'Divisor', 'Quotient'].filter(t => t !== term).map(t => [t, `The ${t.toLowerCase()} is ${QUOT_TERMS[t]}: here that is ${nums[t]}, not ${nums[term]}. ${nums[term]} is ${QUOT_TERMS[term]}, so it is the ${term.toLowerCase()}.`])
+        .concat([['Product', `A product is the answer to multiplication, and there is no &times; here. In division, ${nums[term]} is ${QUOT_TERMS[term]}, so it is the ${term.toLowerCase()}.`]]),
       `In ${fact}: ${D} is the <b>dividend</b> (${QUOT_TERMS.Dividend}), ${d} is the <b>divisor</b> (${QUOT_TERMS.Divisor}), and ${q} is the <b>quotient</b> (${QUOT_TERMS.Quotient}).`,
       'Dividend &divide; divisor = quotient. The dividend comes first, the divisor second, and the quotient is the answer.'
     );
@@ -2787,7 +2810,7 @@ function genQuotTerms(){
   return mcQuestion(
     `In <b>${fact}</b>, which number is the <b>${term.toLowerCase()}</b> (${QUOT_TERMS[term]})?`,
     String(nums[term]),
-    ['Dividend', 'Divisor', 'Quotient'].filter(t => t !== term).map(t => [String(nums[t]), `${nums[t]} is the ${t.toLowerCase()}, ${QUOT_TERMS[t]}. The ${term.toLowerCase()} is ${nums[term]}.`]),
+    ['Dividend', 'Divisor', 'Quotient'].filter(t => t !== term).map(t => [String(nums[t]), `${nums[t]} is the ${t.toLowerCase()}, ${QUOT_TERMS[t]}. The ${term.toLowerCase()} is ${QUOT_TERMS[term]}: in ${fact}, that is ${nums[term]}.`]),
     `${D} is the dividend, ${d} is the divisor, and ${q} is the quotient. So the ${term.toLowerCase()} is <b>${nums[term]}</b>.`,
     'Dividend &divide; divisor = quotient. The dividend comes first, the divisor second, and the quotient is the answer.'
   );
@@ -2796,16 +2819,16 @@ function genEstQuotFacts(){
   const t = pick([
     {q:'True or False: Estimating the quotient means finding an approximate answer to a division problem instead of the exact answer.', a:true,
       e:'True &mdash; an estimate is an approximate answer. Round the dividend and the divisor to whole numbers, then divide.',
-      why:'The statement is right, so it is not False: an estimated quotient is approximate, not exact.'},
+      why:'The statement is right, so it is not False: an estimated quotient is approximate, not exact. For 19.6 &divide; 4.2, the estimate is 20 &divide; 4 = 5.'},
     {q:'True or False: To estimate a quotient, round only the dividend and keep the divisor as it is.', a:false,
       e:'False &mdash; round BOTH the dividend and the divisor to the nearest whole number, then divide. 19.6 &divide; 4.2 &asymp; 20 &divide; 4 = 5.',
-      why:'The steps round the divisor too, not only the dividend, so the statement is not True.'},
+      why:'The steps round the divisor too, not only the dividend, so the statement is not True. For 19.6 &divide; 4.2, round both: 20 &divide; 4 = 5.'},
     {q:'True or False: To estimate 15.8 &divide; 3.7, you divide 16 &divide; 4.', a:true,
       e:'True &mdash; 15.8 &asymp; 16 (tenths digit 8, round up) and 3.7 &asymp; 4 (tenths digit 7, round up). 16 &divide; 4 = 4.',
-      why:'The statement is right, so it is not False: 15.8 rounds to 16 and 3.7 rounds to 4.'},
+      why:'The statement is right, so it is not False. 15.8 rounds up to 16 (tenths digit 8) and 3.7 rounds up to 4 (tenths digit 7).'},
     {q:'True or False: To estimate 28.4 &divide; 6.6, you divide 29 &divide; 7.', a:false,
       e:'False &mdash; 28.4 &asymp; 28 (tenths digit 4, round down) and 6.6 &asymp; 7. So 28.4 &divide; 6.6 &asymp; 28 &divide; 7 = 4.',
-      why:'28.4 rounds DOWN to 28, because its tenths digit is 4. So the statement is not True.'}
+      why:'28.4 rounds DOWN to 28, because its tenths digit is 4. So the statement is not True. The right division is 28 &divide; 7 = 4.'}
   ]);
   return mcQuestion(t.q, t.a ? 'True' : 'False', [[t.a ? 'False' : 'True', t.why]], t.e, EST_QUOT_TIP);
 }
@@ -2843,85 +2866,104 @@ const GM_TIMES = ' &times; ', GM_DIVIDE = ' &divide; ', GM_MINUS = ' &minus; ';
 const GMDAS_TIP = 'G first (inside the parentheses), then &times; and &divide; from left to right, then + and &minus; from left to right. Change each fraction to a decimal by dividing the numerator by the denominator.';
 const GM_ORDER = 'Multiplication and division come before addition and subtraction.';
 function gmConvert(f){ return `Change ${f.str} to a decimal: ${f.n} &divide; ${f.d} = ${f.dec}.`; }
+/* How the deck divides by 0.5 or 0.25: move both points until the divisor is whole */
+function gmDivHow(x, c){
+  const p = c.str.split('.')[1].length, k = gmQ(Math.pow(10, p), 1);
+  return `To divide by ${c.str}, move both decimal points ${p === 1 ? 'one place' : 'two places'} to the right: ` +
+    `${gmDec(x)} &divide; ${c.str} becomes ${gmDec(gmMul(x, k))} &divide; ${gmDec(gmMul(c.q, k))} = ${gmDec(gmDiv(x, c.q))}.`;
+}
+/* The whole right working on one line, for the wrong-answer explanations */
+function gmRedo(it){
+  return ` The right way: ${it.f ? `${it.f.str} = ${it.f.dec}, then ` : ''}${it.lines.join(' &rarr; ')} &rarr; ${it.val}.`;
+}
 
-/* Each shape is one of the deck's expressions. It returns the value, the solution lines,
-   the real slips as [value, why], and the part to solve first with the wrong first moves. */
+/* Each shape is one of the deck's expressions. It returns the value, the order rule, the
+   solution lines, the real slips as [value, why], and the part to solve first with the
+   wrong first moves. gmRedo is added to every slip later, once the answer is known. */
 const GM_SHAPES = {
   addMulSub(){ // 1/2 + 0.25 × 2 − 0.25
     const f = gmFrac(), a = gmNum(pick(GM_DECS)), w = gmWhole(2, 4), b = gmNum(pick(['0.25', '0.5', '0.75']));
     const p = gmMul(a.q, w.q), s = gmAdd(f.q, p), ans = gmSub(s, b.q), l2r = gmSub(gmMul(gmAdd(f.q, a.q), w.q), b.q);
     return {expr: `${f.str} + ${a.str}${GM_TIMES}${w.str}${GM_MINUS}${b.str}`, ans, conv: [gmConvert(f)], f,
+      rule: 'There are no grouping symbols. Do the &times; first, then + and &minus; from left to right.',
       lines: [`${f.dec} + ${a.str}${GM_TIMES}${w.str}${GM_MINUS}${b.str}`, `${f.dec} + ${gmDec(p)}${GM_MINUS}${b.str}`, `${gmDec(s)}${GM_MINUS}${b.str}`],
-      slips: [[l2r, `You added ${f.str} + ${a.str} first. ${GM_ORDER} Solve ${a.str} &times; ${w.str} = ${gmDec(p)} first.`]],
-      first: [`${a.str}${GM_TIMES}${w.str}`, [[`${f.str} + ${a.str}`, `${GM_ORDER} The + waits until ${a.str} &times; ${w.str} is done.`],
-        [`${w.str}${GM_MINUS}${b.str}`, `The &minus; comes last. ${a.str} &times; ${w.str} is the only multiplication, so it goes first.`]]],
+      slips: [[l2r, `You worked left to right and added ${f.str} + ${a.str} first. ${GM_ORDER} Solve ${a.str} &times; ${w.str} = ${gmDec(p)} first.`]],
+      first: [`${a.str}${GM_TIMES}${w.str}`, [[`${f.str} + ${a.str}`, `${GM_ORDER} The + waits until ${a.str} &times; ${w.str} = ${gmDec(p)} is done.`],
+        [`${w.str}${GM_MINUS}${b.str}`, `The &minus; comes last, so it cannot go first. ${a.str} &times; ${w.str} is the only multiplication, so solve it first: ${a.str} &times; ${w.str} = ${gmDec(p)}.`]]],
       vals: [p, s]};
   },
   groupMulDiv(){ // (1/2 + 0.5) × 2 ÷ 0.5
     const f = gmFrac(), a = gmNum(pick(['0.25', '0.5', '0.75', '1.5'])), w = gmWhole(2, 3), c = gmNum(pick(GM_DIVISORS));
     const g = gmAdd(f.q, a.q), m = gmMul(g, w.q), ans = gmDiv(m, c.q);
     return {expr: `(${f.str} + ${a.str})${GM_TIMES}${w.str}${GM_DIVIDE}${c.str}`, ans, conv: [gmConvert(f)], f,
+      rule: 'Solve the parentheses first. Then &times; and &divide; have equal priority, so go from left to right.', how: [2, gmDivHow(m, c)],
       lines: [`(${f.dec} + ${a.str})${GM_TIMES}${w.str}${GM_DIVIDE}${c.str}`, `${gmDec(g)}${GM_TIMES}${w.str}${GM_DIVIDE}${c.str}`, `${gmDec(m)}${GM_DIVIDE}${c.str}`],
       slips: [[gmAdd(f.q, gmDiv(gmMul(a.q, w.q), c.q)), `You skipped the parentheses. G comes first: ${f.str} + ${a.str} = ${gmDec(g)} before you multiply or divide.`],
         [gmMul(m, c.q), `You multiplied by ${c.str} instead of dividing. ${gmDec(m)} &divide; ${c.str} = ${gmDec(ans)}: dividing by a number less than 1 makes the answer bigger.`]],
-      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_TIMES}${w.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add ${f.str} + ${a.str} before multiplying.`],
-        [`${w.str}${GM_DIVIDE}${c.str}`, `Grouping symbols come first, then &times; and &divide; from left to right. ${w.str} &divide; ${c.str} is not the first step.`]]],
+      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_TIMES}${w.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add ${f.str} + ${a.str} = ${gmDec(g)} before multiplying.`],
+        [`${w.str}${GM_DIVIDE}${c.str}`, `Grouping symbols come first, then &times; and &divide; from left to right. So ${w.str} &divide; ${c.str} is not the first step: start with ${f.str} + ${a.str} = ${gmDec(g)}.`]]],
       vals: [g, m]};
   },
   addMul(){ // 1/2 + 0.5 × 2
     const f = gmFrac(), a = gmNum(pick(GM_DECS)), w = gmWhole(2, 4);
     const p = gmMul(a.q, w.q), ans = gmAdd(f.q, p);
     return {expr: `${f.str} + ${a.str}${GM_TIMES}${w.str}`, ans, conv: [gmConvert(f)], f,
+      rule: 'Do the &times; first, then the +, even though the + comes first when you read.',
       lines: [`${f.dec} + ${a.str}${GM_TIMES}${w.str}`, `${f.dec} + ${gmDec(p)}`],
-      slips: [[gmMul(gmAdd(f.q, a.q), w.q), `You added ${f.str} + ${a.str} first. ${GM_ORDER} Solve ${a.str} &times; ${w.str} = ${gmDec(p)} first.`]],
-      first: [`${a.str}${GM_TIMES}${w.str}`, [[`${f.str} + ${a.str}`, `${GM_ORDER} The + waits until ${a.str} &times; ${w.str} is done.`]]],
+      slips: [[gmMul(gmAdd(f.q, a.q), w.q), `You worked left to right and added ${f.str} + ${a.str} first. ${GM_ORDER} Solve ${a.str} &times; ${w.str} = ${gmDec(p)} first.`]],
+      first: [`${a.str}${GM_TIMES}${w.str}`, [[`${f.str} + ${a.str}`, `${GM_ORDER} The + waits until ${a.str} &times; ${w.str} = ${gmDec(p)} is done.`]]],
       vals: [p]};
   },
   subDiv(){ // 1.5 − 1/2 ÷ 0.5
     const f = gmFrac(), c = gmNum(pick(GM_DIVISORS)), a = gmNum(pick(['1.5', '2.5', '3.5', '4.5', '5.25'])), qt = gmDiv(f.q, c.q), ans = gmSub(a.q, qt);
     return {expr: `${a.str}${GM_MINUS}${f.str}${GM_DIVIDE}${c.str}`, ans, conv: [gmConvert(f)], f,
+      rule: 'Do the &divide; first, then the &minus;, even though the &minus; comes first when you read.', how: [0, gmDivHow(f.q, c)],
       lines: [`${a.str}${GM_MINUS}${f.dec}${GM_DIVIDE}${c.str}`, `${a.str}${GM_MINUS}${gmDec(qt)}`],
-      slips: [[gmDiv(gmSub(a.q, f.q), c.q), `You subtracted ${a.str} &minus; ${f.str} first. Division comes before subtraction: ${f.dec} &divide; ${c.str} = ${gmDec(qt)} first.`],
-        [gmSub(a.q, gmMul(f.q, c.q)), `You multiplied ${f.dec} by ${c.str} instead of dividing. ${f.dec} &divide; ${c.str} = ${gmDec(qt)}.`]],
-      first: [`${f.str}${GM_DIVIDE}${c.str}`, [[`${a.str}${GM_MINUS}${f.str}`, `Division comes before subtraction, even though the &minus; comes first when you read left to right.`]]],
+      slips: [[gmDiv(gmSub(a.q, f.q), c.q), `You worked left to right and subtracted ${a.str} &minus; ${f.str} first. Division comes before subtraction: ${f.dec} &divide; ${c.str} = ${gmDec(qt)} first.`],
+        [gmSub(a.q, gmMul(f.q, c.q)), `You multiplied ${f.dec} by ${c.str} instead of dividing. ${f.dec} &divide; ${c.str} = ${gmDec(qt)}: dividing by a number less than 1 makes the answer bigger.`]],
+      first: [`${f.str}${GM_DIVIDE}${c.str}`, [[`${a.str}${GM_MINUS}${f.str}`, `Division comes before subtraction, even though the &minus; comes first when you read left to right. Start with ${f.str} &divide; ${c.str} = ${gmDec(qt)}.`]]],
       vals: [qt]};
   },
   groupMul(){ // (3/4 + 0.25) × 2
     const f = gmFrac(), a = gmNum(pick(GM_DECS)), w = gmWhole(2, 4), g = gmAdd(f.q, a.q), ans = gmMul(g, w.q);
     return {expr: `(${f.str} + ${a.str})${GM_TIMES}${w.str}`, ans, conv: [gmConvert(f)], f,
+      rule: 'Solve the parentheses first, then multiply.',
       lines: [`(${f.dec} + ${a.str})${GM_TIMES}${w.str}`, `${gmDec(g)}${GM_TIMES}${w.str}`],
-      slips: [[gmAdd(f.q, gmMul(a.q, w.q)), `You skipped the parentheses. G comes first: ${f.str} + ${a.str} = ${gmDec(g)}, then multiply by ${w.str}.`],
+      slips: [[gmAdd(f.q, gmMul(a.q, w.q)), `You skipped the parentheses and multiplied first. G comes first: ${f.str} + ${a.str} = ${gmDec(g)}, then multiply by ${w.str}.`],
         [g, `${gmDec(g)} is only the part inside the parentheses. You stopped there and forgot to multiply by ${w.str}.`]],
-      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_TIMES}${w.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add before multiplying.`]]],
+      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_TIMES}${w.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add before multiplying: ${f.str} + ${a.str} = ${gmDec(g)}.`]]],
       vals: [g]};
   },
   fracWholeAdd(){ // 2/3 × 3 + 0.5
     const f = gmFrac(GM_THIRDS), w = gmWhole(1, 2), k = gmQ(f.d * w.q.n, 1), a = gmNum(pick(['0.25', '0.5', '0.75', '1.5']));
     const p = gmMul(f.q, k), ans = gmAdd(p, a.q);
     return {expr: `${f.str}${GM_TIMES}${k.n} + ${a.str}`, ans, conv: [],
+      rule: `Do the &times; first, then the +. Write ${k.n} as ${k.n}/1 and multiply the fractions: numerator times numerator, denominator times denominator.`,
       lines: [`${f.str}${GM_TIMES}${k.n}/1 = ${f.n * k.n}/${f.d} = ${gmDec(p)}`, `${gmDec(p)} + ${a.str}`],
       slips: [[gmMul(f.q, gmAdd(k, a.q)), `You added ${k.n} + ${a.str} first. Multiplication comes before addition: ${f.str} &times; ${k.n} = ${gmDec(p)} first.`]],
-      first: [`${f.str}${GM_TIMES}${k.n}`, [[`${k.n} + ${a.str}`, `${GM_ORDER} The + waits until ${f.str} &times; ${k.n} is done.`]]],
+      first: [`${f.str}${GM_TIMES}${k.n}`, [[`${k.n} + ${a.str}`, `${GM_ORDER} The + waits until ${f.str} &times; ${k.n} = ${gmDec(p)} is done.`]]],
       vals: [p]};
   },
   groupDiv(){ // (3/4 + 0.25) ÷ 0.5
     const f = gmFrac(), a = gmNum(pick(GM_DECS)), c = gmNum(pick(GM_DIVISORS)), g = gmAdd(f.q, a.q), ans = gmDiv(g, c.q);
     return {expr: `(${f.str} + ${a.str})${GM_DIVIDE}${c.str}`, ans, conv: [gmConvert(f)], f,
+      rule: 'Solve the parentheses first, then divide.', how: [1, gmDivHow(g, c)],
       lines: [`(${f.dec} + ${a.str})${GM_DIVIDE}${c.str}`, `${gmDec(g)}${GM_DIVIDE}${c.str}`],
-      slips: [[gmAdd(f.q, gmDiv(a.q, c.q)), `You skipped the parentheses. G comes first: ${f.str} + ${a.str} = ${gmDec(g)}, then divide by ${c.str}.`],
+      slips: [[gmAdd(f.q, gmDiv(a.q, c.q)), `You skipped the parentheses and divided first. G comes first: ${f.str} + ${a.str} = ${gmDec(g)}, then divide by ${c.str}.`],
         [gmMul(g, c.q), `You multiplied by ${c.str} instead of dividing. ${gmDec(g)} &divide; ${c.str} = ${gmDec(ans)}: dividing by a number less than 1 makes the answer bigger.`]],
-      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_DIVIDE}${c.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add before dividing.`]]],
+      first: [`${f.str} + ${a.str}`, [[`${a.str}${GM_DIVIDE}${c.str}`, `${a.str} is inside the parentheses with ${f.str}. Grouping symbols come first, so add before dividing: ${f.str} + ${a.str} = ${gmDec(g)}.`]]],
       vals: [g]};
   },
   subMulAdd(){ // 2.5 − 1/2 × 3 + 0.5
     const f = gmFrac(), w = gmWhole(2, 3), a = gmNum(pick(['2.5', '3.5', '4.25', '5.5'])), b = gmNum(pick(['0.25', '0.5', '0.75']));
     const p = gmMul(f.q, w.q), s = gmSub(a.q, p), ans = gmAdd(s, b.q);
     return {expr: `${a.str}${GM_MINUS}${f.str}${GM_TIMES}${w.str} + ${b.str}`, ans, conv: [gmConvert(f)], f,
+      rule: 'Do the &times; first. Then &minus; and + have equal priority, so go from left to right: the &minus; comes before the +.',
       lines: [`${a.str}${GM_MINUS}${f.dec}${GM_TIMES}${w.str} + ${b.str}`, `${a.str}${GM_MINUS}${gmDec(p)} + ${b.str}`, `${gmDec(s)} + ${b.str}`],
-      slips: [[gmSub(a.q, gmAdd(p, b.q)), `You added ${gmDec(p)} + ${b.str} before subtracting. Addition and subtraction have equal priority: solve whichever comes first from left to right, so ${a.str} &minus; ${gmDec(p)} comes first.`],
-        [gmAdd(gmMul(gmSub(a.q, f.q), w.q), b.q), `You subtracted ${a.str} &minus; ${f.str} first. Multiplication comes before subtraction: ${f.str} &times; ${w.str} = ${gmDec(p)} first.`]],
-      first: [`${f.str}${GM_TIMES}${w.str}`, [[`${a.str}${GM_MINUS}${f.str}`, `${GM_ORDER} ${f.str} &times; ${w.str} goes first.`],
-        [`${w.str} + ${b.str}`, `${GM_ORDER} The + comes last, after ${a.str} &minus; ${gmDec(p)}.`]]],
+      slips: [[gmSub(a.q, gmAdd(p, b.q)), `You added ${gmDec(p)} + ${b.str} before subtracting, as if A always comes before S. Addition and subtraction have equal priority: go from left to right, so ${a.str} &minus; ${gmDec(p)} comes first.`],
+        [gmAdd(gmMul(gmSub(a.q, f.q), w.q), b.q), `You worked left to right and subtracted ${a.str} &minus; ${f.str} first. Multiplication comes before subtraction: ${f.str} &times; ${w.str} = ${gmDec(p)} first.`]],
+      first: [`${f.str}${GM_TIMES}${w.str}`, [[`${a.str}${GM_MINUS}${f.str}`, `${GM_ORDER} So ${f.str} &times; ${w.str} = ${gmDec(p)} goes first.`],
+        [`${w.str} + ${b.str}`, `${GM_ORDER} The + comes last, after ${a.str} &minus; ${gmDec(p)}. Start with ${f.str} &times; ${w.str} = ${gmDec(p)}.`]]],
       vals: [p, s]};
   }
 };
@@ -2936,15 +2978,17 @@ function gmItem(){
   }
 }
 function gmSolution(it){
-  return (it.conv.length ? it.conv.join(' ') + '<br>' : '') + it.lines.join('<br>') + `<br><b>${it.val}</b>`;
+  const lines = it.lines.slice();
+  if(it.how) lines.splice(it.how[0] + 1, 0, `(${it.how[1]})`);
+  return it.rule + '<br>' + (it.conv.length ? it.conv.join(' ') + '<br>' : '') + lines.join('<br>') + `<br><b>${it.val}</b>`;
 }
 function gmNear(it, step){
   const v = gmAdd(it.ans, gmQ(Math.round(step * 100), 100)), t = gmDec(v);
-  return t === null ? null : [t, `${t} is ${Math.abs(step)} ${step > 0 ? 'more' : 'less'} than the right answer, so the order may be right but a step slipped. Recheck each line of your solution.`];
+  return t === null ? null : [t, `${t} is ${Math.abs(step)} ${step > 0 ? 'more' : 'less'} than the right answer. The order may be right, but one of the steps was worked out wrongly.${gmRedo(it)}`];
 }
 function genGmdasFDQuestion(){
   const it = gmItem();
-  const list = it.slips.map(([v, why]) => [gmDec(v), why]).filter(w => w[0] !== null);
+  const list = it.slips.map(([v, why]) => [gmDec(v), why + gmRedo(it)]).filter(w => w[0] !== null);
   [0.5, -0.5, 0.25, -0.25, 1, -1].forEach(s => { const w = gmNear(it, s); if(w) list.push(w); });
   return mcQuestion(
     `Follow GMDAS: <b>${it.expr} = ?</b>`,
@@ -2969,39 +3013,39 @@ function genGmdasFDConvert(){
     `To solve <b>${shown}</b>, change ${fr.str} to a decimal. What is ${fr.str} as a decimal?`,
     fr.dec,
     distinctWrongs(fr.dec, [
-      [`${fr.n}.${fr.d}`, `${fr.n}.${fr.d} just puts a point between the numerator and the denominator. Divide instead: ${fr.n} &divide; ${fr.d} = ${fr.dec}.`],
+      [`${fr.n}.${fr.d}`, `${fr.n}.${fr.d} just puts a point between the numerator and the denominator. A fraction bar means divide: ${fr.n} &divide; ${fr.d} = ${fr.dec}.`],
       [flipped, `${flipped} is ${fr.d} &divide; ${fr.n}: the denominator divided by the numerator. Divide the numerator by the denominator: ${fr.n} &divide; ${fr.d} = ${fr.dec}.`],
-      [`0.${fr.n}${fr.d}`, `0.${fr.n}${fr.d} is not ${fr.str}. Divide the numerator by the denominator: ${fr.n} &divide; ${fr.d} = ${fr.dec}.`]
+      [`0.${fr.n}${fr.d}`, `0.${fr.n}${fr.d} just writes the numerator and the denominator after a point, so it is not ${fr.str}. Divide the numerator by the denominator: ${fr.n} &divide; ${fr.d} = ${fr.dec}.`]
     ].filter(w => w[0] !== null)).slice(0, 3),
-    `Divide the numerator by the denominator: ${fr.n} &divide; ${fr.d} = <b>${fr.dec}</b>.`,
+    `A fraction bar means divide, so divide the numerator by the denominator: ${fr.n} &divide; ${fr.d} = <b>${fr.dec}</b>. Check: ${fr.dec} &times; ${fr.d} = ${fr.n}.`,
     'To change a fraction to a decimal, divide the numerator (top) by the denominator (bottom).'
   );
 }
 const GM_FACTS = [
   {q:'True or False: Multiplication and division have equal priority. Solve whichever comes first from left to right.', a:true,
-    e:'True &mdash; M and D are equal partners. Solve whichever comes first, reading left to right.',
-    why:'The statement is the rule from the lesson, so it is not False.'},
+    e:'True &mdash; M and D are equal partners. Solve whichever comes first, reading left to right. In (1/2 + 0.5) &times; 2 &divide; 0.5, after the parentheses the &times; is on the left: 1 &times; 2 = 2, then 2 &divide; 0.5 = 4.',
+    why:'The statement is the rule from the lesson, so it is not False. In 1 &times; 2 &divide; 0.5 the &times; is on the left, so 1 &times; 2 = 2 first, then 2 &divide; 0.5 = 4.'},
   {q:'True or False: In GMDAS, you always multiply before you divide because M comes before D.', a:false,
     e:'False &mdash; multiplication and division have equal priority. Solve whichever comes first from left to right.',
-    why:'M and D are equal partners, so the statement is not True: the one on the left goes first.'},
+    why:'M and D are equal partners, so the statement is not True: the one on the left goes first. If the &divide; comes first, as in 2 &divide; 0.5 &times; 2, divide first: 2 &divide; 0.5 = 4, then 4 &times; 2 = 8.'},
   {q:'True or False: In GMDAS, you always add before you subtract because A comes before S.', a:false,
     e:'False &mdash; addition and subtraction have equal priority. In 2.5 &minus; 1/2 &times; 3 + 0.5, multiply first (1.5), then go left to right: 2.5 &minus; 1.5 = 1, then 1 + 0.5 = <b>1.5</b>.',
-    why:'A and S are equal partners, so the statement is not True: the one on the left goes first.'},
+    why:'A and S are equal partners, so the statement is not True: the one on the left goes first. In 2.5 &minus; 1.5 + 0.5, subtract first: 2.5 &minus; 1.5 = 1, then 1 + 0.5 = 1.5.'},
   {q:'True or False: Solve expressions inside parentheses ( ), brackets [ ] and braces { } first.', a:true,
-    e:'True &mdash; G (grouping symbols) is the first step of GMDAS.',
-    why:'The statement is the G rule, so it is not False.'},
+    e:'True &mdash; G (grouping symbols) is the first step of GMDAS. In (3/4 + 0.25) &times; 2, add inside first: 0.75 + 0.25 = 1, then 1 &times; 2 = 2.',
+    why:'The statement is the G rule, so it is not False. In (3/4 + 0.25) &times; 2, the parentheses come first: 0.75 + 0.25 = 1, then 1 &times; 2 = 2.'},
   {q:'True or False: To change a fraction into a decimal, divide the numerator by the denominator.', a:true,
     e:'True &mdash; 1/2 is 1 &divide; 2 = 0.5, and 1/4 is 1 &divide; 4 = 0.25.',
-    why:'The statement is right, so it is not False: 1 &divide; 2 = 0.5.'},
+    why:'The statement is right, so it is not False. A fraction bar means divide: 1/2 is 1 &divide; 2 = 0.5, and 1/4 is 1 &divide; 4 = 0.25.'},
   {q:'True or False: To change 0.25 into a fraction, write 25/100 and simplify it to 1/4.', a:true,
     e:'True &mdash; 0.25 = 25/100 = 1/4.',
-    why:'The statement is right, so it is not False: 25/100 simplifies to 1/4.'},
+    why:'The statement is right, so it is not False. 0.25 is 25 hundredths, so write 25/100. Divide both numbers by 25 and you get 1/4.'},
   {q:'True or False: 1/2 + 1/4 &times; 2 &minus; 0.25 gives the same answer whether you change the fractions to decimals or the decimals to fractions.', a:true,
     e:'True &mdash; with decimals the answer is 0.75, with fractions it is 3/4, and 0.75 = 3/4.',
-    why:'Both ways give the same amount (0.75 = 3/4), so the statement is not False.'},
+    why:'Both ways give the same amount, so the statement is not False. With decimals you get 0.75, with fractions 3/4, and 3/4 = 3 &divide; 4 = 0.75.'},
   {q:'True or False: 2 &divide; 0.5 = 1.', a:false,
     e:'False &mdash; 2 &divide; 0.5 = 4. Move both decimal points one place: 20 &divide; 5 = 4.',
-    why:'2 &divide; 0.5 is 4, not 1, so the statement is not True. Dividing by 0.5 makes the answer bigger.'}
+    why:'2 &divide; 0.5 is 4, not 1, so the statement is not True. Move both decimal points one place to the right: 20 &divide; 5 = 4. Dividing by 0.5 makes the answer bigger.'}
 ];
 function genGmdasFDFacts(){
   const t = pick(GM_FACTS);
