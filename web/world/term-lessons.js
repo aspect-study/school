@@ -46,14 +46,18 @@
       ]
     },
     "batang-bayani": {
-      "lessons": 5,
+      "lessons": 9,
       "exams": 0,
       "ids": [
         "Ano ang Kultura?",
         "Katangian ng Kultura",
         "Kulturang Materyal",
         "Kulturang Di-Materyal",
-        "Laro, Panitikan, at Awit"
+        "Laro, Panitikan, at Awit",
+        "Mga Pagdiriwang sa Ating Bansa",
+        "Katutubong Pamayanan",
+        "Katutubong Pamayanan sa Luzon",
+        "Katutubong Pamayanan sa Visayas at Mindanao"
       ]
     },
     "block-bot": {

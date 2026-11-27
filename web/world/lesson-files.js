@@ -123,7 +123,11 @@
         "lessons/16-katangian-ng-kultura.js",
         "lessons/17-kulturang-materyal.js",
         "lessons/18-kulturang-di-materyal.js",
-        "lessons/19-laro-panitikan-at-awit.js"
+        "lessons/19-laro-panitikan-at-awit.js",
+        "lessons/20-mga-pagdiriwang-sa-ating-bansa.js",
+        "lessons/21-katutubong-pamayanan.js",
+        "lessons/22-katutubong-pamayanan-sa-luzon.js",
+        "lessons/23-katutubong-pamayanan-sa-visayas-at-mindanao.js"
       ]
     },
     "block-bot": {

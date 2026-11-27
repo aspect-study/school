@@ -34,5 +34,14 @@ StudyKit.content('typeIt', {
   'Ang parol ay simbolo ng anong pagdiriwang?': [],
   'Ano ang tradisyonal na kasuotan ng mga lalaki?': ['Barong'],
   'Anong wika ang ginagamit ng komunidad sa Maynila?': [],
-  'Ano ang tradisyonal na paraan ng panliligaw ng mga Pilipino?': []
+  'Ano ang tradisyonal na paraan ng panliligaw ng mga Pilipino?': [],
+  'Saang lungsod ipinagdiriwang ang MassKara Festival?': ['Bacolod'],
+  'Saang lungsod ipinagdiriwang ang Panagbenga Festival?': ['Baguio'],
+  'Saan nakatira ang mga Ivatan?': [],
+  'Ano ang tawag sa bahay ng mga Ivatan na gawa sa bato?': [],
+  'Saan naninirahan ang mga Mangyan?': [],
+  'Ano ang tawag sa hinabing tela ng mga Mangyan?': [],
+  'Anong sayaw ng mga Waray ang karaniwang sinasayaw tuwing kasalan at pagdiriwang?': [],
+  'Saan naninirahan ang mga Sulod?': [],
+  'Saan naninirahan ang mga Badjao?': []
 });
