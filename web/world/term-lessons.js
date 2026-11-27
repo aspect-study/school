@@ -69,7 +69,7 @@
       ]
     },
     "science-detectives": {
-      "lessons": 6,
+      "lessons": 7,
       "exams": 0,
       "ids": [
         "A Part of Me: Discovering Plants and Their Parts",
@@ -77,7 +77,8 @@
         "Plants Need Us Too",
         "Finding Out About Living Things and Their Interactions",
         "I Am a Responsible Living Thing",
-        "Review for ST #1: Plants"
+        "Review for ST #1: Plants",
+        "Yes, I Can See the Difference!"
       ]
     },
     "history-explorers": {

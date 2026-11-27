@@ -169,7 +169,8 @@
         "lessons/09-plants-need-us-too.js",
         "lessons/10-living-things-and-their-interactions.js",
         "lessons/11-i-am-a-responsible-living-thing.js",
-        "lessons/12-review-for-st1.js"
+        "lessons/12-review-for-st1.js",
+        "lessons/13-yes-i-can-see-the-difference.js"
       ]
     },
     "history-explorers": {

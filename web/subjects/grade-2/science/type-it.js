@@ -36,5 +36,10 @@ StudyKit.content('typeIt', {
   'A bee gets nectar from the ___.': [],
   'Which plant part usually grows below the ground?': [],
   'A carrot is an example of which plant part that we eat?': [],
-  'Which food comes from plants?': []
+  'Which food comes from plants?': [],
+  'What do we call a change of position or place?': [],
+  'Movement can also mean a change in ___.': [],
+  'What is used to judge or check if there is a change in position?': ['reference point'],
+  'In the pictures of the boy, what is the point of reference?': ['refrigerator', 'ref'],
+  'In the pictures of the car and the tree, what is our reference point?': ['tree']
 });

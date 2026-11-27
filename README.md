@@ -55,7 +55,7 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 | Batang Bayani (`makabansa/`) | Makabansa | 19 | Komunidad, klima, mapa, mga tungkulin, kultura |
 | Growing Good (`gmrc/`) | GMRC | 11 | Family, feelings, prayer, saving, obeying, talents, good relationships, public properties, patience |
 | Byte Buddies (`computer/`) | Computer | 15 | Computer care, parts, the desktop, the Internet, the web browser, links, searching, online safety |
-| Science Detectives (`science/`) | Science | 9 | Body, senses, objects, animals, habitats, plants |
+| Science Detectives (`science/`) | Science | 13 | Body, senses, objects, animals, habitats, plants, interactions, caring for nature, position and movement |
 
 ## How a game works
 

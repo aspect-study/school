@@ -282,6 +282,7 @@ const PRECACHE = [
   'subjects/grade-2/science/lessons/10-living-things-and-their-interactions.js',
   'subjects/grade-2/science/lessons/11-i-am-a-responsible-living-thing.js',
   'subjects/grade-2/science/lessons/12-review-for-st1.js',
+  'subjects/grade-2/science/lessons/13-yes-i-can-see-the-difference.js',
   'subjects/grade-2/science/subject.json',
   'subjects/grade-2/science/type-it.js',
   'subjects/grade-5/araling-panlipunan/index.html',
