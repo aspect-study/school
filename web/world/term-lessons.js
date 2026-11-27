@@ -33,14 +33,16 @@
       ]
     },
     "growing-good": {
-      "lessons": 5,
+      "lessons": 7,
       "exams": 0,
       "ids": [
         "We Build Good Relationships",
         "We Care for Public Properties",
         "I Have Patience",
         "I Am Honest",
-        "Review for ST #1"
+        "Review for ST #1",
+        "I Am Clean and Orderly",
+        "I Believe"
       ]
     },
     "batang-bayani": {
@@ -55,7 +57,7 @@
       ]
     },
     "block-bot": {
-      "lessons": 8,
+      "lessons": 9,
       "exams": 0,
       "ids": [
         "circles",
@@ -65,7 +67,8 @@
         "subregroup",
         "subwordproblems",
         "meters",
-        "centimeters"
+        "centimeters",
+        "patterns"
       ]
     },
     "science-detectives": {

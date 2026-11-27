@@ -49,11 +49,11 @@ The Filipino and Araling Panlipunan games keep the textbook's Filipino wording a
 
 | Game | Subject | Lessons | Covers |
 |---|---|---|---|
-| Block Bot (`math/`) | Math | 20 | Numbers, place value, number lines, Philippine money, circles and composite figures (drawn in SVG), subtraction and word problems, length in meters and centimeters |
+| Block Bot (`math/`) | Math | 21 | Numbers, place value, number lines, Philippine money, circles and composite figures (drawn in SVG), subtraction and word problems, length in meters and centimeters, identifying patterns |
 | Kuwentista (`filipino/`) | Filipino | 18 | Alpabeto, pangngalan, panghalip, pang-uri, pandiwa, kongkreto at di-kongkreto, pangungusap at parirala, pantukoy, sight words; Term 2: tagpuan, tambalang pangungusap, tekstong impormatibo |
 | Word Train (`english/`) | English | 16 | Alphabet, onset and rime, CVC words, nouns, pronouns, verbs, adjectives, sentences, intonation, sequencing, synonyms and antonyms, kinds of sentences |
 | Batang Bayani (`makabansa/`) | Makabansa | 19 | Komunidad, klima, mapa, mga tungkulin, kultura |
-| Growing Good (`gmrc/`) | GMRC | 11 | Family, feelings, prayer, saving, obeying, talents, good relationships, public properties, patience |
+| Growing Good (`gmrc/`) | GMRC | 15 | Family, feelings, prayer, saving, obeying, talents, good relationships, public properties, patience, honesty, cleanliness and orderliness, faith and religion |
 | Byte Buddies (`computer/`) | Computer | 15 | Computer care, parts, the desktop, the Internet, the web browser, links, searching, online safety |
 | Science Detectives (`science/`) | Science | 13 | Body, senses, objects, animals, habitats, plants, interactions, caring for nature, position and movement |
 

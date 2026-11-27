@@ -94,7 +94,9 @@
         "lessons/10-we-care-for-public-properties.js",
         "lessons/11-i-have-patience.js",
         "lessons/12-i-am-honest.js",
-        "lessons/13-review-for-st1.js"
+        "lessons/13-review-for-st1.js",
+        "lessons/14-i-am-clean-and-orderly.js",
+        "lessons/15-i-believe.js"
       ]
     },
     "batang-bayani": {
@@ -149,7 +151,8 @@
         "lessons/17-subregroup.js",
         "lessons/18-subwordproblems.js",
         "lessons/19-meters.js",
-        "lessons/20-centimeters.js"
+        "lessons/20-centimeters.js",
+        "lessons/21-patterns.js"
       ]
     },
     "science-detectives": {

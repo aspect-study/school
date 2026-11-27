@@ -15,5 +15,7 @@ StudyKit.content('typeIt', {
   'Using things responsibly and considering other users is showing ___.': [],
   'What do we call a person who peacefully resolves misunderstandings and conflicts?': [],
   'What is the English word for katapatan?': [],
-  'Waiting calmly without becoming upset is called ___.': []
+  'Waiting calmly without becoming upset is called ___.': [],
+  'Regular cleaning habits keep ___ away.': [],
+  'What are the followers of Jesus called?': ['christian']
 });
