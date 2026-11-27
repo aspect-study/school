@@ -41,3 +41,8 @@ built, what is parked and what is pending. Read both before starting new work.
   reword, rename or swap its numbers and stories because of copyright, and do not run
   `node tools/source-overlap.js`. Read picture-only slides, check what a lesson already covers before adding, and
   never leave two right answers in one question.
+- Explanations are full, not one-liners (the sisters asked, 2026-11-26). A wrong option's `why`: what that option
+  really is, then the right idea in plain words, then a small example from the lesson or kid life when it helps. The
+  right answer's `explain`/`good` says why, with an example. Grade 5 sentences under 25 words, Grade 2 under 15.
+  Facts only from the lesson's own cards. Filipino lessons write the English helpers (`en`, `whyEn`, `badEn`) to the
+  same length. Math names the slip and shows the working, every number computed.
