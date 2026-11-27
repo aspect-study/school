@@ -43,5 +43,9 @@ StudyKit.content('typeIt', {
   'How do we write meter in short?': [],
   'How do we write centimeter in short?': [],
   'The bow is ___ centimeters long.': ['6 cm', 'six'],
-  'The comb is ___ centimeters long.': ['12 cm', 'twelve']
+  'The comb is ___ centimeters long.': ['12 cm', 'twelve'],
+  'In identifying patterns in numbers and letters, what must we determine first?': ['rule'],
+  '1, 2, 3, 4, 5, 6, 7, ___, ___, ___\nWhat are the next three terms?': [],
+  '2, 4, 6, 8, 10, 12, ___, ___, ___\nWhat are the next three terms?': [],
+  '10, 20, 30, 40, ___, ___, ___\nWhat are the next three terms?': []
 });
