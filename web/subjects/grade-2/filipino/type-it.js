@@ -21,5 +21,13 @@ StudyKit.content('typeIt', {
   'Ano ang tagpuan?\n"Nagluluto si Nanay sa kusina."': [],
   'Ilang payak na pangungusap ang bumubuo sa tambalang pangungusap?': ['dalawa'],
   'Ano ang tawag sa pinag-uusapan sa pangungusap?': [],
-  'Ano ang tawag sa bahaging nagsasabi tungkol sa paksa?': []
+  'Ano ang tawag sa bahaging nagsasabi tungkol sa paksa?': [],
+  'Sa anong titik nagsisimula ang wastong pangungusap?': ['malaki'],
+  'Ilan ang mahahalagang tuntunin sa pagsulat ng wastong pangungusap?': ['tatlo'],
+  'Anong magalang na salita ang ginagamit kapag dadaan?': ['makikiraan'],
+  'Anong magalang na salita ang nagpapakita ng pasasalamat?': [],
+  'Anong magalang na salita ang ginagamit sa paghingi ng tawad?': [],
+  'Anong magalang na salita ang ginagamit sa magalang na paghingi?': [],
+  'Alin ang pangngalang lansakan sa pangungusap?\n"May kawan ng baka sa bukid."': [],
+  'Alin ang pangngalang lansakan sa pangungusap?\n"Ang hukbo ng mga sundalo ay nagmartsa."': []
 });

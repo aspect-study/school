@@ -24,12 +24,15 @@
       ]
     },
     "kuwentista": {
-      "lessons": 3,
+      "lessons": 6,
       "exams": 0,
       "ids": [
         "tagpuan",
         "tambalan",
-        "impormatibo"
+        "impormatibo",
+        "wasto",
+        "pananalita",
+        "lansakan"
       ]
     },
     "growing-good": {

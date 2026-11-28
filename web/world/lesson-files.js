@@ -73,7 +73,10 @@
         "lessons/15-pantukoy.js",
         "lessons/16-tagpuan.js",
         "lessons/17-tambalan.js",
-        "lessons/18-impormatibo.js"
+        "lessons/18-impormatibo.js",
+        "lessons/19-wasto.js",
+        "lessons/20-pananalita.js",
+        "lessons/21-lansakan.js"
       ]
     },
     "growing-good": {
