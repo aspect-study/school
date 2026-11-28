@@ -47,7 +47,13 @@
         "lessons/13-sequence-of-events.js",
         "lessons/14-synonyms-and-antonyms.js",
         "lessons/15-telling-and-asking-sentences.js",
-        "lessons/16-commanding-and-requesting-sentences.js"
+        "lessons/16-commanding-and-requesting-sentences.js",
+        "lessons/17-exclamatory-sentences.js",
+        "lessons/18-sentence-detectives.js",
+        "lessons/19-elements-of-a-story.js",
+        "lessons/20-little-ants-big-plan.js",
+        "lessons/21-character-traits.js",
+        "lessons/22-relating-story-events.js"
       ]
     },
     "kuwentista": {

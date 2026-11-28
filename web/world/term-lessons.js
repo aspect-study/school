@@ -15,12 +15,18 @@
       ]
     },
     "word-train": {
-      "lessons": 3,
+      "lessons": 9,
       "exams": 0,
       "ids": [
         "Synonyms and Antonyms",
         "Telling and Asking Sentences",
-        "Commanding and Requesting Sentences"
+        "Commanding and Requesting Sentences",
+        "Exclamatory Sentences",
+        "Sentence Detectives",
+        "Elements of a Story",
+        "Little Ant’s Big Plan",
+        "Character Traits",
+        "Relating Story Events to My Experience"
       ]
     },
     "kuwentista": {

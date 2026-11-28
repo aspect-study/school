@@ -31,5 +31,11 @@ StudyKit.content('typeIt', {
   'What is the antonym of "difficult"?': [],
   'What is the antonym of "awake"?': [],
   'What is the antonym of "late"?': [],
-  'What is the action word?\n"Wash your hands before eating."': []
+  'What is the action word?\n"Wash your hands before eating."': [],
+  'Which story element tells when and where the story takes place?': [],
+  'Which story element is the message or lesson of the story?': [],
+  'Which trait means the character always tells the truth?': [],
+  'Which trait means the character likes to share with others?': [],
+  'What does Little Ant love to do?': ['reading'],
+  'What was Dad&rsquo;s favorite word?': []
 });
