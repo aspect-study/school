@@ -81,5 +81,7 @@ StudyKit.content('typeIt', {
   'Ano ang tawag sa paggawa ng mga hugis mula sa kahoy, bato, o iba pang materyales?': [],
   'Sino ang espirituwal na lider sa sinaunang barangay?': ['Katalonan'],
   'Ano ang tawag sa pangkalahatang paniniwala tungkol sa kilos o ugali ng isang grupo?': ['stereotype', 'istiryotipo'],
-  'Ano ang ibig sabihin ng GAD?': []
+  'Ano ang ibig sabihin ng GAD?': [],
+  'Ano ang literal na kahulugan ng ladrones sa wikang Espanyol?': ['magnanakaw'],
+  'Saan inilipat ni Sultan Kudarat ang sentro ng sultanato matapos ang pagkatalo sa Lamitan?': []
 });

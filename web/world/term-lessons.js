@@ -89,7 +89,7 @@
       ]
     },
     "history-explorers": {
-      "lessons": 13,
+      "lessons": 15,
       "exams": 0,
       "ids": [
         "kolonyalismo",
@@ -104,7 +104,9 @@
         "pampolitika",
         "anyosining",
         "kababaihan",
-        "kasarian"
+        "kasarian",
+        "pagtugonpueblo",
+        "pagtugonmuslim"
       ]
     },
     "net-navigators": {
@@ -137,7 +139,7 @@
       ]
     },
     "wikaharian": {
-      "lessons": 7,
+      "lessons": 8,
       "exams": 0,
       "ids": [
         "mundosalaro",
@@ -146,7 +148,8 @@
         "almanacatlas",
         "kondisyunal",
         "pokuslayon",
-        "reynadanaya"
+        "reynadanaya",
+        "elementomultimedia"
       ]
     },
     "rise-shine": {

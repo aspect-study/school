@@ -227,7 +227,9 @@
         "lessons/39-pagbabagong-pampolitika.js",
         "lessons/40-anyo-at-sining.js",
         "lessons/41-kababaihan.js",
-        "lessons/42-gampaning-pangkasarian.js"
+        "lessons/42-gampaning-pangkasarian.js",
+        "lessons/43-pagtugon-pueblo.js",
+        "lessons/44-pagtugon-muslim-cordillera.js"
       ]
     },
     "net-navigators": {
@@ -326,7 +328,8 @@
         "lessons/24-almanac-atlas.js",
         "lessons/25-kondisyunal.js",
         "lessons/26-pokus-layon.js",
-        "lessons/27-reyna-danaya.js"
+        "lessons/27-reyna-danaya.js",
+        "lessons/28-elemento-multimedia.js"
       ]
     },
     "rise-shine": {
