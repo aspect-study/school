@@ -32,5 +32,7 @@ StudyKit.content('typeIt', {
   'Anong tanong ang ginagamit sa pokus sa layon?': [],
   '&ldquo;Niluto ni Tatay ang isda.&rdquo; Ano ang sagot sa tanong na &ldquo;Ano ang niluto?&rdquo;': [],
   'Saan pupunta si Danaya at si Nanay para tumingin ng damit na maaari niyang isuot?': [],
-  'Sino ang mahiwagang babaeng may suot na magarbong damit na nakilala ni Danaya sa silid-aklatan?': []
+  'Sino ang mahiwagang babaeng may suot na magarbong damit na nakilala ni Danaya sa silid-aklatan?': [],
+  'Anong elemento ng tekstong multimedia ang sumasagot sa tanong na &ldquo;Tungkol saan ang tekstong multimedia?&rdquo;': [],
+  'Anong elemento ng tekstong multimedia ang tumutukoy sa layunin sa paglikha nito?': []
 });
